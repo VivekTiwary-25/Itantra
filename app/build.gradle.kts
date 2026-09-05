@@ -51,6 +51,4 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
-
-    implementation("com.github.k2-fsa:sherpa-onnx:v1.13.4")
 }
