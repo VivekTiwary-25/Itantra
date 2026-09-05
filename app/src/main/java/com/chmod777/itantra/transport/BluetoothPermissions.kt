@@ -2,6 +2,7 @@ package com.chmod777.itantra.transport
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.pm.PackageManager
@@ -54,6 +55,26 @@ object BluetoothPermissions {
             }
             .sortedBy { device -> device.name.lowercase() }
     }
+
+    /** Starts Android's system-controlled bond (pairing) flow for a discovered device. */
+    @SuppressLint("MissingPermission")
+    fun requestPairing(context: Context, address: String): PairingRequestResult {
+        val adapter = context.getSystemService(BluetoothManager::class.java)?.adapter
+            ?: return PairingRequestResult.NotSupported
+        val device = adapter.getRemoteDevice(address)
+
+        if (device.bondState == BluetoothDevice.BOND_BONDED) {
+            return PairingRequestResult.AlreadyPaired
+        }
+
+        // Discovery reduces connection and pairing reliability, so stop it first.
+        if (adapter.isDiscovering) adapter.cancelDiscovery()
+        return if (device.createBond()) {
+            PairingRequestResult.Started
+        } else {
+            PairingRequestResult.CouldNotStart
+        }
+    }
 }
 
 sealed interface AdapterStatus {
@@ -66,3 +87,10 @@ data class PairedBluetoothDevice(
     val name: String,
     val address: String,
 )
+
+sealed interface PairingRequestResult {
+    data object Started : PairingRequestResult
+    data object AlreadyPaired : PairingRequestResult
+    data object CouldNotStart : PairingRequestResult
+    data object NotSupported : PairingRequestResult
+}
