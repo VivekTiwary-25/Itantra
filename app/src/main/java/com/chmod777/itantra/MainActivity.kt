@@ -1,10 +1,13 @@
 package com.chmod777.itantra
 
+import android.Manifest
 import android.os.Bundle
 import android.view.HapticFeedbackConstants
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
@@ -27,6 +30,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,6 +69,12 @@ class MainActivity : ComponentActivity() {
 fun HoldToTalkScreen(modifier: Modifier = Modifier) {
     var isHolding by remember { mutableStateOf(false) }
     val view = LocalView.current
+    val requestMicPermission = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { }
+    LaunchedEffect(Unit) {
+        requestMicPermission.launch(Manifest.permission.RECORD_AUDIO)
+    }
     val idleAlpha by animateFloatAsState(
         targetValue = if (isHolding) 0f else 1f,
         animationSpec = tween(180),
