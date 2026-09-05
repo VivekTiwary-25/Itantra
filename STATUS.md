@@ -21,7 +21,7 @@ Never convert status to percentages.
 | A6 | Add valid WAV header; pulled file plays correctly on laptop | GREEN |
 | A7 | Play last recording inside app | GREEN |
 | A8 | Scrolling message list with three fake messages + timestamps | GREEN |
-| A9 | Type-and-send fallback | RED |
+| A9 | Type-and-send fallback | GREEN |
 | A10 | Fake Speech/Transport interfaces wired into UI | RED |
 | A11 | Push-to-talk mode toggle | RED |
 | A12 | Alert-message behavior, only after earlier rungs are green | RED |
@@ -34,9 +34,9 @@ Never convert status to percentages.
 
 ## Current critical path
 
-A9
+A10
 
-A0-A8 are complete: full capture/playback pipeline, plus a message list (compact Logs row on the main screen, opening a full-screen newest-first log) styled after the UI reference's radio-log card design.
+A0-A9 are complete: full capture/playback pipeline, a shared observable message list (direction + read state) driving a Bento-style main screen (Hands-free tile inert, Text + Logs tiles with derived unread badge), a dedicated New Message editor, and a Logs screen with explicit Sent/Received labels, per docs/UI-Reference/itantra_ui_ux_handoff_for_claude.txt.
 
 ## Update rule
 

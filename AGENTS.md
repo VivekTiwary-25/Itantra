@@ -66,6 +66,10 @@ Do not change device settings unless explicitly asked.
 - Pulling binary files (audio, images) off the device must go through cmd.exe, not PowerShell: `cmd /c "adb exec-out run-as <package> cat files/X > X"`. PowerShell's `>` redirect reinterprets binary output as text and corrupts it (confirmed: a 157KB WAV became 557KB and wouldn't play).
 - If Bluetooth earphones are connected to the test phone during a mic-capture test, Android may route `AudioRecord` input through them instead of the built-in mic. Disconnect BT audio devices from the test phone before testing any recording rung.
 
+## Known issues
+
+- `PLAY LAST RECORDING` occasionally cuts off or doesn't fully play. Not investigated yet (not blocking a current rung). Next time it happens, note: (a) does it cut off at roughly the same point every time (points to a length/buffer issue) or randomly (points to a `MediaPlayer` lifecycle/threading issue); (b) does it correlate with re-recording quickly before the previous `MediaPlayer` instance has finished releasing. This becomes directly relevant at A12, where alert playback must be reliable and undismissible.
+
 ## Lane 1 boundary
 
 Lane 1 owns the app shell, user interaction, microphone capture, WAV output, message UI, typed fallback, and mode UI described in the lane document.

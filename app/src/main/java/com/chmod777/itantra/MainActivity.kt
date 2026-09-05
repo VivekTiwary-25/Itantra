@@ -45,15 +45,20 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -63,6 +68,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -77,6 +83,8 @@ import java.io.IOException
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,25 +96,87 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     containerColor = Color(0xFF07111C)
                 ) { innerPadding ->
-                    HoldToTalkScreen(Modifier.padding(innerPadding))
+                    ITantraApp(Modifier.padding(innerPadding))
                 }
             }
         }
     }
 }
 
+private enum class Screen { MAIN, LOGS, NEW_MESSAGE }
+
+private enum class MessageDirection { SENT, RECEIVED }
+
+private data class Message(
+    val text: String,
+    val timestamp: String,
+    val direction: MessageDirection,
+    val isRead: Boolean
+)
+
+private val TIME_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
 @Composable
-fun HoldToTalkScreen(modifier: Modifier = Modifier) {
-    var isHolding by remember { mutableStateOf(false) }
-    var showLogs by remember { mutableStateOf(false) }
-    val view = LocalView.current
-    val context = LocalContext.current
+fun ITantraApp(modifier: Modifier = Modifier) {
+    var screen by remember { mutableStateOf(Screen.MAIN) }
+    val messages = remember {
+        mutableStateListOf(
+            Message("Water rising near the school", "10:42", MessageDirection.RECEIVED, isRead = false),
+            Message("Six people at the temple", "10:43", MessageDirection.RECEIVED, isRead = false),
+            Message("Need medical supplies", "10:44", MessageDirection.RECEIVED, isRead = false)
+        )
+    }
+    val unreadCount = messages.count { it.direction == MessageDirection.RECEIVED && !it.isRead }
+
     val requestMicPermission = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { }
     LaunchedEffect(Unit) {
         requestMicPermission.launch(Manifest.permission.RECORD_AUDIO)
     }
+
+    when (screen) {
+        Screen.MAIN -> MainScreen(
+            unreadCount = unreadCount,
+            onOpenText = { screen = Screen.NEW_MESSAGE },
+            onOpenLogs = { screen = Screen.LOGS },
+            modifier = modifier
+        )
+
+        Screen.LOGS -> LogsScreen(
+            messages = messages.reversed(),
+            onBack = { screen = Screen.MAIN },
+            modifier = modifier
+        )
+
+        Screen.NEW_MESSAGE -> NewMessageScreen(
+            onBack = { screen = Screen.MAIN },
+            onSend = { text ->
+                messages.add(
+                    Message(
+                        text = text,
+                        timestamp = LocalTime.now().format(TIME_FORMAT),
+                        direction = MessageDirection.SENT,
+                        isRead = true
+                    )
+                )
+                screen = Screen.MAIN
+            },
+            modifier = modifier
+        )
+    }
+}
+
+@Composable
+private fun MainScreen(
+    unreadCount: Int,
+    onOpenText: () -> Unit,
+    onOpenLogs: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var isHolding by remember { mutableStateOf(false) }
+    val view = LocalView.current
+    val context = LocalContext.current
     val recorder = remember { PcmRecorder(File(context.filesDir, "recording.wav")) }
     val idleAlpha by animateFloatAsState(
         targetValue = if (isHolding) 0f else 1f,
@@ -125,15 +195,6 @@ fun HoldToTalkScreen(modifier: Modifier = Modifier) {
         animationSpec = infiniteRepeatable(tween(1100, easing = LinearEasing)),
         label = "pulse progress"
     )
-
-    if (showLogs) {
-        LogsScreen(
-            messages = FAKE_MESSAGES.reversed(),
-            onBack = { showLogs = false },
-            modifier = modifier
-        )
-        return
-    }
 
     Box(modifier = modifier.fillMaxSize()) {
         Text(
@@ -230,9 +291,10 @@ fun HoldToTalkScreen(modifier: Modifier = Modifier) {
             ) {
                 Text("PLAY LAST RECORDING")
             }
-            LogsRow(
-                count = FAKE_MESSAGES.size,
-                onClick = { showLogs = true },
+            BentoControls(
+                unreadCount = unreadCount,
+                onOpenText = onOpenText,
+                onOpenLogs = onOpenLogs,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
@@ -241,16 +303,97 @@ fun HoldToTalkScreen(modifier: Modifier = Modifier) {
     }
 }
 
-private data class FakeMessage(val text: String, val timestamp: String)
-
-private val FAKE_MESSAGES = listOf(
-    FakeMessage("Water rising near the school", "10:42"),
-    FakeMessage("Six people at the temple", "10:43"),
-    FakeMessage("Need medical supplies", "10:44")
-)
+@Composable
+private fun BentoControls(
+    unreadCount: Int,
+    onOpenText: () -> Unit,
+    onOpenLogs: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        HandsFreeTile()
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            BentoTile(
+                icon = Icons.Filled.Edit,
+                label = "Text",
+                badgeCount = 0,
+                onClick = onOpenText,
+                modifier = Modifier.weight(1f)
+            )
+            BentoTile(
+                icon = Icons.AutoMirrored.Filled.Chat,
+                label = "Logs",
+                badgeCount = unreadCount,
+                onClick = onOpenLogs,
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
 
 @Composable
-private fun LogsRow(count: Int, onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun HandsFreeTile(modifier: Modifier = Modifier) {
+    val shape = RoundedCornerShape(16.dp)
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(Color(0xBA0D1D2B))
+            .border(1.dp, Color(0x21B6CFE7), shape)
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = "Hands-free",
+                color = Color(0xFFF4F7FB),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f)
+            )
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = Color(0xFF91A2B4),
+                modifier = Modifier.size(20.dp)
+            )
+        }
+        WaveformBars()
+    }
+}
+
+private val WAVEFORM_BAR_HEIGHTS = listOf(8, 16, 26, 13, 22, 10, 18, 28, 12, 20, 9, 24, 15, 11, 19, 7)
+
+@Composable
+private fun WaveformBars(modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier.height(28.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        WAVEFORM_BAR_HEIGHTS.forEach { barHeight ->
+            Box(
+                modifier = Modifier
+                    .width(3.dp)
+                    .height(barHeight.dp)
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(Color(0x8AF8AD3C))
+            )
+        }
+    }
+}
+
+@Composable
+private fun BentoTile(
+    icon: ImageVector,
+    label: String,
+    badgeCount: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val shape = RoundedCornerShape(16.dp)
     Row(
         modifier = modifier
@@ -258,47 +401,125 @@ private fun LogsRow(count: Int, onClick: () -> Unit, modifier: Modifier = Modifi
             .background(Color(0xBA0D1D2B))
             .border(1.dp, Color(0x21B6CFE7), shape)
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+            .padding(horizontal = 14.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = Icons.AutoMirrored.Filled.Chat,
+            imageVector = icon,
             contentDescription = null,
             tint = Color(0xFFF4F7FB),
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier.size(18.dp)
         )
-        Spacer(Modifier.width(12.dp))
+        Spacer(Modifier.width(8.dp))
         Text(
-            text = "Logs",
+            text = label,
             color = Color(0xFFF4F7FB),
-            fontSize = 16.sp,
+            fontSize = 14.sp,
             modifier = Modifier.weight(1f)
         )
-        Box(
-            modifier = Modifier
-                .clip(CircleShape)
-                .background(Color(0xFFF8AD3C))
-                .padding(horizontal = 8.dp, vertical = 2.dp)
-        ) {
-            Text(
-                text = count.toString(),
-                color = Color(0xFF2C1800),
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold
-            )
+        if (badgeCount > 0) {
+            Box(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .background(Color(0xFFF8AD3C))
+                    .padding(horizontal = 7.dp, vertical = 1.dp)
+            ) {
+                Text(
+                    text = badgeCount.toString(),
+                    color = Color(0xFF2C1800),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Spacer(Modifier.width(6.dp))
         }
-        Spacer(Modifier.width(8.dp))
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = null,
             tint = Color(0xFF91A2B4),
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier.size(18.dp)
         )
     }
 }
 
 @Composable
-private fun LogsScreen(messages: List<FakeMessage>, onBack: () -> Unit, modifier: Modifier = Modifier) {
+private fun NewMessageScreen(
+    onBack: () -> Unit,
+    onSend: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var draft by remember { mutableStateOf("") }
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 20.dp, vertical = 24.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = onBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color(0xFFF4F7FB)
+                )
+            }
+            Spacer(Modifier.width(4.dp))
+            Text(
+                text = "New message",
+                color = Color(0xFFF4F7FB),
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        Spacer(Modifier.height(20.dp))
+        OutlinedTextField(
+            value = draft,
+            onValueChange = { draft = it },
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            placeholder = {
+                Text(
+                    text = "Type your message",
+                    color = Color(0xFF637487)
+                )
+            },
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color(0xFFDCE6EF),
+                unfocusedTextColor = Color(0xFFDCE6EF),
+                focusedContainerColor = Color(0xBA0D1D2B),
+                unfocusedContainerColor = Color(0xBA0D1D2B),
+                focusedBorderColor = Color(0xFFF8AD3C),
+                unfocusedBorderColor = Color(0x21B6CFE7),
+                cursorColor = Color(0xFFF8AD3C)
+            )
+        )
+        Spacer(Modifier.height(20.dp))
+        Button(
+            onClick = {
+                val text = draft.trim()
+                if (text.isNotEmpty()) {
+                    onSend(text)
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFF8AD3C),
+                contentColor = Color(0xFF2C1800)
+            )
+        ) {
+            Text("SEND", fontWeight = FontWeight.Bold)
+        }
+    }
+}
+
+@Composable
+private fun LogsScreen(
+    messages: List<Message>,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -340,13 +561,21 @@ private fun LogsScreen(messages: List<FakeMessage>, onBack: () -> Unit, modifier
 }
 
 @Composable
-private fun MessageCard(message: FakeMessage) {
+private fun MessageCard(message: Message) {
     val cardShape = RoundedCornerShape(
         topStart = 4.dp,
         topEnd = 15.dp,
         bottomEnd = 15.dp,
         bottomStart = 4.dp
     )
+    val isSent = message.direction == MessageDirection.SENT
+    val isUnreadIncoming = !isSent && !message.isRead
+    val stripeColor = when {
+        isSent -> Color(0xFFF8AD3C)
+        isUnreadIncoming -> Color(0xFF6FD4DF)
+        else -> Color(0x336FD4DF)
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -359,18 +588,27 @@ private fun MessageCard(message: FakeMessage) {
             modifier = Modifier
                 .width(3.dp)
                 .fillMaxHeight()
-                .background(Color(0xFF6FD4DF))
+                .background(stripeColor)
         )
         Column(
             modifier = Modifier.padding(start = 12.dp, top = 10.dp, end = 14.dp, bottom = 10.dp)
         ) {
-            Text(
-                text = message.timestamp,
-                color = Color(0xFF91A2B4),
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 1.sp
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = message.timestamp,
+                    color = Color(0xFF91A2B4),
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp
+                )
+                Spacer(Modifier.width(10.dp))
+                Text(
+                    text = if (isSent) "↑ Sent" else "↓ Received",
+                    color = if (isSent) Color(0xFFF8AD3C) else Color(0xFF6FD4DF),
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
             Text(
                 text = message.text,
                 color = Color(0xFFDCE6EF),
@@ -488,8 +726,8 @@ private fun RecordingPulse(alpha: Float, progress: Float) {
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun ITantraAppPreview() {
     SIH_iTantraTheme {
-        HoldToTalkScreen()
+        ITantraApp()
     }
 }
