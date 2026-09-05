@@ -1,5 +1,7 @@
 # AGENTS.md — iTantra
 
+Before starting any work in this repo, read `docs/SESSION_HANDOFF.md` in full for project context and current state.
+
 ## Purpose
 
 This repository is the iTantra Android prototype for SIH 2026.
