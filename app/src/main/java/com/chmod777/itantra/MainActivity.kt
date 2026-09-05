@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -30,6 +32,8 @@ import com.chmod777.itantra.transport.DiscoveryEvent
 import com.chmod777.itantra.transport.NearbyBluetoothDevice
 import com.chmod777.itantra.transport.PairedBluetoothDevice
 import com.chmod777.itantra.transport.PairingRequestResult
+import com.chmod777.itantra.transport.BluetoothRfcommTransport
+import com.chmod777.itantra.transport.RfcommConnectionState
 import com.chmod777.itantra.ui.theme.SIH_iTantraTheme
 
 class MainActivity : ComponentActivity() {
@@ -59,9 +63,15 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
     var discoveryMessage by remember { mutableStateOf<String?>(null) }
     var pairingMessage by remember { mutableStateOf<String?>(null) }
     val discovery = remember { BluetoothDiscovery(context) }
+    val rfcommTransport = remember { BluetoothRfcommTransport(context) }
+    var connectionState by remember { mutableStateOf<RfcommConnectionState>(RfcommConnectionState.Idle) }
 
     DisposableEffect(discovery) {
         onDispose { discovery.close() }
+    }
+
+    DisposableEffect(rfcommTransport) {
+        onDispose { rfcommTransport.close() }
     }
 
     val refreshBluetoothState = {
@@ -91,7 +101,7 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
     }
 
     Column(
-        modifier = modifier,
+        modifier = modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Text(text = "iTantra transport")
@@ -120,11 +130,41 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
                 } else {
                     pairedDevices.forEach { device ->
                         Text(text = "• ${device.name}")
+                        Button(
+                            onClick = {
+                                rfcommTransport.connect(device.address) { state -> connectionState = state }
+                            },
+                            enabled = connectionState !is RfcommConnectionState.Listening &&
+                                connectionState !is RfcommConnectionState.Connecting &&
+                                connectionState !is RfcommConnectionState.Connected,
+                        ) {
+                            Text("Connect to ${device.name}")
+                        }
                     }
                 }
 
                 Button(onClick = refreshBluetoothState) {
                     Text("Refresh paired devices")
+                }
+
+                Text(
+                    text = when (val state = connectionState) {
+                        RfcommConnectionState.Idle -> "RFCOMM: not connected"
+                        RfcommConnectionState.Listening -> "RFCOMM: listening for a connection…"
+                        is RfcommConnectionState.Connecting -> "RFCOMM: connecting to ${state.peerName}…"
+                        is RfcommConnectionState.Connected -> "RFCOMM: connected to ${state.peerName}"
+                        is RfcommConnectionState.Error -> "RFCOMM: ${state.message}"
+                    },
+                )
+                Button(
+                    onClick = {
+                        rfcommTransport.listen { state -> connectionState = state }
+                    },
+                    enabled = connectionState !is RfcommConnectionState.Listening &&
+                        connectionState !is RfcommConnectionState.Connecting &&
+                        connectionState !is RfcommConnectionState.Connected,
+                ) {
+                    Text("Listen for RFCOMM connection")
                 }
 
                 Text(text = "Nearby devices (${nearbyDevices.size})")
