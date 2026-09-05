@@ -20,3 +20,5 @@ local.properties
 *.onnx
 *.bin
 app/src/main/assets/models/
+local-recordings/
+local-recordings/
