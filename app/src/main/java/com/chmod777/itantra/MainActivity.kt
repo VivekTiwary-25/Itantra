@@ -5,7 +5,7 @@ import android.view.HapticFeedbackConstants
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
@@ -21,9 +21,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -73,6 +75,13 @@ fun HoldToTalkScreen(modifier: Modifier = Modifier) {
         animationSpec = tween(180),
         label = "active alpha"
     )
+    val pulseTransition = rememberInfiniteTransition(label = "recording pulse")
+    val pulseProgress by pulseTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(1100, easing = LinearEasing)),
+        label = "pulse progress"
+    )
 
     Box(modifier = modifier.fillMaxSize()) {
         Text(
@@ -91,10 +100,12 @@ fun HoldToTalkScreen(modifier: Modifier = Modifier) {
                 modifier = Modifier.size(184.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Button(
-                    onClick = {},
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
+                        .graphicsLayer { alpha = idleAlpha }
+                        .clip(CircleShape)
+                        .background(Color(0xFFF8AD3C))
                         .pointerInput(view) {
                             detectTapGestures(
                                 onPress = {
@@ -110,17 +121,27 @@ fun HoldToTalkScreen(modifier: Modifier = Modifier) {
                                     }
                                 }
                             )
-                        }
-                        .graphicsLayer { alpha = idleAlpha },
-                    shape = CircleShape,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFF8AD3C),
-                        contentColor = Color(0xFF2C1800)
-                    )
+                        },
+                    contentAlignment = Alignment.Center
+                ) {}
+                RecordingPulse(activeAlpha, pulseProgress)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Text("HOLD TO TALK", fontWeight = FontWeight.Bold)
+                    Icon(
+                        imageVector = Icons.Filled.Mic,
+                        contentDescription = null,
+                        tint = if (isHolding) Color(0xFFD32F2F) else Color(0xFF2C1800),
+                        modifier = Modifier.size(32.dp)
+                    )
+                    Text(
+                        "HOLD TO TALK",
+                        color = Color(0xFF2C1800),
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.graphicsLayer { alpha = idleAlpha }
+                    )
                 }
-                RecordingPulse(activeAlpha)
             }
             Text(
                 text = if (isHolding) "Recording..." else "Idle",
@@ -130,33 +151,27 @@ fun HoldToTalkScreen(modifier: Modifier = Modifier) {
     }
 }
 
-@Composable
-private fun RecordingPulse(alpha: Float) {
-    val transition = rememberInfiniteTransition(label = "recording pulse")
-    val scale by transition.animateFloat(
-        initialValue = 0.78f,
-        targetValue = 1.38f,
-        animationSpec = infiniteRepeatable(tween(2500, easing = FastOutSlowInEasing)),
-        label = "pulse scale"
-    )
-    val ringAlpha = ((1.38f - scale) / 0.6f).coerceIn(0f, 0.72f)
+private const val RING_COUNT = 3
 
+@Composable
+private fun RecordingPulse(alpha: Float, progress: Float) {
     Box(
         modifier = Modifier
-            .size(166.dp)
+            .size(184.dp)
             .graphicsLayer { this.alpha = alpha },
         contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier
-                .size(128.dp)
-                .graphicsLayer {
-                    scaleX = scale
-                    scaleY = scale
-                    this.alpha = ringAlpha
-                }
-                .border(1.dp, Color(0x6BF8AD3C), CircleShape)
-        )
+        for (i in 0 until RING_COUNT) {
+            val phase = (progress + i.toFloat() / RING_COUNT) % 1f
+            val ringSize = 100.dp + 80.dp * phase
+            val ringAlpha = phase * 0.9f
+            Box(
+                modifier = Modifier
+                    .size(ringSize)
+                    .alpha(ringAlpha)
+                    .border(4.dp, Color(0xFFF8AD3C), CircleShape)
+            )
+        }
         Box(
             modifier = Modifier
                 .size(112.dp)
