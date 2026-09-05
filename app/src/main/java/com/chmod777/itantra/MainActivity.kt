@@ -24,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.chmod777.itantra.transport.AdapterStatus
 import com.chmod777.itantra.transport.BluetoothPermissions
+import com.chmod777.itantra.transport.PairedBluetoothDevice
 import com.chmod777.itantra.ui.theme.SIH_iTantraTheme
 
 class MainActivity : ComponentActivity() {
@@ -46,15 +47,32 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
     var permissionsGranted by remember {
         mutableStateOf(BluetoothPermissions.areGranted(context))
     }
+    var adapterStatus by remember { mutableStateOf<AdapterStatus?>(null) }
+    var pairedDevices by remember { mutableStateOf(emptyList<PairedBluetoothDevice>()) }
+
+    val refreshBluetoothState = {
+        if (BluetoothPermissions.areGranted(context)) {
+            adapterStatus = BluetoothPermissions.adapterStatus(context)
+            pairedDevices = if (adapterStatus == AdapterStatus.Enabled) {
+                BluetoothPermissions.pairedDevices(context)
+            } else {
+                emptyList()
+            }
+        }
+    }
+
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
     ) {
         permissionsGranted = BluetoothPermissions.areGranted(context)
+        refreshBluetoothState()
     }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(permissionsGranted) {
         if (!permissionsGranted) {
             permissionLauncher.launch(BluetoothPermissions.requiredRuntimePermissions())
+        } else {
+            refreshBluetoothState()
         }
     }
 
@@ -72,14 +90,29 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
                 Text("Allow Bluetooth access")
             }
         } else {
-            val status = BluetoothPermissions.adapterStatus(context)
             Text(
-                text = when (status) {
+                text = when (adapterStatus) {
                     AdapterStatus.Enabled -> "Bluetooth adapter: ON"
                     AdapterStatus.Disabled -> "Bluetooth adapter: OFF — turn it on to continue."
                     AdapterStatus.NotSupported -> "Bluetooth is not supported on this device."
+                    null -> "Checking Bluetooth adapter…"
                 },
             )
+
+            if (adapterStatus == AdapterStatus.Enabled) {
+                Text(text = "Paired devices (${pairedDevices.size})")
+                if (pairedDevices.isEmpty()) {
+                    Text(text = "No paired Bluetooth devices found.")
+                } else {
+                    pairedDevices.forEach { device ->
+                        Text(text = "• ${device.name}")
+                    }
+                }
+
+                Button(onClick = refreshBluetoothState) {
+                    Text("Refresh paired devices")
+                }
+            }
         }
     }
 }

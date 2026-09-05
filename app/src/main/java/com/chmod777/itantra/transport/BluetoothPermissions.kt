@@ -34,6 +34,26 @@ object BluetoothPermissions {
 
         return if (adapter.isEnabled) AdapterStatus.Enabled else AdapterStatus.Disabled
     }
+
+    /**
+     * Returns bonded devices as app data rather than exposing Android's
+     * [android.bluetooth.BluetoothDevice] outside the transport lane.
+     * Call only after [areGranted] returns true.
+     */
+    @SuppressLint("MissingPermission")
+    fun pairedDevices(context: Context): List<PairedBluetoothDevice> {
+        val adapter = context.getSystemService(BluetoothManager::class.java)?.adapter
+            ?: return emptyList()
+
+        return adapter.bondedDevices
+            .map { device ->
+                PairedBluetoothDevice(
+                    name = device.name ?: "Unnamed device",
+                    address = device.address,
+                )
+            }
+            .sortedBy { device -> device.name.lowercase() }
+    }
 }
 
 sealed interface AdapterStatus {
@@ -41,3 +61,8 @@ sealed interface AdapterStatus {
     data object Disabled : AdapterStatus
     data object NotSupported : AdapterStatus
 }
+
+data class PairedBluetoothDevice(
+    val name: String,
+    val address: String,
+)
