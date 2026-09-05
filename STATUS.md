@@ -20,7 +20,7 @@ Never convert status to percentages.
 | A5 | Record raw 16 kHz mono PCM16 while held | GREEN |
 | A6 | Add valid WAV header; pulled file plays correctly on laptop | GREEN |
 | A7 | Play last recording inside app | GREEN |
-| A8 | Scrolling message list with three fake messages + timestamps | RED |
+| A8 | Scrolling message list with three fake messages + timestamps | GREEN |
 | A9 | Type-and-send fallback | RED |
 | A10 | Fake Speech/Transport interfaces wired into UI | RED |
 | A11 | Push-to-talk mode toggle | RED |
@@ -34,9 +34,9 @@ Never convert status to percentages.
 
 ## Current critical path
 
-A8
+A9
 
-The capture and playback pipeline (A0-A7) is complete: a valid 16 kHz, 16-bit, mono PCM WAV can be recorded, played back in-app through the phone speaker, pulled from the phone, and played back at normal speed on a laptop.
+A0-A8 are complete: full capture/playback pipeline, plus a message list (compact Logs row on the main screen, opening a full-screen newest-first log) styled after the UI reference's radio-log card design.
 
 ## Update rule
 
