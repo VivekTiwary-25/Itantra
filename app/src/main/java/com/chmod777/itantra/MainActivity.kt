@@ -14,6 +14,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,6 +25,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.chmod777.itantra.transport.AdapterStatus
 import com.chmod777.itantra.transport.BluetoothPermissions
+import com.chmod777.itantra.transport.BluetoothDiscovery
+import com.chmod777.itantra.transport.DiscoveryEvent
+import com.chmod777.itantra.transport.NearbyBluetoothDevice
 import com.chmod777.itantra.transport.PairedBluetoothDevice
 import com.chmod777.itantra.ui.theme.SIH_iTantraTheme
 
@@ -49,6 +53,14 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
     }
     var adapterStatus by remember { mutableStateOf<AdapterStatus?>(null) }
     var pairedDevices by remember { mutableStateOf(emptyList<PairedBluetoothDevice>()) }
+    var nearbyDevices by remember { mutableStateOf(emptyList<NearbyBluetoothDevice>()) }
+    var isDiscovering by remember { mutableStateOf(false) }
+    var discoveryMessage by remember { mutableStateOf<String?>(null) }
+    val discovery = remember { BluetoothDiscovery(context) }
+
+    DisposableEffect(discovery) {
+        onDispose { discovery.close() }
+    }
 
     val refreshBluetoothState = {
         if (BluetoothPermissions.areGranted(context)) {
@@ -111,6 +123,48 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
 
                 Button(onClick = refreshBluetoothState) {
                     Text("Refresh paired devices")
+                }
+
+                Text(text = "Nearby devices (${nearbyDevices.size})")
+                when {
+                    isDiscovering -> Text(text = "Scanning for nearby Bluetooth devices…")
+                    discoveryMessage != null -> Text(text = discoveryMessage!!)
+                }
+                nearbyDevices.forEach { device ->
+                    Text(text = "• ${device.name}")
+                }
+
+                Button(
+                    onClick = {
+                        nearbyDevices = emptyList()
+                        discoveryMessage = null
+                        val started = discovery.start { event ->
+                            when (event) {
+                                DiscoveryEvent.Started -> isDiscovering = true
+                                DiscoveryEvent.Finished -> {
+                                    isDiscovering = false
+                                    if (nearbyDevices.isEmpty()) {
+                                        discoveryMessage = "No nearby Bluetooth devices found."
+                                    }
+                                }
+                                is DiscoveryEvent.DeviceFound -> {
+                                    if (nearbyDevices.none { it.address == event.device.address }) {
+                                        nearbyDevices = nearbyDevices + event.device
+                                    }
+                                }
+                            }
+                        }
+                        if (!started) {
+                            discoveryMessage = "Could not start Bluetooth discovery."
+                        } else {
+                            // Do not wait for the broadcast before giving the
+                            // user feedback that discovery has started.
+                            isDiscovering = true
+                        }
+                    },
+                    enabled = !isDiscovering,
+                ) {
+                    Text("Discover nearby devices")
                 }
             }
         }
