@@ -17,7 +17,7 @@ Never convert status to percentages.
 | A2 | `HOLD TO TALK` button; tap changes text to `pressed` | GREEN |
 | A3 | True press-and-hold UI: `Recording...` while held, `Idle` on release | GREEN |
 | A4 | Runtime microphone permission | GREEN |
-| A5 | Record raw 16 kHz mono PCM16 while held | RED |
+| A5 | Record raw 16 kHz mono PCM16 while held | GREEN |
 | A6 | Add valid WAV header; pulled file plays correctly on laptop | RED |
 | A7 | Play last recording inside app | RED |
 | A8 | Scrolling message list with three fake messages + timestamps | RED |
@@ -34,7 +34,7 @@ Never convert status to percentages.
 
 ## Current critical path
 
-A5 -> A6
+A6
 
 A6 is the first major capture milestone: a valid 16 kHz, 16-bit, mono PCM WAV that can be pulled from the phone and played at normal speed.
 

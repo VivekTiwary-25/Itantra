@@ -1,6 +1,11 @@
 package com.chmod777.itantra
 
 import android.Manifest
+import android.annotation.SuppressLint
+import android.content.pm.PackageManager
+import android.media.AudioFormat
+import android.media.AudioRecord
+import android.media.MediaRecorder
 import android.os.Bundle
 import android.view.HapticFeedbackConstants
 import androidx.activity.ComponentActivity
@@ -42,11 +47,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.chmod777.itantra.ui.theme.SIH_iTantraTheme
+import java.io.File
+import java.io.FileOutputStream
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,12 +78,14 @@ class MainActivity : ComponentActivity() {
 fun HoldToTalkScreen(modifier: Modifier = Modifier) {
     var isHolding by remember { mutableStateOf(false) }
     val view = LocalView.current
+    val context = LocalContext.current
     val requestMicPermission = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { }
     LaunchedEffect(Unit) {
         requestMicPermission.launch(Manifest.permission.RECORD_AUDIO)
     }
+    val recorder = remember { PcmRecorder(File(context.filesDir, "recording.pcm")) }
     val idleAlpha by animateFloatAsState(
         targetValue = if (isHolding) 0f else 1f,
         animationSpec = tween(180),
@@ -121,10 +132,20 @@ fun HoldToTalkScreen(modifier: Modifier = Modifier) {
                                 onPress = {
                                     isHolding = true
                                     view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                                    val hasMicPermission = ContextCompat.checkSelfPermission(
+                                        context,
+                                        Manifest.permission.RECORD_AUDIO
+                                    ) == PackageManager.PERMISSION_GRANTED
+                                    if (hasMicPermission) {
+                                        recorder.start()
+                                    }
                                     val released = try {
                                         tryAwaitRelease()
                                     } finally {
                                         isHolding = false
+                                        if (hasMicPermission) {
+                                            recorder.stop()
+                                        }
                                     }
                                     if (released) {
                                         view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
@@ -158,6 +179,53 @@ fun HoldToTalkScreen(modifier: Modifier = Modifier) {
                 color = Color(0xFF91A2B4)
             )
         }
+    }
+}
+
+private const val SAMPLE_RATE_HZ = 16000
+
+private class PcmRecorder(private val outputFile: File) {
+    @Volatile private var isRecording = false
+    private var audioRecord: AudioRecord? = null
+    private var recordingThread: Thread? = null
+
+    @SuppressLint("MissingPermission")
+    fun start() {
+        val minBufferSize = AudioRecord.getMinBufferSize(
+            SAMPLE_RATE_HZ,
+            AudioFormat.CHANNEL_IN_MONO,
+            AudioFormat.ENCODING_PCM_16BIT
+        )
+        val record = AudioRecord(
+            MediaRecorder.AudioSource.MIC,
+            SAMPLE_RATE_HZ,
+            AudioFormat.CHANNEL_IN_MONO,
+            AudioFormat.ENCODING_PCM_16BIT,
+            minBufferSize
+        )
+        audioRecord = record
+        isRecording = true
+        record.startRecording()
+        recordingThread = Thread {
+            val buffer = ByteArray(minBufferSize)
+            FileOutputStream(outputFile).use { output ->
+                while (isRecording) {
+                    val read = record.read(buffer, 0, buffer.size)
+                    if (read > 0) {
+                        output.write(buffer, 0, read)
+                    }
+                }
+            }
+        }.also { it.start() }
+    }
+
+    fun stop() {
+        isRecording = false
+        recordingThread?.join()
+        recordingThread = null
+        audioRecord?.stop()
+        audioRecord?.release()
+        audioRecord = null
     }
 }
 
