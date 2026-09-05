@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.media.AudioFormat
 import android.media.AudioRecord
+import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Bundle
 import android.view.HapticFeedbackConstants
@@ -31,6 +32,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -55,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.chmod777.itantra.ui.theme.SIH_iTantraTheme
 import java.io.File
+import java.io.IOException
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -180,6 +183,25 @@ fun HoldToTalkScreen(modifier: Modifier = Modifier) {
                 text = if (isHolding) "Recording..." else "Idle",
                 color = Color(0xFF91A2B4)
             )
+            Button(
+                onClick = {
+                    val recordingFile = File(context.filesDir, "recording.wav")
+                    if (recordingFile.exists()) {
+                        try {
+                            MediaPlayer().apply {
+                                setDataSource(recordingFile.absolutePath)
+                                setOnCompletionListener { release() }
+                                prepare()
+                                start()
+                            }
+                        } catch (e: IOException) {
+                            // no valid recording to play yet
+                        }
+                    }
+                }
+            ) {
+                Text("PLAY LAST RECORDING")
+            }
         }
     }
 }
