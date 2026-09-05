@@ -61,6 +61,11 @@ Current connected test device, when available:
 
 Do not change device settings unless explicitly asked.
 
+## Local dev gotchas
+
+- Pulling binary files (audio, images) off the device must go through cmd.exe, not PowerShell: `cmd /c "adb exec-out run-as <package> cat files/X > X"`. PowerShell's `>` redirect reinterprets binary output as text and corrupts it (confirmed: a 157KB WAV became 557KB and wouldn't play).
+- If Bluetooth earphones are connected to the test phone during a mic-capture test, Android may route `AudioRecord` input through them instead of the built-in mic. Disconnect BT audio devices from the test phone before testing any recording rung.
+
 ## Lane 1 boundary
 
 Lane 1 owns the app shell, user interaction, microphone capture, WAV output, message UI, typed fallback, and mode UI described in the lane document.
