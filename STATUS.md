@@ -13,8 +13,8 @@ Never convert status to percentages.
 | Rung | Goal | Status |
 |---|---|---|
 | A0 | Existing app runs on physical phone | GREEN |
-| A1 | Screen says `iTantra` | RED |
-| A2 | `HOLD TO TALK` button; tap changes text to `pressed` | RED |
+| A1 | Screen says `iTantra` | GREEN |
+| A2 | `HOLD TO TALK` button; tap changes text to `pressed` | GREEN |
 | A3 | True press-and-hold UI: `Recording...` while held, `Idle` on release | RED |
 | A4 | Runtime microphone permission | RED |
 | A5 | Record raw 16 kHz mono PCM16 while held | RED |
@@ -34,7 +34,7 @@ Never convert status to percentages.
 
 ## Current critical path
 
-A1 -> A2 -> A3 -> A4 -> A5 -> A6
+A3 -> A4 -> A5 -> A6
 
 A6 is the first major capture milestone: a valid 16 kHz, 16-bit, mono PCM WAV that can be pulled from the phone and played at normal speed.
 
