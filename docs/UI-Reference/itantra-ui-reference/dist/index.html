@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#07111c" />
+    <meta
+      name="description"
+      content="Interactive Android-first UI prototype for iTantra emergency voice communication."
+    />
+    <title>iTantra — Android UI Prototype</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="prototype-shell">
+      <section class="phone" aria-label="iTantra application prototype">
+        <div class="app" data-state="idle">
+          <header class="app-header">
+            <div class="brand-lockup">
+              <div class="brand-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" role="img">
+                  <path d="M7.2 9.5a6.8 6.8 0 0 0 0 5M4.4 6.8a10.4 10.4 0 0 0 0 10.4M16.8 9.5a6.8 6.8 0 0 1 0 5m2.8-7.7a10.4 10.4 0 0 1 0 10.4M12 9.4v7.2m-2-2.1a2 2 0 0 0 4 0v-4a2 2 0 0 0-4 0v4Z" />
+                </svg>
+              </div>
+              <div>
+                <h1>iTantra</h1>
+                <p>Relief channel 01</p>
+              </div>
+            </div>
+
+            <div class="connection" aria-label="Link ready">
+              <span class="connection-bars" aria-hidden="true">
+                <i></i><i></i><i></i>
+              </span>
+              <span>Link ready</span>
+            </div>
+          </header>
+
+          <div class="mode-control" role="group" aria-label="Voice mode">
+            <button class="mode-option is-selected" id="ptt-mode" type="button" aria-pressed="true">
+              Push-to-talk
+            </button>
+            <button class="mode-option" id="handsfree-mode" type="button" aria-pressed="false">
+              Hands-free
+            </button>
+            <span class="mode-slider" aria-hidden="true"></span>
+          </div>
+
+          <section class="voice-zone" aria-live="polite">
+            <div class="idle-voice" id="idle-voice">
+              <div class="voice-status">
+                <span class="eyebrow">Voice channel</span>
+                <strong id="idle-status">Ready</strong>
+              </div>
+
+              <button class="ptt-button" id="ptt-button" type="button" aria-label="Hold to talk">
+                <span class="ptt-rim" aria-hidden="true"></span>
+                <span class="mic-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <rect x="8.4" y="3.25" width="7.2" height="11.5" rx="3.6"></rect>
+                    <path d="M5.75 11.8v.65a6.25 6.25 0 0 0 12.5 0v-.65M12 18.7v2.05M9.2 20.75h5.6"></path>
+                  </svg>
+                </span>
+                <span class="ptt-label">Hold to talk</span>
+              </button>
+
+              <p class="voice-hint">Hold · Speak · Release</p>
+            </div>
+
+            <div class="active-voice" id="active-voice" aria-hidden="true">
+              <div class="listening-orbit" aria-hidden="true">
+                <span class="pulse pulse-one"></span>
+                <span class="pulse pulse-two"></span>
+                <span class="orbit-core">
+                  <span class="audio-bars">
+                    <i></i><i></i><i></i><i></i><i></i>
+                  </span>
+                </span>
+              </div>
+              <span class="eyebrow" id="active-eyebrow">Voice channel open</span>
+              <strong class="active-title" id="active-title">Listening…</strong>
+              <p class="active-hint" id="active-hint">Speak now · release when finished</p>
+            </div>
+
+            <div class="sending-voice" id="sending-voice" aria-hidden="true">
+              <span class="send-check" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="m6.5 12.5 3.35 3.35L17.8 7.9"></path></svg>
+              </span>
+              <span class="eyebrow">Voice message</span>
+              <strong>Sent</strong>
+              <p>Conversation restored</p>
+            </div>
+          </section>
+
+          <section class="conversation" id="conversation" aria-labelledby="conversation-title">
+            <header class="conversation-header">
+              <div>
+                <span class="eyebrow">Radio log</span>
+                <h2 id="conversation-title">Conversation</h2>
+              </div>
+              <span class="message-count">3 messages</span>
+            </header>
+
+            <div class="message-list" id="message-list">
+              <article class="message message-you">
+                <div class="message-meta">
+                  <span>You</span>
+                  <time datetime="2026-09-05T10:42">10:42</time>
+                </div>
+                <p>Need medical assistance near the school.</p>
+                <span class="delivery">Delivered</span>
+              </article>
+
+              <article class="message message-relief">
+                <div class="message-meta">
+                  <span>Relief team</span>
+                  <time datetime="2026-09-05T10:43">10:43</time>
+                </div>
+                <p>Team approaching from the east road.</p>
+                <span class="delivery">Received</span>
+              </article>
+
+              <article class="message message-you">
+                <div class="message-meta">
+                  <span>You</span>
+                  <time datetime="2026-09-05T10:44">10:44</time>
+                </div>
+                <p>Water level is increasing.</p>
+                <span class="delivery">Delivered</span>
+              </article>
+            </div>
+          </section>
+
+          <form class="typed-fallback" id="typed-form">
+            <label class="sr-only" for="typed-message">Type an emergency message</label>
+            <input
+              id="typed-message"
+              name="message"
+              type="text"
+              autocomplete="off"
+              placeholder="Type emergency message"
+              maxlength="120"
+            />
+            <button type="submit" aria-label="Send typed message">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m4.25 4.75 16 7.25-16 7.25 2.1-6.05L14 12 6.35 10.8l-2.1-6.05Z"></path>
+              </svg>
+            </button>
+          </form>
+
+          <div class="toast" id="toast" role="status" aria-live="polite">Message sent</div>
+        </div>
+      </section>
+
+      <aside class="prototype-note" aria-label="Prototype interaction instructions">
+        <span class="note-label">Interactive prototype</span>
+        <p><strong>Press and hold</strong> the centre control, or switch to <strong>Hands-free</strong>.</p>
+        <p class="note-secondary">The frame disappears on Android-sized screens.</p>
+      </aside>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

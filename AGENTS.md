@@ -98,4 +98,14 @@ End with:
 ### Blockers / assumptions
 - only real blockers or assumptions; write `None` if none
 
+## UI reference
+
+Before making any UI change, read `docs/UI-Reference/ITANTRA_UI_HANDOFF.md`.
+
+The interactive prototype source is in `docs/UI-Reference/dist/`. It is the visual reference for layout, proportions, colors, motion, and state transitions.
+
+Recreate the design natively in Jetpack Compose. Do not embed it in a WebView and do not modify the reference files.
+
+`TASK.md` controls implementation scope. Implement only the portion of the visual reference relevant to the current rung. Never implement future-rung behavior merely because it appears in the finished prototype.
+
 Then stop.
