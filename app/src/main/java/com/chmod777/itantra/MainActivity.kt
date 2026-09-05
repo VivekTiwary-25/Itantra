@@ -29,6 +29,7 @@ import com.chmod777.itantra.transport.BluetoothDiscovery
 import com.chmod777.itantra.transport.DiscoveryEvent
 import com.chmod777.itantra.transport.NearbyBluetoothDevice
 import com.chmod777.itantra.transport.PairedBluetoothDevice
+import com.chmod777.itantra.transport.PairingRequestResult
 import com.chmod777.itantra.ui.theme.SIH_iTantraTheme
 
 class MainActivity : ComponentActivity() {
@@ -56,6 +57,7 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
     var nearbyDevices by remember { mutableStateOf(emptyList<NearbyBluetoothDevice>()) }
     var isDiscovering by remember { mutableStateOf(false) }
     var discoveryMessage by remember { mutableStateOf<String?>(null) }
+    var pairingMessage by remember { mutableStateOf<String?>(null) }
     val discovery = remember { BluetoothDiscovery(context) }
 
     DisposableEffect(discovery) {
@@ -132,7 +134,22 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
                 }
                 nearbyDevices.forEach { device ->
                     Text(text = "• ${device.name}")
+                    if (pairedDevices.none { it.address == device.address }) {
+                        Button(onClick = {
+                            pairingMessage = when (BluetoothPermissions.requestPairing(context, device.address)) {
+                                PairingRequestResult.Started -> {
+                                    "Pairing requested for ${device.name}. Approve it on both phones, then refresh paired devices."
+                                }
+                                PairingRequestResult.AlreadyPaired -> "${device.name} is already paired."
+                                PairingRequestResult.CouldNotStart -> "Could not start pairing with ${device.name}."
+                                PairingRequestResult.NotSupported -> "Bluetooth is not supported on this device."
+                            }
+                        }) {
+                            Text("Pair ${device.name}")
+                        }
+                    }
                 }
+                if (pairingMessage != null) Text(text = pairingMessage!!)
 
                 Button(
                     onClick = {
