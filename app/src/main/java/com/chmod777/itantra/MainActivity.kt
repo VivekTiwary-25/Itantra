@@ -61,6 +61,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -116,10 +119,53 @@ private data class Message(
 
 private val TIME_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
+private val MessageListSaver = Saver<SnapshotStateList<Message>, ArrayList<Bundle>>(
+    save = { messages ->
+        ArrayList(messages.map { message ->
+            Bundle().apply {
+                putString("text", message.text)
+                putString("timestamp", message.timestamp)
+                putString("direction", message.direction.name)
+                putBoolean("isRead", message.isRead)
+            }
+        })
+    },
+    restore = { savedMessages ->
+        mutableStateListOf<Message>().apply {
+            savedMessages.forEach { saved ->
+                add(
+                    Message(
+                        text = checkNotNull(saved.getString("text")),
+                        timestamp = checkNotNull(saved.getString("timestamp")),
+                        direction = MessageDirection.valueOf(checkNotNull(saved.getString("direction"))),
+                        isRead = saved.getBoolean("isRead")
+                    )
+                )
+            }
+        }
+    }
+)
+
+// Fake Speech/Transport stand-ins, per docs/CONTRACTS.md. Hardcoded until the
+// real lanes exist -- do not couple this UI to real STT/TTS/transport here.
+private fun transcribe(wavFilePath: String): String = "this is a test message"
+
+private fun speak(text: String, languageCode: String) {
+    // no-op stand-in: no real TTS yet
+}
+
+private fun sendMessage(text: String) {
+    // no-op stand-in: no real transport yet
+}
+
+private fun onMessageReceived(callback: (text: String, languageCode: String) -> Unit) {
+    // no-op stand-in: no real transport yet, so this callback is never invoked
+}
+
 @Composable
 fun ITantraApp(modifier: Modifier = Modifier) {
-    var screen by remember { mutableStateOf(Screen.MAIN) }
-    val messages = remember {
+    var screen by rememberSaveable { mutableStateOf(Screen.MAIN) }
+    val messages = rememberSaveable(saver = MessageListSaver) {
         mutableStateListOf(
             Message("Water rising near the school", "10:42", MessageDirection.RECEIVED, isRead = false),
             Message("Six people at the temple", "10:43", MessageDirection.RECEIVED, isRead = false),
@@ -134,12 +180,35 @@ fun ITantraApp(modifier: Modifier = Modifier) {
     LaunchedEffect(Unit) {
         requestMicPermission.launch(Manifest.permission.RECORD_AUDIO)
     }
+    LaunchedEffect(Unit) {
+        onMessageReceived { text, languageCode ->
+            messages.add(
+                Message(
+                    text = text,
+                    timestamp = LocalTime.now().format(TIME_FORMAT),
+                    direction = MessageDirection.RECEIVED,
+                    isRead = false
+                )
+            )
+            speak(text, languageCode)
+        }
+    }
 
     when (screen) {
         Screen.MAIN -> MainScreen(
             unreadCount = unreadCount,
             onOpenText = { screen = Screen.NEW_MESSAGE },
             onOpenLogs = { screen = Screen.LOGS },
+            onTranscript = { text ->
+                messages.add(
+                    Message(
+                        text = text,
+                        timestamp = LocalTime.now().format(TIME_FORMAT),
+                        direction = MessageDirection.SENT,
+                        isRead = true
+                    )
+                )
+            },
             modifier = modifier
         )
 
@@ -152,6 +221,7 @@ fun ITantraApp(modifier: Modifier = Modifier) {
         Screen.NEW_MESSAGE -> NewMessageScreen(
             onBack = { screen = Screen.MAIN },
             onSend = { text ->
+                sendMessage(text)
                 messages.add(
                     Message(
                         text = text,
@@ -172,12 +242,14 @@ private fun MainScreen(
     unreadCount: Int,
     onOpenText: () -> Unit,
     onOpenLogs: () -> Unit,
+    onTranscript: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var isHolding by remember { mutableStateOf(false) }
     val view = LocalView.current
     val context = LocalContext.current
-    val recorder = remember { PcmRecorder(File(context.filesDir, "recording.wav")) }
+    val recordingFile = remember { File(context.filesDir, "recording.wav") }
+    val recorder = remember { PcmRecorder(recordingFile) }
     val idleAlpha by animateFloatAsState(
         targetValue = if (isHolding) 0f else 1f,
         animationSpec = tween(180),
@@ -243,6 +315,7 @@ private fun MainScreen(
                                     }
                                     if (released) {
                                         view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                                        onTranscript(transcribe(recordingFile.absolutePath))
                                     }
                                 }
                             )
@@ -274,7 +347,6 @@ private fun MainScreen(
             )
             Button(
                 onClick = {
-                    val recordingFile = File(context.filesDir, "recording.wav")
                     if (recordingFile.exists()) {
                         try {
                             MediaPlayer().apply {

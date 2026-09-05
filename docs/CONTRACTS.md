@@ -33,21 +33,37 @@ Transport-side functions:
 
 ```kotlin
 fun sendMessage(text: String)
-fun onMessageReceived(callback: (String) -> Unit)
+fun onMessageReceived(callback: (text: String, languageCode: String) -> Unit)
 ```
 
 Until the real lanes exist, fake implementations are allowed and expected.
 
-## Known contract ambiguity — do not silently "fix"
+## Resolved: onMessageReceived carries a language code
 
-The Lane 1 prose says the app accepts "a string, plus a language code", but the example `onMessageReceived` callback shown in the same specification provides only a `String`.
+The Lane 1 prose says the app accepts "a string, plus a language code", but the original example `onMessageReceived` callback in the lane specification showed only a `String`. That mismatch is now resolved:
 
-For early Lane 1 rungs, this does not block work.
+`onMessageReceived` takes `(text: String, languageCode: String)`, matching `speak`'s signature. The app preserves the sender's language rather than translating, so the language code travelling with a received message has to reach `speak` unchanged.
+
+**Language code format:** ISO 639-1 two-letter codes, covering all ten target languages:
+
+| Code | Language |
+|---|---|
+| `en` | English |
+| `hi` | Hindi |
+| `gu` | Gujarati |
+| `mr` | Marathi |
+| `kn` | Kannada |
+| `ml` | Malayalam |
+| `ta` | Tamil |
+| `te` | Telugu |
+| `or` | Odia |
+| `bn` | Bengali |
+
+Lane 2/3 must use these exact codes rather than inventing their own labels.
 
 For real cross-lane integration:
 
-- do not invent a new packet or callback shape without surfacing this mismatch;
-- keep the shown interfaces for fake plumbing unless the integration owner explicitly resolves the language-code contract;
+- keep this resolved signature for fake plumbing and for the real integration;
 - do not design packet headers/checksums/message IDs from Lane 1.
 
 ## Ownership boundaries
