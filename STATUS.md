@@ -18,7 +18,7 @@ Never convert status to percentages.
 | A3 | True press-and-hold UI: `Recording...` while held, `Idle` on release | GREEN |
 | A4 | Runtime microphone permission | GREEN |
 | A5 | Record raw 16 kHz mono PCM16 while held | GREEN |
-| A6 | Add valid WAV header; pulled file plays correctly on laptop | RED |
+| A6 | Add valid WAV header; pulled file plays correctly on laptop | GREEN |
 | A7 | Play last recording inside app | RED |
 | A8 | Scrolling message list with three fake messages + timestamps | RED |
 | A9 | Type-and-send fallback | RED |
@@ -34,9 +34,9 @@ Never convert status to percentages.
 
 ## Current critical path
 
-A6
+A7
 
-A6 is the first major capture milestone: a valid 16 kHz, 16-bit, mono PCM WAV that can be pulled from the phone and played at normal speed.
+The capture pipeline (A0-A6) is complete: a valid 16 kHz, 16-bit, mono PCM WAV can be recorded, pulled from the phone, and played back at normal speed on a laptop.
 
 ## Update rule
 

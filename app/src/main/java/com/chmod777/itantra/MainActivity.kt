@@ -55,7 +55,9 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.chmod777.itantra.ui.theme.SIH_iTantraTheme
 import java.io.File
-import java.io.FileOutputStream
+import java.io.RandomAccessFile
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,7 +87,7 @@ fun HoldToTalkScreen(modifier: Modifier = Modifier) {
     LaunchedEffect(Unit) {
         requestMicPermission.launch(Manifest.permission.RECORD_AUDIO)
     }
-    val recorder = remember { PcmRecorder(File(context.filesDir, "recording.pcm")) }
+    val recorder = remember { PcmRecorder(File(context.filesDir, "recording.wav")) }
     val idleAlpha by animateFloatAsState(
         targetValue = if (isHolding) 0f else 1f,
         animationSpec = tween(180),
@@ -183,6 +185,7 @@ fun HoldToTalkScreen(modifier: Modifier = Modifier) {
 }
 
 private const val SAMPLE_RATE_HZ = 16000
+private const val WAV_HEADER_SIZE = 44
 
 private class PcmRecorder(private val outputFile: File) {
     @Volatile private var isRecording = false
@@ -208,13 +211,18 @@ private class PcmRecorder(private val outputFile: File) {
         record.startRecording()
         recordingThread = Thread {
             val buffer = ByteArray(minBufferSize)
-            FileOutputStream(outputFile).use { output ->
+            RandomAccessFile(outputFile, "rw").use { file ->
+                file.setLength(0)
+                file.seek(WAV_HEADER_SIZE.toLong())
                 while (isRecording) {
                     val read = record.read(buffer, 0, buffer.size)
                     if (read > 0) {
-                        output.write(buffer, 0, read)
+                        file.write(buffer, 0, read)
                     }
                 }
+                val dataLength = file.length() - WAV_HEADER_SIZE
+                file.seek(0)
+                file.write(buildWavHeader(dataLength))
             }
         }.also { it.start() }
     }
@@ -227,6 +235,28 @@ private class PcmRecorder(private val outputFile: File) {
         audioRecord?.release()
         audioRecord = null
     }
+}
+
+private fun buildWavHeader(dataLength: Long): ByteArray {
+    val bitsPerSample = 16
+    val channels = 1
+    val byteRate = SAMPLE_RATE_HZ * channels * bitsPerSample / 8
+    val blockAlign = channels * bitsPerSample / 8
+    val buffer = ByteBuffer.allocate(WAV_HEADER_SIZE).order(ByteOrder.LITTLE_ENDIAN)
+    buffer.put("RIFF".toByteArray(Charsets.US_ASCII))
+    buffer.putInt((36 + dataLength).toInt())
+    buffer.put("WAVE".toByteArray(Charsets.US_ASCII))
+    buffer.put("fmt ".toByteArray(Charsets.US_ASCII))
+    buffer.putInt(16)
+    buffer.putShort(1.toShort()) // PCM
+    buffer.putShort(channels.toShort())
+    buffer.putInt(SAMPLE_RATE_HZ)
+    buffer.putInt(byteRate)
+    buffer.putShort(blockAlign.toShort())
+    buffer.putShort(bitsPerSample.toShort())
+    buffer.put("data".toByteArray(Charsets.US_ASCII))
+    buffer.putInt(dataLength.toInt())
+    return buffer.array()
 }
 
 private const val RING_COUNT = 3
