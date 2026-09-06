@@ -36,6 +36,7 @@ import com.chmod777.itantra.transport.PairingRequestResult
 import com.chmod777.itantra.transport.BluetoothRfcommTransport
 import com.chmod777.itantra.transport.MessageLanguage
 import com.chmod777.itantra.transport.RfcommConnectionState
+import com.chmod777.itantra.transport.RfcommPeer
 import com.chmod777.itantra.transport.SendMessageResult
 import com.chmod777.itantra.transport.TransportMessage
 import com.chmod777.itantra.ui.theme.SIH_iTantraTheme
@@ -74,6 +75,14 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
     var receivedMessage by remember { mutableStateOf<TransportMessage?>(null) }
     var acknowledgedMessageId by remember { mutableStateOf<Long?>(null) }
     var messageError by remember { mutableStateOf<String?>(null) }
+
+    val activePeers = when (val state = connectionState) {
+        is RfcommConnectionState.Connections -> state.peers
+        is RfcommConnectionState.Connected -> listOf(RfcommPeer(state.peerName, state.peerAddress))
+        else -> emptyList()
+    }
+    val isListeningForPeers = connectionState is RfcommConnectionState.Listening ||
+        (connectionState as? RfcommConnectionState.Connections)?.isListening == true
 
     DisposableEffect(discovery) {
         onDispose { discovery.close() }
@@ -151,9 +160,8 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
                             onClick = {
                                 rfcommTransport.connect(device.address) { state -> connectionState = state }
                             },
-                            enabled = connectionState !is RfcommConnectionState.Listening &&
-                                connectionState !is RfcommConnectionState.Connecting &&
-                                connectionState !is RfcommConnectionState.Connected,
+                            enabled = connectionState !is RfcommConnectionState.Connecting &&
+                                activePeers.none { it.address == device.address },
                         ) {
                             Text("Connect to ${device.name}")
                         }
@@ -170,6 +178,8 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
                         RfcommConnectionState.Listening -> "RFCOMM: listening for a connection…"
                         is RfcommConnectionState.Connecting -> "RFCOMM: connecting to ${state.peerName}…"
                         is RfcommConnectionState.Connected -> "RFCOMM: connected to ${state.peerName}"
+                        is RfcommConnectionState.Connections -> "RFCOMM: ${state.peers.size} live connection(s)" +
+                            if (state.isListening) " — listening for more" else ""
                         is RfcommConnectionState.Disconnected -> "RFCOMM: disconnected — ${state.reason} Reconnect without restarting the app."
                         is RfcommConnectionState.Error -> "RFCOMM: ${state.message}"
                     },
@@ -178,11 +188,13 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
                     onClick = {
                         rfcommTransport.listen { state -> connectionState = state }
                     },
-                    enabled = connectionState !is RfcommConnectionState.Listening &&
-                        connectionState !is RfcommConnectionState.Connecting &&
-                        connectionState !is RfcommConnectionState.Connected,
+                    enabled = !isListeningForPeers && connectionState !is RfcommConnectionState.Connecting,
                 ) {
                     Text("Listen for RFCOMM connection")
+                }
+                if (activePeers.isNotEmpty()) {
+                    Text(text = "Connected peers (${activePeers.size})")
+                    activePeers.forEach { peer -> Text(text = "• ${peer.name}") }
                 }
                 OutlinedTextField(
                     value = outgoingText,
@@ -204,7 +216,7 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
                             }
                         }
                     },
-                    enabled = connectionState is RfcommConnectionState.Connected && outgoingText.isNotBlank(),
+                    enabled = activePeers.isNotEmpty() && outgoingText.isNotBlank(),
                 ) {
                     Text("Send text")
                 }

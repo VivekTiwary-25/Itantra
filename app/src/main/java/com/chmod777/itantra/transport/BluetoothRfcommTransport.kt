@@ -14,9 +14,10 @@ import java.security.SecureRandom
 import java.util.UUID
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.ConcurrentHashMap
 
 /**
- * A one-connection Bluetooth Classic RFCOMM transport.
+ * A Bluetooth Classic RFCOMM transport that can maintain multiple peer sockets.
  *
  * Its fixed [SERVICE_UUID] is the shared protocol identifier. Every iTantra
  * phone must use this exact UUID or client connections will fail.
@@ -31,6 +32,11 @@ class BluetoothRfcommTransport(context: Context) {
 
     @Volatile
     private var socket: BluetoothSocket? = null
+
+    private val connectedSockets = ConcurrentHashMap<String, BluetoothSocket>()
+
+    @Volatile
+    private var isListening = false
 
     @Volatile
     private var onMessageReceived: ((TransportMessage) -> Unit)? = null
@@ -57,27 +63,26 @@ class BluetoothRfcommTransport(context: Context) {
                 return@execute
             }
 
+            var listeningSocket: BluetoothServerSocket? = null
             try {
                 closeServerSocket()
                 val newServerSocket = adapter.listenUsingRfcommWithServiceRecord(SERVICE_NAME, SERVICE_UUID)
+                listeningSocket = newServerSocket
                 serverSocket = newServerSocket
+                isListening = true
                 emit(onStateChanged, RfcommConnectionState.Listening)
 
-                // Blocks until a peer connects. This is intentionally on an I/O thread.
-                val connectedSocket = newServerSocket.accept()
-                socket = connectedSocket
-                emit(
-                    onStateChanged,
-                    RfcommConnectionState.Connected(
-                        peerName = connectedSocket.remoteDevice.name ?: "Unnamed device",
-                        peerAddress = connectedSocket.remoteDevice.address,
-                    ),
-                )
-                startReading(connectedSocket, onStateChanged)
+                // Keep accepting so a middle phone can hold two live peer links.
+                while (isListening && serverSocket === newServerSocket) {
+                    val connectedSocket = newServerSocket.accept()
+                    registerConnectedSocket(connectedSocket, onStateChanged)
+                }
             } catch (exception: IOException) {
-                emit(onStateChanged, RfcommConnectionState.Error("Listener error: ${exception.message ?: "unknown error"}"))
+                if (isListening) {
+                    emit(onStateChanged, RfcommConnectionState.Error("Listener error: ${exception.message ?: "unknown error"}"))
+                }
             } finally {
-                closeServerSocket()
+                if (serverSocket === listeningSocket) closeServerSocket()
             }
         }
     }
@@ -106,15 +111,7 @@ class BluetoothRfcommTransport(context: Context) {
                 val socketToConnect = device.createRfcommSocketToServiceRecord(SERVICE_UUID)
                 newSocket = socketToConnect
                 socketToConnect.connect() // Blocking; always stays off the main thread.
-                socket = socketToConnect
-                emit(
-                    onStateChanged,
-                    RfcommConnectionState.Connected(
-                        peerName = device.name ?: "Unnamed device",
-                        peerAddress = device.address,
-                    ),
-                )
-                startReading(socketToConnect, onStateChanged)
+                registerConnectedSocket(socketToConnect, onStateChanged)
             } catch (exception: IOException) {
                 try {
                     newSocket?.close()
@@ -222,13 +219,15 @@ class BluetoothRfcommTransport(context: Context) {
 
     fun close() {
         closeServerSocket()
-        try {
-            socket?.close()
-        } catch (_: IOException) {
-            // The connection is already unusable; there is nothing further to do.
-        } finally {
-            socket = null
+        connectedSockets.values.forEach { connectedSocket ->
+            try {
+                connectedSocket.close()
+            } catch (_: IOException) {
+                // The connection is already unusable; there is nothing further to do.
+            }
         }
+        connectedSockets.clear()
+        socket = null
         executor.shutdownNow()
     }
 
@@ -239,7 +238,28 @@ class BluetoothRfcommTransport(context: Context) {
             // The listener is already closed.
         } finally {
             serverSocket = null
+            isListening = false
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun registerConnectedSocket(
+        connectedSocket: BluetoothSocket,
+        onStateChanged: (RfcommConnectionState) -> Unit,
+    ) {
+        val address = connectedSocket.remoteDevice.address
+        val previousSocket = connectedSockets.put(address, connectedSocket)
+        if (previousSocket != null && previousSocket !== connectedSocket) {
+            try {
+                previousSocket.close()
+            } catch (_: IOException) {
+                // The previous connection was already closed.
+            }
+        }
+        // The latest connection remains the default target for the existing send UI.
+        socket = connectedSocket
+        emitConnectionSummary(onStateChanged)
+        startReading(connectedSocket, onStateChanged)
     }
 
     private fun startReading(
@@ -306,14 +326,32 @@ class BluetoothRfcommTransport(context: Context) {
         reason: String,
         callback: ((RfcommConnectionState) -> Unit)? = connectionStateCallback,
     ) {
-        if (socket !== disconnectedSocket) return
+        val address = disconnectedSocket.remoteDevice.address
+        if (!connectedSockets.remove(address, disconnectedSocket)) return
         try {
             disconnectedSocket.close()
         } catch (_: IOException) {
             // It is already closed.
         }
-        socket = null
-        callback?.let { emit(it, RfcommConnectionState.Disconnected(reason)) }
+        if (socket === disconnectedSocket) socket = connectedSockets.values.firstOrNull()
+        callback?.let {
+            if (connectedSockets.isEmpty() && !isListening) {
+                emit(it, RfcommConnectionState.Disconnected(reason))
+            } else {
+                emitConnectionSummary(it)
+            }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun emitConnectionSummary(onStateChanged: (RfcommConnectionState) -> Unit) {
+        val peers = connectedSockets.values.map { connectedSocket ->
+            RfcommPeer(
+                name = connectedSocket.remoteDevice.name ?: "Unnamed device",
+                address = connectedSocket.remoteDevice.address,
+            )
+        }.sortedBy { it.name }
+        emit(onStateChanged, RfcommConnectionState.Connections(peers, isListening))
     }
 
     private fun emit(
@@ -344,9 +382,12 @@ sealed interface RfcommConnectionState {
     data object Listening : RfcommConnectionState
     data class Connecting(val peerName: String) : RfcommConnectionState
     data class Connected(val peerName: String, val peerAddress: String) : RfcommConnectionState
+    data class Connections(val peers: List<RfcommPeer>, val isListening: Boolean) : RfcommConnectionState
     data class Disconnected(val reason: String) : RfcommConnectionState
     data class Error(val message: String) : RfcommConnectionState
 }
+
+data class RfcommPeer(val name: String, val address: String)
 
 data class TransportMessage(
     val version: Int,
