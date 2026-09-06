@@ -17,19 +17,19 @@ This file records repository facts confirmed on 2026-09-06. Treat these as curre
 - Launcher activity: `app/src/main/java/com/chmod777/itantra/MainActivity.kt`
 - `ITantraApp` owns manual screen selection, the editor draft, selected-message state and one shared observable message list.
 - Screen destinations are Main, Hands-free, New Message, Logs and Message Detail.
-- State is kept locally with Compose `rememberSaveable`; the message list has a saver that preserves text, timestamp, direction and read state across Activity recreation.
+- State is kept locally with Compose `rememberSaveable`; the message list has a saver that preserves text, date, timestamp, direction and read state across Activity recreation.
 - No ViewModel, repository, database, DI or Navigation Compose architecture has been introduced.
 
 ## Implemented standalone app behavior
 
 - Main shows `iTantra`, the dominant `HOLD TO TALK` control, status text, a temporary `PLAY LAST RECORDING` verification control, and Hands-free/Text/Logs tiles.
 - Runtime microphone permission and `AudioRecord` capture produce PCM WAV at 16,000 Hz, 16-bit, mono. The latest recording can be played in-app.
-- The Hands-free tile opens a dedicated sparse dark/gold screen with `Listening...`, Back and Done.
+- The Hands-free tile opens a dedicated sparse dark/gold screen with `Listening...`, Back and Done. Entering starts real local microphone/WAV capture using the same `PcmRecorder` and `recording.wav` as PTT; Done finalizes that shared recording, while Back finalizes it and returns without opening the editor.
 - Text opens the shared New Message editor blank.
 - PTT release and the Hands-free temporary Done path use the hardcoded `this is a test message` transcript and open the same editor pre-filled.
 - Voice transcripts are editable drafts. Only Send calls the fake `sendMessage` and appends one timestamped outgoing message.
 - Back from a non-empty editor offers Cancel/Discard; an empty editor leaves normally.
-- Logs shows the shared message list newest-first with explicit Sent/Received labels. Rows open a read-only Message Detail screen.
+- Logs shows the shared message list newest-first with explicit Sent/Received labels. Rows open a read-only Message Detail screen with stored date and time.
 - Opening Logs alone does not change read state. Opening an unread received row marks only that message read; outgoing messages remain read.
 - The Main badge is derived from messages where direction is `RECEIVED` and `isRead` is false.
 
@@ -38,7 +38,7 @@ A0–A13 are physically accepted on Vivek's phone and GREEN.
 ## Fake and integration-deferred boundaries
 
 - `transcribe(wavFilePath)` still returns a hardcoded final transcript. Real PTT STT waits on Lane 3.
-- Hands-free `Listening...` and Done are UI/test behavior. Continuous capture, VAD, segmentation and exact state transitions wait on Lane 3.
+- Hands-free now has real local microphone/WAV capture until Done through the shared PTT recorder. VAD, pause segmentation, real STT and final Speech state integration still wait on Lane 3.
 - Lane 1 does not assume partial or streaming transcription; Lane 3's eventual decoder/API will determine the result model.
 - `sendMessage`, `speak` and `onMessageReceived` are still fake/no-op stand-ins. Real message movement waits on Lane 2; real STT/TTS waits on Lane 3.
 - Alert metadata has no agreed cross-lane representation. Maximum-volume, non-interruptible received-alert TTS is deferred until Lane 1/Lane 2 metadata and Lane 3 playback integration are defined.

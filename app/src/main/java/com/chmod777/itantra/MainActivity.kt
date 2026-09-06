@@ -59,6 +59,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -89,7 +90,8 @@ import java.io.IOException
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.time.LocalTime
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 class MainActivity : ComponentActivity() {
@@ -115,11 +117,13 @@ private enum class MessageDirection { SENT, RECEIVED }
 
 private data class Message(
     val text: String,
+    val date: String,
     val timestamp: String,
     val direction: MessageDirection,
     val isRead: Boolean
 )
 
+private val DATE_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
 private val TIME_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
 private val MessageListSaver = Saver<SnapshotStateList<Message>, ArrayList<Bundle>>(
@@ -127,6 +131,7 @@ private val MessageListSaver = Saver<SnapshotStateList<Message>, ArrayList<Bundl
         ArrayList(messages.map { message ->
             Bundle().apply {
                 putString("text", message.text)
+                putString("date", message.date)
                 putString("timestamp", message.timestamp)
                 putString("direction", message.direction.name)
                 putBoolean("isRead", message.isRead)
@@ -139,6 +144,7 @@ private val MessageListSaver = Saver<SnapshotStateList<Message>, ArrayList<Bundl
                 add(
                     Message(
                         text = checkNotNull(saved.getString("text")),
+                        date = checkNotNull(saved.getString("date")),
                         timestamp = checkNotNull(saved.getString("timestamp")),
                         direction = MessageDirection.valueOf(checkNotNull(saved.getString("direction"))),
                         isRead = saved.getBoolean("isRead")
@@ -167,14 +173,27 @@ private fun onMessageReceived(callback: (text: String, languageCode: String) -> 
 
 @Composable
 fun ITantraApp(modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val recordingFile = remember { File(context.filesDir, "recording.wav") }
+    val recorder = remember { PcmRecorder(recordingFile) }
+    val startRecording = {
+        val hasMicPermission = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
+        if (hasMicPermission) recorder.start()
+        hasMicPermission
+    }
+    val stopRecording = { recorder.stop() }
     var screen by rememberSaveable { mutableStateOf(Screen.MAIN) }
     var draft by rememberSaveable { mutableStateOf("") }
     var selectedMessageIndex by rememberSaveable { mutableStateOf<Int?>(null) }
     val messages = rememberSaveable(saver = MessageListSaver) {
+        val today = LocalDate.now().format(DATE_FORMAT)
         mutableStateListOf(
-            Message("Water rising near the school", "10:42", MessageDirection.RECEIVED, isRead = false),
-            Message("Six people at the temple", "10:43", MessageDirection.RECEIVED, isRead = false),
-            Message("Need medical supplies", "10:44", MessageDirection.RECEIVED, isRead = false)
+            Message("Water rising near the school", today, "10:42", MessageDirection.RECEIVED, isRead = false),
+            Message("Six people at the temple", today, "10:43", MessageDirection.RECEIVED, isRead = false),
+            Message("Need medical supplies", today, "10:44", MessageDirection.RECEIVED, isRead = false)
         )
     }
     val unreadCount = messages.count { it.direction == MessageDirection.RECEIVED && !it.isRead }
@@ -187,10 +206,12 @@ fun ITantraApp(modifier: Modifier = Modifier) {
     }
     LaunchedEffect(Unit) {
         onMessageReceived { text, languageCode ->
+            val now = LocalDateTime.now()
             messages.add(
                 Message(
                     text = text,
-                    timestamp = LocalTime.now().format(TIME_FORMAT),
+                    date = now.format(DATE_FORMAT),
+                    timestamp = now.format(TIME_FORMAT),
                     direction = MessageDirection.RECEIVED,
                     isRead = false
                 )
@@ -202,6 +223,9 @@ fun ITantraApp(modifier: Modifier = Modifier) {
     when (screen) {
         Screen.MAIN -> MainScreen(
             unreadCount = unreadCount,
+            recordingFile = recordingFile,
+            onStartRecording = startRecording,
+            onStopRecording = stopRecording,
             onOpenHandsFree = { screen = Screen.HANDS_FREE },
             onOpenText = {
                 draft = ""
@@ -216,9 +240,11 @@ fun ITantraApp(modifier: Modifier = Modifier) {
         )
 
         Screen.HANDS_FREE -> HandsFreeScreen(
+            onStartRecording = startRecording,
+            onStopRecording = stopRecording,
             onBack = { screen = Screen.MAIN },
             onDone = {
-                draft = transcribe("")
+                draft = transcribe(recordingFile.absolutePath)
                 screen = Screen.NEW_MESSAGE
             },
             modifier = modifier
@@ -246,11 +272,13 @@ fun ITantraApp(modifier: Modifier = Modifier) {
                 screen = Screen.MAIN
             },
             onSend = { text ->
+                val now = LocalDateTime.now()
                 sendMessage(text)
                 messages.add(
                     Message(
                         text = text,
-                        timestamp = LocalTime.now().format(TIME_FORMAT),
+                        date = now.format(DATE_FORMAT),
+                        timestamp = now.format(TIME_FORMAT),
                         direction = MessageDirection.SENT,
                         isRead = true
                     )
@@ -272,6 +300,9 @@ fun ITantraApp(modifier: Modifier = Modifier) {
 @Composable
 private fun MainScreen(
     unreadCount: Int,
+    recordingFile: File,
+    onStartRecording: () -> Boolean,
+    onStopRecording: () -> Unit,
     onOpenHandsFree: () -> Unit,
     onOpenText: () -> Unit,
     onOpenLogs: () -> Unit,
@@ -280,9 +311,6 @@ private fun MainScreen(
 ) {
     var isHolding by remember { mutableStateOf(false) }
     val view = LocalView.current
-    val context = LocalContext.current
-    val recordingFile = remember { File(context.filesDir, "recording.wav") }
-    val recorder = remember { PcmRecorder(recordingFile) }
     val idleAlpha by animateFloatAsState(
         targetValue = if (isHolding) 0f else 1f,
         animationSpec = tween(180),
@@ -331,20 +359,12 @@ private fun MainScreen(
                                 onPress = {
                                     isHolding = true
                                     view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-                                    val hasMicPermission = ContextCompat.checkSelfPermission(
-                                        context,
-                                        Manifest.permission.RECORD_AUDIO
-                                    ) == PackageManager.PERMISSION_GRANTED
-                                    if (hasMicPermission) {
-                                        recorder.start()
-                                    }
+                                    val recordingStarted = onStartRecording()
                                     val released = try {
                                         tryAwaitRelease()
                                     } finally {
                                         isHolding = false
-                                        if (hasMicPermission) {
-                                            recorder.stop()
-                                        }
+                                        if (recordingStarted) onStopRecording()
                                     }
                                     if (released) {
                                         view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
@@ -552,11 +572,25 @@ private fun BentoTile(
 
 @Composable
 private fun HandsFreeScreen(
+    onStartRecording: () -> Boolean,
+    onStopRecording: () -> Unit,
     onBack: () -> Unit,
     onDone: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    BackHandler(onBack = onBack)
+    DisposableEffect(Unit) {
+        onStartRecording()
+        onDispose { onStopRecording() }
+    }
+    val stopAndBack = {
+        onStopRecording()
+        onBack()
+    }
+    val stopAndDone = {
+        onStopRecording()
+        onDone()
+    }
+    BackHandler(onBack = stopAndBack)
     val pulseTransition = rememberInfiniteTransition(label = "hands-free pulse")
     val pulseProgress by pulseTransition.animateFloat(
         initialValue = 0f,
@@ -575,7 +609,7 @@ private fun HandsFreeScreen(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = onBack) {
+            IconButton(onClick = stopAndBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
@@ -622,7 +656,7 @@ private fun HandsFreeScreen(
             )
         }
         Button(
-            onClick = onDone,
+            onClick = stopAndDone,
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFF8AD3C),
@@ -893,7 +927,7 @@ private fun MessageDetailScreen(
         Spacer(Modifier.height(28.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = message.timestamp,
+                text = "${message.date} • ${message.timestamp}",
                 color = Color(0xFF91A2B4),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,

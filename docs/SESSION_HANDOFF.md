@@ -1,6 +1,6 @@
 # SESSION_HANDOFF.md — iTantra lane/app
 
-Updated on 2026-09-06 after physical acceptance and commit of A11–A13. This is a resume snapshot, not a replacement for the domain-specific sources listed below.
+Updated on 2026-09-06 after physical acceptance and the accepted post-acceptance capture/date correction. This is a resume snapshot, not a replacement for the domain-specific sources listed below.
 
 ## Source precedence
 
@@ -34,8 +34,9 @@ Standalone Lane 1 feature implementation ends after A13 for now. Do not start an
 - Main permanently retains its dominant `HOLD TO TALK` control.
 - The prominent Hands-free tile opens a dedicated sparse dark/gold screen.
 - The screen shows the resting `Listening...` shell, Back and Done.
-- Back returns to Main while the app-level state remains owned by `ITantraApp`.
-- There is no continuous capture, VAD, real STT, streaming transcript or real Done/capture behavior.
+- Entering Hands-free starts real local microphone capture through the same `PcmRecorder` and `recording.wav` used by PTT; Done finalizes that shared WAV before opening the existing fake transcript/editor path.
+- Back stops/finalizes the shared recorder and returns to Main without opening the editor. `PLAY LAST RECORDING` plays whichever path captured most recently.
+- There is still no VAD, pause segmentation, real STT, streaming transcript or final Speech integration.
 
 ### A12 — Shared editor convergence
 
@@ -51,7 +52,7 @@ Standalone Lane 1 feature implementation ends after A13 for now. Do not start an
 
 - Logs reads the same app-owned message list in newest-first order.
 - Every row is openable and explicitly labels its direction as Sent or Received.
-- Opening a row shows a read-only Message Detail screen with full text, timestamp and direction.
+- Opening a row shows a read-only Message Detail screen with full text, stored date and time, and direction.
 - Opening an unread received row replaces only that item with an `isRead = true` copy before showing detail.
 - Opening Logs alone does not mark anything read; sent messages remain read.
 - The Main badge is still derived with `RECEIVED && !isRead`.
@@ -66,7 +67,7 @@ Standalone Lane 1 feature implementation ends after A13 for now. Do not start an
 - the selected message index;
 - one `SnapshotStateList<Message>` shared by Main, New Message, Logs and Message Detail.
 
-The existing `MessageListSaver` persists every `Message` field (`text`, `timestamp`, `direction`, `isRead`) across Activity recreation. Screen, draft and selected index use local `rememberSaveable` state. No ViewModel, repository, database, DI or Navigation Compose was added.
+The existing `MessageListSaver` persists every `Message` field (`text`, `date`, `timestamp`, `direction`, `isRead`) across Activity recreation. Screen, draft and selected index use local `rememberSaveable` state. No ViewModel, repository, database, DI or Navigation Compose was added.
 
 ## Verification history
 
@@ -78,7 +79,7 @@ The existing `MessageListSaver` persists every `Message` field (`text`, `timesta
 ## Fake versus real boundary
 
 - PTT transcription still uses the hardcoded `this is a test message`; real STT belongs to Lane 3.
-- Hands-free `Listening...` and Done are UI/test behavior; real continuous capture, VAD and segmentation belong to Lane 3.
+- Hands-free now performs real local microphone/WAV capture until Done using Lane 1's proven PTT recorder. VAD, pause segmentation, real STT and final Speech integration still belong to Lane 3.
 - Lane 1 assumes only that an eventual final transcript can reach the editor. Whether Lane 3 later provides final-only results, partial/streaming results or another compatible model is intentionally unresolved.
 - Exact Hands-free state and event mapping must follow Lane 3's actual interface during integration.
 - `sendMessage` and `onMessageReceived` remain fake/no-op Transport stand-ins; real sending and receiving belong to Lane 2.
