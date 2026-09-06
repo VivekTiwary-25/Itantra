@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,8 +34,10 @@ import com.chmod777.itantra.transport.NearbyBluetoothDevice
 import com.chmod777.itantra.transport.PairedBluetoothDevice
 import com.chmod777.itantra.transport.PairingRequestResult
 import com.chmod777.itantra.transport.BluetoothRfcommTransport
+import com.chmod777.itantra.transport.MessageLanguage
 import com.chmod777.itantra.transport.RfcommConnectionState
-import com.chmod777.itantra.transport.SendByteResult
+import com.chmod777.itantra.transport.SendMessageResult
+import com.chmod777.itantra.transport.TransportMessage
 import com.chmod777.itantra.ui.theme.SIH_iTantraTheme
 
 class MainActivity : ComponentActivity() {
@@ -66,16 +69,24 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
     val discovery = remember { BluetoothDiscovery(context) }
     val rfcommTransport = remember { BluetoothRfcommTransport(context) }
     var connectionState by remember { mutableStateOf<RfcommConnectionState>(RfcommConnectionState.Idle) }
-    var sentByteMessage by remember { mutableStateOf<String?>(null) }
-    var receivedByteMessage by remember { mutableStateOf<String?>(null) }
+    var outgoingText by remember { mutableStateOf("hello") }
+    var sentMessage by remember { mutableStateOf<TransportMessage?>(null) }
+    var receivedMessage by remember { mutableStateOf<TransportMessage?>(null) }
+    var acknowledgedMessageId by remember { mutableStateOf<Long?>(null) }
+    var messageError by remember { mutableStateOf<String?>(null) }
 
     DisposableEffect(discovery) {
         onDispose { discovery.close() }
     }
 
     DisposableEffect(rfcommTransport) {
-        rfcommTransport.onByteReceived { value ->
-            receivedByteMessage = "Received byte: $value"
+        rfcommTransport.onMessageReceived { message ->
+            receivedMessage = message
+            // The UI has accepted the parsed message, so now confirm delivery to its sender.
+            rfcommTransport.sendAcknowledgement(message.messageId)
+        }
+        rfcommTransport.onAcknowledgementReceived { messageId ->
+            acknowledgedMessageId = messageId
         }
         onDispose { rfcommTransport.close() }
     }
@@ -159,6 +170,7 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
                         RfcommConnectionState.Listening -> "RFCOMM: listening for a connection…"
                         is RfcommConnectionState.Connecting -> "RFCOMM: connecting to ${state.peerName}…"
                         is RfcommConnectionState.Connected -> "RFCOMM: connected to ${state.peerName}"
+                        is RfcommConnectionState.Disconnected -> "RFCOMM: disconnected — ${state.reason} Reconnect without restarting the app."
                         is RfcommConnectionState.Error -> "RFCOMM: ${state.message}"
                     },
                 )
@@ -172,22 +184,38 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
                 ) {
                     Text("Listen for RFCOMM connection")
                 }
+                OutlinedTextField(
+                    value = outgoingText,
+                    onValueChange = { outgoingText = it },
+                    label = { Text("Text message") },
+                    singleLine = true,
+                )
                 Button(
                     onClick = {
-                        rfcommTransport.sendByte(TEST_BYTE) { result ->
-                            sentByteMessage = when (result) {
-                                is SendByteResult.Sent -> "Sent byte: ${result.value}"
-                                SendByteResult.NotConnected -> "Cannot send: no RFCOMM connection."
-                                is SendByteResult.Error -> "Send error: ${result.message}"
+                        messageError = null
+                        rfcommTransport.sendMessage(outgoingText, MessageLanguage.ENGLISH) { result ->
+                            when (result) {
+                                is SendMessageResult.Sent -> {
+                                    sentMessage = result.message
+                                    acknowledgedMessageId = null
+                                }
+                                SendMessageResult.NotConnected -> messageError = "Cannot send: no RFCOMM connection."
+                                is SendMessageResult.Error -> messageError = "Message send error: ${result.message}"
                             }
                         }
                     },
-                    enabled = connectionState is RfcommConnectionState.Connected,
+                    enabled = connectionState is RfcommConnectionState.Connected && outgoingText.isNotBlank(),
                 ) {
-                    Text("Send test byte ($TEST_BYTE)")
+                    Text("Send text")
                 }
-                if (sentByteMessage != null) Text(text = sentByteMessage!!)
-                if (receivedByteMessage != null) Text(text = receivedByteMessage!!)
+                if (sentMessage != null) ProtocolMessageDetails(label = "Sent protocol message", message = sentMessage!!)
+                if (sentMessage != null) {
+                    val delivered = acknowledgedMessageId == sentMessage!!.messageId
+                    Text(text = if (delivered) "Delivery: delivered" else "Delivery: waiting for acknowledgement…")
+                }
+                if (receivedMessage != null) ProtocolMessageDetails(label = "Received protocol message", message = receivedMessage!!)
+                if (receivedMessage != null) Text(text = "Acknowledgement sent for msgId: ${receivedMessage!!.messageId}")
+                if (messageError != null) Text(text = messageError!!)
 
                 Text(text = "Nearby devices (${nearbyDevices.size})")
                 when {
@@ -250,7 +278,16 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
     }
 }
 
-private const val TEST_BYTE = 42
+@Composable
+private fun ProtocolMessageDetails(label: String, message: TransportMessage) {
+    Text(text = label)
+    Text(text = "version: ${message.version}")
+    Text(text = "msgId: ${message.messageId}")
+    Text(text = "ttl: ${message.ttl}")
+    Text(text = "lang: ${message.language.displayName} (${message.language.wireValue})")
+    Text(text = "textLen: ${message.text.toByteArray(Charsets.UTF_8).size}")
+    Text(text = "text: ${message.text}")
+}
 
 @Preview(showBackground = true)
 @Composable

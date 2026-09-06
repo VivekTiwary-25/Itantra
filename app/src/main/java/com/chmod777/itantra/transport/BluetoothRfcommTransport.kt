@@ -7,7 +7,10 @@ import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import java.io.DataInputStream
 import java.io.IOException
+import java.nio.charset.StandardCharsets
+import java.security.SecureRandom
 import java.util.UUID
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -30,10 +33,19 @@ class BluetoothRfcommTransport(context: Context) {
     private var socket: BluetoothSocket? = null
 
     @Volatile
-    private var onByteReceived: ((Int) -> Unit)? = null
+    private var onMessageReceived: ((TransportMessage) -> Unit)? = null
+
+    @Volatile
+    private var onAcknowledgementReceived: ((Long) -> Unit)? = null
+
+    @Volatile
+    private var connectionStateCallback: ((RfcommConnectionState) -> Unit)? = null
+
+    private val writeLock = Any()
 
     @SuppressLint("MissingPermission")
     fun listen(onStateChanged: (RfcommConnectionState) -> Unit) {
+        connectionStateCallback = onStateChanged
         executor.execute {
             val adapter = appContext.getSystemService(BluetoothManager::class.java)?.adapter
             if (adapter == null) {
@@ -54,7 +66,6 @@ class BluetoothRfcommTransport(context: Context) {
                 // Blocks until a peer connects. This is intentionally on an I/O thread.
                 val connectedSocket = newServerSocket.accept()
                 socket = connectedSocket
-                startReading(connectedSocket, onStateChanged)
                 emit(
                     onStateChanged,
                     RfcommConnectionState.Connected(
@@ -62,6 +73,7 @@ class BluetoothRfcommTransport(context: Context) {
                         peerAddress = connectedSocket.remoteDevice.address,
                     ),
                 )
+                startReading(connectedSocket, onStateChanged)
             } catch (exception: IOException) {
                 emit(onStateChanged, RfcommConnectionState.Error("Listener error: ${exception.message ?: "unknown error"}"))
             } finally {
@@ -72,6 +84,7 @@ class BluetoothRfcommTransport(context: Context) {
 
     @SuppressLint("MissingPermission")
     fun connect(address: String, onStateChanged: (RfcommConnectionState) -> Unit) {
+        connectionStateCallback = onStateChanged
         executor.execute {
             val adapter = appContext.getSystemService(BluetoothManager::class.java)?.adapter
             if (adapter == null) {
@@ -83,16 +96,17 @@ class BluetoothRfcommTransport(context: Context) {
                 return@execute
             }
 
+            var newSocket: BluetoothSocket? = null
             try {
                 // Discovery competes for radio time and makes RFCOMM setup unreliable.
                 if (adapter.isDiscovering) adapter.cancelDiscovery()
                 val device = adapter.getRemoteDevice(address)
                 emit(onStateChanged, RfcommConnectionState.Connecting(device.name ?: "Unnamed device"))
 
-                val newSocket = device.createRfcommSocketToServiceRecord(SERVICE_UUID)
-                newSocket.connect() // Blocking; always stays off the main thread.
-                socket = newSocket
-                startReading(newSocket, onStateChanged)
+                val socketToConnect = device.createRfcommSocketToServiceRecord(SERVICE_UUID)
+                newSocket = socketToConnect
+                socketToConnect.connect() // Blocking; always stays off the main thread.
+                socket = socketToConnect
                 emit(
                     onStateChanged,
                     RfcommConnectionState.Connected(
@@ -100,36 +114,107 @@ class BluetoothRfcommTransport(context: Context) {
                         peerAddress = device.address,
                     ),
                 )
+                startReading(socketToConnect, onStateChanged)
             } catch (exception: IOException) {
+                try {
+                    newSocket?.close()
+                } catch (_: IOException) {
+                    // The socket never completed setup or has already closed.
+                }
                 emit(onStateChanged, RfcommConnectionState.Error("Connection error: ${exception.message ?: "unknown error"}"))
             }
         }
     }
 
-    /** Registers a main-thread callback for every byte received from the peer. */
-    fun onByteReceived(callback: (Int) -> Unit) {
-        onByteReceived = callback
+    /** Registers a main-thread callback for complete, parsed protocol messages. */
+    fun onMessageReceived(callback: (TransportMessage) -> Unit) {
+        onMessageReceived = callback
     }
 
-    /** Writes one byte to the connected peer. */
-    fun sendByte(value: Int, onResult: (SendByteResult) -> Unit) {
-        require(value in 0..255) { "A byte value must be between 0 and 255." }
+    /** Registers a main-thread callback for acknowledgement message IDs. */
+    fun onAcknowledgementReceived(callback: (Long) -> Unit) {
+        onAcknowledgementReceived = callback
+    }
 
+    /** Sends the small T9 acknowledgement control frame for an accepted message. */
+    fun sendAcknowledgement(messageId: Long) {
         val connectedSocket = socket
-        if (connectedSocket == null || !connectedSocket.isConnected) {
-            emitSendResult(onResult, SendByteResult.NotConnected)
-            return
-        }
+        if (connectedSocket == null || !connectedSocket.isConnected) return
 
         executor.execute {
             try {
-                connectedSocket.outputStream.write(value)
-                connectedSocket.outputStream.flush()
-                emitSendResult(onResult, SendByteResult.Sent(value))
+                synchronized(writeLock) {
+                    val output = connectedSocket.outputStream
+                    // 0 identifies an ACK. It is followed by the original 4-byte msgId.
+                    output.write(ACK_FRAME_MARKER)
+                    output.write((messageId shr 24).toInt())
+                    output.write((messageId shr 16).toInt())
+                    output.write((messageId shr 8).toInt())
+                    output.write(messageId.toInt())
+                    output.flush()
+                }
+            } catch (_: IOException) {
+                handleDisconnected(connectedSocket, "Connection lost while sending acknowledgement.")
+            }
+        }
+    }
+
+    /** Sends a versioned T8 protocol message. */
+    fun sendMessage(
+        text: String,
+        language: MessageLanguage = MessageLanguage.ENGLISH,
+        ttl: Int = DEFAULT_TTL,
+        onResult: (SendMessageResult) -> Unit,
+    ) {
+        val encoded = text.toByteArray(StandardCharsets.UTF_8)
+        if (encoded.isEmpty()) {
+            emitSendMessageResult(onResult, SendMessageResult.Error("Text cannot be empty."))
+            return
+        }
+        if (encoded.size > MAX_PAYLOAD_BYTES) {
+            emitSendMessageResult(onResult, SendMessageResult.Error("Text is limited to $MAX_PAYLOAD_BYTES UTF-8 bytes."))
+            return
+        }
+        if (ttl !in 0..MAX_TTL) {
+            emitSendMessageResult(onResult, SendMessageResult.Error("TTL must be between 0 and $MAX_TTL."))
+            return
+        }
+
+        val connectedSocket = socket
+        if (connectedSocket == null || !connectedSocket.isConnected) {
+            emitSendMessageResult(onResult, SendMessageResult.NotConnected)
+            return
+        }
+
+        val message = TransportMessage(
+            version = PROTOCOL_VERSION,
+            messageId = random.nextInt().toUInt().toLong(),
+            ttl = ttl,
+            language = language,
+            text = text,
+        )
+        executor.execute {
+            try {
+                synchronized(writeLock) {
+                    val output = connectedSocket.outputStream
+                    output.write(message.version)
+                    output.write((message.messageId shr 24).toInt())
+                    output.write((message.messageId shr 16).toInt())
+                    output.write((message.messageId shr 8).toInt())
+                    output.write(message.messageId.toInt())
+                    output.write(message.ttl)
+                    output.write(message.language.wireValue)
+                    output.write(encoded.size ushr 8)
+                    output.write(encoded.size and 0xFF)
+                    output.write(encoded)
+                    output.flush()
+                }
+                emitSendMessageResult(onResult, SendMessageResult.Sent(message))
             } catch (exception: IOException) {
-                emitSendResult(
+                handleDisconnected(connectedSocket, "Connection lost while sending a message.")
+                emitSendMessageResult(
                     onResult,
-                    SendByteResult.Error(exception.message ?: "could not write to the RFCOMM stream"),
+                    SendMessageResult.Error(exception.message ?: "could not write to the RFCOMM stream"),
                 )
             }
         }
@@ -163,22 +248,72 @@ class BluetoothRfcommTransport(context: Context) {
     ) {
         executor.execute {
             try {
-                val input = connectedSocket.inputStream
+                val input = DataInputStream(connectedSocket.inputStream)
                 while (true) {
                     val value = input.read()
                     if (value == -1) {
-                        emit(onStateChanged, RfcommConnectionState.Error("Peer disconnected."))
+                        handleDisconnected(connectedSocket, "Peer disconnected.", onStateChanged)
                         return@execute
                     }
-                    mainHandler.post { onByteReceived?.invoke(value) }
+                    if (value == ACK_FRAME_MARKER) {
+                        val acknowledgedMessageId = input.readInt().toUInt().toLong()
+                        mainHandler.post { onAcknowledgementReceived?.invoke(acknowledgedMessageId) }
+                        continue
+                    }
+                    if (value != PROTOCOL_VERSION) {
+                        emit(onStateChanged, RfcommConnectionState.Error("Unsupported protocol version: $value."))
+                        return@execute
+                    }
+                    val messageId = input.readInt().toUInt().toLong()
+                    val ttl = input.readUnsignedByte()
+                    val language = MessageLanguage.fromWireValue(input.readUnsignedByte())
+                        ?: run {
+                            emit(onStateChanged, RfcommConnectionState.Error("Unknown language code in message."))
+                            return@execute
+                        }
+                    val length = input.readUnsignedShort()
+                    if (length == 0 || length > MAX_PAYLOAD_BYTES) {
+                        emit(onStateChanged, RfcommConnectionState.Error("Invalid text length: $length."))
+                        return@execute
+                    }
+                    val textBytes = ByteArray(length)
+                    input.readFully(textBytes)
+                    val message = TransportMessage(
+                        version = value,
+                        messageId = messageId,
+                        ttl = ttl,
+                        language = language,
+                        text = String(textBytes, StandardCharsets.UTF_8),
+                    )
+                    mainHandler.post { onMessageReceived?.invoke(message) }
                 }
             } catch (exception: IOException) {
-                emit(
+                handleDisconnected(
+                    connectedSocket,
+                    "Connection lost: ${exception.message ?: "connection closed"}",
                     onStateChanged,
-                    RfcommConnectionState.Error("Read error: ${exception.message ?: "connection closed"}"),
                 )
             }
         }
+    }
+
+    /**
+     * Clears a dead session without shutting down the executor, so the caller can
+     * immediately listen or connect again without restarting the app.
+     */
+    private fun handleDisconnected(
+        disconnectedSocket: BluetoothSocket,
+        reason: String,
+        callback: ((RfcommConnectionState) -> Unit)? = connectionStateCallback,
+    ) {
+        if (socket !== disconnectedSocket) return
+        try {
+            disconnectedSocket.close()
+        } catch (_: IOException) {
+            // It is already closed.
+        }
+        socket = null
+        callback?.let { emit(it, RfcommConnectionState.Disconnected(reason)) }
     }
 
     private fun emit(
@@ -188,12 +323,18 @@ class BluetoothRfcommTransport(context: Context) {
         mainHandler.post { onStateChanged(state) }
     }
 
-    private fun emitSendResult(onResult: (SendByteResult) -> Unit, result: SendByteResult) {
+    private fun emitSendMessageResult(onResult: (SendMessageResult) -> Unit, result: SendMessageResult) {
         mainHandler.post { onResult(result) }
     }
 
     companion object {
         const val SERVICE_NAME = "iTantraRfcomm"
+        private const val ACK_FRAME_MARKER = 0
+        const val PROTOCOL_VERSION = 1
+        const val DEFAULT_TTL = 3
+        private const val MAX_TTL = 255
+        private const val MAX_PAYLOAD_BYTES = 4_096
+        private val random = SecureRandom()
         val SERVICE_UUID: UUID = UUID.fromString("56d5cd5e-3d02-4f41-8d47-2a3de7b6bc10")
     }
 }
@@ -203,11 +344,29 @@ sealed interface RfcommConnectionState {
     data object Listening : RfcommConnectionState
     data class Connecting(val peerName: String) : RfcommConnectionState
     data class Connected(val peerName: String, val peerAddress: String) : RfcommConnectionState
+    data class Disconnected(val reason: String) : RfcommConnectionState
     data class Error(val message: String) : RfcommConnectionState
 }
 
-sealed interface SendByteResult {
-    data class Sent(val value: Int) : SendByteResult
-    data object NotConnected : SendByteResult
-    data class Error(val message: String) : SendByteResult
+data class TransportMessage(
+    val version: Int,
+    val messageId: Long,
+    val ttl: Int,
+    val language: MessageLanguage,
+    val text: String,
+)
+
+enum class MessageLanguage(val wireValue: Int, val displayName: String) {
+    ENGLISH(1, "English"),
+    HINDI(2, "Hindi");
+
+    companion object {
+        fun fromWireValue(value: Int): MessageLanguage? = entries.firstOrNull { it.wireValue == value }
+    }
+}
+
+sealed interface SendMessageResult {
+    data class Sent(val message: TransportMessage) : SendMessageResult
+    data object NotConnected : SendMessageResult
+    data class Error(val message: String) : SendMessageResult
 }
