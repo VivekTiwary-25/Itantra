@@ -3,12 +3,12 @@
 Status meanings:
 
 - GREEN: physically demonstrated on a real device
-- YELLOW: implemented/partially verified but physical acceptance not yet confirmed
+- YELLOW: implemented or partially verified, but physical acceptance is not yet confirmed
 - RED: not demonstrated
 
 Never convert status to percentages.
 
-## Lane 1 ladder
+## Standalone Lane 1 ladder
 
 | Rung | Goal | Status |
 |---|---|---|
@@ -20,11 +20,32 @@ Never convert status to percentages.
 | A5 | Record raw 16 kHz mono PCM16 while held | GREEN |
 | A6 | Add valid WAV header; pulled file plays correctly on laptop | GREEN |
 | A7 | Play last recording inside app | GREEN |
-| A8 | Scrolling message list with three fake messages + timestamps | GREEN |
-| A9 | Type-and-send fallback | GREEN |
+| A8 | Scrolling message list with three fake messages and timestamps | GREEN |
+| A9 | Type-and-send fallback with shared message state | GREEN |
 | A10 | Fake Speech/Transport interfaces wired into UI | GREEN |
-| A11 | Push-to-talk mode toggle | RED |
-| A12 | Alert-message behavior, only after earlier rungs are green | RED |
+| A11 | Dedicated Hands-free destination with `Listening...`, Back and Done | YELLOW — implementation present; automated device verification and Vivek physical acceptance pending |
+| A12 | PTT, Hands-free and Text converge on the shared New Message editor | YELLOW — implementation present; automated device verification and Vivek physical acceptance pending |
+| A13 | Message Detail with per-message read/unread behavior | YELLOW — implementation present; automated device verification and Vivek physical acceptance pending |
+
+A10 remains a valid accepted plumbing milestone. A12 refines its user experience by treating voice results as editable drafts which enter Logs only after Send.
+
+## Current critical path
+
+Vivek's physical acceptance of A11–A13. No additional standalone Lane 1 implementation should begin before those tests are confirmed.
+
+## Integration-deferred work
+
+These are not standalone Lane 1 RED rungs.
+
+| Item | Dependency / state |
+|---|---|
+| Replace hardcoded PTT transcription | Lane 3 Speech integration |
+| Replace Hands-free `Listening...` and fake completion with continuous capture, VAD and segmentation | Lane 3 Speech integration |
+| Decide final-only versus partial/streaming transcript delivery and exact Hands-free state/event mapping | Lane 3 decoder/API |
+| Replace fake `sendMessage` and receive callback behavior | Lane 2 Transport integration |
+| Define alert metadata | Unresolved prerequisite across Lane 1 and Lane 2; do not invent a local field |
+| Maximum-volume, non-interruptible received-alert TTS | Lane 2 Transport metadata plus Lane 3 Speech playback |
+| Remove `PLAY LAST RECORDING` | Final integration/product cleanup after capture verification is no longer needed |
 
 ## Team-lead unblocker
 
@@ -32,12 +53,6 @@ Never convert status to percentages.
 |---|---|
 | sherpa-onnx Android/AAR integration, without model integration | RED |
 
-## Current critical path
-
-A11
-
-A0-A10 are complete: full capture/playback pipeline, fake Speech/Transport plumbing, and a shared observable message list (direction + read state) that survives Activity recreation. The current A11 scope is a UI-only Push-to-talk mode toggle; real hands-free capture remains Lane 3 work.
-
 ## Update rule
 
-Only change a rung to GREEN after Vivek confirms the exact physical acceptance test succeeded.
+Only change A11, A12 or A13 to GREEN after Vivek confirms its exact physical acceptance test succeeded.

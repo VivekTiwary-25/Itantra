@@ -22,6 +22,17 @@ Before changing code:
 
 `TASK.md` is the active scope. The lane document is the acceptance specification. Do not implement later rungs.
 
+## Source precedence
+
+Authority is domain-specific when documents overlap:
+
+1. `TASK.md` controls the current implementation scope.
+2. `docs/CONTRACTS.md` controls cross-lane boundaries and interfaces.
+3. `docs/LANE_1_APP_AND_CAPTURE.md` controls the Lane 1 ladder and acceptance criteria.
+4. `docs/UI-Reference/itantra_ui_ux_handoff_for_claude.txt` controls UI/UX direction.
+
+Older UI handoffs and prototypes are compatible-only visual references. They never override these canonical documents.
+
 ## Working rules
 
 - Inspect the existing code before editing it.
@@ -70,11 +81,11 @@ Do not change device settings unless explicitly asked.
 
 ## Known issues
 
-- `PLAY LAST RECORDING` occasionally cuts off or doesn't fully play. Not investigated yet (not blocking a current rung). Next time it happens, note: (a) does it cut off at roughly the same point every time (points to a length/buffer issue) or randomly (points to a `MediaPlayer` lifecycle/threading issue); (b) does it correlate with re-recording quickly before the previous `MediaPlayer` instance has finished releasing. This becomes directly relevant at A12, where alert playback must be reliable and undismissible.
+- `PLAY LAST RECORDING` is a temporary capture-verification control, not final product UI. It occasionally cuts off or doesn't fully play. If it is investigated while the control remains, note: (a) whether it cuts off at roughly the same point every time (length/buffer issue) or randomly (`MediaPlayer` lifecycle/threading issue); (b) whether it correlates with re-recording before the previous `MediaPlayer` finishes releasing. Remove the control during final integration/product cleanup once it is no longer needed. Received-alert playback is separate integration-deferred work.
 
 ## Lane 1 boundary
 
-Lane 1 owns the app shell, user interaction, microphone capture, WAV output, message UI, typed fallback, and mode UI described in the lane document.
+Lane 1 owns the app shell, user interaction, microphone capture, WAV output, message UI, typed fallback, and voice-input UI described in the lane document.
 
 The core capture handoff is a file path to a valid WAV containing:
 
@@ -111,11 +122,11 @@ End with:
 
 ## UI reference
 
-Before making any UI change, read `docs/UI-Reference/ITANTRA_UI_HANDOFF.md`.
+Before making any UI change, read `docs/UI-Reference/itantra_ui_ux_handoff_for_claude.txt`. It is the authoritative UI/UX direction.
 
-The interactive prototype source is in `docs/UI-Reference/dist/`. It is the visual reference for layout, proportions, colors, motion, and state transitions.
+The older handoff at `docs/UI-Reference/itantra-ui-reference/ITANTRA_UI_HANDOFF.md` and the interactive prototype source in `docs/UI-Reference/itantra-ui-reference/dist/` are secondary references for compatible layout, proportions, colors, motion, and state transitions only.
 
-Recreate the design natively in Jetpack Compose. Do not embed it in a WebView and do not modify the reference files.
+Recreate the design natively in Jetpack Compose. Do not embed it in a WebView and do not modify the prototype files.
 
 `TASK.md` controls implementation scope. Implement only the portion of the visual reference relevant to the current rung. Never implement future-rung behavior merely because it appears in the finished prototype.
 

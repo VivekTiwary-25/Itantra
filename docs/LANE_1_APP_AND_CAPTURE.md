@@ -3,7 +3,7 @@
 **Assigned to:** Vivek
 **Read this fully before writing any code. It takes about 15 minutes.**
 
-> **Why Vivek is on this lane.** It is the one most easily accelerated with coding agents, which means it can be driven fast alongside architecture and contract work. **Once the acceptance targets below are green, this lane stops.** No polishing, no extra screens. From that point Vivek floats across Transport and Speech helping with blockers and integration, which is where the real risk sits.
+> **Why Vivek is on this lane.** It is the one most easily accelerated with coding agents, which means it can be driven fast alongside architecture and contract work. **Once A11–A13 are implemented, standalone Lane 1 feature work stops pending physical acceptance.** No polishing, no extra screens. After acceptance, Vivek floats across Transport and Speech helping with blockers and integration, which is where the real risk sits.
 
 ---
 
@@ -110,7 +110,9 @@ You hand Lane 3 a file path. That is the entire handoff.
 
 ### What you accept
 
-**A string, plus a language code.** You display it in the message list. You pass it to Lane 3 to be spoken aloud.
+From Lane 3, Lane 1 accepts a final transcript result. The transcript opens the shared New Message editor as an editable draft. It does not become a sent message until the user presses Send.
+
+From Lane 2, Lane 1 accepts **a string, plus a language code**. The incoming text is displayed as a received message and the language code is passed to Lane 3 when speech playback is integrated.
 
 ### How you talk to the other lanes
 
@@ -123,10 +125,12 @@ fun speak(text: String, languageCode: String)
 
 // Lane 2 will implement these. You just call them.
 fun sendMessage(text: String)
-fun onMessageReceived(callback: (String) -> Unit)
+fun onMessageReceived(callback: (text: String, languageCode: String) -> Unit)
 ```
 
-Until Lanes 2 and 3 exist, **write fake versions of these that return hardcoded results.** A `transcribe()` that always returns "this is a test message" lets you build and test your entire screen without waiting for anyone. Swapping the fake for the real one later is a one-line change.
+Until Lanes 2 and 3 exist, **write fake versions of these that return hardcoded results.** A `transcribe()` that always returns "this is a test message" lets you build and test the final-result UI flow without waiting for anyone.
+
+The current `transcribe()` signature is a final-result stand-in. Lane 3 may ultimately expose only a final transcript, partial/streaming updates, or another compatible result model. Lane 1 does not assume real-time transcription and must not invent a streaming interface before Lane 3 defines its decoder/API. The minimum UI contract is that a final transcript can eventually be delivered into the shared editor.
 
 This is the whole reason we split the work this way. Nobody waits.
 
@@ -146,19 +150,19 @@ Only what you need. Nothing more.
 
 This matters because Android's `AudioRecord` gives you raw PCM. If you write those bytes straight to a file and try to open it, nothing will play it, because there is no header saying what the numbers mean. You have to write the WAV header yourself. It is 44 bytes and there are a hundred examples of it online.
 
-**Two operating modes.** The official problem statement requires both:
-- **Push-to-talk (PTT)** — hold the button, speak, release. Like a walkie-talkie.
-- **PTT off** — the app listens continuously and decides for itself when a sentence has ended. Like a phone call.
+**Two voice input paths.** The official problem statement requires both:
+- **Push-to-talk (PTT)** — the dominant hold control remains on Main permanently. Hold the button, speak, release. Like a walkie-talkie.
+- **Hands-free** — a prominent Main tile opens a dedicated Hands-free screen. The standalone Lane 1 screen provides the agreed shell; Lane 3 later supplies continuous capture, VAD and speech segmentation.
 
-We build PTT first, always. It is simple and it is our guaranteed demo. Hands-free mode is a later rung.
+Both paths must be able to receive an eventual final transcript and open the same editor. Neither path requires real-time or streaming transcript display in standalone Lane 1.
 
-**Alert messages.** The brief requires that alert-type messages are announced at maximum volume and cannot be interrupted. That is a UI behaviour and it is yours, but it is late on the ladder.
+**Alert messages.** The brief requires that received alert messages are announced at maximum volume and cannot be interrupted. Alert metadata is not yet defined across the lanes, so this behavior is integration-deferred rather than a standalone Lane 1 ladder rung.
 
 ---
 
 ## PART 5 — Your task ladder
 
-Do these in order. Do not skip ahead. **Every rung has a physical test — if you cannot demonstrate it on a real phone, it is not done.**
+This ladder is built in order. A0–A10 are accepted historical milestones; their descriptions record the behavior proven at those stages. A11–A13 are the approved standalone finish. **Every rung has a physical test — if you cannot demonstrate it on a real phone, it is not done.**
 
 Report status as 🔴 (not demonstrated), 🟡 (partial or blocked), or 🟢 (physically demonstrated). Never report a percentage. "80% done" means nothing to anyone.
 
@@ -260,24 +264,67 @@ A text input box and a `SEND` button. Typing a message and hitting send adds it 
 ### A10 — Wire in the fake interfaces
 Create the four fake functions from Part 3 (`transcribe`, `speak`, `sendMessage`, `onMessageReceived`) with hardcoded behaviour. Wire your buttons to call them.
 
-- `HOLD TO TALK` release → calls `transcribe(path)` → whatever comes back goes into the list
+The historical A10 acceptance flow was:
+
+- `HOLD TO TALK` release → calls `transcribe(path)` → the then-current prototype plumbing displays the result in Logs
 - `SEND` → calls `sendMessage(text)`
 
 **✅ TEST:** Hold the button, release, and the fake transcript appears in the message list. The plumbing is now complete even though the engine is fake.
 
----
-
-### A11 — Mode toggle
-A switch labelled `Push-to-talk`. When on, the hold button is shown. When off, show a `Listening...` indicator instead. It does not need to actually do anything yet — Lane 3 supplies the hands-free logic later.
-
-**✅ TEST:** Flipping the switch changes what is on screen.
+This remains a valid historical plumbing milestone, not the current voice UX. A12 supersedes that direct-to-Logs presentation: voice results now become editable drafts before the user explicitly sends them.
 
 ---
 
-### A12 — Alert messages (only if the rungs above are all 🟢)
-A checkbox next to the send box marked `ALERT`. Messages sent as alerts appear in the list in red, and when received are played at maximum volume and cannot be dismissed mid-playback.
+### A11 — Dedicated Hands-free destination
+Keep the dominant `HOLD TO TALK` control on Main permanently. Make the existing prominent Hands-free tile open a dedicated Hands-free screen following `docs/UI-Reference/itantra_ui_ux_handoff_for_claude.txt`.
 
-**✅ TEST:** Send an alert, it shows in red, and playback cannot be stopped by tapping elsewhere.
+The screen is sparse and uses the existing dark/gold visual language. It shows the resting `Listening...` presentation, with Back available and Done visible as part of the agreed shell. Returning to Main preserves the shared app state.
+
+A11 does not implement continuous capture, VAD, real STT, fake streaming transcription, transcript processing, or real Done/capture semantics.
+
+**✅ TEST:** Main still has its dominant PTT. Tap Hands-free and confirm the dedicated screen shows `Listening...`, Back and Done. Back returns to Main without losing state.
+
+---
+
+### A12 — Voice inputs converge on the shared New Message editor
+Refine the accepted A9/A10 plumbing into the final editor flow:
+
+- Text opens the shared New Message editor blank.
+- PTT fake transcription opens that editor pre-filled with `this is a test message`.
+- Hands-free Done uses a temporary/fake completion path to open the same editor with the same hardcoded stand-in.
+- A voice transcript is an editable draft, not a sent message.
+- Only pressing Send calls `sendMessage(text)` and appends one outgoing message to the shared observable message list.
+- Back leaves an empty editor normally. Back with a non-empty draft shows `Discard this message?` with Cancel and Discard actions.
+
+Do not add real STT or assume streaming output. Do not create a second editor or message list, and do not introduce a repository, database, dependency injection, ViewModel, or navigation framework.
+
+**✅ TEST:** Text opens a blank editor. PTT release and the Hands-free fake completion each open the same editor pre-filled with `this is a test message`; neither changes Logs before Send. Edit the draft, press Send, and confirm the edited text appears exactly once. Confirm Back on non-empty content offers Cancel/Discard.
+
+---
+
+### A13 — Message Detail and read/unread behavior
+Make every Logs row open the agreed read-only Message Detail screen. Show the full message text, timestamp or other existing metadata, and an explicit `Received` or `Sent` direction label.
+
+An unread incoming message becomes read only when that individual message is opened. Merely opening Logs does not change read state. Sent messages remain read, the Main badge remains derived from `RECEIVED && !isRead`, Logs remains newest-first, and Back from Message Detail returns to Logs.
+
+Do not add editing, reply, delete, persistence, or a navigation framework.
+
+**✅ TEST:** Opening Logs alone leaves the unread badge unchanged. Open one unread received row and confirm its full detail and `Received` label appear; return to Logs and confirm only that message is now read and the badge decreased by one. Open a sent row and confirm the `Sent` label. Confirm newest-first ordering remains.
+
+---
+
+### After A13 — Integration-deferred work, not standalone Lane 1 rungs
+
+Once A11–A13 are implemented, standalone Lane 1 feature work is complete for now pending physical acceptance. Those rungs do not become green until their real-phone tests pass. The following items remain real project work, but they are blocked on cross-lane contracts or belong to final integration rather than ordinary unfinished Lane 1 UI rungs:
+
+- PTT transcription still uses a hardcoded stand-in. Real STT waits on Lane 3.
+- Hands-free `Listening...` and fake completion are UI/test behavior. Real continuous capture, VAD and segmentation wait on Lane 3.
+- Streaming versus final-only transcript delivery is intentionally unresolved until Lane 3 exposes its real decoder/API. Lane 1 requires only an eventual final result that opens the editor.
+- Exact Hands-free states and event transitions must follow Lane 3's real interface during integration.
+- Real `sendMessage` and incoming receive behavior wait on Lane 2.
+- Alert metadata is an unresolved Lane 1/Lane 2 prerequisite. Do not invent a packet or `Message` field locally.
+- Received-alert maximum-volume, non-interruptible TTS depends on Lane 2 Transport and Lane 3 Speech integration.
+- `PLAY LAST RECORDING` remains a temporary capture-verification control. Remove it during final integration/product cleanup once the WAV pipeline no longer needs that manual test path.
 
 ---
 
@@ -305,7 +352,7 @@ This is not a failure. It is the system working. The whole point of splitting th
 
 **Use Claude Code or Codex inside the project.** This document tells you *what* to build and *how to know it worked*. It deliberately does not give you Kotlin line by line. Open the project in Claude Code and describe the rung you are on — it will write the code. Your job is to know what you are asking for and to verify it against the physical test.
 
-**Stop when the ladder is green.** A11 is the finish line for this lane, and A12 only if everything else is already green. Every extra hour spent making this screen nicer is an hour not spent unblocking Transport or Speech, and those two lanes carry all the real uncertainty in this project.
+**Stop standalone Lane 1 implementation once A11–A13 are implemented, then wait for their physical acceptance.** Do not turn the integration-deferred list into extra Lane 1 rungs. After acceptance, help unblock Transport, Speech, or explicitly assigned integration work.
 
 ---
 
@@ -320,7 +367,7 @@ Speech carries almost all its intelligibility below 8 kHz, and the Nyquist limit
 PCM is the raw list of audio samples. WAV is the same data with a 44-byte header describing the sample rate, bit depth and channel count so software knows how to interpret the numbers.
 
 **Q: Why does the app have two modes?**
-The problem statement requires both. Push-to-talk makes it behave like a walkie-talkie. With PTT off it should behave like a phone — always listening, deciding on its own when a sentence has ended.
+The problem statement requires both. Push-to-talk remains the dominant control on Main and behaves like a walkie-talkie. The separate Hands-free destination will support continuous listening once Lane 3 provides VAD and segmentation.
 
 **Q: How big is five seconds of audio, and why does that matter?**
 About 160,000 bytes raw. The same sentence as text is about 180 bytes. That roughly 900-to-1 ratio is the entire reason this project sends text instead of voice.
@@ -336,7 +383,7 @@ Modern Android treats the microphone as a sensitive capability. Declaring it in 
 |---|---|
 | **Tonight (4th)** | **Start the Android Studio and SDK download tonight, not tomorrow morning.** It is hours, not minutes. Aim for A0 green. |
 | **5th** | A1 through A7. You should hear your own voice from a file the app made. |
-| **6th** | A8 through A11. Freeze day — no new features after tonight. |
+| **6th** | A8 through A13 standalone Lane 1 UI. Freeze day — no new standalone features after tonight. |
 | **7th** | Round 1. Presentation and Q&A. |
 | **8th** | Round 2. Demo. |
 

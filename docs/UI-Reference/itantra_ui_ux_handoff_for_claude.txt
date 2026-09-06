@@ -7,6 +7,8 @@ This file consolidates ALL UI/UX and message-state decisions made in the discuss
 
 The goal is to keep the implementation disciplined: establish the correct shared message state and screen flows now, while NOT pulling in later transport/STT/TTS/alert architecture prematurely.
 
+This is the authoritative UI/UX handoff. `TASK.md` still controls the current implementation scope, `docs/CONTRACTS.md` controls cross-lane boundaries, and `docs/LANE_1_APP_AND_CAPTURE.md` controls the Lane 1 ladder and acceptance criteria.
+
 
 1. Core product hierarchy
 -------------------------
@@ -61,17 +63,19 @@ Do NOT create separate stores such as:
 - receivedMessages
 - logsMessages
 
-Conceptually there should be one message source of truth that later producers can all append to:
-- typed text
-- PTT transcripts
-- Hands-free transcripts
-- incoming received messages
+Conceptually there should be one message source of truth for confirmed messages. Producers append only when a message actually enters history:
+- user presses Send after typing in the shared editor
+- user presses Send after reviewing/editing a PTT transcript draft
+- user presses Send after reviewing/editing a Hands-free transcript draft
+- transport delivers an incoming received message
+
+A voice transcript is editor draft content, not a message. Producing a transcript must not append it directly to the shared message list.
 
 The shared message state must live above the individual Main and Logs screens so both read the same data.
 
 The goal is:
 - A9 typed SEND adds to the same list.
-- Later STT adds to the same list.
+- Voice input pre-fills the shared editor; the user's later Send adds to the same list.
 - Later transport receive adds to the same list.
 - Logs and unread UI are derived from that shared state.
 
@@ -155,7 +159,7 @@ Maintain the visual language of the current implemented app:
 - clean, sparse layout
 - no unnecessary dashboard decoration
 
-The earlier PLAY LAST RECORDING element should be ignored for the new layout for now. Do not let it drive the screen design.
+PLAY LAST RECORDING is a temporary capture-verification control, not final product UI. Do not let it drive the screen design; remove it during final integration/product cleanup once capture verification no longer needs it.
 
 Final hierarchy beneath the PTT:
 - small amount of breathing room
@@ -202,6 +206,8 @@ Tapping:
 ------------------------------
 PTT states happen on the SAME Main screen; do not create a separate PTT page.
 
+Lane 1 does not assume that speech recognition produces real-time or streaming text. The minimum UI contract is that capture/processing can eventually deliver one final transcript result, which opens the shared editor as a draft. Partial transcripts may be supported later only if Lane 3 exposes them.
+
 Idle:
 - big orange HOLD TO TALK
 - Idle status
@@ -213,7 +219,8 @@ While held / recording:
 - status becomes Recording... / Listening... as appropriate
 
 On release:
-- brief Transcribing... / processing state
+- brief processing feedback where supported
+- exact Listening / Recording / Transcribing transitions must follow Lane 3's eventual interface rather than Lane 1 inventing decoder behavior
 
 When transcript is ready:
 - open the shared New Message editor
@@ -261,6 +268,8 @@ Visual/state behavior:
 - Transcribing... after Done / when processing
 - rings/orb can animate more actively while recording
 - keep the UI calm and focused
+
+These labels describe the intended visual vocabulary, not a requirement for streaming transcription. The current standalone Hands-free shell may show resting Listening... and use a fake completion result for UI testing. Real continuous capture, VAD, segmentation, and exact state/event mapping wait for Lane 3 integration.
 
 Suggested helper text:
 - Listening... / Speak normally
@@ -478,16 +487,18 @@ The app should not end up with:
 - Main showing one message count
 - Logs holding a different list
 - typed messages stored separately
-- STT transcripts stored somewhere else
+- sent messages that originated from voice stored in a separate history
 - received radio messages inventing another mechanism
 
 The desired data flow is:
 
-typed message --------\
-PTT transcript --------\
-Hands-free transcript --> ONE SHARED MESSAGE LIST --> Main unread badge
-incoming radio --------/                           --> Logs
-                                                     --> Message Detail
+typed draft -> user Send ---------------------\
+PTT transcript -> editor draft -> user Send --- > ONE SHARED MESSAGE LIST
+Hands-free transcript -> draft -> user Send ---/              |
+incoming radio ----------------------------------------------/|
+                                                               +-> Main unread badge
+                                                               +-> Logs
+                                                               +-> Message Detail
 
 Unread count is not messages.size.
 Unread count is the number of unread incoming messages.
@@ -571,11 +582,13 @@ Message Detail:
 -----------------------------
 Do not use these UI decisions as permission to implement later rungs early.
 
-For A9, the key deliverable is still:
-- clean shared observable message state
-- dedicated Text / New Message editor
-- local typed SEND
-- message appears in Logs
-- outgoing message does not affect unread count
+`TASK.md` controls which part of this direction is active. A9 remains the accepted historical milestone that established the shared observable message state, dedicated editor, local typed Send, Logs visibility, and outgoing read semantics.
 
-The rest of the flows above are the agreed UX direction for upcoming work and should guide later rungs without pulling them forward prematurely.
+The following behavior is integration-deferred rather than standalone Lane 1 UI work:
+- real PTT transcription waits on Lane 3
+- real Hands-free continuous capture, VAD, segmentation, and exact state/event mapping wait on Lane 3
+- streaming versus final-only transcript delivery remains intentionally unresolved until Lane 3 exposes its decoder/API
+- real outgoing send and incoming receive wait on Lane 2
+- alert metadata remains an unresolved Lane 1/Lane 2 prerequisite; do not invent a packet or message field locally
+- received-alert maximum-volume, non-interruptible TTS still remains required, but depends on Lane 2 Transport and Lane 3 Speech integration
+- PLAY LAST RECORDING is removed during final integration/product cleanup when it is no longer needed for capture verification

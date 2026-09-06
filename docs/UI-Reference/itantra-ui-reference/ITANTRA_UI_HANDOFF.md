@@ -1,5 +1,8 @@
 # iTantra UI Reference — Codex Handoff
 
+> [!IMPORTANT]
+> **Superseded / archival UI handoff.** The authoritative UI/UX direction is `docs/UI-Reference/itantra_ui_ux_handoff_for_claude.txt`. Keep this file and its prototype artifacts only as secondary references for compatible visual details; they never override `TASK.md`, `docs/CONTRACTS.md`, `docs/LANE_1_APP_AND_CAPTURE.md`, or the newer UI/UX handoff.
+
 ## Purpose
 
 This prototype records the agreed visual and interaction direction for the finished Lane 1 Android screen. It is a design reference, not production code and not permission to implement future task rungs early.

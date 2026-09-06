@@ -2,42 +2,34 @@
 
 ## Active task
 
-**Lane 1 — A11 only**
+**Lane 1 — A11–A13 verification and physical acceptance**
 
-Add a switch labelled `Push-to-talk`.
+The standalone A11–A13 implementation is present in the working tree. Its connected UI test did not run through the feature assertions because device permission setup failed, and Vivek's real-phone acceptance is still pending. Do not begin another standalone Lane 1 feature while these rungs remain YELLOW.
 
-- When on, show the existing `HOLD TO TALK` control and preserve its current behavior.
-- When off, hide the hold control and show exactly `Listening...`.
-- The indicator is UI-only. It must not begin capture or speech processing.
+Implemented scope:
 
-## Scope
+- A11: the Hands-free tile opens a dedicated dark/gold screen with `Listening...`, Back and Done; Main retains the dominant PTT.
+- A12: Text opens the shared editor blank; PTT and the temporary Hands-free completion open it with the hardcoded transcript; only Send appends one outgoing message; non-empty Back offers Cancel/Discard.
+- A13: Logs rows open read-only Message Detail; opening one unread incoming row marks only that message read; Logs remains newest-first and the Main badge remains derived from unread received messages.
 
-Implement A11 and nothing later.
+## Required physical acceptance
 
-Do not add:
+1. Launch the app and confirm Main still shows the dominant `HOLD TO TALK` control.
+2. Open Hands-free. Confirm `Listening...`, Back and Done are present; use Back and confirm Main/shared state is preserved.
+3. Open Text and confirm the editor is blank. Enter text, press Back, confirm Cancel stays in the editor, then confirm Discard leaves it.
+4. Note the current Logs contents. Hold PTT, speak and release while keeping one orientation. Confirm the editor opens with `this is a test message`; Back/Discard it, reopen Logs, and confirm transcription alone added nothing.
+5. Repeat PTT, edit the draft, press Send, then confirm Logs contains the edited text exactly once as the newest `Sent` message.
+6. Open Hands-free, press Done, and confirm the same editor opens pre-filled with `this is a test message`; Back/Discard the temporary draft.
+7. Open Logs without opening a row, return to Main, and confirm the unread badge did not change.
+8. Open one unread received row. Confirm Message Detail shows its full text, timestamp and `Received`; return to Logs and confirm only that row is read and the Main unread badge drops by one.
+9. Open the sent row and confirm Message Detail labels it `Sent`; confirm Logs remains newest-first.
 
-- hands-free capture or VAD
-- speech recognition or TTS
-- Bluetooth, Wi-Fi, or transport changes
-- message format or contract changes
-- sherpa-onnx
-- any architecture refactor
+Only Vivek's confirmation changes A11–A13 to GREEN.
 
-## Required workflow
+## Scope guardrails
 
-1. Read `docs/UI-Reference/ITANTRA_UI_HANDOFF.md`.
-2. Inspect the existing `MainActivity.kt`.
-3. Make the smallest change that satisfies A11.
-4. Run `.\gradlew.bat assembleDebug`.
-5. Do not mark A11 GREEN.
-6. Tell Vivek how to run/install the app and perform the physical acceptance test.
-7. Stop.
+Do not add real STT/TTS, continuous capture, VAD, transport, alert metadata, durable persistence, Navigation Compose, a repository, a database, DI, or more standalone Lane 1 rungs. Integration-deferred work starts only when explicitly assigned.
 
-## Physical acceptance
+## Next resume point
 
-1. Launch the app.
-2. Confirm the `Push-to-talk` switch is on and `HOLD TO TALK` is visible.
-3. Turn the switch off and confirm the hold control is replaced by exactly `Listening...`.
-4. Turn the switch on and confirm `HOLD TO TALK` returns.
-
-Only Vivek's confirmation of that real-phone test changes A11 to GREEN.
+Run the checklist above. If any step fails, keep the affected rung YELLOW and diagnose that exact behavior. If all steps pass, update status and history as directed; do not start extra standalone Lane 1 work.
