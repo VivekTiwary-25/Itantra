@@ -29,6 +29,9 @@ class BluetoothRfcommTransport(context: Context) {
     @Volatile
     private var socket: BluetoothSocket? = null
 
+    @Volatile
+    private var onByteReceived: ((Int) -> Unit)? = null
+
     @SuppressLint("MissingPermission")
     fun listen(onStateChanged: (RfcommConnectionState) -> Unit) {
         executor.execute {
@@ -51,6 +54,7 @@ class BluetoothRfcommTransport(context: Context) {
                 // Blocks until a peer connects. This is intentionally on an I/O thread.
                 val connectedSocket = newServerSocket.accept()
                 socket = connectedSocket
+                startReading(connectedSocket, onStateChanged)
                 emit(
                     onStateChanged,
                     RfcommConnectionState.Connected(
@@ -88,6 +92,7 @@ class BluetoothRfcommTransport(context: Context) {
                 val newSocket = device.createRfcommSocketToServiceRecord(SERVICE_UUID)
                 newSocket.connect() // Blocking; always stays off the main thread.
                 socket = newSocket
+                startReading(newSocket, onStateChanged)
                 emit(
                     onStateChanged,
                     RfcommConnectionState.Connected(
@@ -97,6 +102,35 @@ class BluetoothRfcommTransport(context: Context) {
                 )
             } catch (exception: IOException) {
                 emit(onStateChanged, RfcommConnectionState.Error("Connection error: ${exception.message ?: "unknown error"}"))
+            }
+        }
+    }
+
+    /** Registers a main-thread callback for every byte received from the peer. */
+    fun onByteReceived(callback: (Int) -> Unit) {
+        onByteReceived = callback
+    }
+
+    /** Writes one byte to the connected peer. */
+    fun sendByte(value: Int, onResult: (SendByteResult) -> Unit) {
+        require(value in 0..255) { "A byte value must be between 0 and 255." }
+
+        val connectedSocket = socket
+        if (connectedSocket == null || !connectedSocket.isConnected) {
+            emitSendResult(onResult, SendByteResult.NotConnected)
+            return
+        }
+
+        executor.execute {
+            try {
+                connectedSocket.outputStream.write(value)
+                connectedSocket.outputStream.flush()
+                emitSendResult(onResult, SendByteResult.Sent(value))
+            } catch (exception: IOException) {
+                emitSendResult(
+                    onResult,
+                    SendByteResult.Error(exception.message ?: "could not write to the RFCOMM stream"),
+                )
             }
         }
     }
@@ -123,11 +157,39 @@ class BluetoothRfcommTransport(context: Context) {
         }
     }
 
+    private fun startReading(
+        connectedSocket: BluetoothSocket,
+        onStateChanged: (RfcommConnectionState) -> Unit,
+    ) {
+        executor.execute {
+            try {
+                val input = connectedSocket.inputStream
+                while (true) {
+                    val value = input.read()
+                    if (value == -1) {
+                        emit(onStateChanged, RfcommConnectionState.Error("Peer disconnected."))
+                        return@execute
+                    }
+                    mainHandler.post { onByteReceived?.invoke(value) }
+                }
+            } catch (exception: IOException) {
+                emit(
+                    onStateChanged,
+                    RfcommConnectionState.Error("Read error: ${exception.message ?: "connection closed"}"),
+                )
+            }
+        }
+    }
+
     private fun emit(
         onStateChanged: (RfcommConnectionState) -> Unit,
         state: RfcommConnectionState,
     ) {
         mainHandler.post { onStateChanged(state) }
+    }
+
+    private fun emitSendResult(onResult: (SendByteResult) -> Unit, result: SendByteResult) {
+        mainHandler.post { onResult(result) }
     }
 
     companion object {
@@ -142,4 +204,10 @@ sealed interface RfcommConnectionState {
     data class Connecting(val peerName: String) : RfcommConnectionState
     data class Connected(val peerName: String, val peerAddress: String) : RfcommConnectionState
     data class Error(val message: String) : RfcommConnectionState
+}
+
+sealed interface SendByteResult {
+    data class Sent(val value: Int) : SendByteResult
+    data object NotConnected : SendByteResult
+    data class Error(val message: String) : SendByteResult
 }
