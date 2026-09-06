@@ -35,6 +35,9 @@ class BluetoothRfcommTransport(context: Context) {
     @Volatile
     private var onMessageReceived: ((TransportMessage) -> Unit)? = null
 
+    @Volatile
+    private var onAcknowledgementReceived: ((Long) -> Unit)? = null
+
     private val writeLock = Any()
 
     @SuppressLint("MissingPermission")
@@ -114,6 +117,34 @@ class BluetoothRfcommTransport(context: Context) {
     /** Registers a main-thread callback for complete, parsed protocol messages. */
     fun onMessageReceived(callback: (TransportMessage) -> Unit) {
         onMessageReceived = callback
+    }
+
+    /** Registers a main-thread callback for acknowledgement message IDs. */
+    fun onAcknowledgementReceived(callback: (Long) -> Unit) {
+        onAcknowledgementReceived = callback
+    }
+
+    /** Sends the small T9 acknowledgement control frame for an accepted message. */
+    fun sendAcknowledgement(messageId: Long) {
+        val connectedSocket = socket
+        if (connectedSocket == null || !connectedSocket.isConnected) return
+
+        executor.execute {
+            try {
+                synchronized(writeLock) {
+                    val output = connectedSocket.outputStream
+                    // 0 identifies an ACK. It is followed by the original 4-byte msgId.
+                    output.write(ACK_FRAME_MARKER)
+                    output.write((messageId shr 24).toInt())
+                    output.write((messageId shr 16).toInt())
+                    output.write((messageId shr 8).toInt())
+                    output.write(messageId.toInt())
+                    output.flush()
+                }
+            } catch (_: IOException) {
+                // A failed ACK is equivalent to a lost/disconnected session; T10 handles reconnects.
+            }
+        }
     }
 
     /** Sends a versioned T8 protocol message. */
@@ -211,6 +242,11 @@ class BluetoothRfcommTransport(context: Context) {
                         emit(onStateChanged, RfcommConnectionState.Error("Peer disconnected."))
                         return@execute
                     }
+                    if (value == ACK_FRAME_MARKER) {
+                        val acknowledgedMessageId = input.readInt().toUInt().toLong()
+                        mainHandler.post { onAcknowledgementReceived?.invoke(acknowledgedMessageId) }
+                        continue
+                    }
                     if (value != PROTOCOL_VERSION) {
                         emit(onStateChanged, RfcommConnectionState.Error("Unsupported protocol version: $value."))
                         return@execute
@@ -260,6 +296,7 @@ class BluetoothRfcommTransport(context: Context) {
 
     companion object {
         const val SERVICE_NAME = "iTantraRfcomm"
+        private const val ACK_FRAME_MARKER = 0
         const val PROTOCOL_VERSION = 1
         const val DEFAULT_TTL = 3
         private const val MAX_TTL = 255

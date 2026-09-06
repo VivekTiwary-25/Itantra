@@ -72,6 +72,7 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
     var outgoingText by remember { mutableStateOf("hello") }
     var sentMessage by remember { mutableStateOf<TransportMessage?>(null) }
     var receivedMessage by remember { mutableStateOf<TransportMessage?>(null) }
+    var acknowledgedMessageId by remember { mutableStateOf<Long?>(null) }
     var messageError by remember { mutableStateOf<String?>(null) }
 
     DisposableEffect(discovery) {
@@ -81,6 +82,11 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
     DisposableEffect(rfcommTransport) {
         rfcommTransport.onMessageReceived { message ->
             receivedMessage = message
+            // The UI has accepted the parsed message, so now confirm delivery to its sender.
+            rfcommTransport.sendAcknowledgement(message.messageId)
+        }
+        rfcommTransport.onAcknowledgementReceived { messageId ->
+            acknowledgedMessageId = messageId
         }
         onDispose { rfcommTransport.close() }
     }
@@ -188,7 +194,10 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
                         messageError = null
                         rfcommTransport.sendMessage(outgoingText, MessageLanguage.ENGLISH) { result ->
                             when (result) {
-                                is SendMessageResult.Sent -> sentMessage = result.message
+                                is SendMessageResult.Sent -> {
+                                    sentMessage = result.message
+                                    acknowledgedMessageId = null
+                                }
                                 SendMessageResult.NotConnected -> messageError = "Cannot send: no RFCOMM connection."
                                 is SendMessageResult.Error -> messageError = "Message send error: ${result.message}"
                             }
@@ -199,7 +208,12 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
                     Text("Send text")
                 }
                 if (sentMessage != null) ProtocolMessageDetails(label = "Sent protocol message", message = sentMessage!!)
+                if (sentMessage != null) {
+                    val delivered = acknowledgedMessageId == sentMessage!!.messageId
+                    Text(text = if (delivered) "Delivery: delivered" else "Delivery: waiting for acknowledgement…")
+                }
                 if (receivedMessage != null) ProtocolMessageDetails(label = "Received protocol message", message = receivedMessage!!)
+                if (receivedMessage != null) Text(text = "Acknowledgement sent for msgId: ${receivedMessage!!.messageId}")
                 if (messageError != null) Text(text = messageError!!)
 
                 Text(text = "Nearby devices (${nearbyDevices.size})")
