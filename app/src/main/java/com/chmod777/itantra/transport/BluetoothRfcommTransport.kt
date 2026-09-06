@@ -51,7 +51,7 @@ class BluetoothRfcommTransport(context: Context) {
     private var connectionStateCallback: ((RfcommConnectionState) -> Unit)? = null
 
     private val writeLock = Any()
-    private val seenMessageIds = ConcurrentHashMap.newKeySet<Long>()
+    private val relayPolicy = TransportRelayPolicy()
 
     @SuppressLint("MissingPermission")
     fun listen(onStateChanged: (RfcommConnectionState) -> Unit) {
@@ -199,7 +199,7 @@ class BluetoothRfcommTransport(context: Context) {
             language = language,
             text = text,
         )
-        rememberMessageId(message.messageId)
+        relayPolicy.rememberOutgoing(message.messageId)
         executor.execute {
             try {
                 writeMessage(connectedSocket, message)
@@ -303,17 +303,19 @@ class BluetoothRfcommTransport(context: Context) {
                         text = String(textBytes, StandardCharsets.UTF_8),
                     )
                     val sourceAddress = connectedSocket.remoteDevice.address
-                    if (!rememberMessageId(message.messageId)) {
-                        mainHandler.post { onRelayEvent?.invoke(RelayEvent.DuplicateIgnored(message.messageId)) }
-                        continue
-                    }
-
-                    // Forward only to other peers. The original ID survives, but each hop
-                    // spends one TTL so a loop naturally stops even without deduplication.
-                    if (message.ttl > 0) {
-                        relayToOtherPeers(message, sourceAddress)
-                    } else {
-                        mainHandler.post { onRelayEvent?.invoke(RelayEvent.TtlExpired(message.messageId)) }
+                    when (val decision = relayPolicy.decideForIncoming(message)) {
+                        RelayDecision.Duplicate -> {
+                            mainHandler.post { onRelayEvent?.invoke(RelayEvent.DuplicateIgnored(message.messageId)) }
+                            continue
+                        }
+                        RelayDecision.TtlExpired -> {
+                            mainHandler.post { onRelayEvent?.invoke(RelayEvent.TtlExpired(message.messageId)) }
+                        }
+                        is RelayDecision.Forward -> {
+                            // Forward only to other peers. The original ID survives, but each
+                            // hop spends one TTL so a loop naturally stops even without deduplication.
+                            relayToOtherPeers(message, decision.message, sourceAddress)
+                        }
                     }
                     mainHandler.post {
                         onMessageReceived?.invoke(
@@ -362,8 +364,11 @@ class BluetoothRfcommTransport(context: Context) {
     }
 
     @SuppressLint("MissingPermission")
-    private fun relayToOtherPeers(message: TransportMessage, sourceAddress: String) {
-        val forwardedMessage = message.copy(ttl = message.ttl - 1)
+    private fun relayToOtherPeers(
+        message: TransportMessage,
+        forwardedMessage: TransportMessage,
+        sourceAddress: String,
+    ) {
         val targets = connectedSockets.entries.filter { (address, connectedSocket) ->
             address != sourceAddress && connectedSocket.isConnected
         }
@@ -415,13 +420,6 @@ class BluetoothRfcommTransport(context: Context) {
         }
     }
 
-    private fun rememberMessageId(messageId: Long): Boolean {
-        if (!seenMessageIds.add(messageId)) return false
-        // Keep deduplication bounded on long-running relay phones.
-        if (seenMessageIds.size > MAX_SEEN_MESSAGE_IDS) seenMessageIds.clear()
-        return true
-    }
-
     @SuppressLint("MissingPermission")
     private fun emitConnectionSummary(onStateChanged: (RfcommConnectionState) -> Unit) {
         val peers = connectedSockets.values.map { connectedSocket ->
@@ -451,7 +449,6 @@ class BluetoothRfcommTransport(context: Context) {
         const val DEFAULT_TTL = 3
         private const val MAX_TTL = 255
         private const val MAX_PAYLOAD_BYTES = 4_096
-        private const val MAX_SEEN_MESSAGE_IDS = 2_048
         private val random = SecureRandom()
         val SERVICE_UUID: UUID = UUID.fromString("56d5cd5e-3d02-4f41-8d47-2a3de7b6bc10")
     }
