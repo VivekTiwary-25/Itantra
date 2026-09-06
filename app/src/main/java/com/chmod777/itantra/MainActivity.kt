@@ -37,6 +37,7 @@ import com.chmod777.itantra.transport.BluetoothRfcommTransport
 import com.chmod777.itantra.transport.MessageLanguage
 import com.chmod777.itantra.transport.RfcommConnectionState
 import com.chmod777.itantra.transport.RfcommPeer
+import com.chmod777.itantra.transport.RelayEvent
 import com.chmod777.itantra.transport.SendMessageResult
 import com.chmod777.itantra.transport.TransportMessage
 import com.chmod777.itantra.ui.theme.SIH_iTantraTheme
@@ -75,6 +76,7 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
     var receivedMessage by remember { mutableStateOf<TransportMessage?>(null) }
     var acknowledgedMessageId by remember { mutableStateOf<Long?>(null) }
     var messageError by remember { mutableStateOf<String?>(null) }
+    var relayMessage by remember { mutableStateOf<String?>(null) }
 
     val activePeers = when (val state = connectionState) {
         is RfcommConnectionState.Connections -> state.peers
@@ -89,13 +91,21 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
     }
 
     DisposableEffect(rfcommTransport) {
-        rfcommTransport.onMessageReceived { message ->
-            receivedMessage = message
+        rfcommTransport.onMessageReceived { received ->
+            receivedMessage = received.message
             // The UI has accepted the parsed message, so now confirm delivery to its sender.
-            rfcommTransport.sendAcknowledgement(message.messageId)
+            rfcommTransport.sendAcknowledgement(received.message.messageId, received.sourcePeerAddress)
         }
         rfcommTransport.onAcknowledgementReceived { messageId ->
             acknowledgedMessageId = messageId
+        }
+        rfcommTransport.onRelayEvent { event ->
+            relayMessage = when (event) {
+                is RelayEvent.Forwarded -> "Relayed msgId ${event.messageId} to ${event.forwardedCount} peer(s), TTL is now ${event.ttlAfterRelay}."
+                is RelayEvent.DuplicateIgnored -> "Ignored duplicate msgId ${event.messageId}."
+                is RelayEvent.TtlExpired -> "Did not relay msgId ${event.messageId}: TTL expired."
+                is RelayEvent.NoOtherPeer -> "No other connected peer available to relay msgId ${event.messageId}."
+            }
         }
         onDispose { rfcommTransport.close() }
     }
@@ -227,6 +237,7 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
                 }
                 if (receivedMessage != null) ProtocolMessageDetails(label = "Received protocol message", message = receivedMessage!!)
                 if (receivedMessage != null) Text(text = "Acknowledgement sent for msgId: ${receivedMessage!!.messageId}")
+                if (relayMessage != null) Text(text = relayMessage!!)
                 if (messageError != null) Text(text = messageError!!)
 
                 Text(text = "Nearby devices (${nearbyDevices.size})")

@@ -39,15 +39,19 @@ class BluetoothRfcommTransport(context: Context) {
     private var isListening = false
 
     @Volatile
-    private var onMessageReceived: ((TransportMessage) -> Unit)? = null
+    private var onMessageReceived: ((ReceivedTransportMessage) -> Unit)? = null
 
     @Volatile
     private var onAcknowledgementReceived: ((Long) -> Unit)? = null
 
     @Volatile
+    private var onRelayEvent: ((RelayEvent) -> Unit)? = null
+
+    @Volatile
     private var connectionStateCallback: ((RfcommConnectionState) -> Unit)? = null
 
     private val writeLock = Any()
+    private val seenMessageIds = ConcurrentHashMap.newKeySet<Long>()
 
     @SuppressLint("MissingPermission")
     fun listen(onStateChanged: (RfcommConnectionState) -> Unit) {
@@ -124,7 +128,7 @@ class BluetoothRfcommTransport(context: Context) {
     }
 
     /** Registers a main-thread callback for complete, parsed protocol messages. */
-    fun onMessageReceived(callback: (TransportMessage) -> Unit) {
+    fun onMessageReceived(callback: (ReceivedTransportMessage) -> Unit) {
         onMessageReceived = callback
     }
 
@@ -133,9 +137,14 @@ class BluetoothRfcommTransport(context: Context) {
         onAcknowledgementReceived = callback
     }
 
+    /** Reports when this phone forwards a message or discards a duplicate. */
+    fun onRelayEvent(callback: (RelayEvent) -> Unit) {
+        onRelayEvent = callback
+    }
+
     /** Sends the small T9 acknowledgement control frame for an accepted message. */
-    fun sendAcknowledgement(messageId: Long) {
-        val connectedSocket = socket
+    fun sendAcknowledgement(messageId: Long, peerAddress: String? = null) {
+        val connectedSocket = peerAddress?.let { connectedSockets[it] } ?: socket
         if (connectedSocket == null || !connectedSocket.isConnected) return
 
         executor.execute {
@@ -190,22 +199,10 @@ class BluetoothRfcommTransport(context: Context) {
             language = language,
             text = text,
         )
+        rememberMessageId(message.messageId)
         executor.execute {
             try {
-                synchronized(writeLock) {
-                    val output = connectedSocket.outputStream
-                    output.write(message.version)
-                    output.write((message.messageId shr 24).toInt())
-                    output.write((message.messageId shr 16).toInt())
-                    output.write((message.messageId shr 8).toInt())
-                    output.write(message.messageId.toInt())
-                    output.write(message.ttl)
-                    output.write(message.language.wireValue)
-                    output.write(encoded.size ushr 8)
-                    output.write(encoded.size and 0xFF)
-                    output.write(encoded)
-                    output.flush()
-                }
+                writeMessage(connectedSocket, message)
                 emitSendMessageResult(onResult, SendMessageResult.Sent(message))
             } catch (exception: IOException) {
                 handleDisconnected(connectedSocket, "Connection lost while sending a message.")
@@ -305,7 +302,28 @@ class BluetoothRfcommTransport(context: Context) {
                         language = language,
                         text = String(textBytes, StandardCharsets.UTF_8),
                     )
-                    mainHandler.post { onMessageReceived?.invoke(message) }
+                    val sourceAddress = connectedSocket.remoteDevice.address
+                    if (!rememberMessageId(message.messageId)) {
+                        mainHandler.post { onRelayEvent?.invoke(RelayEvent.DuplicateIgnored(message.messageId)) }
+                        continue
+                    }
+
+                    // Forward only to other peers. The original ID survives, but each hop
+                    // spends one TTL so a loop naturally stops even without deduplication.
+                    if (message.ttl > 0) {
+                        relayToOtherPeers(message, sourceAddress)
+                    } else {
+                        mainHandler.post { onRelayEvent?.invoke(RelayEvent.TtlExpired(message.messageId)) }
+                    }
+                    mainHandler.post {
+                        onMessageReceived?.invoke(
+                            ReceivedTransportMessage(
+                                message = message,
+                                sourcePeerAddress = sourceAddress,
+                                sourcePeerName = connectedSocket.remoteDevice.name ?: "Unnamed device",
+                            ),
+                        )
+                    }
                 }
             } catch (exception: IOException) {
                 handleDisconnected(
@@ -344,6 +362,67 @@ class BluetoothRfcommTransport(context: Context) {
     }
 
     @SuppressLint("MissingPermission")
+    private fun relayToOtherPeers(message: TransportMessage, sourceAddress: String) {
+        val forwardedMessage = message.copy(ttl = message.ttl - 1)
+        val targets = connectedSockets.entries.filter { (address, connectedSocket) ->
+            address != sourceAddress && connectedSocket.isConnected
+        }
+        if (targets.isEmpty()) {
+            mainHandler.post { onRelayEvent?.invoke(RelayEvent.NoOtherPeer(message.messageId)) }
+            return
+        }
+        executor.execute {
+            var forwardedCount = 0
+            targets.forEach { (address, connectedSocket) ->
+                try {
+                    writeMessage(connectedSocket, forwardedMessage)
+                    forwardedCount++
+                } catch (_: IOException) {
+                    handleDisconnected(connectedSocket, "Connection lost while relaying a message.")
+                }
+            }
+            val targetNames = targets.filter { (address, _) -> connectedSockets.containsKey(address) }
+                .map { (_, connectedSocket) -> connectedSocket.remoteDevice.name ?: "Unnamed device" }
+            mainHandler.post {
+                onRelayEvent?.invoke(
+                    RelayEvent.Forwarded(
+                        messageId = message.messageId,
+                        ttlAfterRelay = forwardedMessage.ttl,
+                        peerNames = targetNames,
+                        forwardedCount = forwardedCount,
+                    ),
+                )
+            }
+        }
+    }
+
+    @Throws(IOException::class)
+    private fun writeMessage(targetSocket: BluetoothSocket, message: TransportMessage) {
+        val encoded = message.text.toByteArray(StandardCharsets.UTF_8)
+        synchronized(writeLock) {
+            val output = targetSocket.outputStream
+            output.write(message.version)
+            output.write((message.messageId shr 24).toInt())
+            output.write((message.messageId shr 16).toInt())
+            output.write((message.messageId shr 8).toInt())
+            output.write(message.messageId.toInt())
+            output.write(message.ttl)
+            output.write(message.language.wireValue)
+            output.write(encoded.size ushr 8)
+            output.write(encoded.size and 0xFF)
+            output.write(encoded)
+            output.flush()
+        }
+    }
+
+    private fun rememberMessageId(messageId: Long): Boolean {
+        if (!seenMessageIds.add(messageId)) return false
+        // Keep deduplication bounded on long-running relay phones.
+        if (seenMessageIds.size > MAX_SEEN_MESSAGE_IDS) seenMessageIds.clear()
+        return true
+    }
+
+    @SuppressLint("MissingPermission")
     private fun emitConnectionSummary(onStateChanged: (RfcommConnectionState) -> Unit) {
         val peers = connectedSockets.values.map { connectedSocket ->
             RfcommPeer(
@@ -372,6 +451,7 @@ class BluetoothRfcommTransport(context: Context) {
         const val DEFAULT_TTL = 3
         private const val MAX_TTL = 255
         private const val MAX_PAYLOAD_BYTES = 4_096
+        private const val MAX_SEEN_MESSAGE_IDS = 2_048
         private val random = SecureRandom()
         val SERVICE_UUID: UUID = UUID.fromString("56d5cd5e-3d02-4f41-8d47-2a3de7b6bc10")
     }
@@ -396,6 +476,24 @@ data class TransportMessage(
     val language: MessageLanguage,
     val text: String,
 )
+
+data class ReceivedTransportMessage(
+    val message: TransportMessage,
+    val sourcePeerAddress: String,
+    val sourcePeerName: String,
+)
+
+sealed interface RelayEvent {
+    data class Forwarded(
+        val messageId: Long,
+        val ttlAfterRelay: Int,
+        val peerNames: List<String>,
+        val forwardedCount: Int,
+    ) : RelayEvent
+    data class DuplicateIgnored(val messageId: Long) : RelayEvent
+    data class TtlExpired(val messageId: Long) : RelayEvent
+    data class NoOtherPeer(val messageId: Long) : RelayEvent
+}
 
 enum class MessageLanguage(val wireValue: Int, val displayName: String) {
     ENGLISH(1, "English"),
