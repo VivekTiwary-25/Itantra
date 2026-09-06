@@ -80,7 +80,7 @@ For real cross-lane integration:
 
 - Real `sendMessage` and incoming receive behavior depend on Lane 2 Transport.
 - Real PTT transcription depends on Lane 3 Speech.
-- Hands-free continuous capture, VAD, segmentation, and exact UI state/event mapping depend on Lane 3's real interface.
+- Lane 1 already performs local Hands-free microphone/WAV capture through the shared PTT recorder. VAD, pause segmentation, real STT, and final UI state/event mapping depend on Lane 3's real interface.
 - Alert metadata is an unresolved prerequisite across Lane 1 and Lane 2. Do not add an alert field to the local `Message`, packet, or callback until those lanes agree on the contract.
 - Maximum-volume, non-interruptible playback for received alerts depends on Lane 2 delivering agreed alert metadata and Lane 3 providing the required speech playback behavior.
 
@@ -102,7 +102,7 @@ Speech:
 - model/runtime details
 - language/model handling
 - audio processing after Lane 1's WAV handoff
-- VAD/hands-free speech segmentation and capture-processing behavior
+- VAD/hands-free speech segmentation and corresponding processing behavior
 
 Transport:
 - Bluetooth/Wi-Fi transport implementation

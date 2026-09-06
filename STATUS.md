@@ -39,8 +39,8 @@ These are not standalone Lane 1 RED rungs.
 
 | Item | Dependency / state |
 |---|---|
-| Replace hardcoded PTT transcription | Lane 3 Speech integration |
-| Replace Hands-free `Listening...` and fake completion with continuous capture, VAD and segmentation | Lane 3 Speech integration |
+| Replace hardcoded PTT/Hands-free transcripts | Lane 3 Speech integration |
+| Add Hands-free VAD, pause segmentation, real STT and final state mapping | Lane 3 Speech integration; local shared WAV capture is already GREEN |
 | Decide final-only versus partial/streaming transcript delivery and exact Hands-free state/event mapping | Lane 3 decoder/API |
 | Replace fake `sendMessage` and receive callback behavior | Lane 2 Transport integration |
 | Define alert metadata | Unresolved prerequisite across Lane 1 and Lane 2; do not invent a local field |
@@ -55,4 +55,4 @@ These are not standalone Lane 1 RED rungs.
 
 ## Update rule
 
-Vivek physically accepted A11–A13. Their implementation is committed as `eedd486`.
+Vivek physically accepted A11–A13 (`eedd486`) and the post-acceptance Hands-free capture/Message Detail date correction (`36ba653`).

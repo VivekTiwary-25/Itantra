@@ -269,7 +269,7 @@ Visual/state behavior:
 - rings/orb can animate more actively while recording
 - keep the UI calm and focused
 
-These labels describe the intended visual vocabulary, not a requirement for streaming transcription. The current standalone Hands-free shell may show resting Listening... and use a fake completion result for UI testing. Real continuous capture, VAD, segmentation, and exact state/event mapping wait for Lane 3 integration.
+These labels describe the intended visual vocabulary, not a requirement for streaming transcription. The accepted post-acceptance correction starts the existing shared PTT recorder on Hands-free entry and finalizes it at Done or Back; the completion transcript remains a fake stand-in for UI testing. VAD, pause segmentation, real STT, and final state/event mapping wait for Lane 3 integration.
 
 Suggested helper text:
 - Listening... / Speak normally
@@ -574,7 +574,7 @@ Logs:
 
 Message Detail:
 - clean read-only document view
-- full message + metadata
+- full message + stored date/time metadata
 - opening unread incoming message marks it read
 
 
@@ -586,7 +586,7 @@ Do not use these UI decisions as permission to implement later rungs early.
 
 The following behavior is integration-deferred rather than standalone Lane 1 UI work:
 - real PTT transcription waits on Lane 3
-- real Hands-free continuous capture, VAD, segmentation, and exact state/event mapping wait on Lane 3
+- Hands-free local WAV capture is implemented through the shared PTT recorder; VAD, pause segmentation, real STT, and final state/event mapping wait on Lane 3
 - streaming versus final-only transcript delivery remains intentionally unresolved until Lane 3 exposes its decoder/API
 - real outgoing send and incoming receive wait on Lane 2
 - alert metadata remains an unresolved Lane 1/Lane 2 prerequisite; do not invent a packet or message field locally

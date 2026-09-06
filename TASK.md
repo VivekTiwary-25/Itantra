@@ -4,13 +4,14 @@
 
 **Lane 1 — standalone work complete through A13**
 
-Vivek has physically accepted A11–A13. A0–A13 are GREEN; the accepted implementation is committed as `eedd486`. Do not begin another standalone Lane 1 feature.
+Vivek has physically accepted A11–A13 and the post-acceptance correction. A0–A13 are GREEN; the accepted commits are `eedd486` and `36ba653`. Do not begin another standalone Lane 1 feature.
 
 Implemented scope:
 
 - A11: the Hands-free tile opens a dedicated dark/gold screen with `Listening...`, Back and Done; Main retains the dominant PTT.
 - A12: Text opens the shared editor blank; PTT and the temporary Hands-free completion open it with the hardcoded transcript; only Send appends one outgoing message; non-empty Back offers Cancel/Discard.
 - A13: Logs rows open read-only Message Detail; opening one unread incoming row marks only that message read; Logs remains newest-first and the Main badge remains derived from unread received messages.
+- Accepted post-acceptance correction: Hands-free starts/stops the same local PTT WAV recorder and shares its last-recording playback file; Message Detail persists and displays date plus time.
 
 ## Physical acceptance completed
 
@@ -28,7 +29,7 @@ The checklist above passed on Vivek's physical phone.
 
 ## Scope guardrails
 
-Do not add real STT/TTS, continuous capture, VAD, transport, alert metadata, durable persistence, Navigation Compose, a repository, a database, DI, or more standalone Lane 1 rungs. Integration-deferred work starts only when explicitly assigned.
+Do not add real STT/TTS, VAD, pause segmentation, transport, alert metadata, durable persistence, Navigation Compose, a repository, a database, DI, a second capture pipeline, or more standalone Lane 1 rungs. Integration-deferred work starts only when explicitly assigned.
 
 ## Next resume point
 

@@ -280,7 +280,7 @@ Keep the dominant `HOLD TO TALK` control on Main permanently. Make the existing 
 
 The screen is sparse and uses the existing dark/gold visual language. It shows the resting `Listening...` presentation, with Back available and Done visible as part of the agreed shell. Returning to Main preserves the shared app state.
 
-A11 does not implement continuous capture, VAD, real STT, fake streaming transcription, transcript processing, or real Done/capture semantics.
+A11 originally did not require continuous capture, VAD, real STT, fake streaming transcription, transcript processing, or real Done/capture semantics. An accepted post-acceptance correction now starts the proven shared PTT recorder on Hands-free entry and finalizes it on Done or Back; it does not add VAD, segmentation, real STT, or final Speech integration.
 
 **✅ TEST:** Main still has its dominant PTT. Tap Hands-free and confirm the dedicated screen shows `Listening...`, Back and Done. Back returns to Main without losing state.
 
@@ -291,7 +291,7 @@ Refine the accepted A9/A10 plumbing into the final editor flow:
 
 - Text opens the shared New Message editor blank.
 - PTT fake transcription opens that editor pre-filled with `this is a test message`.
-- Hands-free Done uses a temporary/fake completion path to open the same editor with the same hardcoded stand-in.
+- Hands-free Done finalizes local shared WAV capture, then uses a temporary/fake completion path to open the same editor with the same hardcoded stand-in.
 - A voice transcript is an editable draft, not a sent message.
 - Only pressing Send calls `sendMessage(text)` and appends one outgoing message to the shared observable message list.
 - Back leaves an empty editor normally. Back with a non-empty draft shows `Discard this message?` with Cancel and Discard actions.
@@ -315,10 +315,10 @@ Do not add editing, reply, delete, persistence, or a navigation framework.
 
 ### After A13 — Integration-deferred work, not standalone Lane 1 rungs
 
-Once A11–A13 are implemented, standalone Lane 1 feature work is complete for now pending physical acceptance. Those rungs do not become green until their real-phone tests pass. The following items remain real project work, but they are blocked on cross-lane contracts or belong to final integration rather than ordinary unfinished Lane 1 UI rungs:
+Once A11–A13 are implemented and physically accepted, standalone Lane 1 feature work is complete for now. The following items remain real project work, but they are blocked on cross-lane contracts or belong to final integration rather than ordinary unfinished Lane 1 UI rungs:
 
 - PTT transcription still uses a hardcoded stand-in. Real STT waits on Lane 3.
-- Hands-free `Listening...` and fake completion are UI/test behavior. Real continuous capture, VAD and segmentation wait on Lane 3.
+- Hands-free now uses the shared PTT recorder for local WAV capture from entry until Done/Back. VAD, pause segmentation, real STT and final state mapping wait on Lane 3.
 - Streaming versus final-only transcript delivery is intentionally unresolved until Lane 3 exposes its real decoder/API. Lane 1 requires only an eventual final result that opens the editor.
 - Exact Hands-free states and event transitions must follow Lane 3's real interface during integration.
 - Real `sendMessage` and incoming receive behavior wait on Lane 2.

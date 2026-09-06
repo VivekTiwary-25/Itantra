@@ -9,6 +9,7 @@ This file records repository facts confirmed on 2026-09-06. Treat these as curre
 - Branch: `lane/app`, tracking `origin/lane/app`
 - A10 is GREEN and committed as `9ab8b22` (`feat(app): complete A10 fake interface wiring`).
 - A11–A13 are physically accepted and committed as `eedd486` (`feat(app): complete A11-A13 standalone flows`).
+- The accepted post-acceptance Hands-free capture/Message Detail date correction is committed as `36ba653` (`fix(app): share Hands-free capture with PTT`).
 
 ## Project structure
 
@@ -67,7 +68,7 @@ Primary Windows command:
 
 The normal debug build is the required verification path. A previous `--offline` attempt failed because the Foojay plugin was not cached; that was not a source failure.
 
-`assembleDebug` completed successfully after the accepted A11–A13 source was finalized. During the interrupted run, `assembleDebugAndroidTest` compiled an attempted Compose flow test, but `connectedDebugAndroidTest` could not run it because the RMX3392/ColorOS build denied `UiAutomation.grantRuntimePermission`. That non-runnable test addition was removed; the original app-context instrumented smoke test remains. Physical acceptance, not that failed harness, is the GREEN evidence.
+`assembleDebug` completed successfully after both the accepted A11–A13 source and post-acceptance correction were finalized. During the interrupted run, `assembleDebugAndroidTest` compiled an attempted Compose flow test, but `connectedDebugAndroidTest` could not run it because the RMX3392/ColorOS build denied `UiAutomation.grantRuntimePermission`. That non-runnable test addition was removed; the original app-context instrumented smoke test remains. Physical acceptance, not that failed harness, is the GREEN evidence.
 
 ## Connected test phone
 

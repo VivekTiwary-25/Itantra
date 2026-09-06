@@ -27,6 +27,8 @@ GREEN means physically demonstrated by Vivek on a real phone. A11–A13 meet tha
 
 Standalone Lane 1 feature implementation ends after A13 for now. Do not start another standalone Lane 1 rung.
 
+The accepted post-acceptance correction is not a new rung: it is committed as `36ba653` and keeps A0–A13 GREEN.
+
 ## What A11–A13 now contain
 
 ### A11 — Dedicated Hands-free destination
@@ -42,7 +44,7 @@ Standalone Lane 1 feature implementation ends after A13 for now. Do not start an
 
 - Text clears the current draft and opens the shared New Message editor blank.
 - PTT release calls the existing hardcoded `transcribe(recordingFile.absolutePath)` and opens that editor with `this is a test message` pre-filled.
-- Hands-free Done is a temporary fake-completion path which calls the same stand-in and opens the same editor pre-filled.
+- Hands-free Done first finalizes the shared local WAV capture, then follows the temporary fake-completion path which calls the same stand-in and opens the same editor pre-filled.
 - Voice output is an editable draft. It is not appended to Logs and does not call transport merely because transcription completed.
 - Only Send trims non-empty editor text, calls fake `sendMessage(text)`, appends one read outgoing message and returns to Main.
 - Back leaves an empty editor immediately. Back from a non-empty editor shows `Discard this message?` with Cancel and Discard.
@@ -71,10 +73,11 @@ The existing `MessageListSaver` persists every `Message` field (`text`, `date`, 
 
 ## Verification history
 
-- `.\gradlew.bat assembleDebug` completed successfully after the accepted A11–A13 source was finalized.
+- `.\gradlew.bat assembleDebug` completed successfully after the accepted A11–A13 source and again after post-acceptance correction `36ba653`.
 - During the interrupted run, `.\gradlew.bat assembleDebugAndroidTest` compiled an attempted Compose flow test, but `.\gradlew.bat connectedDebugAndroidTest` could not run it: RMX3392/ColorOS denied `UiAutomation.grantRuntimePermission` before its feature assertions began.
 - The non-runnable Compose test addition was removed instead of being committed. The original app-context instrumented smoke test remains.
 - Vivek then completed the required real-phone checklist. That physical evidence is why A11–A13 are GREEN.
+- Vivek physically accepted the post-acceptance correction: shared Hands-free/PTT capture and playback, Back cleanup, and persistent Message Detail date plus time.
 
 ## Fake versus real boundary
 
@@ -119,9 +122,12 @@ A later instrumented run showed the fourth item rendered in Logs, then an accide
 - A10 remains `9ab8b22`.
 - A11–A13 are committed as `eedd486`.
 - Documentation reconciliation is `5e12125`; this acceptance record follows it.
+- The accepted post-acceptance capture/date correction is `36ba653`.
 
 Do not rewrite these commits. Standalone Lane 1 is complete; only explicitly assigned integration work should modify it.
 
 ## Exact resume point
 
-Start only an explicitly assigned cross-lane integration audit, integration task, or final product cleanup. Keep the fake-versus-real boundaries above intact until the owning lanes agree on their contracts.
+Start only an explicitly assigned cross-lane integration audit, integration task, or final product cleanup. Before changing source, re-read `AGENTS.md`, then this file, `TASK.md`, `PROJECT_FACTS.md`, the relevant lane specification, and `CONTRACTS.md` for a lane boundary.
+
+Do not blindly replace the one shared message list/editor flow, the one shared `PcmRecorder`/`recording.wav` path used by PTT and Hands-free, the saveable message fields (including date), or the resolved `onMessageReceived(text, languageCode)` signature. Do not infer streaming transcripts, VAD, alert metadata, or a new Speech/Transport interface before the owning lanes agree on it.
