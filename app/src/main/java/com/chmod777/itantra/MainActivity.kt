@@ -170,6 +170,7 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
                         RfcommConnectionState.Listening -> "RFCOMM: listening for a connection…"
                         is RfcommConnectionState.Connecting -> "RFCOMM: connecting to ${state.peerName}…"
                         is RfcommConnectionState.Connected -> "RFCOMM: connected to ${state.peerName}"
+                        is RfcommConnectionState.Disconnected -> "RFCOMM: disconnected — ${state.reason} Reconnect without restarting the app."
                         is RfcommConnectionState.Error -> "RFCOMM: ${state.message}"
                     },
                 )

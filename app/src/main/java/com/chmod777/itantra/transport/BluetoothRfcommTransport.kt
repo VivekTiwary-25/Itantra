@@ -38,10 +38,14 @@ class BluetoothRfcommTransport(context: Context) {
     @Volatile
     private var onAcknowledgementReceived: ((Long) -> Unit)? = null
 
+    @Volatile
+    private var connectionStateCallback: ((RfcommConnectionState) -> Unit)? = null
+
     private val writeLock = Any()
 
     @SuppressLint("MissingPermission")
     fun listen(onStateChanged: (RfcommConnectionState) -> Unit) {
+        connectionStateCallback = onStateChanged
         executor.execute {
             val adapter = appContext.getSystemService(BluetoothManager::class.java)?.adapter
             if (adapter == null) {
@@ -62,7 +66,6 @@ class BluetoothRfcommTransport(context: Context) {
                 // Blocks until a peer connects. This is intentionally on an I/O thread.
                 val connectedSocket = newServerSocket.accept()
                 socket = connectedSocket
-                startReading(connectedSocket, onStateChanged)
                 emit(
                     onStateChanged,
                     RfcommConnectionState.Connected(
@@ -70,6 +73,7 @@ class BluetoothRfcommTransport(context: Context) {
                         peerAddress = connectedSocket.remoteDevice.address,
                     ),
                 )
+                startReading(connectedSocket, onStateChanged)
             } catch (exception: IOException) {
                 emit(onStateChanged, RfcommConnectionState.Error("Listener error: ${exception.message ?: "unknown error"}"))
             } finally {
@@ -80,6 +84,7 @@ class BluetoothRfcommTransport(context: Context) {
 
     @SuppressLint("MissingPermission")
     fun connect(address: String, onStateChanged: (RfcommConnectionState) -> Unit) {
+        connectionStateCallback = onStateChanged
         executor.execute {
             val adapter = appContext.getSystemService(BluetoothManager::class.java)?.adapter
             if (adapter == null) {
@@ -91,16 +96,17 @@ class BluetoothRfcommTransport(context: Context) {
                 return@execute
             }
 
+            var newSocket: BluetoothSocket? = null
             try {
                 // Discovery competes for radio time and makes RFCOMM setup unreliable.
                 if (adapter.isDiscovering) adapter.cancelDiscovery()
                 val device = adapter.getRemoteDevice(address)
                 emit(onStateChanged, RfcommConnectionState.Connecting(device.name ?: "Unnamed device"))
 
-                val newSocket = device.createRfcommSocketToServiceRecord(SERVICE_UUID)
-                newSocket.connect() // Blocking; always stays off the main thread.
-                socket = newSocket
-                startReading(newSocket, onStateChanged)
+                val socketToConnect = device.createRfcommSocketToServiceRecord(SERVICE_UUID)
+                newSocket = socketToConnect
+                socketToConnect.connect() // Blocking; always stays off the main thread.
+                socket = socketToConnect
                 emit(
                     onStateChanged,
                     RfcommConnectionState.Connected(
@@ -108,7 +114,13 @@ class BluetoothRfcommTransport(context: Context) {
                         peerAddress = device.address,
                     ),
                 )
+                startReading(socketToConnect, onStateChanged)
             } catch (exception: IOException) {
+                try {
+                    newSocket?.close()
+                } catch (_: IOException) {
+                    // The socket never completed setup or has already closed.
+                }
                 emit(onStateChanged, RfcommConnectionState.Error("Connection error: ${exception.message ?: "unknown error"}"))
             }
         }
@@ -142,7 +154,7 @@ class BluetoothRfcommTransport(context: Context) {
                     output.flush()
                 }
             } catch (_: IOException) {
-                // A failed ACK is equivalent to a lost/disconnected session; T10 handles reconnects.
+                handleDisconnected(connectedSocket, "Connection lost while sending acknowledgement.")
             }
         }
     }
@@ -199,6 +211,7 @@ class BluetoothRfcommTransport(context: Context) {
                 }
                 emitSendMessageResult(onResult, SendMessageResult.Sent(message))
             } catch (exception: IOException) {
+                handleDisconnected(connectedSocket, "Connection lost while sending a message.")
                 emitSendMessageResult(
                     onResult,
                     SendMessageResult.Error(exception.message ?: "could not write to the RFCOMM stream"),
@@ -239,7 +252,7 @@ class BluetoothRfcommTransport(context: Context) {
                 while (true) {
                     val value = input.read()
                     if (value == -1) {
-                        emit(onStateChanged, RfcommConnectionState.Error("Peer disconnected."))
+                        handleDisconnected(connectedSocket, "Peer disconnected.", onStateChanged)
                         return@execute
                     }
                     if (value == ACK_FRAME_MARKER) {
@@ -275,12 +288,32 @@ class BluetoothRfcommTransport(context: Context) {
                     mainHandler.post { onMessageReceived?.invoke(message) }
                 }
             } catch (exception: IOException) {
-                emit(
+                handleDisconnected(
+                    connectedSocket,
+                    "Connection lost: ${exception.message ?: "connection closed"}",
                     onStateChanged,
-                    RfcommConnectionState.Error("Read error: ${exception.message ?: "connection closed"}"),
                 )
             }
         }
+    }
+
+    /**
+     * Clears a dead session without shutting down the executor, so the caller can
+     * immediately listen or connect again without restarting the app.
+     */
+    private fun handleDisconnected(
+        disconnectedSocket: BluetoothSocket,
+        reason: String,
+        callback: ((RfcommConnectionState) -> Unit)? = connectionStateCallback,
+    ) {
+        if (socket !== disconnectedSocket) return
+        try {
+            disconnectedSocket.close()
+        } catch (_: IOException) {
+            // It is already closed.
+        }
+        socket = null
+        callback?.let { emit(it, RfcommConnectionState.Disconnected(reason)) }
     }
 
     private fun emit(
@@ -311,6 +344,7 @@ sealed interface RfcommConnectionState {
     data object Listening : RfcommConnectionState
     data class Connecting(val peerName: String) : RfcommConnectionState
     data class Connected(val peerName: String, val peerAddress: String) : RfcommConnectionState
+    data class Disconnected(val reason: String) : RfcommConnectionState
     data class Error(val message: String) : RfcommConnectionState
 }
 
