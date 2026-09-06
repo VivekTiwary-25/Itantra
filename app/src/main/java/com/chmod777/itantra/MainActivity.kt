@@ -9,6 +9,7 @@ import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Bundle
 import android.view.HapticFeedbackConstants
+import androidx.activity.compose.BackHandler
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -49,12 +50,14 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -106,7 +109,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private enum class Screen { MAIN, LOGS, NEW_MESSAGE }
+private enum class Screen { MAIN, HANDS_FREE, NEW_MESSAGE, LOGS, MESSAGE_DETAIL }
 
 private enum class MessageDirection { SENT, RECEIVED }
 
@@ -165,6 +168,8 @@ private fun onMessageReceived(callback: (text: String, languageCode: String) -> 
 @Composable
 fun ITantraApp(modifier: Modifier = Modifier) {
     var screen by rememberSaveable { mutableStateOf(Screen.MAIN) }
+    var draft by rememberSaveable { mutableStateOf("") }
+    var selectedMessageIndex by rememberSaveable { mutableStateOf<Int?>(null) }
     val messages = rememberSaveable(saver = MessageListSaver) {
         mutableStateListOf(
             Message("Water rising near the school", "10:42", MessageDirection.RECEIVED, isRead = false),
@@ -197,29 +202,49 @@ fun ITantraApp(modifier: Modifier = Modifier) {
     when (screen) {
         Screen.MAIN -> MainScreen(
             unreadCount = unreadCount,
-            onOpenText = { screen = Screen.NEW_MESSAGE },
+            onOpenHandsFree = { screen = Screen.HANDS_FREE },
+            onOpenText = {
+                draft = ""
+                screen = Screen.NEW_MESSAGE
+            },
             onOpenLogs = { screen = Screen.LOGS },
             onTranscript = { text ->
-                messages.add(
-                    Message(
-                        text = text,
-                        timestamp = LocalTime.now().format(TIME_FORMAT),
-                        direction = MessageDirection.SENT,
-                        isRead = true
-                    )
-                )
+                draft = text
+                screen = Screen.NEW_MESSAGE
+            },
+            modifier = modifier
+        )
+
+        Screen.HANDS_FREE -> HandsFreeScreen(
+            onBack = { screen = Screen.MAIN },
+            onDone = {
+                draft = transcribe("")
+                screen = Screen.NEW_MESSAGE
             },
             modifier = modifier
         )
 
         Screen.LOGS -> LogsScreen(
-            messages = messages.reversed(),
+            messages = messages,
             onBack = { screen = Screen.MAIN },
+            onOpenMessage = { index ->
+                val message = messages[index]
+                if (message.direction == MessageDirection.RECEIVED && !message.isRead) {
+                    messages[index] = message.copy(isRead = true)
+                }
+                selectedMessageIndex = index
+                screen = Screen.MESSAGE_DETAIL
+            },
             modifier = modifier
         )
 
         Screen.NEW_MESSAGE -> NewMessageScreen(
-            onBack = { screen = Screen.MAIN },
+            draft = draft,
+            onDraftChange = { draft = it },
+            onBack = {
+                draft = ""
+                screen = Screen.MAIN
+            },
             onSend = { text ->
                 sendMessage(text)
                 messages.add(
@@ -230,8 +255,15 @@ fun ITantraApp(modifier: Modifier = Modifier) {
                         isRead = true
                     )
                 )
+                draft = ""
                 screen = Screen.MAIN
             },
+            modifier = modifier
+        )
+
+        Screen.MESSAGE_DETAIL -> MessageDetailScreen(
+            message = messages[checkNotNull(selectedMessageIndex)],
+            onBack = { screen = Screen.LOGS },
             modifier = modifier
         )
     }
@@ -240,6 +272,7 @@ fun ITantraApp(modifier: Modifier = Modifier) {
 @Composable
 private fun MainScreen(
     unreadCount: Int,
+    onOpenHandsFree: () -> Unit,
     onOpenText: () -> Unit,
     onOpenLogs: () -> Unit,
     onTranscript: (String) -> Unit,
@@ -365,6 +398,7 @@ private fun MainScreen(
             }
             BentoControls(
                 unreadCount = unreadCount,
+                onOpenHandsFree = onOpenHandsFree,
                 onOpenText = onOpenText,
                 onOpenLogs = onOpenLogs,
                 modifier = Modifier
@@ -378,6 +412,7 @@ private fun MainScreen(
 @Composable
 private fun BentoControls(
     unreadCount: Int,
+    onOpenHandsFree: () -> Unit,
     onOpenText: () -> Unit,
     onOpenLogs: () -> Unit,
     modifier: Modifier = Modifier
@@ -386,7 +421,7 @@ private fun BentoControls(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        HandsFreeTile()
+        HandsFreeTile(onClick = onOpenHandsFree)
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             BentoTile(
                 icon = Icons.Filled.Edit,
@@ -407,7 +442,7 @@ private fun BentoControls(
 }
 
 @Composable
-private fun HandsFreeTile(modifier: Modifier = Modifier) {
+private fun HandsFreeTile(onClick: () -> Unit, modifier: Modifier = Modifier) {
     val shape = RoundedCornerShape(16.dp)
     Column(
         modifier = modifier
@@ -415,6 +450,7 @@ private fun HandsFreeTile(modifier: Modifier = Modifier) {
             .clip(shape)
             .background(Color(0xBA0D1D2B))
             .border(1.dp, Color(0x21B6CFE7), shape)
+            .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
@@ -515,12 +551,120 @@ private fun BentoTile(
 }
 
 @Composable
+private fun HandsFreeScreen(
+    onBack: () -> Unit,
+    onDone: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    BackHandler(onBack = onBack)
+    val pulseTransition = rememberInfiniteTransition(label = "hands-free pulse")
+    val pulseProgress by pulseTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(1100, easing = LinearEasing)),
+        label = "hands-free pulse progress"
+    )
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 20.dp, vertical = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color(0xFFF4F7FB)
+                )
+            }
+            Spacer(Modifier.width(4.dp))
+            Text(
+                text = "Hands-free",
+                color = Color(0xFFF4F7FB),
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier.size(184.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                RecordingPulse(alpha = 1f, progress = pulseProgress)
+                Icon(
+                    imageVector = Icons.Filled.Mic,
+                    contentDescription = null,
+                    tint = Color(0xFF2C1800),
+                    modifier = Modifier.size(36.dp)
+                )
+            }
+            Spacer(Modifier.height(24.dp))
+            Text(
+                text = "Listening...",
+                color = Color(0xFFF4F7FB),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = "Speak normally",
+                color = Color(0xFF91A2B4),
+                fontSize = 14.sp
+            )
+        }
+        Button(
+            onClick = onDone,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFF8AD3C),
+                contentColor = Color(0xFF2C1800)
+            )
+        ) {
+            Text("Done", fontWeight = FontWeight.Bold)
+        }
+    }
+}
+
+@Composable
 private fun NewMessageScreen(
+    draft: String,
+    onDraftChange: (String) -> Unit,
     onBack: () -> Unit,
     onSend: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var draft by remember { mutableStateOf("") }
+    var showDiscardDialog by rememberSaveable { mutableStateOf(false) }
+    val requestBack = {
+        if (draft.isEmpty()) onBack() else showDiscardDialog = true
+    }
+    BackHandler(onBack = requestBack)
+
+    if (showDiscardDialog) {
+        AlertDialog(
+            onDismissRequest = { showDiscardDialog = false },
+            title = { Text("Discard this message?") },
+            text = { Text("Your draft will be lost if you go back now.") },
+            confirmButton = {
+                TextButton(onClick = onBack) {
+                    Text("Discard")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDiscardDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 
     Column(
         modifier = modifier
@@ -528,7 +672,7 @@ private fun NewMessageScreen(
             .padding(horizontal = 20.dp, vertical = 24.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = onBack) {
+            IconButton(onClick = requestBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
@@ -546,7 +690,7 @@ private fun NewMessageScreen(
         Spacer(Modifier.height(20.dp))
         OutlinedTextField(
             value = draft,
-            onValueChange = { draft = it },
+            onValueChange = onDraftChange,
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
@@ -590,8 +734,10 @@ private fun NewMessageScreen(
 private fun LogsScreen(
     messages: List<Message>,
     onBack: () -> Unit,
+    onOpenMessage: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    BackHandler(onBack = onBack)
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -625,15 +771,19 @@ private fun LogsScreen(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(messages) { message ->
-                MessageCard(message)
+            items(messages.size) { position ->
+                val index = messages.lastIndex - position
+                MessageCard(
+                    message = messages[index],
+                    onClick = { onOpenMessage(index) }
+                )
             }
         }
     }
 }
 
 @Composable
-private fun MessageCard(message: Message) {
+private fun MessageCard(message: Message, onClick: () -> Unit) {
     val cardShape = RoundedCornerShape(
         topStart = 4.dp,
         topEnd = 15.dp,
@@ -655,6 +805,7 @@ private fun MessageCard(message: Message) {
             .clip(cardShape)
             .background(Color(0xBA0D1D2B))
             .border(1.dp, Color(0x21B6CFE7), cardShape)
+            .clickable(onClick = onClick)
     ) {
         Box(
             modifier = Modifier
@@ -663,7 +814,9 @@ private fun MessageCard(message: Message) {
                 .background(stripeColor)
         )
         Column(
-            modifier = Modifier.padding(start = 12.dp, top = 10.dp, end = 14.dp, bottom = 10.dp)
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 12.dp, top = 10.dp, end = 8.dp, bottom = 10.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
@@ -688,6 +841,79 @@ private fun MessageCard(message: Message) {
                 modifier = Modifier.padding(top = 3.dp)
             )
         }
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            contentDescription = null,
+            tint = Color(0xFF91A2B4),
+            modifier = Modifier
+                .align(Alignment.CenterVertically)
+                .padding(end = 10.dp)
+                .size(18.dp)
+        )
+    }
+}
+
+@Composable
+private fun MessageDetailScreen(
+    message: Message,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    BackHandler(onBack = onBack)
+    val isSent = message.direction == MessageDirection.SENT
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 20.dp, vertical = 24.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = onBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color(0xFFF4F7FB)
+                )
+            }
+            Spacer(Modifier.width(4.dp))
+            Column {
+                Text(
+                    text = "Message",
+                    color = Color(0xFFF4F7FB),
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Conversation Detail",
+                    color = Color(0xFF91A2B4),
+                    fontSize = 13.sp
+                )
+            }
+        }
+        Spacer(Modifier.height(28.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = message.timestamp,
+                color = Color(0xFF91A2B4),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.sp
+            )
+            Spacer(Modifier.width(12.dp))
+            Text(
+                text = if (isSent) "↑ Sent" else "↓ Received",
+                color = if (isSent) Color(0xFFF8AD3C) else Color(0xFF6FD4DF),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        Spacer(Modifier.height(20.dp))
+        Text(
+            text = message.text,
+            color = Color(0xFFDCE6EF),
+            fontSize = 18.sp,
+            lineHeight = 28.sp
+        )
     }
 }
 
