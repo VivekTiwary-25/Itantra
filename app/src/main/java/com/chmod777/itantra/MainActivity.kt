@@ -34,6 +34,7 @@ import com.chmod777.itantra.transport.PairedBluetoothDevice
 import com.chmod777.itantra.transport.PairingRequestResult
 import com.chmod777.itantra.transport.BluetoothRfcommTransport
 import com.chmod777.itantra.transport.RfcommConnectionState
+import com.chmod777.itantra.transport.SendByteResult
 import com.chmod777.itantra.ui.theme.SIH_iTantraTheme
 
 class MainActivity : ComponentActivity() {
@@ -65,12 +66,17 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
     val discovery = remember { BluetoothDiscovery(context) }
     val rfcommTransport = remember { BluetoothRfcommTransport(context) }
     var connectionState by remember { mutableStateOf<RfcommConnectionState>(RfcommConnectionState.Idle) }
+    var sentByteMessage by remember { mutableStateOf<String?>(null) }
+    var receivedByteMessage by remember { mutableStateOf<String?>(null) }
 
     DisposableEffect(discovery) {
         onDispose { discovery.close() }
     }
 
     DisposableEffect(rfcommTransport) {
+        rfcommTransport.onByteReceived { value ->
+            receivedByteMessage = "Received byte: $value"
+        }
         onDispose { rfcommTransport.close() }
     }
 
@@ -166,6 +172,22 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
                 ) {
                     Text("Listen for RFCOMM connection")
                 }
+                Button(
+                    onClick = {
+                        rfcommTransport.sendByte(TEST_BYTE) { result ->
+                            sentByteMessage = when (result) {
+                                is SendByteResult.Sent -> "Sent byte: ${result.value}"
+                                SendByteResult.NotConnected -> "Cannot send: no RFCOMM connection."
+                                is SendByteResult.Error -> "Send error: ${result.message}"
+                            }
+                        }
+                    },
+                    enabled = connectionState is RfcommConnectionState.Connected,
+                ) {
+                    Text("Send test byte ($TEST_BYTE)")
+                }
+                if (sentByteMessage != null) Text(text = sentByteMessage!!)
+                if (receivedByteMessage != null) Text(text = receivedByteMessage!!)
 
                 Text(text = "Nearby devices (${nearbyDevices.size})")
                 when {
@@ -227,6 +249,8 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
         }
     }
 }
+
+private const val TEST_BYTE = 42
 
 @Preview(showBackground = true)
 @Composable
