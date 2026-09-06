@@ -10,6 +10,7 @@ import android.os.Looper
 import java.io.DataInputStream
 import java.io.IOException
 import java.nio.charset.StandardCharsets
+import java.security.SecureRandom
 import java.util.UUID
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -32,10 +33,7 @@ class BluetoothRfcommTransport(context: Context) {
     private var socket: BluetoothSocket? = null
 
     @Volatile
-    private var onByteReceived: ((Int) -> Unit)? = null
-
-    @Volatile
-    private var onTextReceived: ((String) -> Unit)? = null
+    private var onMessageReceived: ((TransportMessage) -> Unit)? = null
 
     private val writeLock = Any()
 
@@ -113,79 +111,66 @@ class BluetoothRfcommTransport(context: Context) {
         }
     }
 
-    /** Registers a main-thread callback for every byte received from the peer. */
-    fun onByteReceived(callback: (Int) -> Unit) {
-        onByteReceived = callback
+    /** Registers a main-thread callback for complete, parsed protocol messages. */
+    fun onMessageReceived(callback: (TransportMessage) -> Unit) {
+        onMessageReceived = callback
     }
 
-    /** Registers a main-thread callback for each complete UTF-8 text message. */
-    fun onTextReceived(callback: (String) -> Unit) {
-        onTextReceived = callback
-    }
-
-    /** Writes one byte to the connected peer. */
-    fun sendByte(value: Int, onResult: (SendByteResult) -> Unit) {
-        require(value in 0..255) { "A byte value must be between 0 and 255." }
-
-        val connectedSocket = socket
-        if (connectedSocket == null || !connectedSocket.isConnected) {
-            emitSendResult(onResult, SendByteResult.NotConnected)
-            return
-        }
-
-        executor.execute {
-            try {
-                synchronized(writeLock) {
-                    connectedSocket.outputStream.write(value)
-                    connectedSocket.outputStream.flush()
-                }
-                emitSendResult(onResult, SendByteResult.Sent(value))
-            } catch (exception: IOException) {
-                emitSendResult(
-                    onResult,
-                    SendByteResult.Error(exception.message ?: "could not write to the RFCOMM stream"),
-                )
-            }
-        }
-    }
-
-    /**
-     * Sends one UTF-8 string as: marker (0xFF), 2-byte byte-length, then text.
-     * This temporary T7 frame gives a byte stream message boundaries; T8 will
-     * replace it with the shared version/msgId/TTL protocol frame.
-     */
-    fun sendText(text: String, onResult: (SendTextResult) -> Unit) {
+    /** Sends a versioned T8 protocol message. */
+    fun sendMessage(
+        text: String,
+        language: MessageLanguage = MessageLanguage.ENGLISH,
+        ttl: Int = DEFAULT_TTL,
+        onResult: (SendMessageResult) -> Unit,
+    ) {
         val encoded = text.toByteArray(StandardCharsets.UTF_8)
         if (encoded.isEmpty()) {
-            emitSendTextResult(onResult, SendTextResult.Error("Text cannot be empty."))
+            emitSendMessageResult(onResult, SendMessageResult.Error("Text cannot be empty."))
             return
         }
-        if (encoded.size > MAX_TEXT_BYTES) {
-            emitSendTextResult(onResult, SendTextResult.Error("Text is limited to $MAX_TEXT_BYTES UTF-8 bytes."))
+        if (encoded.size > MAX_PAYLOAD_BYTES) {
+            emitSendMessageResult(onResult, SendMessageResult.Error("Text is limited to $MAX_PAYLOAD_BYTES UTF-8 bytes."))
+            return
+        }
+        if (ttl !in 0..MAX_TTL) {
+            emitSendMessageResult(onResult, SendMessageResult.Error("TTL must be between 0 and $MAX_TTL."))
             return
         }
 
         val connectedSocket = socket
         if (connectedSocket == null || !connectedSocket.isConnected) {
-            emitSendTextResult(onResult, SendTextResult.NotConnected)
+            emitSendMessageResult(onResult, SendMessageResult.NotConnected)
             return
         }
 
+        val message = TransportMessage(
+            version = PROTOCOL_VERSION,
+            messageId = random.nextInt().toUInt().toLong(),
+            ttl = ttl,
+            language = language,
+            text = text,
+        )
         executor.execute {
             try {
                 synchronized(writeLock) {
                     val output = connectedSocket.outputStream
-                    output.write(TEXT_FRAME_MARKER)
+                    output.write(message.version)
+                    output.write((message.messageId shr 24).toInt())
+                    output.write((message.messageId shr 16).toInt())
+                    output.write((message.messageId shr 8).toInt())
+                    output.write(message.messageId.toInt())
+                    output.write(message.ttl)
+                    output.write(message.language.wireValue)
                     output.write(encoded.size ushr 8)
                     output.write(encoded.size and 0xFF)
                     output.write(encoded)
                     output.flush()
                 }
-                emitSendTextResult(onResult, SendTextResult.Sent(text))
+                emitSendMessageResult(onResult, SendMessageResult.Sent(message))
             } catch (exception: IOException) {
-                emitSendTextResult(
+                emitSendMessageResult(
                     onResult,
-                    SendTextResult.Error(exception.message ?: "could not write to the RFCOMM stream"),
+                    SendMessageResult.Error(exception.message ?: "could not write to the RFCOMM stream"),
                 )
             }
         }
@@ -226,19 +211,32 @@ class BluetoothRfcommTransport(context: Context) {
                         emit(onStateChanged, RfcommConnectionState.Error("Peer disconnected."))
                         return@execute
                     }
-                    if (value == TEXT_FRAME_MARKER) {
-                        val length = input.readUnsignedShort()
-                        if (length == 0 || length > MAX_TEXT_BYTES) {
-                            emit(onStateChanged, RfcommConnectionState.Error("Invalid text frame length: $length."))
+                    if (value != PROTOCOL_VERSION) {
+                        emit(onStateChanged, RfcommConnectionState.Error("Unsupported protocol version: $value."))
+                        return@execute
+                    }
+                    val messageId = input.readInt().toUInt().toLong()
+                    val ttl = input.readUnsignedByte()
+                    val language = MessageLanguage.fromWireValue(input.readUnsignedByte())
+                        ?: run {
+                            emit(onStateChanged, RfcommConnectionState.Error("Unknown language code in message."))
                             return@execute
                         }
-                        val textBytes = ByteArray(length)
-                        input.readFully(textBytes)
-                        val text = String(textBytes, StandardCharsets.UTF_8)
-                        mainHandler.post { onTextReceived?.invoke(text) }
-                    } else {
-                        mainHandler.post { onByteReceived?.invoke(value) }
+                    val length = input.readUnsignedShort()
+                    if (length == 0 || length > MAX_PAYLOAD_BYTES) {
+                        emit(onStateChanged, RfcommConnectionState.Error("Invalid text length: $length."))
+                        return@execute
                     }
+                    val textBytes = ByteArray(length)
+                    input.readFully(textBytes)
+                    val message = TransportMessage(
+                        version = value,
+                        messageId = messageId,
+                        ttl = ttl,
+                        language = language,
+                        text = String(textBytes, StandardCharsets.UTF_8),
+                    )
+                    mainHandler.post { onMessageReceived?.invoke(message) }
                 }
             } catch (exception: IOException) {
                 emit(
@@ -256,18 +254,17 @@ class BluetoothRfcommTransport(context: Context) {
         mainHandler.post { onStateChanged(state) }
     }
 
-    private fun emitSendResult(onResult: (SendByteResult) -> Unit, result: SendByteResult) {
-        mainHandler.post { onResult(result) }
-    }
-
-    private fun emitSendTextResult(onResult: (SendTextResult) -> Unit, result: SendTextResult) {
+    private fun emitSendMessageResult(onResult: (SendMessageResult) -> Unit, result: SendMessageResult) {
         mainHandler.post { onResult(result) }
     }
 
     companion object {
         const val SERVICE_NAME = "iTantraRfcomm"
-        private const val TEXT_FRAME_MARKER = 0xFF
-        private const val MAX_TEXT_BYTES = 4_096
+        const val PROTOCOL_VERSION = 1
+        const val DEFAULT_TTL = 3
+        private const val MAX_TTL = 255
+        private const val MAX_PAYLOAD_BYTES = 4_096
+        private val random = SecureRandom()
         val SERVICE_UUID: UUID = UUID.fromString("56d5cd5e-3d02-4f41-8d47-2a3de7b6bc10")
     }
 }
@@ -280,14 +277,25 @@ sealed interface RfcommConnectionState {
     data class Error(val message: String) : RfcommConnectionState
 }
 
-sealed interface SendByteResult {
-    data class Sent(val value: Int) : SendByteResult
-    data object NotConnected : SendByteResult
-    data class Error(val message: String) : SendByteResult
+data class TransportMessage(
+    val version: Int,
+    val messageId: Long,
+    val ttl: Int,
+    val language: MessageLanguage,
+    val text: String,
+)
+
+enum class MessageLanguage(val wireValue: Int, val displayName: String) {
+    ENGLISH(1, "English"),
+    HINDI(2, "Hindi");
+
+    companion object {
+        fun fromWireValue(value: Int): MessageLanguage? = entries.firstOrNull { it.wireValue == value }
+    }
 }
 
-sealed interface SendTextResult {
-    data class Sent(val text: String) : SendTextResult
-    data object NotConnected : SendTextResult
-    data class Error(val message: String) : SendTextResult
+sealed interface SendMessageResult {
+    data class Sent(val message: TransportMessage) : SendMessageResult
+    data object NotConnected : SendMessageResult
+    data class Error(val message: String) : SendMessageResult
 }
