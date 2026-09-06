@@ -15,6 +15,7 @@ import java.util.UUID
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
  * A Bluetooth Classic RFCOMM transport that can maintain multiple peer sockets.
@@ -52,6 +53,7 @@ class BluetoothRfcommTransport(context: Context) {
 
     private val writeLock = Any()
     private val relayPolicy = TransportRelayPolicy()
+    private val pendingRelays = ConcurrentLinkedQueue<PendingRelay>()
 
     @SuppressLint("MissingPermission")
     fun listen(onStateChanged: (RfcommConnectionState) -> Unit) {
@@ -257,6 +259,7 @@ class BluetoothRfcommTransport(context: Context) {
         socket = connectedSocket
         emitConnectionSummary(onStateChanged)
         startReading(connectedSocket, onStateChanged)
+        flushPendingRelays(connectedSocket)
     }
 
     private fun startReading(
@@ -373,7 +376,7 @@ class BluetoothRfcommTransport(context: Context) {
             address != sourceAddress && connectedSocket.isConnected
         }
         if (targets.isEmpty()) {
-            mainHandler.post { onRelayEvent?.invoke(RelayEvent.NoOtherPeer(message.messageId)) }
+            queueRelay(forwardedMessage, sourceAddress)
             return
         }
         executor.execute {
@@ -397,6 +400,42 @@ class BluetoothRfcommTransport(context: Context) {
                         forwardedCount = forwardedCount,
                     ),
                 )
+            }
+        }
+    }
+
+    /** Keeps an already-relayed frame in memory until another peer connects. */
+    private fun queueRelay(message: TransportMessage, sourceAddress: String) {
+        if (pendingRelays.size >= MAX_PENDING_RELAYS) pendingRelays.poll()
+        pendingRelays.offer(PendingRelay(message, sourceAddress))
+        mainHandler.post {
+            onRelayEvent?.invoke(RelayEvent.Queued(message.messageId, pendingRelays.size))
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun flushPendingRelays(newPeerSocket: BluetoothSocket) {
+        executor.execute {
+            val newPeerAddress = newPeerSocket.remoteDevice.address
+            val newPeerName = newPeerSocket.remoteDevice.name ?: "Unnamed device"
+            val delivered = mutableListOf<PendingRelay>()
+            pendingRelays.forEach { pending ->
+                // Never echo the relay back to the phone that originally sent it.
+                if (pending.sourceAddress != newPeerAddress) {
+                    try {
+                        writeMessage(newPeerSocket, pending.message)
+                        delivered += pending
+                        pendingRelays.remove(pending)
+                    } catch (_: IOException) {
+                        handleDisconnected(newPeerSocket, "Connection lost while delivering a queued message.")
+                        return@execute
+                    }
+                }
+            }
+            delivered.forEach { pending ->
+                mainHandler.post {
+                    onRelayEvent?.invoke(RelayEvent.DeliveredFromQueue(pending.message.messageId, newPeerName))
+                }
             }
         }
     }
@@ -449,6 +488,7 @@ class BluetoothRfcommTransport(context: Context) {
         const val DEFAULT_TTL = 3
         private const val MAX_TTL = 255
         private const val MAX_PAYLOAD_BYTES = 4_096
+        private const val MAX_PENDING_RELAYS = 100
         private val random = SecureRandom()
         val SERVICE_UUID: UUID = UUID.fromString("56d5cd5e-3d02-4f41-8d47-2a3de7b6bc10")
     }
@@ -480,6 +520,8 @@ data class ReceivedTransportMessage(
     val sourcePeerName: String,
 )
 
+private data class PendingRelay(val message: TransportMessage, val sourceAddress: String)
+
 sealed interface RelayEvent {
     data class Forwarded(
         val messageId: Long,
@@ -490,6 +532,8 @@ sealed interface RelayEvent {
     data class DuplicateIgnored(val messageId: Long) : RelayEvent
     data class TtlExpired(val messageId: Long) : RelayEvent
     data class NoOtherPeer(val messageId: Long) : RelayEvent
+    data class Queued(val messageId: Long, val pendingCount: Int) : RelayEvent
+    data class DeliveredFromQueue(val messageId: Long, val peerName: String) : RelayEvent
 }
 
 enum class MessageLanguage(val wireValue: Int, val displayName: String) {

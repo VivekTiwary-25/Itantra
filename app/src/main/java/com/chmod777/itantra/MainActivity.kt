@@ -105,6 +105,8 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
                 is RelayEvent.DuplicateIgnored -> "Ignored duplicate msgId ${event.messageId}."
                 is RelayEvent.TtlExpired -> "Did not relay msgId ${event.messageId}: TTL expired."
                 is RelayEvent.NoOtherPeer -> "No other connected peer available to relay msgId ${event.messageId}."
+                is RelayEvent.Queued -> "Queued msgId ${event.messageId} for store-and-forward (${event.pendingCount} pending)."
+                is RelayEvent.DeliveredFromQueue -> "Delivered queued msgId ${event.messageId} to ${event.peerName}."
             }
         }
         onDispose { rfcommTransport.close() }
