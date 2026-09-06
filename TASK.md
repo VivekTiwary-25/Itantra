@@ -2,9 +2,9 @@
 
 ## Active task
 
-**Lane 1 — A11–A13 verification and physical acceptance**
+**Lane 1 — standalone work complete through A13**
 
-The standalone A11–A13 implementation is present in the working tree. Its connected UI test did not run through the feature assertions because device permission setup failed, and Vivek's real-phone acceptance is still pending. Do not begin another standalone Lane 1 feature while these rungs remain YELLOW.
+Vivek has physically accepted A11–A13. A0–A13 are GREEN; the accepted implementation is committed as `eedd486`. Do not begin another standalone Lane 1 feature.
 
 Implemented scope:
 
@@ -12,7 +12,7 @@ Implemented scope:
 - A12: Text opens the shared editor blank; PTT and the temporary Hands-free completion open it with the hardcoded transcript; only Send appends one outgoing message; non-empty Back offers Cancel/Discard.
 - A13: Logs rows open read-only Message Detail; opening one unread incoming row marks only that message read; Logs remains newest-first and the Main badge remains derived from unread received messages.
 
-## Required physical acceptance
+## Physical acceptance completed
 
 1. Launch the app and confirm Main still shows the dominant `HOLD TO TALK` control.
 2. Open Hands-free. Confirm `Listening...`, Back and Done are present; use Back and confirm Main/shared state is preserved.
@@ -24,7 +24,7 @@ Implemented scope:
 8. Open one unread received row. Confirm Message Detail shows its full text, timestamp and `Received`; return to Logs and confirm only that row is read and the Main unread badge drops by one.
 9. Open the sent row and confirm Message Detail labels it `Sent`; confirm Logs remains newest-first.
 
-Only Vivek's confirmation changes A11–A13 to GREEN.
+The checklist above passed on Vivek's physical phone.
 
 ## Scope guardrails
 
@@ -32,4 +32,4 @@ Do not add real STT/TTS, continuous capture, VAD, transport, alert metadata, dur
 
 ## Next resume point
 
-Run the checklist above. If any step fails, keep the affected rung YELLOW and diagnose that exact behavior. If all steps pass, update status and history as directed; do not start extra standalone Lane 1 work.
+Standalone Lane 1 implementation is complete. Begin only explicitly assigned cross-lane integration or final product-cleanup work.

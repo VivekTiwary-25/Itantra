@@ -23,15 +23,15 @@ Never convert status to percentages.
 | A8 | Scrolling message list with three fake messages and timestamps | GREEN |
 | A9 | Type-and-send fallback with shared message state | GREEN |
 | A10 | Fake Speech/Transport interfaces wired into UI | GREEN |
-| A11 | Dedicated Hands-free destination with `Listening...`, Back and Done | YELLOW — implementation present; automated device verification and Vivek physical acceptance pending |
-| A12 | PTT, Hands-free and Text converge on the shared New Message editor | YELLOW — implementation present; automated device verification and Vivek physical acceptance pending |
-| A13 | Message Detail with per-message read/unread behavior | YELLOW — implementation present; automated device verification and Vivek physical acceptance pending |
+| A11 | Dedicated Hands-free destination with `Listening...`, Back and Done | GREEN |
+| A12 | PTT, Hands-free and Text converge on the shared New Message editor | GREEN |
+| A13 | Message Detail with per-message read/unread behavior | GREEN |
 
 A10 remains a valid accepted plumbing milestone. A12 refines its user experience by treating voice results as editable drafts which enter Logs only after Send.
 
 ## Current critical path
 
-Vivek's physical acceptance of A11–A13. No additional standalone Lane 1 implementation should begin before those tests are confirmed.
+A0–A13 standalone Lane 1 work is GREEN. Do not add another standalone Lane 1 rung; wait for explicitly assigned cross-lane integration work.
 
 ## Integration-deferred work
 
@@ -55,4 +55,4 @@ These are not standalone Lane 1 RED rungs.
 
 ## Update rule
 
-Only change A11, A12 or A13 to GREEN after Vivek confirms its exact physical acceptance test succeeded.
+Vivek physically accepted A11–A13. Their implementation is committed as `eedd486`.

@@ -1,6 +1,6 @@
 # SESSION_HANDOFF.md — iTantra lane/app
 
-Updated on 2026-09-06 after the autonomous A11–A13 implementation and documentation pass. This is a resume snapshot, not a replacement for the domain-specific sources listed below.
+Updated on 2026-09-06 after physical acceptance and commit of A11–A13. This is a resume snapshot, not a replacement for the domain-specific sources listed below.
 
 ## Source precedence
 
@@ -19,13 +19,13 @@ Older UI handoffs and generated prototypes are compatible-only secondary referen
 |---|---|---|
 | A0–A9 | App shell, capture/WAV/playback, message history and typed fallback | GREEN |
 | A10 | Fake Speech/Transport interfaces wired into UI | GREEN — committed as `9ab8b22` |
-| A11 | Dedicated Hands-free destination | YELLOW — implementation present; connected verification and Vivek physical acceptance pending |
-| A12 | Voice inputs converge on the shared editor | YELLOW — implementation present; connected verification and Vivek physical acceptance pending |
-| A13 | Message Detail and per-message read/unread behavior | YELLOW — implementation present; connected verification and Vivek physical acceptance pending |
+| A11 | Dedicated Hands-free destination | GREEN — physically accepted by Vivek; committed as `eedd486` |
+| A12 | Voice inputs converge on the shared editor | GREEN — physically accepted by Vivek; committed as `eedd486` |
+| A13 | Message Detail and per-message read/unread behavior | GREEN — physically accepted by Vivek; committed as `eedd486` |
 
-GREEN still means physically demonstrated by Vivek on a real phone. Automated verification does not promote A11–A13.
+GREEN means physically demonstrated by Vivek on a real phone. A11–A13 meet that condition.
 
-Standalone Lane 1 feature implementation ends after A13 for now. The only current standalone action is physical acceptance of A11–A13; do not start another Lane 1 rung.
+Standalone Lane 1 feature implementation ends after A13 for now. Do not start another standalone Lane 1 rung.
 
 ## What A11–A13 now contain
 
@@ -68,13 +68,12 @@ Standalone Lane 1 feature implementation ends after A13 for now. The only curren
 
 The existing `MessageListSaver` persists every `Message` field (`text`, `timestamp`, `direction`, `isRead`) across Activity recreation. Screen, draft and selected index use local `rememberSaveable` state. No ViewModel, repository, database, DI or Navigation Compose was added.
 
-## Automated verification from this pass
+## Verification history
 
-- `.\gradlew.bat assembleDebug` completed successfully for the current A11–A13 source.
-- `.\gradlew.bat assembleDebugAndroidTest` completed successfully, so the instrumented test source compiled.
-- `.\gradlew.bat connectedDebugAndroidTest` did not validate the flows. An initial run was blocked by permission/system UI before Compose became available. The retry failed in setup because the RMX3392/ColorOS build denied `UiAutomation.grantRuntimePermission`; teardown then reported that its `ActivityScenario` had not initialized. The A11–A13 feature assertions were not reached. This is a test-harness/device-permission failure, not evidence that the app behavior passed or failed.
-- No further build, install or test was run during the documentation-only reconciliation.
-- A11–A13 still require the ordered real-phone checks in `TASK.md`.
+- `.\gradlew.bat assembleDebug` completed successfully after the accepted A11–A13 source was finalized.
+- During the interrupted run, `.\gradlew.bat assembleDebugAndroidTest` compiled an attempted Compose flow test, but `.\gradlew.bat connectedDebugAndroidTest` could not run it: RMX3392/ColorOS denied `UiAutomation.grantRuntimePermission` before its feature assertions began.
+- The non-runnable Compose test addition was removed instead of being committed. The original app-context instrumented smoke test remains.
+- Vivek then completed the required real-phone checklist. That physical evidence is why A11–A13 are GREEN.
 
 ## Fake versus real boundary
 
@@ -114,10 +113,14 @@ A later instrumented run showed the fourth item rendered in Logs, then an accide
 - Use `.\gradlew.bat assembleDebug` as the primary build. Do not lead with `--offline`; the Foojay plugin has previously been absent from cache.
 - `PLAY LAST RECORDING` can occasionally cut off. It is test-only and is not evidence about the deferred received-alert playback path.
 
-## Working tree
+## Commit history and working-tree rule
 
-A11–A13 app and test source remains intentionally uncommitted pending verification and physical acceptance. The canonical documentation is reconciled in a separate documentation-only commit. Preserve the source changes. Do not rewrite `9ab8b22`, push or mark A11–A13 GREEN without Vivek's direction.
+- A10 remains `9ab8b22`.
+- A11–A13 are committed as `eedd486`.
+- Documentation reconciliation is `5e12125`; this acceptance record follows it.
+
+Do not rewrite these commits. Standalone Lane 1 is complete; only explicitly assigned integration work should modify it.
 
 ## Exact resume point
 
-Install/run the current debug build and perform the ordered A11–A13 checklist in `TASK.md`. If any step fails, keep that rung YELLOW and diagnose only that behavior. If all pass, record Vivek's physical acceptance before changing status; do not begin additional standalone Lane 1 work unless integration or another lane is explicitly assigned.
+Start only an explicitly assigned cross-lane integration audit, integration task, or final product cleanup. Keep the fake-versus-real boundaries above intact until the owning lanes agree on their contracts.

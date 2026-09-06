@@ -8,7 +8,7 @@ This file records repository facts confirmed on 2026-09-06. Treat these as curre
 - Remote: `origin` -> `https://github.com/VivekTiwary-25/Itantra.git`
 - Branch: `lane/app`, tracking `origin/lane/app`
 - A10 is GREEN and committed as `9ab8b22` (`feat(app): complete A10 fake interface wiring`).
-- A11–A13 app and test implementation changes are intentionally uncommitted pending verification and physical acceptance. Canonical documentation is reconciled separately.
+- A11–A13 are physically accepted and committed as `eedd486` (`feat(app): complete A11-A13 standalone flows`).
 
 ## Project structure
 
@@ -33,7 +33,7 @@ This file records repository facts confirmed on 2026-09-06. Treat these as curre
 - Opening Logs alone does not change read state. Opening an unread received row marks only that message read; outgoing messages remain read.
 - The Main badge is derived from messages where direction is `RECEIVED` and `isRead` is false.
 
-A0–A10 are physically accepted. A11–A13 implementation is present, but connected UI verification did not reach its feature assertions and Vivek has not completed physical acceptance; all three remain YELLOW.
+A0–A13 are physically accepted on Vivek's phone and GREEN.
 
 ## Fake and integration-deferred boundaries
 
@@ -67,7 +67,7 @@ Primary Windows command:
 
 The normal debug build is the required verification path. A previous `--offline` attempt failed because the Foojay plugin was not cached; that was not a source failure.
 
-For the current uncommitted A11–A13 implementation, `assembleDebug` and `assembleDebugAndroidTest` completed successfully during the interrupted run. `connectedDebugAndroidTest` did not verify the flows: the latest attempt failed in test setup because the RMX3392/ColorOS build denied `UiAutomation.grantRuntimePermission`, then teardown reported that its `ActivityScenario` had not initialized. No A11–A13 feature assertion failure was observed, but no connected-test pass exists.
+`assembleDebug` completed successfully after the accepted A11–A13 source was finalized. During the interrupted run, `assembleDebugAndroidTest` compiled an attempted Compose flow test, but `connectedDebugAndroidTest` could not run it because the RMX3392/ColorOS build denied `UiAutomation.grantRuntimePermission`. That non-runnable test addition was removed; the original app-context instrumented smoke test remains. Physical acceptance, not that failed harness, is the GREEN evidence.
 
 ## Connected test phone
 
