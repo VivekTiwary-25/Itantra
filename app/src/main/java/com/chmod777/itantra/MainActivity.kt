@@ -36,6 +36,8 @@ import com.chmod777.itantra.transport.PairingRequestResult
 import com.chmod777.itantra.transport.BluetoothRfcommTransport
 import com.chmod777.itantra.transport.MessageLanguage
 import com.chmod777.itantra.transport.RfcommConnectionState
+import com.chmod777.itantra.transport.RfcommPeer
+import com.chmod777.itantra.transport.RelayEvent
 import com.chmod777.itantra.transport.SendMessageResult
 import com.chmod777.itantra.transport.TransportMessage
 import com.chmod777.itantra.ui.theme.SIH_iTantraTheme
@@ -74,19 +76,38 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
     var receivedMessage by remember { mutableStateOf<TransportMessage?>(null) }
     var acknowledgedMessageId by remember { mutableStateOf<Long?>(null) }
     var messageError by remember { mutableStateOf<String?>(null) }
+    var relayMessage by remember { mutableStateOf<String?>(null) }
+
+    val activePeers = when (val state = connectionState) {
+        is RfcommConnectionState.Connections -> state.peers
+        is RfcommConnectionState.Connected -> listOf(RfcommPeer(state.peerName, state.peerAddress))
+        else -> emptyList()
+    }
+    val isListeningForPeers = connectionState is RfcommConnectionState.Listening ||
+        (connectionState as? RfcommConnectionState.Connections)?.isListening == true
 
     DisposableEffect(discovery) {
         onDispose { discovery.close() }
     }
 
     DisposableEffect(rfcommTransport) {
-        rfcommTransport.onMessageReceived { message ->
-            receivedMessage = message
+        rfcommTransport.onMessageReceived { received ->
+            receivedMessage = received.message
             // The UI has accepted the parsed message, so now confirm delivery to its sender.
-            rfcommTransport.sendAcknowledgement(message.messageId)
+            rfcommTransport.sendAcknowledgement(received.message.messageId, received.sourcePeerAddress)
         }
         rfcommTransport.onAcknowledgementReceived { messageId ->
             acknowledgedMessageId = messageId
+        }
+        rfcommTransport.onRelayEvent { event ->
+            relayMessage = when (event) {
+                is RelayEvent.Forwarded -> "Relayed msgId ${event.messageId} to ${event.forwardedCount} peer(s), TTL is now ${event.ttlAfterRelay}."
+                is RelayEvent.DuplicateIgnored -> "Ignored duplicate msgId ${event.messageId}."
+                is RelayEvent.TtlExpired -> "Did not relay msgId ${event.messageId}: TTL expired."
+                is RelayEvent.NoOtherPeer -> "No other connected peer available to relay msgId ${event.messageId}."
+                is RelayEvent.Queued -> "Queued msgId ${event.messageId} for store-and-forward (${event.pendingCount} pending)."
+                is RelayEvent.DeliveredFromQueue -> "Delivered queued msgId ${event.messageId} to ${event.peerName}."
+            }
         }
         onDispose { rfcommTransport.close() }
     }
@@ -151,9 +172,8 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
                             onClick = {
                                 rfcommTransport.connect(device.address) { state -> connectionState = state }
                             },
-                            enabled = connectionState !is RfcommConnectionState.Listening &&
-                                connectionState !is RfcommConnectionState.Connecting &&
-                                connectionState !is RfcommConnectionState.Connected,
+                            enabled = connectionState !is RfcommConnectionState.Connecting &&
+                                activePeers.none { it.address == device.address },
                         ) {
                             Text("Connect to ${device.name}")
                         }
@@ -170,6 +190,8 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
                         RfcommConnectionState.Listening -> "RFCOMM: listening for a connection…"
                         is RfcommConnectionState.Connecting -> "RFCOMM: connecting to ${state.peerName}…"
                         is RfcommConnectionState.Connected -> "RFCOMM: connected to ${state.peerName}"
+                        is RfcommConnectionState.Connections -> "RFCOMM: ${state.peers.size} live connection(s)" +
+                            if (state.isListening) " — listening for more" else ""
                         is RfcommConnectionState.Disconnected -> "RFCOMM: disconnected — ${state.reason} Reconnect without restarting the app."
                         is RfcommConnectionState.Error -> "RFCOMM: ${state.message}"
                     },
@@ -178,11 +200,13 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
                     onClick = {
                         rfcommTransport.listen { state -> connectionState = state }
                     },
-                    enabled = connectionState !is RfcommConnectionState.Listening &&
-                        connectionState !is RfcommConnectionState.Connecting &&
-                        connectionState !is RfcommConnectionState.Connected,
+                    enabled = !isListeningForPeers && connectionState !is RfcommConnectionState.Connecting,
                 ) {
                     Text("Listen for RFCOMM connection")
+                }
+                if (activePeers.isNotEmpty()) {
+                    Text(text = "Connected peers (${activePeers.size})")
+                    activePeers.forEach { peer -> Text(text = "• ${peer.name}") }
                 }
                 OutlinedTextField(
                     value = outgoingText,
@@ -204,7 +228,7 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
                             }
                         }
                     },
-                    enabled = connectionState is RfcommConnectionState.Connected && outgoingText.isNotBlank(),
+                    enabled = activePeers.isNotEmpty() && outgoingText.isNotBlank(),
                 ) {
                     Text("Send text")
                 }
@@ -215,6 +239,7 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
                 }
                 if (receivedMessage != null) ProtocolMessageDetails(label = "Received protocol message", message = receivedMessage!!)
                 if (receivedMessage != null) Text(text = "Acknowledgement sent for msgId: ${receivedMessage!!.messageId}")
+                if (relayMessage != null) Text(text = relayMessage!!)
                 if (messageError != null) Text(text = messageError!!)
 
                 Text(text = "Nearby devices (${nearbyDevices.size})")
