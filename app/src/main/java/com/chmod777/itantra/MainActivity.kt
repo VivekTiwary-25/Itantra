@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,6 +36,7 @@ import com.chmod777.itantra.transport.PairingRequestResult
 import com.chmod777.itantra.transport.BluetoothRfcommTransport
 import com.chmod777.itantra.transport.RfcommConnectionState
 import com.chmod777.itantra.transport.SendByteResult
+import com.chmod777.itantra.transport.SendTextResult
 import com.chmod777.itantra.ui.theme.SIH_iTantraTheme
 
 class MainActivity : ComponentActivity() {
@@ -68,6 +70,9 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
     var connectionState by remember { mutableStateOf<RfcommConnectionState>(RfcommConnectionState.Idle) }
     var sentByteMessage by remember { mutableStateOf<String?>(null) }
     var receivedByteMessage by remember { mutableStateOf<String?>(null) }
+    var outgoingText by remember { mutableStateOf("hello") }
+    var sentTextMessage by remember { mutableStateOf<String?>(null) }
+    var receivedTextMessage by remember { mutableStateOf<String?>(null) }
 
     DisposableEffect(discovery) {
         onDispose { discovery.close() }
@@ -76,6 +81,9 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
     DisposableEffect(rfcommTransport) {
         rfcommTransport.onByteReceived { value ->
             receivedByteMessage = "Received byte: $value"
+        }
+        rfcommTransport.onTextReceived { text ->
+            receivedTextMessage = "Received text: $text"
         }
         onDispose { rfcommTransport.close() }
     }
@@ -188,6 +196,28 @@ fun BluetoothPermissionScreen(modifier: Modifier = Modifier) {
                 }
                 if (sentByteMessage != null) Text(text = sentByteMessage!!)
                 if (receivedByteMessage != null) Text(text = receivedByteMessage!!)
+                OutlinedTextField(
+                    value = outgoingText,
+                    onValueChange = { outgoingText = it },
+                    label = { Text("Text message") },
+                    singleLine = true,
+                )
+                Button(
+                    onClick = {
+                        rfcommTransport.sendText(outgoingText) { result ->
+                            sentTextMessage = when (result) {
+                                is SendTextResult.Sent -> "Sent text: ${result.text}"
+                                SendTextResult.NotConnected -> "Cannot send text: no RFCOMM connection."
+                                is SendTextResult.Error -> "Text send error: ${result.message}"
+                            }
+                        }
+                    },
+                    enabled = connectionState is RfcommConnectionState.Connected && outgoingText.isNotBlank(),
+                ) {
+                    Text("Send text")
+                }
+                if (sentTextMessage != null) Text(text = sentTextMessage!!)
+                if (receivedTextMessage != null) Text(text = receivedTextMessage!!)
 
                 Text(text = "Nearby devices (${nearbyDevices.size})")
                 when {
