@@ -89,6 +89,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import com.chmod777.itantra.transport.AdapterStatus
+import com.chmod777.itantra.transport.BluetoothPermissions
+import com.chmod777.itantra.transport.BluetoothRfcommTransport
+import com.chmod777.itantra.transport.MessageLanguage
+import com.chmod777.itantra.transport.PairedBluetoothDevice
+import com.chmod777.itantra.transport.RfcommConnectionState
+import com.chmod777.itantra.transport.SendMessageResult
 import com.chmod777.itantra.ui.theme.SIH_iTantraTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -130,7 +137,8 @@ private data class Message(
     val timestamp: String,
     val direction: MessageDirection,
     val isRead: Boolean,
-    val languageCode: String
+    val languageCode: String,
+    val sendFailed: Boolean = false
 )
 
 private val DATE_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
@@ -153,6 +161,7 @@ private val MessageListSaver = Saver<SnapshotStateList<Message>, ArrayList<Bundl
                 putString("direction", message.direction.name)
                 putBoolean("isRead", message.isRead)
                 putString("languageCode", message.languageCode)
+                putBoolean("sendFailed", message.sendFailed)
             }
         })
     },
@@ -166,7 +175,8 @@ private val MessageListSaver = Saver<SnapshotStateList<Message>, ArrayList<Bundl
                         timestamp = checkNotNull(saved.getString("timestamp")),
                         direction = MessageDirection.valueOf(checkNotNull(saved.getString("direction"))),
                         isRead = saved.getBoolean("isRead"),
-                        languageCode = checkNotNull(saved.getString("languageCode"))
+                        languageCode = checkNotNull(saved.getString("languageCode")),
+                        sendFailed = saved.getBoolean("sendFailed")
                     )
                 )
             }
@@ -174,21 +184,23 @@ private val MessageListSaver = Saver<SnapshotStateList<Message>, ArrayList<Bundl
     }
 )
 
-// Fake Transport stand-in, per docs/CONTRACTS.md. Hardcoded until the real
-// lane exists -- do not couple this UI to real transport here.
-// Real Speech transcribe()/speak() now come from speech.SpeechEngine (Bundle 1).
-private fun speak(text: String, languageCode: String) {
-    // no-op stand-in: no real TTS yet -- kept for the onMessageReceived path,
-    // which stays a Transport no-op until Lane 2 exists.
-}
+// Real Speech transcribe()/speak() come from speech.SpeechEngine (Bundle 1).
+// Real Transport send/receive now come from
+// com.chmod777.itantra.transport.BluetoothRfcommTransport (Lane 2). Speech's
+// languageCode is a lowercase ISO string ("en"/"hi"); the transport wire
+// format only carries the two-value MessageLanguage enum, so these mappings
+// are the single seam between the two lanes' representations.
+private fun mapToMessageLanguage(languageCode: String): MessageLanguage =
+    when (languageCode) {
+        "hi" -> MessageLanguage.HINDI
+        else -> MessageLanguage.ENGLISH
+    }
 
-private fun sendMessage(text: String) {
-    // no-op stand-in: no real transport yet
-}
-
-private fun onMessageReceived(callback: (text: String, languageCode: String) -> Unit) {
-    // no-op stand-in: no real transport yet, so this callback is never invoked
-}
+private fun mapFromMessageLanguage(language: MessageLanguage): String =
+    when (language) {
+        MessageLanguage.HINDI -> "hi"
+        MessageLanguage.ENGLISH -> "en"
+    }
 
 @Composable
 fun ITantraApp(modifier: Modifier = Modifier) {
@@ -199,6 +211,7 @@ fun ITantraApp(modifier: Modifier = Modifier) {
     DisposableEffect(Unit) {
         onDispose { speech.release() }
     }
+    val rfcommTransport = remember { BluetoothRfcommTransport(context) }
     val startRecording = {
         val hasMicPermission = ContextCompat.checkSelfPermission(
             context,
@@ -230,12 +243,16 @@ fun ITantraApp(modifier: Modifier = Modifier) {
     LaunchedEffect(Unit) {
         requestMicPermission.launch(Manifest.permission.RECORD_AUDIO)
     }
-    LaunchedEffect(Unit) {
-        onMessageReceived { text, languageCode ->
+
+    // Registered before listen()/connect() are ever called below, so no
+    // incoming message can arrive with nowhere to go.
+    DisposableEffect(rfcommTransport) {
+        rfcommTransport.onMessageReceived { received ->
             val now = LocalDateTime.now()
+            val languageCode = mapFromMessageLanguage(received.message.language)
             messages.add(
                 Message(
-                    text = text,
+                    text = received.message.text,
                     date = now.format(DATE_FORMAT),
                     timestamp = now.format(TIME_FORMAT),
                     direction = MessageDirection.RECEIVED,
@@ -243,8 +260,41 @@ fun ITantraApp(modifier: Modifier = Modifier) {
                     languageCode = languageCode
                 )
             )
-            speak(text, languageCode)
+            speech.speak(received.message.text, languageCode)
         }
+        onDispose { rfcommTransport.close() }
+    }
+
+    // Bluetooth permissions/adapter bring-up, ported from lane/transport.
+    // This app currently only listens for an incoming RFCOMM connection --
+    // there is no UI yet to pick a specific paired device and call
+    // rfcommTransport.connect(address, ...); that remains a separate gap.
+    var bluetoothPermissionsGranted by remember {
+        mutableStateOf(BluetoothPermissions.areGranted(context))
+    }
+    var pairedDevices by remember { mutableStateOf(emptyList<PairedBluetoothDevice>()) }
+    val bluetoothPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) {
+        bluetoothPermissionsGranted = BluetoothPermissions.areGranted(context)
+    }
+    LaunchedEffect(Unit) {
+        if (!bluetoothPermissionsGranted) {
+            bluetoothPermissionLauncher.launch(BluetoothPermissions.requiredRuntimePermissions())
+        }
+    }
+    LaunchedEffect(bluetoothPermissionsGranted) {
+        if (bluetoothPermissionsGranted && BluetoothPermissions.adapterStatus(context) == AdapterStatus.Enabled) {
+            rfcommTransport.listen { /* connection state is not surfaced in this UI yet */ }
+            pairedDevices = BluetoothPermissions.pairedDevices(context)
+        }
+    }
+
+    // DEBUG: connects directly to a bonded device, same spirit as PLAY LAST
+    // RECORDING / the old Test TTS trigger. No "New Connection"/discovery UI.
+    var debugConnectionState by remember { mutableStateOf<RfcommConnectionState>(RfcommConnectionState.Idle) }
+    val onConnectToDevice: (String) -> Unit = { address ->
+        rfcommTransport.connect(address) { state -> debugConnectionState = state }
     }
 
     val coroutineScope = rememberCoroutineScope()
@@ -291,6 +341,9 @@ fun ITantraApp(modifier: Modifier = Modifier) {
             onLanguageChange = { selectedLanguageCode = it },
             isTranscribing = isTranscribing,
             speech = speech,
+            pairedDevices = pairedDevices,
+            debugConnectionState = debugConnectionState,
+            onConnectToDevice = onConnectToDevice,
             modifier = modifier
         )
 
@@ -326,17 +379,22 @@ fun ITantraApp(modifier: Modifier = Modifier) {
             },
             onSend = { text ->
                 val now = LocalDateTime.now()
-                sendMessage(text)
-                messages.add(
-                    Message(
-                        text = text,
-                        date = now.format(DATE_FORMAT),
-                        timestamp = now.format(TIME_FORMAT),
-                        direction = MessageDirection.SENT,
-                        isRead = true,
-                        languageCode = draftLanguageCode
+                val language = mapToMessageLanguage(draftLanguageCode)
+                rfcommTransport.sendMessage(text = text, language = language) { result ->
+                    // Appended regardless of outcome; a failed send is kept
+                    // in the log and marked visibly rather than silently lost.
+                    messages.add(
+                        Message(
+                            text = text,
+                            date = now.format(DATE_FORMAT),
+                            timestamp = now.format(TIME_FORMAT),
+                            direction = MessageDirection.SENT,
+                            isRead = true,
+                            languageCode = draftLanguageCode,
+                            sendFailed = result !is SendMessageResult.Sent
+                        )
                     )
-                )
+                }
                 draft = ""
                 draftLanguageCode = "en"
                 screen = Screen.MAIN
@@ -366,6 +424,9 @@ private fun MainScreen(
     onLanguageChange: (String) -> Unit,
     isTranscribing: Boolean,
     speech: SpeechEngine,
+    pairedDevices: List<PairedBluetoothDevice>,
+    debugConnectionState: RfcommConnectionState,
+    onConnectToDevice: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var isHolding by remember { mutableStateOf(false) }
@@ -484,21 +545,23 @@ private fun MainScreen(
             ) {
                 Text("PLAY LAST RECORDING")
             }
+            // DEBUG: connect directly to a bonded device to exercise RFCOMM
+            // send/receive without a full pairing/discovery UI.
+            Text(
+                text = "Debug: bonded devices (${pairedDevices.size}) — ${debugConnectionState}",
+                color = Color(0xFF91A2B4),
+                fontSize = 11.sp
+            )
+            pairedDevices.forEach { device ->
+                Button(onClick = { onConnectToDevice(device.address) }) {
+                    Text("Connect: ${device.name}")
+                }
+            }
             BentoControls(
                 unreadCount = unreadCount,
                 onOpenHandsFree = onOpenHandsFree,
                 onOpenText = onOpenText,
                 onOpenLogs = onOpenLogs,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
-            )
-            // TEMPORARY: exercises SpeechEngine.speak() directly. speak() has
-            // never been executed at the SpeechEngine layer, so this stands in
-            // for real usage. Remove once Transport integration exercises
-            // speak() for real (see docs/CONTRACTS.md received-message path).
-            TestTtsSection(
-                speech = speech,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
@@ -683,83 +746,6 @@ private fun LanguageSelector(
                         expanded = false
                     }
                 )
-            }
-        }
-    }
-}
-
-// TEMPORARY: exercises SpeechEngine.speak() directly. speak() has never been
-// executed at the SpeechEngine layer, so this stands in for real usage.
-// Remove once Transport integration exercises speak() for real (see
-// docs/CONTRACTS.md received-message path).
-@Composable
-private fun TestTtsSection(
-    speech: SpeechEngine,
-    modifier: Modifier = Modifier
-) {
-    var text by rememberSaveable { mutableStateOf("this is a test message") }
-    var languageCode by rememberSaveable { mutableStateOf("en") }
-    var isSpeaking by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
-
-    Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xBA0D1D2B))
-            .border(1.dp, Color(0x21B6CFE7), RoundedCornerShape(12.dp))
-            .padding(12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = "Test TTS (temporary)",
-            color = Color(0xFF91A2B4),
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Bold
-        )
-        OutlinedTextField(
-            value = text,
-            onValueChange = { text = it },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color(0xFFDCE6EF),
-                unfocusedTextColor = Color(0xFFDCE6EF),
-                focusedContainerColor = Color(0xBA0D1D2B),
-                unfocusedContainerColor = Color(0xBA0D1D2B),
-                focusedBorderColor = Color(0xFFF8AD3C),
-                unfocusedBorderColor = Color(0x21B6CFE7),
-                cursorColor = Color(0xFFF8AD3C)
-            )
-        )
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            LanguageSelector(
-                selectedCode = languageCode,
-                onSelect = { languageCode = it },
-                enabled = !isSpeaking,
-                modifier = Modifier.weight(1f)
-            )
-            Button(
-                enabled = !isSpeaking && text.isNotBlank(),
-                onClick = {
-                    isSpeaking = true
-                    coroutineScope.launch {
-                        val startElapsedMs = SystemClock.elapsedRealtime()
-                        Log.d(LATENCY_TAG, "[TTS] speak start")
-                        withContext(Dispatchers.Default) {
-                            speech.speak(text, languageCode)
-                        }
-                        Log.d(
-                            LATENCY_TAG,
-                            "[TTS] speak end deltaMs=${SystemClock.elapsedRealtime() - startElapsedMs}"
-                        )
-                        isSpeaking = false
-                    }
-                }
-            ) {
-                Text(if (isSpeaking) "Speaking..." else "Test TTS")
             }
         }
     }
@@ -1070,6 +1056,15 @@ private fun MessageCard(message: Message, onClick: () -> Unit) {
                 fontSize = 14.sp,
                 modifier = Modifier.padding(top = 3.dp)
             )
+            if (message.sendFailed) {
+                Text(
+                    text = "⚠ Failed to send",
+                    color = Color(0xFFE56262),
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 3.dp)
+                )
+            }
         }
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
@@ -1144,6 +1139,15 @@ private fun MessageDetailScreen(
             fontSize = 18.sp,
             lineHeight = 28.sp
         )
+        if (message.sendFailed) {
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = "⚠ Failed to send",
+                color = Color(0xFFE56262),
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }
 
