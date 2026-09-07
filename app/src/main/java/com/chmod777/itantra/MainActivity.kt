@@ -138,10 +138,18 @@ private val TIME_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm"
 
 private const val LATENCY_TAG = "ITANTRA_LATENCY"
 
-// Spoken-language options for transcription/TTS. Only "en" and "hi" are safe
-// per Bundle 1; extend this list once more languages are proven at the
-// SpeechEngine layer.
-private val SUPPORTED_LANGUAGES = listOf("en" to "English", "hi" to "Hindi")
+// Spoken-language options for transcription/TTS. Codes and display names
+// per docs/CONTRACTS.md's language table.
+private val SUPPORTED_LANGUAGES = listOf(
+    "en" to "English",
+    "hi" to "Hindi",
+    "gu" to "Gujarati",
+    "mr" to "Marathi",
+    "ta" to "Tamil",
+    "te" to "Telugu",
+    "or" to "Odia",
+    "bn" to "Bengali"
+)
 
 private val MessageListSaver = Saver<SnapshotStateList<Message>, ArrayList<Bundle>>(
     save = { messages ->
