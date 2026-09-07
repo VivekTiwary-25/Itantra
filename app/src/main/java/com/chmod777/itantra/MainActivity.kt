@@ -26,7 +26,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Arrangement
@@ -90,6 +92,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.chmod777.itantra.ui.theme.SIH_iTantraTheme
+import com.chmod777.itantra.transport.BluetoothPermissions
+import com.chmod777.itantra.transport.BluetoothRfcommTransport
+import com.chmod777.itantra.transport.MessageLanguage
+import com.chmod777.itantra.transport.RfcommConnectionState
+import com.chmod777.itantra.transport.SendMessageResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -182,25 +189,23 @@ private val MessageListSaver = Saver<SnapshotStateList<Message>, ArrayList<Bundl
     }
 )
 
-// Fake Transport stand-in, per docs/CONTRACTS.md. Hardcoded until the real
-// lane exists -- do not couple this UI to real transport here.
-// Real Speech transcribe()/speak() now come from speech.SpeechEngine (Bundle 1).
-private fun speak(text: String, languageCode: String) {
-    // no-op stand-in: no real TTS yet -- kept for the onMessageReceived path,
-    // which stays a Transport no-op until Lane 2 exists.
-}
-
-private fun sendMessage(text: String) {
-    // no-op stand-in: no real transport yet
-}
-
-private fun onMessageReceived(callback: (text: String, languageCode: String) -> Unit) {
-    // no-op stand-in: no real transport yet, so this callback is never invoked
-}
-
 @Composable
 fun ITantraApp(modifier: Modifier = Modifier) {
     val context = LocalContext.current
+    val transport = remember { BluetoothRfcommTransport(context) }
+    var transportState by remember { mutableStateOf<RfcommConnectionState>(RfcommConnectionState.Idle) }
+    var pairedDevices by remember { mutableStateOf(emptyList<com.chmod777.itantra.transport.PairedBluetoothDevice>()) }
+    val requestBluetoothPermission = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { grants ->
+        if (grants.values.all { it }) {
+            pairedDevices = BluetoothPermissions.pairedDevices(context)
+            transport.listen { transportState = it }
+        }
+    }
+    DisposableEffect(transport) {
+        onDispose { transport.close() }
+    }
     val recordingFile = remember { File(context.filesDir, "recording.wav") }
     val recorder = remember { PcmRecorder(recordingFile) }
     val speech = remember { SpeechEngine(context) }
@@ -237,9 +242,16 @@ fun ITantraApp(modifier: Modifier = Modifier) {
     ) { }
     LaunchedEffect(Unit) {
         requestMicPermission.launch(Manifest.permission.RECORD_AUDIO)
+        if (BluetoothPermissions.areGranted(context)) {
+            pairedDevices = BluetoothPermissions.pairedDevices(context)
+            transport.listen { transportState = it }
+        } else {
+            requestBluetoothPermission.launch(BluetoothPermissions.requiredRuntimePermissions())
+        }
     }
-    LaunchedEffect(Unit) {
-        onMessageReceived { text, languageCode ->
+    LaunchedEffect(transport) {
+        transport.onMessageReceived { received ->
+            val text = received.message.text
             val now = LocalDateTime.now()
             messages.add(
                 Message(
@@ -248,10 +260,9 @@ fun ITantraApp(modifier: Modifier = Modifier) {
                     timestamp = now.format(TIME_FORMAT),
                     direction = MessageDirection.RECEIVED,
                     isRead = false,
-                    languageCode = languageCode
+                    languageCode = "en"
                 )
             )
-            speak(text, languageCode)
         }
     }
 
@@ -299,6 +310,11 @@ fun ITantraApp(modifier: Modifier = Modifier) {
             onLanguageChange = { selectedLanguageCode = it },
             isTranscribing = isTranscribing,
             speech = speech,
+            transport = transport,
+            transportState = transportState,
+            pairedDevices = pairedDevices,
+            onConnect = { address -> transport.connect(address) { transportState = it } },
+            onListen = { transport.listen { transportState = it } },
             modifier = modifier
         )
 
@@ -334,7 +350,9 @@ fun ITantraApp(modifier: Modifier = Modifier) {
             },
             onSend = { text ->
                 val now = LocalDateTime.now()
-                sendMessage(text)
+                transport.sendMessage(text, MessageLanguage.ENGLISH) { result ->
+                    if (result is SendMessageResult.Error) Log.e("ITANTRA_TRANSPORT", result.message)
+                }
                 messages.add(
                     Message(
                         text = text,
@@ -361,6 +379,36 @@ fun ITantraApp(modifier: Modifier = Modifier) {
 }
 
 @Composable
+private fun TransportControls(
+    state: RfcommConnectionState,
+    pairedDevices: List<com.chmod777.itantra.transport.PairedBluetoothDevice>,
+    onListen: () -> Unit,
+    onConnect: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = when (state) {
+                RfcommConnectionState.Idle -> "Bluetooth: idle"
+                RfcommConnectionState.Listening -> "Bluetooth: listening"
+                is RfcommConnectionState.Connections -> "Bluetooth: ${state.peers.size} connected"
+                is RfcommConnectionState.Connecting -> "Bluetooth: connecting to ${state.peerName}"
+                is RfcommConnectionState.Disconnected -> "Bluetooth: disconnected"
+                is RfcommConnectionState.Error -> "Bluetooth error: ${state.message}"
+                is RfcommConnectionState.Connected -> "Bluetooth: connected to ${state.peerName}"
+            },
+            color = Color(0xFF91A2B4)
+        )
+        Button(onClick = onListen) { Text("LISTEN FOR BLUETOOTH") }
+        pairedDevices.forEach { device ->
+            Button(onClick = { onConnect(device.address) }) {
+                Text("CONNECT: ${device.name}")
+            }
+        }
+    }
+}
+
+@Composable
 private fun MainScreen(
     unreadCount: Int,
     recordingFile: File,
@@ -374,6 +422,11 @@ private fun MainScreen(
     onLanguageChange: (String) -> Unit,
     isTranscribing: Boolean,
     speech: SpeechEngine,
+    transport: BluetoothRfcommTransport,
+    transportState: RfcommConnectionState,
+    pairedDevices: List<com.chmod777.itantra.transport.PairedBluetoothDevice>,
+    onConnect: (String) -> Unit,
+    onListen: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var isHolding by remember { mutableStateOf(false) }
@@ -407,6 +460,7 @@ private fun MainScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(top = 64.dp, bottom = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(20.dp)
@@ -492,6 +546,13 @@ private fun MainScreen(
             ) {
                 Text("PLAY LAST RECORDING")
             }
+            TransportControls(
+                state = transportState,
+                pairedDevices = pairedDevices,
+                onListen = onListen,
+                onConnect = onConnect,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)
+            )
             BentoControls(
                 unreadCount = unreadCount,
                 onOpenHandsFree = onOpenHandsFree,
