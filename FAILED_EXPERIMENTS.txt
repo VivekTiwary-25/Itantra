@@ -1,0 +1,9 @@
+## Kannada STT attempt
+
+Tried `vasista22/whisper-kannada-tiny` via the `ippocode/indic-asr-onnx` repackaging.
+
+- Licensing: Apache-2.0
+- Integrated successfully
+- Android build succeeded
+- Physical test result: unusable (~0/5)
+- Decision: reverted; do not reuse this model path without new evidence
