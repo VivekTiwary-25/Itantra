@@ -1,7 +1,5 @@
 package com.chmod777.itantra
 
-
-
 import android.content.Context
 import android.content.res.AssetManager
 import android.media.AudioAttributes
@@ -18,17 +16,26 @@ class TtsHelper(private val context: Context) {
 
     private val hindiModelDir = "vits-piper-hi_IN-pratham-medium"
     private val englishModelDir = "vits-piper-en_US-ryan-medium"
+    private val bengaliModelDir = "vits-mms-ben"
+    private val marathiModelDir = "vits-mms-mar"
 
     private var hindiTts: OfflineTts? = null
     private var englishTts: OfflineTts? = null
+    private var bengaliTts: OfflineTts? = null
+    private var marathiTts: OfflineTts? = null
     private var currentAudioTrack: AudioTrack? = null
 
     // ---- Public API: exactly the contract from Part 3 of the lane doc ----
 
+
     fun speak(text: String, languageCode: String) {
+        android.util.Log.d("TtsHelper", "speak() called with text=\"$text\" len=${text.length} lang=$languageCode")
+
         val ttsEngine = when (languageCode) {
             "hi" -> getOrInitHindi()
             "en" -> getOrInitEnglish()
+            "bn" -> getOrInitBengali()
+            "mr" -> getOrInitMarathi()
             else -> null
         } ?: return
 
@@ -46,25 +53,38 @@ class TtsHelper(private val context: Context) {
         return englishTts ?: loadModel(englishModelDir, "en_US-ryan-medium.onnx").also { englishTts = it }
     }
 
-    private fun loadModel(modelDirName: String, onnxFileName: String): OfflineTts {
+    private fun getOrInitBengali(): OfflineTts {
+        return bengaliTts ?: loadModel(bengaliModelDir, "model.onnx", useEspeakData = false).also { bengaliTts = it }
+    }
+
+    private fun getOrInitMarathi(): OfflineTts {
+        return marathiTts ?: loadModel(marathiModelDir, "model.onnx", useEspeakData = false).also { marathiTts = it }
+    }
+
+
+    private fun loadModel(modelDirName: String, onnxFileName: String, useEspeakData: Boolean = true): OfflineTts {
         val destDir = File(context.filesDir, modelDirName).absolutePath
-        if (!File(destDir).exists()) {
-            copyAssetFolder(context.assets, modelDirName, destDir)
+
+        // FORCE re-copy for debugging
+        val dest = File(destDir)
+        if (dest.exists()) {
+            dest.deleteRecursively()
         }
+        copyAssetFolder(context.assets, modelDirName, destDir)
+
         val config = OfflineTtsConfig(
             model = OfflineTtsModelConfig(
                 vits = OfflineTtsVitsModelConfig(
                     model = "$destDir/$onnxFileName",
                     tokens = "$destDir/tokens.txt",
-                    dataDir = "$destDir/espeak-ng-data"
+                    dataDir = if (useEspeakData) "$destDir/espeak-ng-data" else ""
                 ),
                 numThreads = 2,
-                debug = false
+                debug = true          // turn debug on
             )
         )
         return OfflineTts(config = config)
     }
-
     private fun copyAssetFolder(assetManager: AssetManager, fromAssetPath: String, toPath: String) {
         val files = assetManager.list(fromAssetPath) ?: return
         File(toPath).mkdirs()
