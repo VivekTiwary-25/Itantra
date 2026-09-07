@@ -1,0 +1,384 @@
+﻿param(
+    [string]$RepoRoot = (Get-Location).Path,
+    [switch]$Force
+)
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
+$ProgressPreference = "SilentlyContinue"
+
+function Write-Step([string]$Message) {
+    Write-Host "`n==> $Message" -ForegroundColor Cyan
+}
+
+function Write-Ok([string]$Message) {
+    Write-Host "[OK] $Message" -ForegroundColor Green
+}
+
+function Write-Warn([string]$Message) {
+    Write-Host "[WARN] $Message" -ForegroundColor Yellow
+}
+
+function Format-Size([long]$Bytes) {
+    if ($Bytes -ge 1GB) { return "{0:N2} GB" -f ($Bytes / 1GB) }
+    if ($Bytes -ge 1MB) { return "{0:N2} MB" -f ($Bytes / 1MB) }
+    if ($Bytes -ge 1KB) { return "{0:N2} KB" -f ($Bytes / 1KB) }
+    return "$Bytes B"
+}
+
+function Assert-MinSize([string]$Path, [long]$MinBytes, [string]$Label) {
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
+        throw "$Label is missing: $Path"
+    }
+
+    $size = (Get-Item -LiteralPath $Path).Length
+    if ($size -lt $MinBytes) {
+        throw "$Label looks too small ($(Format-Size $size)). Expected at least $(Format-Size $MinBytes)."
+    }
+
+    return $size
+}
+
+function Assert-Sha256([string]$Path, [string]$Expected, [string]$Label) {
+    $actual = (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()
+    if ($actual -ne $Expected.ToLowerInvariant()) {
+        throw @"
+SHA-256 mismatch for $Label.
+Expected: $Expected
+Actual:   $actual
+File:     $Path
+
+The file may be incomplete, corrupted, or a different model revision.
+Delete it (or rerun with -Force) and try again.
+"@
+    }
+}
+
+function Download-File(
+    [string]$Url,
+    [string]$Destination,
+    [string]$Label,
+    [long]$MinBytes,
+    [string]$Sha256 = ""
+) {
+    if ((Test-Path -LiteralPath $Destination -PathType Leaf) -and -not $Force) {
+        $existingSize = Assert-MinSize $Destination $MinBytes $Label
+
+        if ($Sha256) {
+            Write-Host "[CHECK] $Label already exists; verifying SHA-256..."
+            Assert-Sha256 $Destination $Sha256 $Label
+        }
+
+        Write-Ok "$Label already present ($(Format-Size $existingSize)); skipping download."
+        return
+    }
+
+    $parent = Split-Path -Parent $Destination
+    New-Item -ItemType Directory -Force -Path $parent | Out-Null
+
+    $partial = "$Destination.partial"
+    Remove-Item -LiteralPath $partial -Force -ErrorAction SilentlyContinue
+
+    if ($Force -and (Test-Path -LiteralPath $Destination)) {
+        Remove-Item -LiteralPath $Destination -Force
+    }
+
+    Write-Host "[GET] $Label"
+    Write-Host "      $Url"
+
+    $success = $false
+    $lastError = $null
+
+    for ($attempt = 1; $attempt -le 3; $attempt++) {
+        try {
+            Invoke-WebRequest `
+                -Uri $Url `
+                -OutFile $partial `
+                -UseBasicParsing `
+                -MaximumRedirection 10
+
+            $size = Assert-MinSize $partial $MinBytes $Label
+
+            if ($Sha256) {
+                Write-Host "[CHECK] SHA-256..."
+                Assert-Sha256 $partial $Sha256 $Label
+            }
+
+            Move-Item -LiteralPath $partial -Destination $Destination -Force
+            Write-Ok "$Label downloaded ($(Format-Size $size))."
+            $success = $true
+            break
+        }
+        catch {
+            $lastError = $_
+            Remove-Item -LiteralPath $partial -Force -ErrorAction SilentlyContinue
+            if ($attempt -lt 3) {
+                Write-Warn "$Label download failed on attempt $attempt. Retrying..."
+                Start-Sleep -Seconds (2 * $attempt)
+            }
+        }
+    }
+
+    if (-not $success) {
+        throw "Failed to download $Label after 3 attempts.`n$lastError"
+    }
+}
+
+function Assert-TtsSupport(
+    [string]$Dir,
+    [string]$ModelName
+) {
+    $required = @(
+        (Join-Path $Dir "tokens.txt"),
+        (Join-Path $Dir "$ModelName.onnx.json"),
+        (Join-Path $Dir "espeak-ng-data")
+    )
+
+    foreach ($item in $required) {
+        if (-not (Test-Path -LiteralPath $item)) {
+            throw @"
+Expected TTS support file/folder is missing:
+$item
+
+This script intentionally adds only the missing ONNX binary and does NOT overwrite
+the Speech team's committed TTS support files. Make sure you are on the correct
+iTantra working tree/branch before continuing.
+"@
+        }
+    }
+}
+
+function Install-TtsFromArchive(
+    [string]$Url,
+    [string]$ArchiveName,
+    [string]$ExpectedFolder,
+    [string]$OnnxName,
+    [string]$DestinationDir,
+    [string]$Label,
+    [string]$TempRoot
+) {
+    $destination = Join-Path $DestinationDir $OnnxName
+
+    if ((Test-Path -LiteralPath $destination -PathType Leaf) -and -not $Force) {
+        $size = Assert-MinSize $destination 50MB $Label
+        Write-Ok "$Label already present ($(Format-Size $size)); skipping download."
+        return
+    }
+
+    $tar = Get-Command tar.exe -ErrorAction SilentlyContinue
+    if (-not $tar) {
+        throw @"
+Windows tar.exe was not found.
+Modern Windows normally includes it. Open a normal PowerShell/Terminal and run:
+
+    tar --version
+
+If that command is unavailable, install/enable a tar-capable tool before rerunning.
+"@
+    }
+
+    $archivePath = Join-Path $TempRoot $ArchiveName
+    $extractRoot = Join-Path $TempRoot ([IO.Path]::GetFileNameWithoutExtension([IO.Path]::GetFileNameWithoutExtension($ArchiveName)))
+
+    New-Item -ItemType Directory -Force -Path $extractRoot | Out-Null
+
+    Download-File `
+        -Url $Url `
+        -Destination $archivePath `
+        -Label "$Label archive" `
+        -MinBytes 10MB
+
+    Write-Host "[EXTRACT] $ArchiveName"
+    & $tar.Source -xjf $archivePath -C $extractRoot
+    if ($LASTEXITCODE -ne 0) {
+        throw "tar.exe failed to extract $ArchiveName (exit code $LASTEXITCODE)."
+    }
+
+    # Prefer the canonical archive layout, but search recursively as a fallback.
+    $candidate = Join-Path (Join-Path $extractRoot $ExpectedFolder) $OnnxName
+
+    if (-not (Test-Path -LiteralPath $candidate -PathType Leaf)) {
+        $matches = @(Get-ChildItem -LiteralPath $extractRoot -Recurse -File -Filter $OnnxName)
+        if ($matches.Count -ne 1) {
+            throw "Could not uniquely locate $OnnxName after extracting $ArchiveName."
+        }
+        $candidate = $matches[0].FullName
+    }
+
+    $size = Assert-MinSize $candidate 50MB $Label
+
+    if ($Force -and (Test-Path -LiteralPath $destination)) {
+        Remove-Item -LiteralPath $destination -Force
+    }
+
+    Copy-Item -LiteralPath $candidate -Destination $destination -Force
+    $installedSize = Assert-MinSize $destination 50MB $Label
+    Write-Ok "$Label installed ($(Format-Size $installedSize))."
+}
+
+try {
+    Write-Host ""
+    Write-Host "============================================================" -ForegroundColor Magenta
+    Write-Host " iTantra model setup — STT + TTS" -ForegroundColor Magenta
+    Write-Host "============================================================" -ForegroundColor Magenta
+
+    $RepoRoot = (Resolve-Path -LiteralPath $RepoRoot).Path
+    $Assets = Join-Path $RepoRoot "app\src\main\assets"
+
+    Write-Step "Checking repository"
+    if (-not (Test-Path -LiteralPath $Assets -PathType Container)) {
+        throw @"
+Could not find:
+$Assets
+
+Run this script from the ROOT of the iTantra repository, or pass:
+
+    .\setup-models.ps1 -RepoRoot "D:\path\to\Itantra"
+"@
+    }
+
+    Write-Ok "Repo root: $RepoRoot"
+    Write-Ok "Assets:    $Assets"
+
+    # These should already be committed by the Speech team.
+    $TinyTokens = Join-Path $Assets "tiny.en-tokens.txt"
+    $BaseTokens = Join-Path $Assets "base-tokens.txt"
+
+    if (-not (Test-Path -LiteralPath $TinyTokens -PathType Leaf)) {
+        throw "Missing committed STT token file: $TinyTokens"
+    }
+    if (-not (Test-Path -LiteralPath $BaseTokens -PathType Leaf)) {
+        throw "Missing committed STT token file: $BaseTokens"
+    }
+    Write-Ok "Existing STT token files found."
+
+    $RyanDir = Join-Path $Assets "vits-piper-en_US-ryan-medium"
+    $PrathamDir = Join-Path $Assets "vits-piper-hi_IN-pratham-medium"
+
+    Assert-TtsSupport $RyanDir "en_US-ryan-medium"
+    Assert-TtsSupport $PrathamDir "hi_IN-pratham-medium"
+    Write-Ok "Existing Ryan + Pratham TTS support files found."
+
+    # TLS 1.2 helps older Windows PowerShell installations.
+    try {
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    } catch {}
+
+    Write-Step "Downloading 4 Whisper STT models"
+
+    $sttModels = @(
+        @{
+            Label = "Whisper tiny.en encoder INT8"
+            Url = "https://huggingface.co/csukuangfj/sherpa-onnx-whisper-tiny.en/resolve/main/tiny.en-encoder.int8.onnx?download=true"
+            Dest = (Join-Path $Assets "tiny.en-encoder.int8.onnx")
+            Min = 10MB
+            Sha = "0ce578b827c94a961aacb8fa14b02f096504b337e5c94be37c36238cbe3e8bc6"
+        },
+        @{
+            Label = "Whisper tiny.en decoder INT8"
+            Url = "https://huggingface.co/csukuangfj/sherpa-onnx-whisper-tiny.en/resolve/main/tiny.en-decoder.int8.onnx?download=true"
+            Dest = (Join-Path $Assets "tiny.en-decoder.int8.onnx")
+            Min = 80MB
+            Sha = "06c0e6ff6348d427e51839219d1c886c18cfdf411e629e33f5e1679bff9c1527"
+        },
+        @{
+            Label = "Whisper base encoder INT8"
+            Url = "https://huggingface.co/csukuangfj/sherpa-onnx-whisper-base/resolve/main/base-encoder.int8.onnx?download=true"
+            Dest = (Join-Path $Assets "base-encoder.int8.onnx")
+            Min = 25MB
+            Sha = "0b8fb1304b6109976038efff5ace81720e00386f3ff6b54ee8c75291ca0a1e11"
+        },
+        @{
+            Label = "Whisper base decoder INT8"
+            Url = "https://huggingface.co/csukuangfj/sherpa-onnx-whisper-base/resolve/main/base-decoder.int8.onnx?download=true"
+            Dest = (Join-Path $Assets "base-decoder.int8.onnx")
+            Min = 120MB
+            Sha = "9759d217388a01b3a4c7c15533201067b48ae819c4daafc8624e64b9409dc02d"
+        }
+    )
+
+    foreach ($m in $sttModels) {
+        Download-File `
+            -Url $m.Url `
+            -Destination $m.Dest `
+            -Label $m.Label `
+            -MinBytes $m.Min `
+            -Sha256 $m.Sha
+    }
+
+    Write-Step "Downloading + extracting 2 Piper TTS models"
+
+    $tempRoot = Join-Path ([IO.Path]::GetTempPath()) ("itantra-models-" + [Guid]::NewGuid().ToString("N"))
+    New-Item -ItemType Directory -Force -Path $tempRoot | Out-Null
+
+    try {
+        Install-TtsFromArchive `
+            -Url "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-piper-en_US-ryan-medium.tar.bz2" `
+            -ArchiveName "vits-piper-en_US-ryan-medium.tar.bz2" `
+            -ExpectedFolder "vits-piper-en_US-ryan-medium" `
+            -OnnxName "en_US-ryan-medium.onnx" `
+            -DestinationDir $RyanDir `
+            -Label "Piper English Ryan medium" `
+            -TempRoot $tempRoot
+
+        Install-TtsFromArchive `
+            -Url "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-piper-hi_IN-pratham-medium.tar.bz2" `
+            -ArchiveName "vits-piper-hi_IN-pratham-medium.tar.bz2" `
+            -ExpectedFolder "vits-piper-hi_IN-pratham-medium" `
+            -OnnxName "hi_IN-pratham-medium.onnx" `
+            -DestinationDir $PrathamDir `
+            -Label "Piper Hindi Pratham medium" `
+            -TempRoot $tempRoot
+    }
+    finally {
+        if (Test-Path -LiteralPath $tempRoot) {
+            Write-Host "[CLEAN] Removing temporary archives/extraction files..."
+            Remove-Item -LiteralPath $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
+        }
+    }
+
+    Write-Step "Final verification"
+
+    $final = @(
+        @{ Label = "tiny.en encoder"; Path = (Join-Path $Assets "tiny.en-encoder.int8.onnx"); Min = 10MB; Sha = "0ce578b827c94a961aacb8fa14b02f096504b337e5c94be37c36238cbe3e8bc6" },
+        @{ Label = "tiny.en decoder"; Path = (Join-Path $Assets "tiny.en-decoder.int8.onnx"); Min = 80MB; Sha = "06c0e6ff6348d427e51839219d1c886c18cfdf411e629e33f5e1679bff9c1527" },
+        @{ Label = "base encoder";    Path = (Join-Path $Assets "base-encoder.int8.onnx");    Min = 25MB; Sha = "0b8fb1304b6109976038efff5ace81720e00386f3ff6b54ee8c75291ca0a1e11" },
+        @{ Label = "base decoder";    Path = (Join-Path $Assets "base-decoder.int8.onnx");    Min = 120MB; Sha = "9759d217388a01b3a4c7c15533201067b48ae819c4daafc8624e64b9409dc02d" },
+        @{ Label = "Ryan TTS";        Path = (Join-Path $RyanDir "en_US-ryan-medium.onnx");   Min = 50MB; Sha = "" },
+        @{ Label = "Pratham TTS";     Path = (Join-Path $PrathamDir "hi_IN-pratham-medium.onnx"); Min = 50MB; Sha = "" }
+    )
+
+    foreach ($m in $final) {
+        $size = Assert-MinSize $m.Path $m.Min $m.Label
+        if ($m.Sha) {
+            Assert-Sha256 $m.Path $m.Sha $m.Label
+        }
+        Write-Ok ("{0,-18} {1,10}" -f $m.Label, (Format-Size $size))
+    }
+
+    Write-Host ""
+    Write-Host "============================================================" -ForegroundColor Green
+    Write-Host " ALL 6 MODEL FILES ARE READY" -ForegroundColor Green
+    Write-Host "============================================================" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "STT:"
+    Write-Host "  app/src/main/assets/tiny.en-encoder.int8.onnx"
+    Write-Host "  app/src/main/assets/tiny.en-decoder.int8.onnx"
+    Write-Host "  app/src/main/assets/base-encoder.int8.onnx"
+    Write-Host "  app/src/main/assets/base-decoder.int8.onnx"
+    Write-Host ""
+    Write-Host "TTS:"
+    Write-Host "  app/src/main/assets/vits-piper-en_US-ryan-medium/en_US-ryan-medium.onnx"
+    Write-Host "  app/src/main/assets/vits-piper-hi_IN-pratham-medium/hi_IN-pratham-medium.onnx"
+    Write-Host ""
+    Write-Host "Next: report this success to the integration agent and continue Bundle 2."
+}
+catch {
+    Write-Host ""
+    Write-Host "============================================================" -ForegroundColor Red
+    Write-Host " MODEL SETUP FAILED" -ForegroundColor Red
+    Write-Host "============================================================" -ForegroundColor Red
+    Write-Host $_.Exception.Message -ForegroundColor Red
+    Write-Host ""
+    exit 1
+}

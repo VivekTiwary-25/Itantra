@@ -8,6 +8,8 @@ import android.media.AudioRecord
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Bundle
+import android.os.SystemClock
+import android.util.Log
 import android.view.HapticFeedbackConstants
 import androidx.activity.compose.BackHandler
 import androidx.activity.ComponentActivity
@@ -51,6 +53,8 @@ import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -65,6 +69,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -85,6 +90,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.chmod777.itantra.ui.theme.SIH_iTantraTheme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import speech.SpeechEngine
 import java.io.File
 import java.io.IOException
 import java.io.RandomAccessFile
@@ -120,11 +129,19 @@ private data class Message(
     val date: String,
     val timestamp: String,
     val direction: MessageDirection,
-    val isRead: Boolean
+    val isRead: Boolean,
+    val languageCode: String
 )
 
 private val DATE_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
 private val TIME_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
+private const val LATENCY_TAG = "ITANTRA_LATENCY"
+
+// Spoken-language options for transcription/TTS. Only "en" and "hi" are safe
+// per Bundle 1; extend this list once more languages are proven at the
+// SpeechEngine layer.
+private val SUPPORTED_LANGUAGES = listOf("en" to "English", "hi" to "Hindi")
 
 private val MessageListSaver = Saver<SnapshotStateList<Message>, ArrayList<Bundle>>(
     save = { messages ->
@@ -135,6 +152,7 @@ private val MessageListSaver = Saver<SnapshotStateList<Message>, ArrayList<Bundl
                 putString("timestamp", message.timestamp)
                 putString("direction", message.direction.name)
                 putBoolean("isRead", message.isRead)
+                putString("languageCode", message.languageCode)
             }
         })
     },
@@ -147,7 +165,8 @@ private val MessageListSaver = Saver<SnapshotStateList<Message>, ArrayList<Bundl
                         date = checkNotNull(saved.getString("date")),
                         timestamp = checkNotNull(saved.getString("timestamp")),
                         direction = MessageDirection.valueOf(checkNotNull(saved.getString("direction"))),
-                        isRead = saved.getBoolean("isRead")
+                        isRead = saved.getBoolean("isRead"),
+                        languageCode = checkNotNull(saved.getString("languageCode"))
                     )
                 )
             }
@@ -155,12 +174,12 @@ private val MessageListSaver = Saver<SnapshotStateList<Message>, ArrayList<Bundl
     }
 )
 
-// Fake Speech/Transport stand-ins, per docs/CONTRACTS.md. Hardcoded until the
-// real lanes exist -- do not couple this UI to real STT/TTS/transport here.
-private fun transcribe(wavFilePath: String): String = "this is a test message"
-
+// Fake Transport stand-in, per docs/CONTRACTS.md. Hardcoded until the real
+// lane exists -- do not couple this UI to real transport here.
+// Real Speech transcribe()/speak() now come from speech.SpeechEngine (Bundle 1).
 private fun speak(text: String, languageCode: String) {
-    // no-op stand-in: no real TTS yet
+    // no-op stand-in: no real TTS yet -- kept for the onMessageReceived path,
+    // which stays a Transport no-op until Lane 2 exists.
 }
 
 private fun sendMessage(text: String) {
@@ -176,6 +195,10 @@ fun ITantraApp(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val recordingFile = remember { File(context.filesDir, "recording.wav") }
     val recorder = remember { PcmRecorder(recordingFile) }
+    val speech = remember { SpeechEngine(context) }
+    DisposableEffect(Unit) {
+        onDispose { speech.release() }
+    }
     val startRecording = {
         val hasMicPermission = ContextCompat.checkSelfPermission(
             context,
@@ -187,13 +210,16 @@ fun ITantraApp(modifier: Modifier = Modifier) {
     val stopRecording = { recorder.stop() }
     var screen by rememberSaveable { mutableStateOf(Screen.MAIN) }
     var draft by rememberSaveable { mutableStateOf("") }
+    var draftLanguageCode by rememberSaveable { mutableStateOf("en") }
+    var selectedLanguageCode by rememberSaveable { mutableStateOf("en") }
+    var isTranscribing by remember { mutableStateOf(false) }
     var selectedMessageIndex by rememberSaveable { mutableStateOf<Int?>(null) }
     val messages = rememberSaveable(saver = MessageListSaver) {
         val today = LocalDate.now().format(DATE_FORMAT)
         mutableStateListOf(
-            Message("Water rising near the school", today, "10:42", MessageDirection.RECEIVED, isRead = false),
-            Message("Six people at the temple", today, "10:43", MessageDirection.RECEIVED, isRead = false),
-            Message("Need medical supplies", today, "10:44", MessageDirection.RECEIVED, isRead = false)
+            Message("Water rising near the school", today, "10:42", MessageDirection.RECEIVED, isRead = false, languageCode = "en"),
+            Message("Six people at the temple", today, "10:43", MessageDirection.RECEIVED, isRead = false, languageCode = "en"),
+            Message("Need medical supplies", today, "10:44", MessageDirection.RECEIVED, isRead = false, languageCode = "en")
         )
     }
     val unreadCount = messages.count { it.direction == MessageDirection.RECEIVED && !it.isRead }
@@ -213,10 +239,37 @@ fun ITantraApp(modifier: Modifier = Modifier) {
                     date = now.format(DATE_FORMAT),
                     timestamp = now.format(TIME_FORMAT),
                     direction = MessageDirection.RECEIVED,
-                    isRead = false
+                    isRead = false,
+                    languageCode = languageCode
                 )
             )
             speak(text, languageCode)
+        }
+    }
+
+    val coroutineScope = rememberCoroutineScope()
+    // Shared by PTT-release and Hands-free Done: both route the same WAV
+    // through speech.transcribe() off the main thread, then open the editor.
+    val startTranscription: (String) -> Unit = { source ->
+        if (!isTranscribing && recordingFile.length() > WAV_HEADER_SIZE) {
+            isTranscribing = true
+            coroutineScope.launch {
+                val releaseElapsedMs = SystemClock.elapsedRealtime()
+                Log.d(LATENCY_TAG, "[$source] release t=$releaseElapsedMs")
+                val text = withContext(Dispatchers.Default) {
+                    speech.transcribe(recordingFile.absolutePath, selectedLanguageCode)
+                }
+                val readyElapsedMs = SystemClock.elapsedRealtime()
+                Log.d(
+                    LATENCY_TAG,
+                    "[$source] transcript ready deltaMs=${readyElapsedMs - releaseElapsedMs} " +
+                        "wavBytes=${recordingFile.length()}"
+                )
+                draft = text
+                draftLanguageCode = selectedLanguageCode
+                isTranscribing = false
+                screen = Screen.NEW_MESSAGE
+            }
         }
     }
 
@@ -229,13 +282,15 @@ fun ITantraApp(modifier: Modifier = Modifier) {
             onOpenHandsFree = { screen = Screen.HANDS_FREE },
             onOpenText = {
                 draft = ""
+                draftLanguageCode = "en"
                 screen = Screen.NEW_MESSAGE
             },
             onOpenLogs = { screen = Screen.LOGS },
-            onTranscript = { text ->
-                draft = text
-                screen = Screen.NEW_MESSAGE
-            },
+            onPttReleased = { startTranscription("PTT") },
+            selectedLanguageCode = selectedLanguageCode,
+            onLanguageChange = { selectedLanguageCode = it },
+            isTranscribing = isTranscribing,
+            speech = speech,
             modifier = modifier
         )
 
@@ -243,10 +298,8 @@ fun ITantraApp(modifier: Modifier = Modifier) {
             onStartRecording = startRecording,
             onStopRecording = stopRecording,
             onBack = { screen = Screen.MAIN },
-            onDone = {
-                draft = transcribe(recordingFile.absolutePath)
-                screen = Screen.NEW_MESSAGE
-            },
+            onDone = { startTranscription("HANDSFREE") },
+            isTranscribing = isTranscribing,
             modifier = modifier
         )
 
@@ -280,10 +333,12 @@ fun ITantraApp(modifier: Modifier = Modifier) {
                         date = now.format(DATE_FORMAT),
                         timestamp = now.format(TIME_FORMAT),
                         direction = MessageDirection.SENT,
-                        isRead = true
+                        isRead = true,
+                        languageCode = draftLanguageCode
                     )
                 )
                 draft = ""
+                draftLanguageCode = "en"
                 screen = Screen.MAIN
             },
             modifier = modifier
@@ -306,7 +361,11 @@ private fun MainScreen(
     onOpenHandsFree: () -> Unit,
     onOpenText: () -> Unit,
     onOpenLogs: () -> Unit,
-    onTranscript: (String) -> Unit,
+    onPttReleased: () -> Unit,
+    selectedLanguageCode: String,
+    onLanguageChange: (String) -> Unit,
+    isTranscribing: Boolean,
+    speech: SpeechEngine,
     modifier: Modifier = Modifier
 ) {
     var isHolding by remember { mutableStateOf(false) }
@@ -366,9 +425,9 @@ private fun MainScreen(
                                         isHolding = false
                                         if (recordingStarted) onStopRecording()
                                     }
-                                    if (released) {
+                                    if (released && recordingStarted) {
                                         view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-                                        onTranscript(transcribe(recordingFile.absolutePath))
+                                        onPttReleased()
                                     }
                                 }
                             )
@@ -395,8 +454,17 @@ private fun MainScreen(
                 }
             }
             Text(
-                text = if (isHolding) "Recording..." else "Idle",
+                text = when {
+                    isHolding -> "Recording..."
+                    isTranscribing -> "Transcribing..."
+                    else -> "Idle"
+                },
                 color = Color(0xFF91A2B4)
+            )
+            LanguageSelector(
+                selectedCode = selectedLanguageCode,
+                onSelect = onLanguageChange,
+                enabled = !isHolding && !isTranscribing
             )
             Button(
                 onClick = {
@@ -421,6 +489,16 @@ private fun MainScreen(
                 onOpenHandsFree = onOpenHandsFree,
                 onOpenText = onOpenText,
                 onOpenLogs = onOpenLogs,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+            )
+            // TEMPORARY: exercises SpeechEngine.speak() directly. speak() has
+            // never been executed at the SpeechEngine layer, so this stands in
+            // for real usage. Remove once Transport integration exercises
+            // speak() for real (see docs/CONTRACTS.md received-message path).
+            TestTtsSection(
+                speech = speech,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
@@ -571,11 +649,129 @@ private fun BentoTile(
 }
 
 @Composable
+private fun LanguageSelector(
+    selectedCode: String,
+    onSelect: (String) -> Unit,
+    enabled: Boolean,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val shape = RoundedCornerShape(20.dp)
+    Box(modifier = modifier) {
+        Row(
+            modifier = Modifier
+                .clip(shape)
+                .background(Color(0xBA0D1D2B))
+                .border(1.dp, Color(0x21B6CFE7), shape)
+                .clickable(enabled = enabled) { expanded = true }
+                .padding(horizontal = 14.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = selectedCode.uppercase(),
+                color = if (enabled) Color(0xFFF4F7FB) else Color(0xFF637487),
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            SUPPORTED_LANGUAGES.forEach { (code, name) ->
+                DropdownMenuItem(
+                    text = { Text(name) },
+                    onClick = {
+                        onSelect(code)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+// TEMPORARY: exercises SpeechEngine.speak() directly. speak() has never been
+// executed at the SpeechEngine layer, so this stands in for real usage.
+// Remove once Transport integration exercises speak() for real (see
+// docs/CONTRACTS.md received-message path).
+@Composable
+private fun TestTtsSection(
+    speech: SpeechEngine,
+    modifier: Modifier = Modifier
+) {
+    var text by rememberSaveable { mutableStateOf("this is a test message") }
+    var languageCode by rememberSaveable { mutableStateOf("en") }
+    var isSpeaking by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color(0xBA0D1D2B))
+            .border(1.dp, Color(0x21B6CFE7), RoundedCornerShape(12.dp))
+            .padding(12.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = "Test TTS (temporary)",
+            color = Color(0xFF91A2B4),
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold
+        )
+        OutlinedTextField(
+            value = text,
+            onValueChange = { text = it },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color(0xFFDCE6EF),
+                unfocusedTextColor = Color(0xFFDCE6EF),
+                focusedContainerColor = Color(0xBA0D1D2B),
+                unfocusedContainerColor = Color(0xBA0D1D2B),
+                focusedBorderColor = Color(0xFFF8AD3C),
+                unfocusedBorderColor = Color(0x21B6CFE7),
+                cursorColor = Color(0xFFF8AD3C)
+            )
+        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            LanguageSelector(
+                selectedCode = languageCode,
+                onSelect = { languageCode = it },
+                enabled = !isSpeaking,
+                modifier = Modifier.weight(1f)
+            )
+            Button(
+                enabled = !isSpeaking && text.isNotBlank(),
+                onClick = {
+                    isSpeaking = true
+                    coroutineScope.launch {
+                        val startElapsedMs = SystemClock.elapsedRealtime()
+                        Log.d(LATENCY_TAG, "[TTS] speak start")
+                        withContext(Dispatchers.Default) {
+                            speech.speak(text, languageCode)
+                        }
+                        Log.d(
+                            LATENCY_TAG,
+                            "[TTS] speak end deltaMs=${SystemClock.elapsedRealtime() - startElapsedMs}"
+                        )
+                        isSpeaking = false
+                    }
+                }
+            ) {
+                Text(if (isSpeaking) "Speaking..." else "Test TTS")
+            }
+        }
+    }
+}
+
+@Composable
 private fun HandsFreeScreen(
     onStartRecording: () -> Boolean,
     onStopRecording: () -> Unit,
     onBack: () -> Unit,
     onDone: () -> Unit,
+    isTranscribing: Boolean,
     modifier: Modifier = Modifier
 ) {
     DisposableEffect(Unit) {
@@ -643,7 +839,7 @@ private fun HandsFreeScreen(
             }
             Spacer(Modifier.height(24.dp))
             Text(
-                text = "Listening...",
+                text = if (isTranscribing) "Transcribing..." else "Listening...",
                 color = Color(0xFFF4F7FB),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
