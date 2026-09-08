@@ -159,6 +159,20 @@ private val SUPPORTED_LANGUAGES = listOf(
     "bn" to "Bengali"
 )
 
+// Sample text per language for the temporary Test TTS control. Typing Devanagari
+// or Bengali on the test phone needs a matching keyboard, so the control offers a
+// ready sentence whenever the operator has not typed their own.
+private val TTS_SAMPLE_TEXT = mapOf(
+    "en" to "this is a test message",
+    "hi" to "यह एक परीक्षण संदेश है",
+    "gu" to "આ એક પરીક્ષણ સંદેશ છે",
+    "mr" to "हा एक चाचणी संदेश आहे",
+    "ta" to "இது ஒரு சோதனை செய்தி",
+    "te" to "ఇది ఒక పరీక్ష సందేశం",
+    "or" to "ଏହା ଏକ ପରୀକ୍ଷା ବାର୍ତ୍ତା",
+    "bn" to "এটি একটি পরীক্ষা বার্তা"
+)
+
 private val MessageListSaver = Saver<SnapshotStateList<Message>, ArrayList<Bundle>>(
     save = { messages ->
         ArrayList(messages.map { message ->
@@ -260,9 +274,11 @@ fun ITantraApp(modifier: Modifier = Modifier) {
             requestBluetoothPermission.launch(BluetoothPermissions.requiredRuntimePermissions())
         }
     }
+    val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(transport) {
         transport.onMessageReceived { received ->
             val text = received.message.text
+            val languageCode = received.message.languageCode
             val now = LocalDateTime.now()
             messages.add(
                 Message(
@@ -271,10 +287,21 @@ fun ITantraApp(modifier: Modifier = Modifier) {
                     timestamp = now.format(TIME_FORMAT),
                     direction = MessageDirection.RECEIVED,
                     isRead = false,
-                    languageCode = received.message.languageCode
+                    languageCode = languageCode
                 )
             )
             transport.sendAcknowledgement(received.message.messageId, received.sourcePeerAddress)
+            // Speak only once the text is in Logs and the ACK is away. Model loading
+            // takes seconds, so it runs off the RFCOMM reader thread, and every
+            // failure stays inside this block: transport must survive a mute phone.
+            coroutineScope.launch(Dispatchers.Default) {
+                try {
+                    Log.d(LATENCY_TAG, "[TTS] received-message speak lang=$languageCode")
+                    speech.speak(text, languageCode)
+                } catch (e: Throwable) {
+                    Log.e(LATENCY_TAG, "[TTS] received-message speak failed lang=$languageCode", e)
+                }
+            }
         }
         transport.onAcknowledgementReceived { acknowledgedMessageId ->
             val index = messages.indexOfFirst {
@@ -286,7 +313,6 @@ fun ITantraApp(modifier: Modifier = Modifier) {
         }
     }
 
-    val coroutineScope = rememberCoroutineScope()
     // Shared by PTT-release and Hands-free Done: both route the same WAV
     // through speech.transcribe() off the main thread, then open the editor.
     val startTranscription: (String) -> Unit = { source ->
@@ -803,10 +829,11 @@ private fun TestTtsSection(
     speech: SpeechEngine,
     modifier: Modifier = Modifier
 ) {
-    var text by rememberSaveable { mutableStateOf("this is a test message") }
     var languageCode by rememberSaveable { mutableStateOf("en") }
+    var text by rememberSaveable { mutableStateOf(TTS_SAMPLE_TEXT.getValue("en")) }
     var isSpeaking by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+    val hasVoice = speech.canSpeak(languageCode)
 
     Column(
         modifier = modifier
@@ -843,12 +870,17 @@ private fun TestTtsSection(
         ) {
             LanguageSelector(
                 selectedCode = languageCode,
-                onSelect = { languageCode = it },
+                onSelect = { selected ->
+                    if (text.isBlank() || TTS_SAMPLE_TEXT.containsValue(text)) {
+                        text = TTS_SAMPLE_TEXT[selected].orEmpty()
+                    }
+                    languageCode = selected
+                },
                 enabled = !isSpeaking,
                 modifier = Modifier.weight(1f)
             )
             Button(
-                enabled = !isSpeaking && text.isNotBlank(),
+                enabled = !isSpeaking && hasVoice && text.isNotBlank(),
                 onClick = {
                     isSpeaking = true
                     coroutineScope.launch {
@@ -867,6 +899,13 @@ private fun TestTtsSection(
             ) {
                 Text(if (isSpeaking) "Speaking..." else "Test TTS")
             }
+        }
+        if (!hasVoice) {
+            Text(
+                text = "No verified TTS voice for this language yet.",
+                color = Color(0xFF91A2B4),
+                fontSize = 11.sp
+            )
         }
     }
 }
