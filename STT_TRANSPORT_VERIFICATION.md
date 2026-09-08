@@ -17,7 +17,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\setup-models.ps1
 ```
 
 The script downloads and verifies the STT/TTS model files under
-`app/src/main/assets`. Do not commit the downloaded `.onnx` files.
+`app/src/main/assets`, including the pinned Dolphin base multilingual INT8 model
+used for `hi`, `gu`, `mr`, `ta`, `te`, `or`, and `bn`. Do not commit the
+downloaded `.onnx` files.
 
 ## Physical test performed
 

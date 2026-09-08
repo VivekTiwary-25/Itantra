@@ -148,19 +148,25 @@ iTantra working tree/branch before continuing.
     }
 }
 
-function Install-TtsFromArchive(
+function Install-ModelFromArchive(
     [string]$Url,
     [string]$ArchiveName,
     [string]$ExpectedFolder,
     [string]$OnnxName,
     [string]$DestinationDir,
     [string]$Label,
-    [string]$TempRoot
+    [string]$TempRoot,
+    [string]$ArchiveSha256 = "",
+    [string]$OnnxSha256 = ""
 ) {
     $destination = Join-Path $DestinationDir $OnnxName
 
     if ((Test-Path -LiteralPath $destination -PathType Leaf) -and -not $Force) {
         $size = Assert-MinSize $destination 50MB $Label
+        if ($OnnxSha256) {
+            Write-Host "[CHECK] $Label already exists; verifying SHA-256..."
+            Assert-Sha256 $destination $OnnxSha256 $Label
+        }
         Write-Ok "$Label already present ($(Format-Size $size)); skipping download."
         return
     }
@@ -186,7 +192,8 @@ If that command is unavailable, install/enable a tar-capable tool before rerunni
         -Url $Url `
         -Destination $archivePath `
         -Label "$Label archive" `
-        -MinBytes 10MB
+        -MinBytes 10MB `
+        -Sha256 $ArchiveSha256
 
     Write-Host "[EXTRACT] $ArchiveName"
     & $tar.Source -xjf $archivePath -C $extractRoot
@@ -206,6 +213,9 @@ If that command is unavailable, install/enable a tar-capable tool before rerunni
     }
 
     $size = Assert-MinSize $candidate 50MB $Label
+    if ($OnnxSha256) {
+        Assert-Sha256 $candidate $OnnxSha256 $Label
+    }
 
     if ($Force -and (Test-Path -LiteralPath $destination)) {
         Remove-Item -LiteralPath $destination -Force
@@ -213,6 +223,9 @@ If that command is unavailable, install/enable a tar-capable tool before rerunni
 
     Copy-Item -LiteralPath $candidate -Destination $destination -Force
     $installedSize = Assert-MinSize $destination 50MB $Label
+    if ($OnnxSha256) {
+        Assert-Sha256 $destination $OnnxSha256 $Label
+    }
     Write-Ok "$Label installed ($(Format-Size $installedSize))."
 }
 
@@ -251,6 +264,14 @@ Run this script from the ROOT of the iTantra repository, or pass:
         throw "Missing committed STT token file: $BaseTokens"
     }
     Write-Ok "Existing STT token files found."
+
+    $DolphinDir = Join-Path $Assets "dolphin-base-ctc-multi-lang-int8"
+    $DolphinTokens = Join-Path $DolphinDir "tokens.txt"
+    if (-not (Test-Path -LiteralPath $DolphinTokens -PathType Leaf)) {
+        throw "Missing committed Dolphin token file: $DolphinTokens"
+    }
+    Assert-Sha256 $DolphinTokens "c3788261a51df1899ea4b210b552cd42139204de72c0ad60f6cebb199078872e" "Dolphin tokens"
+    Write-Ok "Dolphin token file found and verified."
 
     $RyanDir = Join-Path $Assets "vits-piper-en_US-ryan-medium"
     $PrathamDir = Join-Path $Assets "vits-piper-hi_IN-pratham-medium"
@@ -306,13 +327,24 @@ Run this script from the ROOT of the iTantra repository, or pass:
             -Sha256 $m.Sha
     }
 
-    Write-Step "Downloading + extracting 2 Piper TTS models"
+    Write-Step "Downloading + extracting Dolphin STT and 2 Piper TTS models"
 
     $tempRoot = Join-Path ([IO.Path]::GetTempPath()) ("itantra-models-" + [Guid]::NewGuid().ToString("N"))
     New-Item -ItemType Directory -Force -Path $tempRoot | Out-Null
 
     try {
-        Install-TtsFromArchive `
+        Install-ModelFromArchive `
+            -Url "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-dolphin-base-ctc-multi-lang-int8-2025-04-02.tar.bz2" `
+            -ArchiveName "sherpa-onnx-dolphin-base-ctc-multi-lang-int8-2025-04-02.tar.bz2" `
+            -ExpectedFolder "sherpa-onnx-dolphin-base-ctc-multi-lang-int8-2025-04-02" `
+            -OnnxName "model.int8.onnx" `
+            -DestinationDir $DolphinDir `
+            -Label "Dolphin base multilingual CTC INT8" `
+            -TempRoot $tempRoot `
+            -ArchiveSha256 "6f23da2303c3c2e5fa6445c450fa2a7133cd57e3da070ae5f97ab9e0dfbb4a54" `
+            -OnnxSha256 "a3aa46c97f3f60f135ff949793cb05fabe7a0b3c484dc2e3cc699d354ee11b76"
+
+        Install-ModelFromArchive `
             -Url "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-piper-en_US-ryan-medium.tar.bz2" `
             -ArchiveName "vits-piper-en_US-ryan-medium.tar.bz2" `
             -ExpectedFolder "vits-piper-en_US-ryan-medium" `
@@ -321,7 +353,7 @@ Run this script from the ROOT of the iTantra repository, or pass:
             -Label "Piper English Ryan medium" `
             -TempRoot $tempRoot
 
-        Install-TtsFromArchive `
+        Install-ModelFromArchive `
             -Url "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-piper-hi_IN-pratham-medium.tar.bz2" `
             -ArchiveName "vits-piper-hi_IN-pratham-medium.tar.bz2" `
             -ExpectedFolder "vits-piper-hi_IN-pratham-medium" `
@@ -344,6 +376,7 @@ Run this script from the ROOT of the iTantra repository, or pass:
         @{ Label = "tiny.en decoder"; Path = (Join-Path $Assets "tiny.en-decoder.int8.onnx"); Min = 80MB; Sha = "06c0e6ff6348d427e51839219d1c886c18cfdf411e629e33f5e1679bff9c1527" },
         @{ Label = "base encoder";    Path = (Join-Path $Assets "base-encoder.int8.onnx");    Min = 25MB; Sha = "0b8fb1304b6109976038efff5ace81720e00386f3ff6b54ee8c75291ca0a1e11" },
         @{ Label = "base decoder";    Path = (Join-Path $Assets "base-decoder.int8.onnx");    Min = 120MB; Sha = "9759d217388a01b3a4c7c15533201067b48ae819c4daafc8624e64b9409dc02d" },
+        @{ Label = "Dolphin STT";      Path = (Join-Path $DolphinDir "model.int8.onnx");       Min = 50MB; Sha = "a3aa46c97f3f60f135ff949793cb05fabe7a0b3c484dc2e3cc699d354ee11b76" },
         @{ Label = "Ryan TTS";        Path = (Join-Path $RyanDir "en_US-ryan-medium.onnx");   Min = 50MB; Sha = "" },
         @{ Label = "Pratham TTS";     Path = (Join-Path $PrathamDir "hi_IN-pratham-medium.onnx"); Min = 50MB; Sha = "" }
     )
@@ -358,7 +391,7 @@ Run this script from the ROOT of the iTantra repository, or pass:
 
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Green
-    Write-Host " ALL 6 MODEL FILES ARE READY" -ForegroundColor Green
+    Write-Host " ALL 7 MODEL FILES ARE READY" -ForegroundColor Green
     Write-Host "============================================================" -ForegroundColor Green
     Write-Host ""
     Write-Host "STT:"
@@ -366,12 +399,13 @@ Run this script from the ROOT of the iTantra repository, or pass:
     Write-Host "  app/src/main/assets/tiny.en-decoder.int8.onnx"
     Write-Host "  app/src/main/assets/base-encoder.int8.onnx"
     Write-Host "  app/src/main/assets/base-decoder.int8.onnx"
+    Write-Host "  app/src/main/assets/dolphin-base-ctc-multi-lang-int8/model.int8.onnx"
     Write-Host ""
     Write-Host "TTS:"
     Write-Host "  app/src/main/assets/vits-piper-en_US-ryan-medium/en_US-ryan-medium.onnx"
     Write-Host "  app/src/main/assets/vits-piper-hi_IN-pratham-medium/hi_IN-pratham-medium.onnx"
     Write-Host ""
-    Write-Host "Next: report this success to the integration agent and continue Bundle 2."
+    Write-Host "Model setup complete."
 }
 catch {
     Write-Host ""

@@ -120,7 +120,16 @@ Large model files are intentionally excluded from Git.
 
 Do not commit `.onnx`, `.bin`, or model directories.
 
-Use the model download instructions in the Speech lane brief.
+Restore the pinned local model binaries from the repository root with:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\setup-models.ps1
+```
+
+The script verifies the Whisper files, the dated sherpa-onnx Dolphin base
+multilingual INT8 package, and the English/Hindi Piper files. Dolphin's tracked
+`tokens.txt` and ignored `model.int8.onnx` are placed under
+`app/src/main/assets/dolphin-base-ctc-multi-lang-int8`.
 
 ## Prototype Target
 
