@@ -94,7 +94,6 @@ import androidx.core.content.ContextCompat
 import com.chmod777.itantra.ui.theme.SIH_iTantraTheme
 import com.chmod777.itantra.transport.BluetoothPermissions
 import com.chmod777.itantra.transport.BluetoothRfcommTransport
-import com.chmod777.itantra.transport.MessageLanguage
 import com.chmod777.itantra.transport.RfcommConnectionState
 import com.chmod777.itantra.transport.SendMessageResult
 import kotlinx.coroutines.Dispatchers
@@ -272,7 +271,7 @@ fun ITantraApp(modifier: Modifier = Modifier) {
                     timestamp = now.format(TIME_FORMAT),
                     direction = MessageDirection.RECEIVED,
                     isRead = false,
-                    languageCode = "en"
+                    languageCode = received.message.languageCode
                 )
             )
             transport.sendAcknowledgement(received.message.messageId, received.sourcePeerAddress)
@@ -377,7 +376,7 @@ fun ITantraApp(modifier: Modifier = Modifier) {
             onSend = { text ->
                 isSending = true
                 sendError = null
-                transport.sendMessage(text, MessageLanguage.ENGLISH) { result ->
+                transport.sendMessage(text, draftLanguageCode) { result ->
                     val failure = result.failureMessage()
                     if (failure != null) {
                         if (result is SendMessageResult.Error) Log.e("ITANTRA_TRANSPORT", result.message)

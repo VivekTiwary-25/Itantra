@@ -9,7 +9,6 @@ import android.os.Handler
 import android.os.Looper
 import java.io.DataInputStream
 import java.io.IOException
-import java.nio.charset.StandardCharsets
 import java.security.SecureRandom
 import java.util.UUID
 import java.util.concurrent.ExecutorService
@@ -170,17 +169,24 @@ class BluetoothRfcommTransport(context: Context) {
     /** Sends a versioned T8 protocol message. */
     fun sendMessage(
         text: String,
-        language: MessageLanguage = MessageLanguage.ENGLISH,
+        languageCode: String = "en",
         ttl: Int = DEFAULT_TTL,
         onResult: (SendMessageResult) -> Unit,
     ) {
-        val encoded = text.toByteArray(StandardCharsets.UTF_8)
+        val encoded = text.toByteArray(Charsets.UTF_8)
         if (encoded.isEmpty()) {
             emitSendMessageResult(onResult, SendMessageResult.Error("Text cannot be empty."))
             return
         }
-        if (encoded.size > MAX_PAYLOAD_BYTES) {
-            emitSendMessageResult(onResult, SendMessageResult.Error("Text is limited to $MAX_PAYLOAD_BYTES UTF-8 bytes."))
+        if (encoded.size > MAX_TRANSPORT_PAYLOAD_BYTES) {
+            emitSendMessageResult(
+                onResult,
+                SendMessageResult.Error("Text is limited to $MAX_TRANSPORT_PAYLOAD_BYTES UTF-8 bytes."),
+            )
+            return
+        }
+        if (!isSupportedTransportLanguageCode(languageCode)) {
+            emitSendMessageResult(onResult, SendMessageResult.Error("Unsupported language code: $languageCode."))
             return
         }
         if (ttl !in 0..MAX_TTL) {
@@ -198,7 +204,7 @@ class BluetoothRfcommTransport(context: Context) {
             version = PROTOCOL_VERSION,
             messageId = random.nextInt().toUInt().toLong(),
             ttl = ttl,
-            language = language,
+            languageCode = languageCode,
             text = text,
         )
         relayPolicy.rememberOutgoing(message.messageId)
@@ -281,30 +287,9 @@ class BluetoothRfcommTransport(context: Context) {
                         continue
                     }
                     if (value != PROTOCOL_VERSION) {
-                        emit(onStateChanged, RfcommConnectionState.Error("Unsupported protocol version: $value."))
-                        return@execute
+                        throw IOException("Unsupported protocol version: $value.")
                     }
-                    val messageId = input.readInt().toUInt().toLong()
-                    val ttl = input.readUnsignedByte()
-                    val language = MessageLanguage.fromWireValue(input.readUnsignedByte())
-                        ?: run {
-                            emit(onStateChanged, RfcommConnectionState.Error("Unknown language code in message."))
-                            return@execute
-                        }
-                    val length = input.readUnsignedShort()
-                    if (length == 0 || length > MAX_PAYLOAD_BYTES) {
-                        emit(onStateChanged, RfcommConnectionState.Error("Invalid text length: $length."))
-                        return@execute
-                    }
-                    val textBytes = ByteArray(length)
-                    input.readFully(textBytes)
-                    val message = TransportMessage(
-                        version = value,
-                        messageId = messageId,
-                        ttl = ttl,
-                        language = language,
-                        text = String(textBytes, StandardCharsets.UTF_8),
-                    )
+                    val message = readTransportMessage(input, value)
                     val sourceAddress = connectedSocket.remoteDevice.address
                     when (val decision = relayPolicy.decideForIncoming(message)) {
                         RelayDecision.Duplicate -> {
@@ -442,20 +427,8 @@ class BluetoothRfcommTransport(context: Context) {
 
     @Throws(IOException::class)
     private fun writeMessage(targetSocket: BluetoothSocket, message: TransportMessage) {
-        val encoded = message.text.toByteArray(StandardCharsets.UTF_8)
         synchronized(writeLock) {
-            val output = targetSocket.outputStream
-            output.write(message.version)
-            output.write((message.messageId shr 24).toInt())
-            output.write((message.messageId shr 16).toInt())
-            output.write((message.messageId shr 8).toInt())
-            output.write(message.messageId.toInt())
-            output.write(message.ttl)
-            output.write(message.language.wireValue)
-            output.write(encoded.size ushr 8)
-            output.write(encoded.size and 0xFF)
-            output.write(encoded)
-            output.flush()
+            writeTransportMessage(targetSocket.outputStream, message)
         }
     }
 
@@ -483,11 +456,9 @@ class BluetoothRfcommTransport(context: Context) {
 
     companion object {
         const val SERVICE_NAME = "iTantraRfcomm"
-        private const val ACK_FRAME_MARKER = 0
-        const val PROTOCOL_VERSION = 1
+        const val PROTOCOL_VERSION = TRANSPORT_PROTOCOL_VERSION
         const val DEFAULT_TTL = 3
         private const val MAX_TTL = 255
-        private const val MAX_PAYLOAD_BYTES = 4_096
         private const val MAX_PENDING_RELAYS = 100
         private val random = SecureRandom()
         val SERVICE_UUID: UUID = UUID.fromString("56d5cd5e-3d02-4f41-8d47-2a3de7b6bc10")
@@ -510,7 +481,7 @@ data class TransportMessage(
     val version: Int,
     val messageId: Long,
     val ttl: Int,
-    val language: MessageLanguage,
+    val languageCode: String,
     val text: String,
 )
 
@@ -534,15 +505,6 @@ sealed interface RelayEvent {
     data class NoOtherPeer(val messageId: Long) : RelayEvent
     data class Queued(val messageId: Long, val pendingCount: Int) : RelayEvent
     data class DeliveredFromQueue(val messageId: Long, val peerName: String) : RelayEvent
-}
-
-enum class MessageLanguage(val wireValue: Int, val displayName: String) {
-    ENGLISH(1, "English"),
-    HINDI(2, "Hindi");
-
-    companion object {
-        fun fromWireValue(value: Int): MessageLanguage? = entries.firstOrNull { it.wireValue == value }
-    }
 }
 
 sealed interface SendMessageResult {

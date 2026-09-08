@@ -30,7 +30,7 @@ fun speak(text: String, languageCode: String)
 Transport-side functions:
 
 ```kotlin
-fun sendMessage(text: String)
+fun sendMessage(text: String, languageCode: String, onResult: (SendMessageResult) -> Unit)
 fun onMessageReceived(callback: (text: String, languageCode: String) -> Unit)
 ```
 
@@ -70,6 +70,14 @@ The Lane 1 prose says the app accepts "a string, plus a language code", but the 
 | `bn` | Bengali |
 
 Lane 2/3 must use these exact codes rather than inventing their own labels.
+
+The current app selector exposes `en`, `hi`, `gu`, `mr`, `ta`, `te`, `or`, and `bn`.
+`kn` and `ml` remain recognized contract values but are not runtime selector options.
+
+Transport protocol version 2 carries the ISO code as two US-ASCII bytes between
+the TTL and UTF-8 payload length fields. Unsupported codes are rejected before
+sending; malformed received metadata rejects the frame and closes that reader
+session instead of continuing with an ambiguous stream position.
 
 For real cross-lane integration:
 

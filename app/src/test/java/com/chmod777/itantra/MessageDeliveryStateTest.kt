@@ -1,6 +1,5 @@
 package com.chmod777.itantra
 
-import com.chmod777.itantra.transport.MessageLanguage
 import com.chmod777.itantra.transport.SendMessageResult
 import com.chmod777.itantra.transport.TransportMessage
 import org.junit.Assert.assertEquals
@@ -19,7 +18,7 @@ class MessageDeliveryStateTest {
         assertEquals("Send failed: write failed", SendMessageResult.Error("write failed").failureMessage())
         assertNull(
             SendMessageResult.Sent(
-                TransportMessage(1, 42L, 3, MessageLanguage.ENGLISH, "hello"),
+                TransportMessage(1, 42L, 3, "en", "hello"),
             ).failureMessage(),
         )
     }
