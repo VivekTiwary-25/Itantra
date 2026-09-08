@@ -315,13 +315,13 @@ Do not add editing, reply, delete, persistence, or a navigation framework.
 
 ### After A13 — Integration-deferred work, not standalone Lane 1 rungs
 
-Once A11–A13 are implemented and physically accepted, standalone Lane 1 feature work is complete for now. The following items remain real project work, but they are blocked on cross-lane contracts or belong to final integration rather than ordinary unfinished Lane 1 UI rungs:
+Once A11–A13 are implemented and physically accepted, standalone Lane 1 feature work is complete for now. The following items are cross-lane integration work rather than ordinary unfinished Lane 1 UI rungs:
 
-- PTT transcription still uses a hardcoded stand-in. Real STT waits on Lane 3.
-- Hands-free now uses the shared PTT recorder for local WAV capture from entry until Done/Back. VAD, pause segmentation, real STT and final state mapping wait on Lane 3.
+- Real Speech transcription and Bluetooth transport are present on the integration branch. English PTT STT → editable draft → Send → Bluetooth → received Logs was physically verified at baseline `21e28fd`.
+- The recovery branch adds delivery-result handling, integrated ACK display, and ISO language metadata. These changes are IMPLEMENTED + JVM-TESTED + BUILD-TESTED and await two-phone physical verification.
+- Hands-free uses the shared PTT recorder and submits its completed WAV to the integrated Speech engine. VAD, pause segmentation and final continuous-mode state mapping remain deferred.
 - Streaming versus final-only transcript delivery is intentionally unresolved until Lane 3 exposes its real decoder/API. Lane 1 requires only an eventual final result that opens the editor.
 - Exact Hands-free states and event transitions must follow Lane 3's real interface during integration.
-- Real `sendMessage` and incoming receive behavior wait on Lane 2.
 - Alert metadata is an unresolved Lane 1/Lane 2 prerequisite. Do not invent a packet or `Message` field locally.
 - Received-alert maximum-volume, non-interruptible TTS depends on Lane 2 Transport and Lane 3 Speech integration.
 - `PLAY LAST RECORDING` remains a temporary capture-verification control. Remove it during final integration/product cleanup once the WAV pipeline no longer needs that manual test path.

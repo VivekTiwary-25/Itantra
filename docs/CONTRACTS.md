@@ -23,7 +23,7 @@ Do not silently change this audio format.
 Speech-side functions:
 
 ```kotlin
-fun transcribe(wavFilePath: String): String
+fun transcribe(wavFilePath: String, languageCode: String): String
 fun speak(text: String, languageCode: String)
 ```
 
@@ -34,19 +34,33 @@ fun sendMessage(text: String, languageCode: String, onResult: (SendMessageResult
 fun onMessageReceived(callback: (text: String, languageCode: String) -> Unit)
 ```
 
-Until the real lanes exist, fake implementations are allowed and expected. Preserve these signatures unless a proven integration contradiction requires a coordinated change.
+Speech transcription and Bluetooth transport are now integrated. Preserve these signatures unless a proven integration contradiction requires a coordinated change.
 
 ## Voice transcript delivery and the shared editor
 
-The current `transcribe(wavFilePath): String` function is a final-result stand-in. Its returned text is a **draft**:
+The current `transcribe(wavFilePath, languageCode): String` function returns a final result. Its returned text is a **draft**:
 
 1. Lane 1 opens the shared New Message editor with the transcript pre-filled.
 2. The user may edit or discard it.
-3. Only the user's explicit Send action calls `sendMessage(text)` and appends the outgoing message to the shared message list.
+3. Only the user's explicit Send action calls `sendMessage(text, languageCode, onResult)`; the outgoing message enters history only after `Sent`.
 
 PTT and Hands-free must not auto-send or append a transcript as a sent message. Typed Text opens the same editor blank.
 
 Lane 3 may ultimately expose final-only delivery, partial/streaming updates, or another compatible result model. That interface is intentionally unresolved. Lane 1 requires only that an eventual final transcript can be delivered to the editor and must not invent streaming callbacks or real-time transcript acceptance criteria now.
+
+## Transport result and acknowledgement semantics
+
+`SendMessageResult.Sent` means the RFCOMM frame was written successfully; it is
+not proof that the peer accepted it. The app then records the outgoing message
+as `Awaiting ACK`. An ACK carrying that transport message ID changes only the
+matching row to `Delivered`.
+
+`NotConnected` and `Error` keep the draft in the editor with a visible error and
+must not append a successful outgoing history row. After accepting a parsed
+incoming message into app state, the receiver sends its ACK to that source peer.
+
+These integrated semantics are IMPLEMENTED + JVM-TESTED + BUILD-TESTED on the
+recovery branch and await physical two-phone verification.
 
 ## Resolved: onMessageReceived carries a language code
 
@@ -86,9 +100,8 @@ For real cross-lane integration:
 
 ## Integration-deferred contracts
 
-- Real `sendMessage` and incoming receive behavior depend on Lane 2 Transport.
-- Real PTT transcription depends on Lane 3 Speech.
-- Lane 1 already performs local Hands-free microphone/WAV capture through the shared PTT recorder. VAD, pause segmentation, real STT, and final UI state/event mapping depend on Lane 3's real interface.
+- Recovery-branch protocol-v2 delivery, ACK UI, and multilingual metadata await physical two-phone verification.
+- Lane 1 performs local Hands-free microphone/WAV capture and submits the completed WAV to the integrated Speech engine. VAD, pause segmentation, and final continuous-mode UI state/event mapping remain deferred.
 - Alert metadata is an unresolved prerequisite across Lane 1 and Lane 2. Do not add an alert field to the local `Message`, packet, or callback until those lanes agree on the contract.
 - Maximum-volume, non-interruptible playback for received alerts depends on Lane 2 delivering agreed alert metadata and Lane 3 providing the required speech playback behavior.
 

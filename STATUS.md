@@ -1,4 +1,4 @@
-# STATUS.md — iTantra lane/app
+# STATUS.md — iTantra integration/recovery-pass
 
 Status meanings:
 
@@ -31,7 +31,24 @@ A10 remains a valid accepted plumbing milestone. A12 refines its user experience
 
 ## Current critical path
 
-A0–A13 standalone Lane 1 work is GREEN. Do not add another standalone Lane 1 rung; wait for explicitly assigned cross-lane integration work.
+A0–A13 standalone Lane 1 work remains GREEN from its accepted physical tests.
+
+The confirmed integrated baseline is `origin/typed-text-integration@21e28fd`:
+
+| Checkpoint | Status |
+|---|---|
+| English PTT STT → editable draft → Send → Bluetooth → received Logs | PHYSICALLY VERIFIED at `21e28fd` |
+| Standalone RFCOMM connect, repeated text delivery, ACK, reconnect, relaunch/reconnect | PHYSICALLY VERIFIED in the preserved transport checkpoint |
+| Relay/store-and-forward | UNVERIFIED |
+| Receiver TTS | UNVERIFIED and intentionally not integrated |
+
+Recovery branch changes:
+
+| Item | Status |
+|---|---|
+| Send-result handling, visible disconnected/error state, integrated ACK and delivery display | IMPLEMENTED + JVM-TESTED + BUILD-TESTED; physical verification pending |
+| ISO language metadata across app and transport protocol v2 | IMPLEMENTED + JVM-TESTED + BUILD-TESTED; multilingual physical transport test pending |
+| Pinned Dolphin model provisioning in `setup-models.ps1` | IMPLEMENTED + BUILD-TESTED; setup script and official archive/hash comparison passed |
 
 ## Integration-deferred work
 
@@ -39,20 +56,17 @@ These are not standalone Lane 1 RED rungs.
 
 | Item | Dependency / state |
 |---|---|
-| Replace hardcoded PTT/Hands-free transcripts | Lane 3 Speech integration |
-| Add Hands-free VAD, pause segmentation, real STT and final state mapping | Lane 3 Speech integration; local shared WAV capture is already GREEN |
+| Recovery-branch delivery/ACK and protocol-v2 regression | Physical two-phone verification pending |
+| Multilingual language metadata across Bluetooth | Physical two-phone verification pending |
+| Add Hands-free VAD, pause segmentation and final continuous-mode state mapping | Deferred; local shared WAV capture is already GREEN |
 | Decide final-only versus partial/streaming transcript delivery and exact Hands-free state/event mapping | Lane 3 decoder/API |
-| Replace fake `sendMessage` and receive callback behavior | Lane 2 Transport integration |
 | Define alert metadata | Unresolved prerequisite across Lane 1 and Lane 2; do not invent a local field |
 | Maximum-volume, non-interruptible received-alert TTS | Lane 2 Transport metadata plus Lane 3 Speech playback |
 | Remove `PLAY LAST RECORDING` | Final integration/product cleanup after capture verification is no longer needed |
 
-## Team-lead unblocker
-
-| Task | Status |
-|---|---|
-| sherpa-onnx Android/AAR integration, without model integration | RED |
-
 ## Update rule
 
 Vivek physically accepted A11–A13 (`eedd486`) and the post-acceptance Hands-free capture/Message Detail date correction (`36ba653`).
+
+Do not mark the recovery-branch changes physically verified or GREEN until the
+required two-phone tests pass on the recovery branch APK.
