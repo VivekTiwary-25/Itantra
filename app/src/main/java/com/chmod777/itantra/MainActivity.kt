@@ -137,7 +137,9 @@ private data class Message(
     val timestamp: String,
     val direction: MessageDirection,
     val isRead: Boolean,
-    val languageCode: String
+    val languageCode: String,
+    val transportMessageId: Long? = null,
+    val deliveryState: MessageDeliveryState? = null,
 )
 
 private val DATE_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
@@ -168,6 +170,8 @@ private val MessageListSaver = Saver<SnapshotStateList<Message>, ArrayList<Bundl
                 putString("direction", message.direction.name)
                 putBoolean("isRead", message.isRead)
                 putString("languageCode", message.languageCode)
+                message.transportMessageId?.let { putLong("transportMessageId", it) }
+                putString("deliveryState", message.deliveryState?.name)
             }
         })
     },
@@ -181,7 +185,13 @@ private val MessageListSaver = Saver<SnapshotStateList<Message>, ArrayList<Bundl
                         timestamp = checkNotNull(saved.getString("timestamp")),
                         direction = MessageDirection.valueOf(checkNotNull(saved.getString("direction"))),
                         isRead = saved.getBoolean("isRead"),
-                        languageCode = checkNotNull(saved.getString("languageCode"))
+                        languageCode = checkNotNull(saved.getString("languageCode")),
+                        transportMessageId = if (saved.containsKey("transportMessageId")) {
+                            saved.getLong("transportMessageId")
+                        } else {
+                            null
+                        },
+                        deliveryState = saved.getString("deliveryState")?.let(MessageDeliveryState::valueOf),
                     )
                 )
             }
@@ -226,6 +236,8 @@ fun ITantraApp(modifier: Modifier = Modifier) {
     var draftLanguageCode by rememberSaveable { mutableStateOf("en") }
     var selectedLanguageCode by rememberSaveable { mutableStateOf("en") }
     var isTranscribing by remember { mutableStateOf(false) }
+    var isSending by remember { mutableStateOf(false) }
+    var sendError by rememberSaveable { mutableStateOf<String?>(null) }
     var selectedMessageIndex by rememberSaveable { mutableStateOf<Int?>(null) }
     val messages = rememberSaveable(saver = MessageListSaver) {
         val today = LocalDate.now().format(DATE_FORMAT)
@@ -263,6 +275,15 @@ fun ITantraApp(modifier: Modifier = Modifier) {
                     languageCode = "en"
                 )
             )
+            transport.sendAcknowledgement(received.message.messageId, received.sourcePeerAddress)
+        }
+        transport.onAcknowledgementReceived { acknowledgedMessageId ->
+            val index = messages.indexOfFirst {
+                matchesAcknowledgement(it.transportMessageId, acknowledgedMessageId)
+            }
+            if (index >= 0) {
+                messages[index] = messages[index].copy(deliveryState = MessageDeliveryState.DELIVERED)
+            }
         }
     }
 
@@ -286,6 +307,7 @@ fun ITantraApp(modifier: Modifier = Modifier) {
                 )
                 draft = text
                 draftLanguageCode = selectedLanguageCode
+                sendError = null
                 isTranscribing = false
                 screen = Screen.NEW_MESSAGE
             }
@@ -302,6 +324,7 @@ fun ITantraApp(modifier: Modifier = Modifier) {
             onOpenText = {
                 draft = ""
                 draftLanguageCode = "en"
+                sendError = null
                 screen = Screen.NEW_MESSAGE
             },
             onOpenLogs = { screen = Screen.LOGS },
@@ -344,28 +367,43 @@ fun ITantraApp(modifier: Modifier = Modifier) {
         Screen.NEW_MESSAGE -> NewMessageScreen(
             draft = draft,
             onDraftChange = { draft = it },
+            isSending = isSending,
+            sendError = sendError,
             onBack = {
                 draft = ""
+                sendError = null
                 screen = Screen.MAIN
             },
             onSend = { text ->
-                val now = LocalDateTime.now()
+                isSending = true
+                sendError = null
                 transport.sendMessage(text, MessageLanguage.ENGLISH) { result ->
-                    if (result is SendMessageResult.Error) Log.e("ITANTRA_TRANSPORT", result.message)
-                }
-                messages.add(
-                    Message(
-                        text = text,
-                        date = now.format(DATE_FORMAT),
-                        timestamp = now.format(TIME_FORMAT),
-                        direction = MessageDirection.SENT,
-                        isRead = true,
-                        languageCode = draftLanguageCode
+                    val failure = result.failureMessage()
+                    if (failure != null) {
+                        if (result is SendMessageResult.Error) Log.e("ITANTRA_TRANSPORT", result.message)
+                        sendError = failure
+                        isSending = false
+                        return@sendMessage
+                    }
+                    result as SendMessageResult.Sent
+                    val now = LocalDateTime.now()
+                    messages.add(
+                        Message(
+                            text = text,
+                            date = now.format(DATE_FORMAT),
+                            timestamp = now.format(TIME_FORMAT),
+                            direction = MessageDirection.SENT,
+                            isRead = true,
+                            languageCode = draftLanguageCode,
+                            transportMessageId = result.message.messageId,
+                            deliveryState = MessageDeliveryState.SENT,
+                        )
                     )
-                )
-                draft = ""
-                draftLanguageCode = "en"
-                screen = Screen.MAIN
+                    draft = ""
+                    draftLanguageCode = "en"
+                    isSending = false
+                    screen = Screen.MAIN
+                }
             },
             modifier = modifier
         )
@@ -937,6 +975,8 @@ private fun HandsFreeScreen(
 private fun NewMessageScreen(
     draft: String,
     onDraftChange: (String) -> Unit,
+    isSending: Boolean,
+    sendError: String?,
     onBack: () -> Unit,
     onSend: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -1011,7 +1051,16 @@ private fun NewMessageScreen(
             )
         )
         Spacer(Modifier.height(20.dp))
+        if (sendError != null) {
+            Text(
+                text = sendError,
+                color = Color(0xFFFF8A80),
+                fontSize = 13.sp,
+                modifier = Modifier.padding(bottom = 8.dp),
+            )
+        }
         Button(
+            enabled = !isSending,
             onClick = {
                 val text = draft.trim()
                 if (text.isNotEmpty()) {
@@ -1024,7 +1073,7 @@ private fun NewMessageScreen(
                 contentColor = Color(0xFF2C1800)
             )
         ) {
-            Text("SEND", fontWeight = FontWeight.Bold)
+            Text(if (isSending) "SENDING..." else "SEND", fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -1127,7 +1176,11 @@ private fun MessageCard(message: Message, onClick: () -> Unit) {
                 )
                 Spacer(Modifier.width(10.dp))
                 Text(
-                    text = if (isSent) "↑ Sent" else "↓ Received",
+                    text = if (isSent) {
+                        listOfNotNull("↑ Sent", message.deliveryState?.label).joinToString(" • ")
+                    } else {
+                        "↓ Received"
+                    },
                     color = if (isSent) Color(0xFFF8AD3C) else Color(0xFF6FD4DF),
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Bold
@@ -1200,7 +1253,11 @@ private fun MessageDetailScreen(
             )
             Spacer(Modifier.width(12.dp))
             Text(
-                text = if (isSent) "↑ Sent" else "↓ Received",
+                text = if (isSent) {
+                    listOfNotNull("↑ Sent", message.deliveryState?.label).joinToString(" • ")
+                } else {
+                    "↓ Received"
+                },
                 color = if (isSent) Color(0xFFF8AD3C) else Color(0xFF6FD4DF),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold
