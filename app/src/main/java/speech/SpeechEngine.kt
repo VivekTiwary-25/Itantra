@@ -29,8 +29,12 @@ class SpeechEngine(context: Context) {
         ttsHelper.speak(text, languageCode)
     }
 
+    /** True when [languageCode] has a real voice, as opposed to one Speech can only transcribe. */
+    fun canSpeak(languageCode: String): Boolean = ttsHelper.isSupported(languageCode)
+
     fun release() {
         recognizerManager.release()
+        ttsHelper.release()
     }
 
     // ---- Internal: read a 16kHz mono 16-bit PCM WAV file into a FloatArray ----

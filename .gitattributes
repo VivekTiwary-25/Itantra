@@ -1,0 +1,5 @@
+# Speech model assets are byte-exact upstream artifacts (sherpa-onnx tokens.txt,
+# espeak-ng-data voice/phoneme tables, model metadata). Git's autocrlf must never
+# rewrite their line endings: sherpa-onnx's piper token reader aborts the process
+# (exit(-1), no catchable Java exception) when tokens.txt arrives with CRLF.
+app/src/main/assets/** -text
