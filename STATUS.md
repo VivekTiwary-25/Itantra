@@ -1,4 +1,4 @@
-# STATUS.md — iTantra integration/recovery-pass
+# STATUS.md — iTantra integration/tts-recovery
 
 Status meanings:
 
@@ -33,6 +33,10 @@ A10 remains a valid accepted plumbing milestone. A12 refines its user experience
 
 A0–A13 standalone Lane 1 work remains GREEN from its accepted physical tests.
 
+The working canonical application line is `integration/tts-recovery`. Its latest
+implementation checkpoint is `3688704`; `integration/recovery-pass@c8f8a9b` is
+its preserved parent checkpoint, not the current integrated tip.
+
 The confirmed integrated baseline is `origin/typed-text-integration@21e28fd`:
 
 | Checkpoint | Status |
@@ -40,9 +44,11 @@ The confirmed integrated baseline is `origin/typed-text-integration@21e28fd`:
 | English PTT STT → editable draft → Send → Bluetooth → received Logs | PHYSICALLY VERIFIED at `21e28fd` |
 | Standalone RFCOMM connect, repeated text delivery, ACK, reconnect, relaunch/reconnect | PHYSICALLY VERIFIED in the preserved transport checkpoint |
 | Relay/store-and-forward | UNVERIFIED |
-| Receiver TTS | UNVERIFIED and intentionally not integrated |
+| Standalone English and Hindi TTS | GREEN — `76867a8` records physical synthesis/playback on RMX3392 |
+| Receive-side English/Hindi TTS wiring | YELLOW — implemented at `3688704`; physical receive-side verification is not recorded |
+| Full speaker → STT → Bluetooth → receiving phone → audible TTS | YELLOW — physical end-to-end verification pending |
 
-Recovery branch changes:
+Integrated recovery-line changes:
 
 | Item | Status |
 |---|---|
@@ -58,6 +64,7 @@ These are not standalone Lane 1 RED rungs.
 |---|---|
 | Recovery-branch delivery/ACK and protocol-v2 regression | Physical two-phone verification pending |
 | Multilingual language metadata across Bluetooth | Physical two-phone verification pending |
+| Receive-side English/Hindi TTS | Implemented; physical receive-side and full-pipeline verification pending |
 | Add Hands-free VAD, pause segmentation and final continuous-mode state mapping | Deferred; local shared WAV capture is already GREEN |
 | Decide final-only versus partial/streaming transcript delivery and exact Hands-free state/event mapping | Lane 3 decoder/API |
 | Define alert metadata | Unresolved prerequisite across Lane 1 and Lane 2; do not invent a local field |
@@ -68,5 +75,5 @@ These are not standalone Lane 1 RED rungs.
 
 Vivek physically accepted A11–A13 (`eedd486`) and the post-acceptance Hands-free capture/Message Detail date correction (`36ba653`).
 
-Do not mark the recovery-branch changes physically verified or GREEN until the
-required two-phone tests pass on the recovery branch APK.
+Do not mark the recovery changes, receive-side TTS, or the full audible pipeline
+GREEN until their required two-phone tests pass on an integrated-line APK.

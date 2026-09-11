@@ -1,6 +1,6 @@
-# SESSION_HANDOFF.md — iTantra integration recovery
+# SESSION_HANDOFF.md — iTantra integrated TTS recovery
 
-Updated on 2026-09-08 after the unattended integration recovery pass. This is a resume snapshot, not a replacement for the domain-specific sources listed below.
+Updated on 2026-09-11 after refreshing `origin` and confirming the integrated source line. This is a resume snapshot, not a replacement for the domain-specific sources listed below.
 
 ## Source precedence
 
@@ -29,6 +29,13 @@ Standalone Lane 1 feature implementation ends after A13 for now. Do not start an
 
 The accepted post-acceptance correction is not a new rung: it is committed as `36ba653` and keeps A0–A13 GREEN.
 
+## Current integrated source
+
+- Working canonical branch: `integration/tts-recovery`, tracking `origin/integration/tts-recovery`.
+- Latest implementation checkpoint: `3688704`.
+- `integration/recovery-pass@c8f8a9b` remains the parent recovery checkpoint.
+- `origin/typed-text-integration@21e28fd` remains the confirmed physical STT/Transport baseline.
+
 ## Integration recovery status
 
 - Confirmed baseline: `origin/typed-text-integration@21e28fd`.
@@ -37,6 +44,8 @@ The accepted post-acceptance correction is not a new rung: it is committed as `3
 - `3730123` reproducibly provisions the exact Dolphin base multilingual INT8 model from the dated official sherpa-onnx archive with pinned archive/model/token hashes.
 - Each bundle passed `.\gradlew.bat test assembleDebug`; five JVM tests pass on the final implementation state.
 - The recovery commits were not installed or physically exercised in this unattended pass. Their two-phone verification remains pending.
+- `76867a8` fixes the TTS runtime/asset failure and records physical standalone English and Hindi synthesis/playback on RMX3392.
+- `3688704` wires received English/Hindi messages to TTS after Logs and ACK handling. Physical receive-side and full STT → Bluetooth → TTS verification is not recorded.
 
 ## What A11–A13 now contain
 
@@ -86,6 +95,7 @@ The existing `MessageListSaver` persists every `Message` field (`text`, `date`, 
 - The baseline has physical evidence for English PTT STT → editable draft → Send → Bluetooth → received Logs.
 - The preserved standalone transport checkpoint has physical evidence for RFCOMM connection, repeated text delivery, ACK, reconnect and relaunch/reconnect. Relay/store-and-forward remain unverified.
 - Recovery Bundles A–C passed JVM/build checks only. Protocol v2, integrated delivery display, disconnected-send behavior and multilingual transport still require physical tests.
+- Standalone English and Hindi TTS playback is physically recorded at `76867a8`; receive-side TTS and the full audible two-phone pipeline remain unverified.
 
 - `.\gradlew.bat assembleDebug` completed successfully after the accepted A11–A13 source and again after post-acceptance correction `36ba653`.
 - During the interrupted run, `.\gradlew.bat assembleDebugAndroidTest` compiled an attempted Compose flow test, but `.\gradlew.bat connectedDebugAndroidTest` could not run it: RMX3392/ColorOS denied `UiAutomation.grantRuntimePermission` before its feature assertions began.
@@ -98,7 +108,8 @@ The existing `MessageListSaver` persists every `Message` field (`text`, `date`, 
 - PTT and Hands-free Done submit the shared WAV to the integrated `SpeechEngine`. English uses Whisper tiny.en; `hi`, `gu`, `mr`, `ta`, `te`, `or`, and `bn` use Dolphin.
 - Bluetooth RFCOMM send/receive is integrated. Protocol v2 carries two-byte ISO language metadata.
 - Outgoing history is added only after `Sent`, then shows Awaiting ACK until the matching ACK changes it to Delivered. `NotConnected` and errors keep the draft visible.
-- Receiver TTS remains deliberately absent and must not be added during recovery verification.
+- Receive-side TTS is integrated for English and Hindi at `3688704`. Messages enter Logs and are ACKed before speech runs on `Dispatchers.Default`; TTS failure cannot reject the received text or fail Transport.
+- Unsupported selector languages remain text-only because no verified TTS voice is configured for them.
 - VAD, pause segmentation and final continuous Hands-free event mapping remain deferred.
 - Whether Lane 3 later provides final-only results, partial/streaming results or another compatible model is intentionally unresolved.
 - Alert metadata is unresolved across Lane 1 and Lane 2. Do not invent a packet, callback or local `Message` field.
@@ -139,11 +150,12 @@ A later instrumented run showed the fourth item rendered in Logs, then an accide
 - The accepted post-acceptance capture/date correction is `36ba653`.
 - The confirmed integrated baseline is `21e28fd` and remains untouched.
 - Recovery bundles are `020b40a`, `6cabd83`, and `3730123` on `integration/recovery-pass`.
+- TTS runtime recovery is `76867a8`; receive-side TTS wiring is `3688704` on `integration/tts-recovery`.
 
 Do not rewrite these commits. Standalone Lane 1 is complete; only explicitly assigned integration work should modify it.
 
 ## Exact resume point
 
-Run the pending recovery-branch physical checklist on two phones. Do not add more integration features while completing that acceptance pass. Before changing source, re-read `AGENTS.md`, then this file, `TASK.md`, `PROJECT_FACTS.md`, the relevant lane specification, and `CONTRACTS.md` for a lane boundary.
+The next branch is `research/dolphin-conditioned`, created from the documented canonical integrated line. The Dolphin conditioning experiment has not started. Preserve the pending two-phone recovery and receive-side TTS verification work. Before changing source, re-read `AGENTS.md`, then this file, `TASK.md`, `PROJECT_FACTS.md`, the relevant lane specification, and `CONTRACTS.md` for a lane boundary.
 
 Do not blindly replace the one shared message list/editor flow, the one shared `PcmRecorder`/`recording.wav` path used by PTT and Hands-free, the saveable message fields (including date), or the resolved `onMessageReceived(text, languageCode)` signature. Do not infer streaming transcripts, VAD, alert metadata, or a new Speech/Transport interface before the owning lanes agree on it.

@@ -2,12 +2,14 @@
 
 ## Active task
 
-**Integration recovery — implementation complete; physical verification pending**
+**Integrated source prepared for Dolphin conditioning research**
 
-The recovery work is isolated on `integration/recovery-pass`, based on the
-confirmed integrated checkpoint `origin/typed-text-integration@21e28fd`.
+The working canonical application line is `integration/tts-recovery`, tracking
+`origin/integration/tts-recovery`. Its latest implementation checkpoint is
+`3688704`, based on the confirmed integrated checkpoint
+`origin/typed-text-integration@21e28fd` through `integration/recovery-pass`.
 
-Implemented and build/JVM-tested on the recovery branch:
+Implemented and build/JVM-tested on the integrated recovery line:
 
 - outgoing messages enter Logs only after transport reports `Sent`;
 - disconnected/error sends remain in the editor with a visible deterministic error;
@@ -18,6 +20,15 @@ Implemented and build/JVM-tested on the recovery branch:
 
 These recovery changes are not physically verified. Do not mark them GREEN
 until the two-phone checklist in the recovery report has passed.
+
+TTS evidence on the same line is deliberately narrower:
+
+- `76867a8` fixes the TTS runtime/asset failure and records physical standalone
+  English and Hindi synthesis/playback on RMX3392;
+- `3688704` wires received English/Hindi messages to TTS after Logs and ACK
+  handling, without running TTS on the RFCOMM reader thread;
+- physical verification of the receive-side and full STT → Bluetooth → TTS
+  paths is not recorded and remains pending.
 
 ## Preserved standalone status
 
@@ -48,10 +59,12 @@ The checklist above passed on Vivek's physical phone.
 
 ## Scope guardrails
 
-Do not add receiver TTS, VAD, pause segmentation, alert metadata, durable persistence, Navigation Compose, a repository, a database, DI, a second capture pipeline, or more standalone Lane 1 rungs. Do not further redesign the integrated Speech or Transport paths while the recovery branch awaits physical acceptance.
+Do not add more TTS languages, VAD, pause segmentation, alert metadata, durable persistence, Navigation Compose, a repository, a database, DI, a second capture pipeline, or more standalone Lane 1 rungs. Do not redesign the integrated Speech or Transport paths while the recovery and receive-side TTS paths await physical acceptance.
 
 ## Next resume point
 
-Run the pending recovery-branch physical checklist on two phones. Do not add
-receiver TTS, Kannada/Malayalam selector options, relay changes, store-and-forward
-changes, or further standalone Lane 1 work while completing that acceptance pass.
+The next code branch is `research/dolphin-conditioned`, based on the canonical
+integrated line. Its purpose is future Dolphin STT/language-conditioning research;
+the experiment has not started. Preserve the pending two-phone recovery and
+receive-side TTS checklists, and do not add Kannada/Malayalam selector options,
+relay changes, store-and-forward changes, or further standalone Lane 1 work.

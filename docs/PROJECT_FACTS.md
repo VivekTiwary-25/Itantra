@@ -1,12 +1,14 @@
-# Project Facts — integration/recovery-pass
+# Project Facts — integration/tts-recovery
 
-This file records repository facts confirmed on 2026-09-08. Treat these as current until the repository itself proves otherwise.
+This file records repository facts refreshed from `origin` on 2026-09-11. Treat these as current until the repository itself proves otherwise.
 
 ## Git
 
 - Repository root on Vivek's machine: `D:/projects/SIH/iTantra`
 - Remote: `origin` -> `https://github.com/VivekTiwary-25/Itantra.git`
-- Recovery branch: `integration/recovery-pass`, tracking `origin/integration/recovery-pass`
+- Working canonical application branch: `integration/tts-recovery`, tracking `origin/integration/tts-recovery`
+- Latest implementation checkpoint: `3688704` (`Speak received messages in their own language`)
+- Parent recovery checkpoint: `integration/recovery-pass@c8f8a9b`
 - Confirmed integrated baseline: `origin/typed-text-integration@21e28fd`
 - A10 is GREEN and committed as `9ab8b22` (`feat(app): complete A10 fake interface wiring`).
 - A11–A13 are physically accepted and committed as `eedd486` (`feat(app): complete A11-A13 standalone flows`).
@@ -15,6 +17,8 @@ This file records repository facts confirmed on 2026-09-08. Treat these as curre
 - Recovery Bundle B is `6cabd83` (ISO language metadata and protocol v2).
 - Recovery Bundle C is `3730123` (pinned Dolphin provisioning).
 - The three recovery bundles are implementation/build evidence only; their phone tests are pending.
+- TTS runtime fix `76867a8` records physical standalone English and Hindi synthesis/playback on RMX3392.
+- Receive-side TTS wiring is `3688704`; its physical receive-side and full-pipeline tests are not recorded.
 
 ## Project structure
 
@@ -53,7 +57,8 @@ preserved and is separate from the recovery branch's pending integration tests.
 - Bluetooth RFCOMM send/receive is integrated. Protocol v2 carries a two-byte ISO language code; ACK updates matching sent rows to `Delivered`.
 - Failed or disconnected sends remain in the editor and are not appended to Logs.
 - Standalone RFCOMM connect, repeated delivery, ACK, reconnect and relaunch/reconnect have prior physical evidence, but the recovery branch's ACK UI and protocol-v2 framing still require physical regression tests.
-- Receiver TTS remains deliberately absent. Do not wire it during recovery verification.
+- Received messages are stored and ACKed before `SpeechEngine.speak(text, languageCode)` runs on `Dispatchers.Default`. Only English and Hindi have verified voices; unsupported selector languages do not invoke TTS.
+- Receive-side TTS and the full speaker → STT → Bluetooth → audible TTS pipeline remain physically unverified.
 - Alert metadata has no agreed cross-lane representation. Maximum-volume, non-interruptible received-alert TTS is deferred until Lane 1/Lane 2 metadata and Lane 3 playback integration are defined.
 - `PLAY LAST RECORDING` is test-only and remains until final integration/product cleanup no longer needs it.
 - The app uses the checked-in sherpa-onnx 1.13.7 AAR and arm64-v8a ABI filter.
@@ -89,6 +94,10 @@ hashes are pinned.
 `.\gradlew.bat test assembleDebug` completed successfully after each recovery
 bundle. Five JVM tests pass on the final implementation state. The recovery
 branch has not been installed or exercised on a phone during this unattended pass.
+
+Commit `76867a8` records physical standalone English and Hindi TTS playback on
+RMX3392. No repository evidence records a physical receive-side TTS or full
+speech-to-speech two-phone test after `3688704`.
 
 ## Connected test phone
 
