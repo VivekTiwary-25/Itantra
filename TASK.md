@@ -18,17 +18,23 @@ Implemented and build/JVM-tested on the integrated recovery line:
 - the eight exposed language codes have automated protocol round-trip coverage;
 - `setup-models.ps1` provisions the pinned Dolphin base multilingual INT8 model with verified hashes.
 
-These recovery changes are not physically verified. Do not mark them GREEN
-until the two-phone checklist in the recovery report has passed.
+The recovery-specific ACK/delivery UI and the full multilingual protocol matrix
+are not separately confirmed by the physical evidence below. Do not generalize
+the demonstrated English/Hindi paths to those checks or to other languages.
 
-TTS evidence on the same line is deliberately narrower:
+Physical evidence on the same line now includes the internal-hackathon demonstration:
 
 - `76867a8` fixes the TTS runtime/asset failure and records physical standalone
   English and Hindi synthesis/playback on RMX3392;
 - `3688704` wires received English/Hindi messages to TTS after Logs and ACK
   handling, without running TTS on the RFCOMM reader thread;
-- physical verification of the receive-side and full STT → Bluetooth → TTS
-  paths is not recorded and remains pending.
+- the complete English speech → STT → text transmission/relay → receive → TTS →
+  audible output pipeline is GREEN on real phones and was consistently reliable
+  during the demonstration;
+- receive-side TTS and Transport/relay are physically verified; Hindi transport
+  and TTS worked, while Hindi Dolphin STT accuracy remains unreliable and can
+  produce badly incorrect text or the wrong script;
+- this result provides no physical-verification claim for any other language.
 
 ## Preserved standalone status
 
@@ -59,12 +65,12 @@ The checklist above passed on Vivek's physical phone.
 
 ## Scope guardrails
 
-Do not add more TTS languages, VAD, pause segmentation, alert metadata, durable persistence, Navigation Compose, a repository, a database, DI, a second capture pipeline, or more standalone Lane 1 rungs. Do not redesign the integrated Speech or Transport paths while the recovery and receive-side TTS paths await physical acceptance.
+Do not add more TTS languages, VAD, pause segmentation, alert metadata, durable persistence, Navigation Compose, a repository, a database, DI, a second capture pipeline, or more standalone Lane 1 rungs. Do not redesign the physically demonstrated Transport/TTS path while researching the unresolved Hindi STT accuracy problem.
 
 ## Next resume point
 
 The next code branch is `research/dolphin-conditioned`, based on the canonical
 integrated line. Its purpose is future Dolphin STT/language-conditioning research;
-the experiment has not started. Preserve the pending two-phone recovery and
-receive-side TTS checklists, and do not add Kannada/Malayalam selector options,
+the experiment has not started. Preserve the demonstrated English pipeline and
+Hindi Transport/TTS behavior, and do not add Kannada/Malayalam selector options,
 relay changes, store-and-forward changes, or further standalone Lane 1 work.
