@@ -43,17 +43,21 @@ The confirmed integrated baseline is `origin/typed-text-integration@21e28fd`:
 |---|---|
 | English PTT STT → editable draft → Send → Bluetooth → received Logs | PHYSICALLY VERIFIED at `21e28fd` |
 | Standalone RFCOMM connect, repeated text delivery, ACK, reconnect, relaunch/reconnect | PHYSICALLY VERIFIED in the preserved transport checkpoint |
-| Relay/store-and-forward | UNVERIFIED |
+| Transport and relay during the internal-hackathon pipeline | GREEN — physically demonstrated on real phones |
+| Store-and-forward | RED — not established by the internal-hackathon result |
 | Standalone English and Hindi TTS | GREEN — `76867a8` records physical synthesis/playback on RMX3392 |
-| Receive-side English/Hindi TTS wiring | YELLOW — implemented at `3688704`; physical receive-side verification is not recorded |
-| Full speaker → STT → Bluetooth → receiving phone → audible TTS | YELLOW — physical end-to-end verification pending |
+| Receive-side English/Hindi TTS | GREEN — physically demonstrated on real phones |
+| Full English speech → STT → text transmission/relay → receive → audible TTS | GREEN — consistently reliable during the demonstrated pipeline |
+| Hindi transport and receive-side TTS | GREEN — physically demonstrated |
+| Hindi Dolphin STT accuracy | YELLOW — working but unreliable; badly incorrect text or the wrong script can occur |
+| Other-language end-to-end paths | RED — not demonstrated by this evidence |
 
 Integrated recovery-line changes:
 
 | Item | Status |
 |---|---|
 | Send-result handling, visible disconnected/error state, integrated ACK and delivery display | IMPLEMENTED + JVM-TESTED + BUILD-TESTED; physical verification pending |
-| ISO language metadata across app and transport protocol v2 | IMPLEMENTED + JVM-TESTED + BUILD-TESTED; multilingual physical transport test pending |
+| ISO language metadata across app and transport protocol v2 | IMPLEMENTED + JVM-TESTED + BUILD-TESTED; English/Hindi paths physically exercised, other exposed languages pending |
 | Pinned Dolphin model provisioning in `setup-models.ps1` | IMPLEMENTED + BUILD-TESTED; setup script and official archive/hash comparison passed |
 
 ## Integration-deferred work
@@ -62,9 +66,9 @@ These are not standalone Lane 1 RED rungs.
 
 | Item | Dependency / state |
 |---|---|
-| Recovery-branch delivery/ACK and protocol-v2 regression | Physical two-phone verification pending |
-| Multilingual language metadata across Bluetooth | Physical two-phone verification pending |
-| Receive-side English/Hindi TTS | Implemented; physical receive-side and full-pipeline verification pending |
+| Recovery-branch delivery/ACK UI cases | Not separately established by the hackathon demonstration |
+| Language metadata beyond demonstrated English/Hindi paths | Physical two-phone verification pending |
+| Improve Hindi Dolphin STT accuracy | Unresolved research work; Transport and TTS are already physically working |
 | Add Hands-free VAD, pause segmentation and final continuous-mode state mapping | Deferred; local shared WAV capture is already GREEN |
 | Decide final-only versus partial/streaming transcript delivery and exact Hands-free state/event mapping | Lane 3 decoder/API |
 | Define alert metadata | Unresolved prerequisite across Lane 1 and Lane 2; do not invent a local field |
@@ -75,5 +79,6 @@ These are not standalone Lane 1 RED rungs.
 
 Vivek physically accepted A11–A13 (`eedd486`) and the post-acceptance Hands-free capture/Message Detail date correction (`36ba653`).
 
-Do not mark the recovery changes, receive-side TTS, or the full audible pipeline
-GREEN until their required two-phone tests pass on an integrated-line APK.
+The internal-hackathon result establishes the English full pipeline, receive-side
+TTS, and Transport/relay as GREEN. It does not establish other-language paths,
+store-and-forward, or every recovery-specific ACK/delivery UI case.

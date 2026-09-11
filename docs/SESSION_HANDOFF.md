@@ -43,9 +43,11 @@ The accepted post-acceptance correction is not a new rung: it is committed as `3
 - `6cabd83` carries ISO language codes through app state and transport protocol v2, with round-trip tests for all eight exposed selector languages.
 - `3730123` reproducibly provisions the exact Dolphin base multilingual INT8 model from the dated official sherpa-onnx archive with pinned archive/model/token hashes.
 - Each bundle passed `.\gradlew.bat test assembleDebug`; five JVM tests pass on the final implementation state.
-- The recovery commits were not installed or physically exercised in this unattended pass. Their two-phone verification remains pending.
+- The recovery commits were not installed or physically exercised during their unattended implementation pass. The later hackathon demonstration covers Transport/relay and the English/Hindi paths, but not every ACK/delivery UI case or other exposed language.
 - `76867a8` fixes the TTS runtime/asset failure and records physical standalone English and Hindi synthesis/playback on RMX3392.
-- `3688704` wires received English/Hindi messages to TTS after Logs and ACK handling. Physical receive-side and full STT → Bluetooth → TTS verification is not recorded.
+- `3688704` wires received English/Hindi messages to TTS after Logs and ACK handling.
+- The later internal-hackathon demonstration physically verified receive-side TTS, Transport/relay, and the full English speech → STT → text transmission/relay → receive → audible TTS pipeline on real phones. English was consistently reliable during the demonstration.
+- Hindi Transport/TTS also worked; Hindi Dolphin STT accuracy remains unreliable and can produce badly incorrect text or the wrong script. No other language inherits physical-verification status from this result.
 
 ## What A11–A13 now contain
 
@@ -93,9 +95,9 @@ The existing `MessageListSaver` persists every `Message` field (`text`, `date`, 
 
 - `origin/typed-text-integration@21e28fd` is the confirmed integrated baseline and remains untouched.
 - The baseline has physical evidence for English PTT STT → editable draft → Send → Bluetooth → received Logs.
-- The preserved standalone transport checkpoint has physical evidence for RFCOMM connection, repeated text delivery, ACK, reconnect and relaunch/reconnect. Relay/store-and-forward remain unverified.
-- Recovery Bundles A–C passed JVM/build checks only. Protocol v2, integrated delivery display, disconnected-send behavior and multilingual transport still require physical tests.
-- Standalone English and Hindi TTS playback is physically recorded at `76867a8`; receive-side TTS and the full audible two-phone pipeline remain unverified.
+- The preserved standalone transport checkpoint has physical evidence for RFCOMM connection, repeated text delivery, ACK, reconnect and relaunch/reconnect. Transport/relay was later demonstrated in the internal-hackathon full pipeline; store-and-forward remains unverified.
+- Recovery Bundles A–C passed JVM/build checks. The later hackathon demonstration physically exercised the English/Hindi transport paths; integrated delivery UI cases, disconnected-send behavior and other-language transport still require separate evidence.
+- Standalone English and Hindi TTS playback is physically recorded at `76867a8`. The internal-hackathon result establishes receive-side TTS and the full English audible two-phone pipeline as GREEN, plus working Hindi Transport/TTS; Hindi STT accuracy remains YELLOW.
 
 - `.\gradlew.bat assembleDebug` completed successfully after the accepted A11–A13 source and again after post-acceptance correction `36ba653`.
 - During the interrupted run, `.\gradlew.bat assembleDebugAndroidTest` compiled an attempted Compose flow test, but `.\gradlew.bat connectedDebugAndroidTest` could not run it: RMX3392/ColorOS denied `UiAutomation.grantRuntimePermission` before its feature assertions began.
@@ -109,6 +111,7 @@ The existing `MessageListSaver` persists every `Message` field (`text`, `date`, 
 - Bluetooth RFCOMM send/receive is integrated. Protocol v2 carries two-byte ISO language metadata.
 - Outgoing history is added only after `Sent`, then shows Awaiting ACK until the matching ACK changes it to Delivered. `NotConnected` and errors keep the draft visible.
 - Receive-side TTS is integrated for English and Hindi at `3688704`. Messages enter Logs and are ACKed before speech runs on `Dispatchers.Default`; TTS failure cannot reject the received text or fail Transport.
+- Receive-side TTS and Transport/relay are physically verified. The English end-to-end audible pipeline is GREEN; Hindi transmission/TTS works, with STT accuracy still unresolved.
 - Unsupported selector languages remain text-only because no verified TTS voice is configured for them.
 - VAD, pause segmentation and final continuous Hands-free event mapping remain deferred.
 - Whether Lane 3 later provides final-only results, partial/streaming results or another compatible model is intentionally unresolved.
@@ -156,6 +159,6 @@ Do not rewrite these commits. Standalone Lane 1 is complete; only explicitly ass
 
 ## Exact resume point
 
-The next branch is `research/dolphin-conditioned`, created from the documented canonical integrated line. The Dolphin conditioning experiment has not started. Preserve the pending two-phone recovery and receive-side TTS verification work. Before changing source, re-read `AGENTS.md`, then this file, `TASK.md`, `PROJECT_FACTS.md`, the relevant lane specification, and `CONTRACTS.md` for a lane boundary.
+The next branch is `research/dolphin-conditioned`, created from the documented canonical integrated line. The Dolphin conditioning experiment has not started. Preserve the GREEN English pipeline and working Hindi Transport/TTS while investigating Hindi STT accuracy. Before changing source, re-read `AGENTS.md`, then this file, `TASK.md`, `PROJECT_FACTS.md`, the relevant lane specification, and `CONTRACTS.md` for a lane boundary.
 
 Do not blindly replace the one shared message list/editor flow, the one shared `PcmRecorder`/`recording.wav` path used by PTT and Hands-free, the saveable message fields (including date), or the resolved `onMessageReceived(text, languageCode)` signature. Do not infer streaming transcripts, VAD, alert metadata, or a new Speech/Transport interface before the owning lanes agree on it.

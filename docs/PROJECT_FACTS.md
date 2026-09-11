@@ -16,9 +16,9 @@ This file records repository facts refreshed from `origin` on 2026-09-11. Treat 
 - Recovery Bundle A is `020b40a` (delivery-result handling and integrated ACK).
 - Recovery Bundle B is `6cabd83` (ISO language metadata and protocol v2).
 - Recovery Bundle C is `3730123` (pinned Dolphin provisioning).
-- The three recovery bundles are implementation/build evidence only; their phone tests are pending.
+- All three recovery bundles have automated/build evidence. The later hackathon demonstration covers Transport/relay and the English/Hindi paths, but not every ACK/delivery UI case or other exposed language.
 - TTS runtime fix `76867a8` records physical standalone English and Hindi synthesis/playback on RMX3392.
-- Receive-side TTS wiring is `3688704`; its physical receive-side and full-pipeline tests are not recorded.
+- Receive-side TTS wiring is `3688704`; the later internal-hackathon demonstration physically verified receive-side TTS and the full English pipeline on real phones.
 
 ## Project structure
 
@@ -45,20 +45,22 @@ This file records repository facts refreshed from `origin` on 2026-09-11. Treat 
 - The Main badge is derived from messages where direction is `RECEIVED` and `isRead` is false.
 
 A0–A13 are physically accepted on Vivek's phone and GREEN. This evidence is
-preserved and is separate from the recovery branch's pending integration tests.
+preserved and is separate from the remaining recovery-specific verification gaps.
 
 ## Integrated and deferred boundaries
 
 - `SpeechEngine.transcribe(wavFilePath, languageCode)` is integrated. English uses Whisper tiny.en; `hi`, `gu`, `mr`, `ta`, `te`, `or`, and `bn` use the Dolphin base multilingual INT8 model.
 - English PTT STT → editable draft → Send → Bluetooth → received Logs is PHYSICALLY VERIFIED at baseline `21e28fd`.
-- Hindi Dolphin STT and the English regression were physically checked before the recovery branch; the new multilingual transport metadata path is still UNVERIFIED on phones.
+- The full English speech → STT → text transmission/relay → receive → TTS → audible output pipeline is physically GREEN and was consistently reliable during the internal-hackathon demonstration.
+- Hindi transport and receive-side TTS worked physically. Hindi Dolphin STT remains unreliable and can produce badly incorrect transcripts or the wrong script.
+- No end-to-end physical-verification claim is made for any other language.
 - Hands-free has real local microphone/WAV capture until Done through the shared PTT recorder. VAD, pause segmentation and final continuous Hands-free state integration remain deferred.
 - Lane 1 does not assume partial or streaming transcription; Lane 3's eventual decoder/API will determine the result model.
 - Bluetooth RFCOMM send/receive is integrated. Protocol v2 carries a two-byte ISO language code; ACK updates matching sent rows to `Delivered`.
 - Failed or disconnected sends remain in the editor and are not appended to Logs.
-- Standalone RFCOMM connect, repeated delivery, ACK, reconnect and relaunch/reconnect have prior physical evidence, but the recovery branch's ACK UI and protocol-v2 framing still require physical regression tests.
+- Standalone RFCOMM connect, repeated delivery, ACK, reconnect and relaunch/reconnect have prior physical evidence. Transport and relay were also demonstrated in the internal-hackathon speech pipeline; store-and-forward and every recovery-specific ACK/delivery UI case are not established by that result.
 - Received messages are stored and ACKed before `SpeechEngine.speak(text, languageCode)` runs on `Dispatchers.Default`. Only English and Hindi have verified voices; unsupported selector languages do not invoke TTS.
-- Receive-side TTS and the full speaker → STT → Bluetooth → audible TTS pipeline remain physically unverified.
+- Receive-side English/Hindi TTS is physically verified. The full English audible pipeline is GREEN; the Hindi pipeline's unresolved weakness is STT accuracy rather than transmission or TTS.
 - Alert metadata has no agreed cross-lane representation. Maximum-volume, non-interruptible received-alert TTS is deferred until Lane 1/Lane 2 metadata and Lane 3 playback integration are defined.
 - `PLAY LAST RECORDING` is test-only and remains until final integration/product cleanup no longer needs it.
 - The app uses the checked-in sherpa-onnx 1.13.7 AAR and arm64-v8a ABI filter.
@@ -96,8 +98,9 @@ bundle. Five JVM tests pass on the final implementation state. The recovery
 branch has not been installed or exercised on a phone during this unattended pass.
 
 Commit `76867a8` records physical standalone English and Hindi TTS playback on
-RMX3392. No repository evidence records a physical receive-side TTS or full
-speech-to-speech two-phone test after `3688704`.
+RMX3392. The authoritative internal-hackathon result now records physical
+receive-side TTS, Transport/relay, a GREEN English speech-to-speech pipeline,
+and working Hindi Transport/TTS; Hindi STT accuracy remains unresolved.
 
 ## Connected test phone
 
