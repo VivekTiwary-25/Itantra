@@ -1,6 +1,8 @@
 package speech
 
 import android.content.Context
+import android.os.SystemClock
+import android.util.Log
 import com.k2fsa.sherpa.onnx.OfflineDolphinModelConfig
 import com.k2fsa.sherpa.onnx.OfflineModelConfig
 import com.k2fsa.sherpa.onnx.OfflineRecognizer
@@ -71,10 +73,13 @@ class SpeechRecognizerManager(private val context: Context) {
             )
         }
 
+        // PERF-INSTRUMENTATION (temporary): model construction cost, first load vs reuse.
+        val loadStartMs = SystemClock.elapsedRealtime()
         recognizer = OfflineRecognizer(
             assetManager = context.assets,
             config = OfflineRecognizerConfig(modelConfig = modelConfig)
         )
+        Log.d(PERF_TAG, "model load key=$modelKey deltaMs=${SystemClock.elapsedRealtime() - loadStartMs}")
 
         currentModelKey = modelKey
 
@@ -87,10 +92,16 @@ class SpeechRecognizerManager(private val context: Context) {
         language: String
     ): String {
 
+        // PERF-INSTRUMENTATION (temporary): splits model-load cost from decode cost and
+        // records audio duration so real-time factor can be computed from logcat alone.
+        val audioMs = if (sampleRate > 0) samples.size * 1000L / sampleRate else 0L
+        val getStartMs = SystemClock.elapsedRealtime()
         val currentRecognizer = getRecognizer(language)
+        val loadMs = SystemClock.elapsedRealtime() - getStartMs
         val stream = currentRecognizer.createStream()
 
         try {
+            val decodeStartMs = SystemClock.elapsedRealtime()
             stream.acceptWaveform(
                 samples,
                 sampleRate = sampleRate
@@ -98,7 +109,14 @@ class SpeechRecognizerManager(private val context: Context) {
 
             currentRecognizer.decode(stream)
 
-            return currentRecognizer.getResult(stream).text
+            val text = currentRecognizer.getResult(stream).text
+            val decodeMs = SystemClock.elapsedRealtime() - decodeStartMs
+            Log.d(
+                PERF_TAG,
+                "decode lang=$language audioMs=$audioMs loadMs=$loadMs decodeMs=$decodeMs " +
+                    "rtf=${if (audioMs > 0) decodeMs.toDouble() / audioMs else -1.0} textLen=${text.length}"
+            )
+            return text
 
         } finally {
             stream.release()
@@ -109,5 +127,10 @@ class SpeechRecognizerManager(private val context: Context) {
         recognizer?.release()
         recognizer = null
         currentModelKey = ""
+    }
+
+    private companion object {
+        // PERF-INSTRUMENTATION (temporary): remove with the perf-measurement pass.
+        const val PERF_TAG = "ITANTRA_PERF_STT"
     }
 }
