@@ -54,9 +54,9 @@ No Noise, AEAD, signature or key-agreement primitive is implemented in this repo
    authenticated by the inner Ed25519 signature (§17). Code: `crypto/PrivateMessageCrypto.kt`.
 3. **Canonical CBOR is an in-repo bounded subset codec**, not a library. CBOR is
    not cryptography. A small codec lets every length, count and depth limit be
-   explicit (§49). Supported: unsigned/negative ints, byte strings, text strings,
-   arrays, maps with **unsigned-integer keys only**, booleans. It rejects non-shortest
-   integers, indefinite lengths, tags, floats, `null`/`undefined`, unsorted or
+   explicit (§49). Supported: unsigned ints, byte strings, text strings,
+   arrays, maps with **unsigned-integer keys only**, booleans. It rejects negative
+   integers, non-shortest integers, indefinite lengths, tags, floats, `null`/`undefined`, unsorted or
    duplicate keys, invalid UTF-8, trailing bytes, and anything over the limits.
    This matches RFC 8949 §4.2.1 core deterministic encoding for that subset.
    Code: `protocol/cbor/`.
@@ -76,7 +76,7 @@ No Noise, AEAD, signature or key-agreement primitive is implemented in this repo
 |---|---|
 | 1 | Recipient ignores `sender_signing_public_key` for authentication. It verifies with the stored key of the contact whose pair secret matched the destination tag, and requires `sender_node_id` to be that same contact. The message-supplied key must also equal the stored key. |
 | 2 | `pair_secret = HKDF-SHA256(ikm = X25519(own, peer), salt = none, info = "itantra-v1/pair-secret" \|\| min(pkA,pkB) \|\| max(pkA,pkB))`. `destination_tag = Trunc128(HMAC-SHA256(pair_secret, "itantra-v1/destination-tag" \|\| recipient_node_id \|\| bundle_id))`. An all-zero X25519 output is rejected. |
-| 3 | `PrivateMessageV1` and `DeliveryReceiptV1` carry authenticated copies of `bundle_id`, `deletion_commitment`, `lifetime_ms` and `priority`. The recipient rejects any mismatch with the outer envelope. Relays cannot check this (they can't decrypt), which is a documented limitation. |
+| 3 | `PrivateMessageV1` and `DeliveryReceiptV1` carry authenticated copies of `bundle_id`, `lifetime_ms` and `priority`, plus the `deletion_secret` itself. The recipient checks `SHA256("itantra-v1/delete" \|\| deletion_secret) == outer deletion_commitment`, which is stronger than carrying a copy of the commitment. The recipient rejects any mismatch with the outer envelope. Relays cannot check this (they can't decrypt), which is a documented limitation. |
 | 4 | Relay dedupe/storage key = `(bundle_id, ciphertext_hash)`. The recipient marks an `inner_message_id` seen only after decryption, the recipient check and the signature check all pass. |
 | 5 | Every signature is domain-separated: `itantra-v1/capsule`, `itantra-v1/private-message`, `itantra-v1/receipt`, `itantra-v1/sos-request`, `itantra-v1/sos-offer`, `itantra-v1/sos-cancel`. |
 | 6 | Hop Noise static keys are fresh random X25519 keys per Emergency-mode session. Identity keys never enter Noise. The SOS short authentication string comes from the Noise handshake hash. |

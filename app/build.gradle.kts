@@ -50,7 +50,16 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(files("libs/sherpa-onnx-1.13.7.aar"))
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.tink.android)
+    implementation(libs.noise.java)
+    implementation(libs.zxing.core)
+    implementation(libs.zxing.android.embedded) {
+        // zxing core is pinned directly above.
+        exclude(group = "com.google.zxing", module = "core")
+    }
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
