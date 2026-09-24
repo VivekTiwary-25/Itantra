@@ -110,6 +110,29 @@ With Emergency mode on, lock A for 10 minutes, then run Gate C step 2 from the o
 end. Record whether A kept relaying. Realme battery optimisation may need
 "Allow background activity" for iTantra. Record the setting used; do not assume it.
 
+## Product tests (Batch 2, main iTantra screen)
+
+**Product test A — speech to a trusted person through a relay.** Phones A (sender),
+B (relay), C (recipient). A and C trust each other through Contacts & network (QR);
+B trusts nobody.
+1. On all three tap **START EMERGENCY MODE**.
+2. On A pick English, hold to talk, release, check the draft, pick C in the recipient
+   row and Send. A's Logs shows `↑ Sent • to C • Queued`, then `Relayed`.
+3. C's Logs shows `↓ Received • from A` once, and C speaks it. **B shows nothing
+   new in Logs and speaks nothing.**
+4. A's row turns `Delivered` only after C's receipt comes back.
+5. Repeat with Hindi. Only the language metadata and TTS are expected to work; Hindi
+   STT accuracy is a known separate issue.
+
+**Product test B — timing hooks.** After test A pull `bench/events_*.jsonl` from A and C.
+Check that A has `product_speech_end`, `product_transcript_ready`, `product_queued` and
+C has `product_delivered`, `product_tts_start`. Do not subtract A's times from C's.
+
+**Product test C — legacy regression.** Turn on the "Legacy RFCOMM demo" switch on two
+paired phones, use LISTEN / CONNECT as before, and send. The receiver shows and speaks
+the message. The sender shows `Sent (legacy RFCOMM)` then `Next phone received
+(legacy)`, never `Delivered`.
+
 ## Reporting
 
 For each gate record the date, phone models, Android versions, topology, attempts,

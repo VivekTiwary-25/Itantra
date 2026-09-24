@@ -129,3 +129,42 @@ No Noise, AEAD, signature or key-agreement primitive is implemented in this repo
 | RFCOMM | New `RfcommPeerLink` on its own UUID (`7a1c0010-…`), `u32` length-prefixed, always inside Noise, bonded phones only, never used for SOS. The legacy demo transport is untouched. |
 | Metrics | JSONL at `<external files>/bench/events_<run>.jsonl`, CSV per benchmark at `bench/probes_<run>_<ts>.csv`. `t_ns` is `elapsedRealtimeNanos` on that phone only. |
 | Lint | One pre-existing error remains, in legacy `BluetoothRfcommTransport.kt:313` (`MissingPermission`). It is identical at the base commit `230eab9`. |
+
+## 7. Batch 2 — product integration
+
+Integration points found in `MainActivity` (before this branch):
+
+| Point | Where |
+|---|---|
+| STT output boundary | `startTranscription` → `SpeechEngine.transcribe(wav, selectedLanguageCode)` → editable draft + `draftLanguageCode` |
+| Send action | `NewMessageScreen.onSend` → `BluetoothRfcommTransport.sendMessage` |
+| Transport UI | `TransportControls` (paired devices by MAC, Listen/Connect) |
+| Receive callback | `transport.onMessageReceived` → Logs → ACK → `speech.speak` on `Dispatchers.Default` (ran on every phone, relays included) |
+| Delivery UI | `MessageDeliveryState` mapped any adjacent-hop ACK to `Delivered` |
+
+What changed:
+
+- `network/ItantraNetwork` is the only networking API the app shell uses: recipients
+  (by node ID), `queueTrustedMessage`, sender state changes, pending deliveries,
+  Emergency mode start/stop, link count, timing hooks. No GATT, socket, MAC, bundle
+  or key crosses it.
+- **Default path = v1 stack.** The editor has a trusted-recipient picker. Send
+  persists a signed, sealed bundle and the row enters Logs as **Queued**, then
+  **Relayed** (hop ACK), **Delivered** (verified receipt only), **Expired** or
+  **Unknown**. Sending to an unknown person is refused with a pointer to SOS.
+- **Receive + TTS.** Only `DtnEvent.MessageDelivered`, the authenticated
+  end-recipient path, reaches Logs and `SpeechEngine.speak`. A relay never shows
+  or speaks what it carries. Deliveries that arrive with no screen open are queued in
+  `ItantraNetwork` and shown and spoken once when the main screen is next composed.
+- **Legacy RFCOMM demo** is kept only behind an explicit "Legacy RFCOMM demo" switch,
+  because it is the only physically demonstrated transport so far. It no longer
+  listens automatically at app start. Its ACK is labelled **"Next phone received
+  (legacy)"**, never Delivered. Its flooding and plaintext semantics are unchanged
+  and stay outside the v1 abstraction. The v1-compatible RFCOMM path is `RfcommPeerLink`.
+- Contacts and QR exchange use the Net Lab screen ("Contacts & network" button). A
+  dedicated product contacts screen was not built.
+- Timing hooks (execution spec §9, Product test B), all on the local monotonic clock:
+  `product_speech_end`, `product_transcript_ready`, `product_queued` (sender);
+  `product_delivered`, `product_tts_start`, `product_tts_returned` (receiver). No
+  cross-phone subtraction is valid; speech-end → remote-speech-start needs an
+  echo/synchronisation method that is not built yet.

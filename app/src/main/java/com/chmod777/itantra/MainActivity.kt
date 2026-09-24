@@ -26,6 +26,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.verticalScroll
@@ -65,6 +66,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -92,7 +94,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.chmod777.itantra.ui.theme.SIH_iTantraTheme
+import com.chmod777.itantra.network.ItantraNetwork
+import com.chmod777.itantra.network.RecipientOption
+import com.chmod777.itantra.service.EmergencyState
 import com.chmod777.itantra.transport.BluetoothPermissions
+import com.chmod777.itantra.ui.lab.NetworkLabActivity
 import com.chmod777.itantra.transport.BluetoothRfcommTransport
 import com.chmod777.itantra.transport.RfcommConnectionState
 import com.chmod777.itantra.transport.SendMessageResult
@@ -112,6 +118,8 @@ import java.time.format.DateTimeFormatter
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Opens the networking store and identity before any screen reads them.
+        ItantraNetwork.init(this)
         enableEdgeToEdge()
         setContent {
             SIH_iTantraTheme {
@@ -139,6 +147,10 @@ private data class Message(
     val languageCode: String,
     val transportMessageId: Long? = null,
     val deliveryState: MessageDeliveryState? = null,
+    /** v1 networking bundle handle for sent messages; null for legacy RFCOMM rows. */
+    val networkBundleId: String? = null,
+    /** Trusted-contact name on this phone (recipient for sent, sender for received). */
+    val peerName: String? = null,
 )
 
 private val DATE_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
@@ -185,6 +197,8 @@ private val MessageListSaver = Saver<SnapshotStateList<Message>, ArrayList<Bundl
                 putString("languageCode", message.languageCode)
                 message.transportMessageId?.let { putLong("transportMessageId", it) }
                 putString("deliveryState", message.deliveryState?.name)
+                putString("networkBundleId", message.networkBundleId)
+                putString("peerName", message.peerName)
             }
         })
     },
@@ -205,6 +219,8 @@ private val MessageListSaver = Saver<SnapshotStateList<Message>, ArrayList<Bundl
                             null
                         },
                         deliveryState = saved.getString("deliveryState")?.let(MessageDeliveryState::valueOf),
+                        networkBundleId = saved.getString("networkBundleId"),
+                        peerName = saved.getString("peerName"),
                     )
                 )
             }
@@ -216,15 +232,33 @@ private val MessageListSaver = Saver<SnapshotStateList<Message>, ArrayList<Bundl
 fun ITantraApp(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val transport = remember { BluetoothRfcommTransport(context) }
+    // The v1 BLE/DTN stack is the default. The legacy RFCOMM demo is opt-in and kept only
+    // as a compatibility path: it relays in plaintext and its ACK proves only the next hop.
+    var useLegacyTransport by rememberSaveable { mutableStateOf(false) }
+    var pendingEmergencyStart by remember { mutableStateOf(false) }
+    val emergencyState by ItantraNetwork.emergencyState.collectAsState()
+    var recipients by remember { mutableStateOf(emptyList<RecipientOption>()) }
+    var selectedRecipientHex by rememberSaveable { mutableStateOf<String?>(null) }
     var transportState by remember { mutableStateOf<RfcommConnectionState>(RfcommConnectionState.Idle) }
     var pairedDevices by remember { mutableStateOf(emptyList<com.chmod777.itantra.transport.PairedBluetoothDevice>()) }
     val requestBluetoothPermission = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
-    ) { grants ->
-        if (grants.values.all { it }) {
-            pairedDevices = BluetoothPermissions.pairedDevices(context)
-            transport.listen { transportState = it }
+    ) { _ ->
+        if (BluetoothPermissions.areGranted(context)) {
+            if (useLegacyTransport) {
+                pairedDevices = BluetoothPermissions.pairedDevices(context)
+                transport.listen { transportState = it }
+            }
+            if (pendingEmergencyStart) ItantraNetwork.startEmergencyMode(context)
         }
+        pendingEmergencyStart = false
+    }
+    val bluetoothPermissionRequest = {
+        val permissions = BluetoothPermissions.requiredRuntimePermissions().toMutableList()
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            permissions += Manifest.permission.POST_NOTIFICATIONS
+        }
+        requestBluetoothPermission.launch(permissions.toTypedArray())
     }
     DisposableEffect(transport) {
         onDispose { transport.close() }
@@ -267,11 +301,12 @@ fun ITantraApp(modifier: Modifier = Modifier) {
     ) { }
     LaunchedEffect(Unit) {
         requestMicPermission.launch(Manifest.permission.RECORD_AUDIO)
-        if (BluetoothPermissions.areGranted(context)) {
+        if (!BluetoothPermissions.areGranted(context)) bluetoothPermissionRequest()
+    }
+    LaunchedEffect(useLegacyTransport) {
+        if (useLegacyTransport && BluetoothPermissions.areGranted(context)) {
             pairedDevices = BluetoothPermissions.pairedDevices(context)
             transport.listen { transportState = it }
-        } else {
-            requestBluetoothPermission.launch(BluetoothPermissions.requiredRuntimePermissions())
         }
     }
     val coroutineScope = rememberCoroutineScope()
@@ -308,8 +343,50 @@ fun ITantraApp(modifier: Modifier = Modifier) {
                 matchesAcknowledgement(it.transportMessageId, acknowledgedMessageId)
             }
             if (index >= 0) {
-                messages[index] = messages[index].copy(deliveryState = MessageDeliveryState.DELIVERED)
+                messages[index] = messages[index].copy(deliveryState = legacyAcknowledgedState())
             }
+        }
+    }
+
+    // v1 stack receive path: only authenticated end-recipient deliveries arrive here, so a
+    // relay phone never shows or speaks messages it merely carries (execution spec §8.4).
+    LaunchedEffect(Unit) {
+        ItantraNetwork.pendingDeliveries.collect { deliveries ->
+            deliveries.forEach { delivery ->
+                ItantraNetwork.acknowledgeDelivery(delivery.bundleIdHex)
+                val now = LocalDateTime.now()
+                messages.add(
+                    Message(
+                        text = delivery.text,
+                        date = now.format(DATE_FORMAT),
+                        timestamp = now.format(TIME_FORMAT),
+                        direction = MessageDirection.RECEIVED,
+                        isRead = false,
+                        languageCode = delivery.languageCode,
+                        peerName = delivery.senderName,
+                    )
+                )
+                coroutineScope.launch(Dispatchers.Default) {
+                    try {
+                        ItantraNetwork.recordProductTiming("product_tts_start", mapOf("lang" to delivery.languageCode))
+                        speech.speak(delivery.text, delivery.languageCode)
+                        ItantraNetwork.recordProductTiming("product_tts_returned", mapOf("lang" to delivery.languageCode))
+                    } catch (e: Throwable) {
+                        Log.e(LATENCY_TAG, "[TTS] delivered-message speak failed lang=${delivery.languageCode}", e)
+                    }
+                }
+            }
+        }
+    }
+    LaunchedEffect(Unit) {
+        // Catch up on state changes that happened while this screen was not composed.
+        val known = ItantraNetwork.currentStates()
+        messages.forEachIndexed { index, message ->
+            known[message.networkBundleId]?.let { messages[index] = message.copy(deliveryState = it.toMessageDeliveryState()) }
+        }
+        ItantraNetwork.outgoingStateChanges.collect { (bundleIdHex, state) ->
+            val index = messages.indexOfFirst { it.networkBundleId == bundleIdHex }
+            if (index >= 0) messages[index] = messages[index].copy(deliveryState = state.toMessageDeliveryState())
         }
     }
 
@@ -321,6 +398,7 @@ fun ITantraApp(modifier: Modifier = Modifier) {
             coroutineScope.launch {
                 val releaseElapsedMs = SystemClock.elapsedRealtime()
                 Log.d(LATENCY_TAG, "[$source] release t=$releaseElapsedMs")
+                ItantraNetwork.recordProductTiming("product_speech_end", mapOf("source" to source))
                 val text = withContext(Dispatchers.Default) {
                     speech.transcribe(recordingFile.absolutePath, selectedLanguageCode)
                 }
@@ -330,9 +408,11 @@ fun ITantraApp(modifier: Modifier = Modifier) {
                     "[$source] transcript ready deltaMs=${readyElapsedMs - releaseElapsedMs} " +
                         "wavBytes=${recordingFile.length()}"
                 )
+                ItantraNetwork.recordProductTiming("product_transcript_ready", mapOf("source" to source))
                 draft = text
                 draftLanguageCode = selectedLanguageCode
                 sendError = null
+                recipients = ItantraNetwork.recipients()
                 isTranscribing = false
                 screen = Screen.NEW_MESSAGE
             }
@@ -350,6 +430,7 @@ fun ITantraApp(modifier: Modifier = Modifier) {
                 draft = ""
                 draftLanguageCode = "en"
                 sendError = null
+                recipients = ItantraNetwork.recipients()
                 screen = Screen.NEW_MESSAGE
             },
             onOpenLogs = { screen = Screen.LOGS },
@@ -358,11 +439,23 @@ fun ITantraApp(modifier: Modifier = Modifier) {
             onLanguageChange = { selectedLanguageCode = it },
             isTranscribing = isTranscribing,
             speech = speech,
-            transport = transport,
             transportState = transportState,
             pairedDevices = pairedDevices,
             onConnect = { address -> transport.connect(address) { transportState = it } },
             onListen = { transport.listen { transportState = it } },
+            emergencyState = emergencyState,
+            onStartEmergency = {
+                if (BluetoothPermissions.areGranted(context)) {
+                    ItantraNetwork.startEmergencyMode(context)
+                } else {
+                    pendingEmergencyStart = true
+                    bluetoothPermissionRequest()
+                }
+            },
+            onStopEmergency = { ItantraNetwork.stopEmergencyMode(context) },
+            onOpenNetwork = { context.startActivity(android.content.Intent(context, NetworkLabActivity::class.java)) },
+            useLegacyTransport = useLegacyTransport,
+            onLegacyTransportChange = { useLegacyTransport = it },
             modifier = modifier
         )
 
@@ -399,7 +492,40 @@ fun ITantraApp(modifier: Modifier = Modifier) {
                 sendError = null
                 screen = Screen.MAIN
             },
-            onSend = { text ->
+            recipients = recipients,
+            selectedRecipientHex = selectedRecipientHex,
+            onSelectRecipient = { selectedRecipientHex = it },
+            useLegacyTransport = useLegacyTransport,
+            onSend = sendNew@{ text ->
+                if (!useLegacyTransport) {
+                    val recipient = recipients.firstOrNull { it.nodeIdHex == selectedRecipientHex }
+                    if (recipient == null) {
+                        sendError = "Choose a trusted contact. Unknown people cannot be addressed; use SOS instead."
+                        return@sendNew
+                    }
+                    ItantraNetwork.queueTrustedMessage(recipient.nodeIdHex, text, draftLanguageCode)
+                        .onSuccess { bundleIdHex ->
+                            val now = LocalDateTime.now()
+                            messages.add(
+                                Message(
+                                    text = text,
+                                    date = now.format(DATE_FORMAT),
+                                    timestamp = now.format(TIME_FORMAT),
+                                    direction = MessageDirection.SENT,
+                                    isRead = true,
+                                    languageCode = draftLanguageCode,
+                                    deliveryState = MessageDeliveryState.QUEUED,
+                                    networkBundleId = bundleIdHex,
+                                    peerName = recipient.name,
+                                )
+                            )
+                            draft = ""
+                            draftLanguageCode = "en"
+                            screen = Screen.MAIN
+                        }
+                        .onFailure { sendError = it.message ?: "Could not queue the message." }
+                    return@sendNew
+                }
                 isSending = true
                 sendError = null
                 transport.sendMessage(text, draftLanguageCode) { result ->
@@ -421,7 +547,7 @@ fun ITantraApp(modifier: Modifier = Modifier) {
                             isRead = true,
                             languageCode = draftLanguageCode,
                             transportMessageId = result.message.messageId,
-                            deliveryState = MessageDeliveryState.SENT,
+                            deliveryState = MessageDeliveryState.LEGACY_SENT,
                         )
                     )
                     draft = ""
@@ -485,11 +611,16 @@ private fun MainScreen(
     onLanguageChange: (String) -> Unit,
     isTranscribing: Boolean,
     speech: SpeechEngine,
-    transport: BluetoothRfcommTransport,
     transportState: RfcommConnectionState,
     pairedDevices: List<com.chmod777.itantra.transport.PairedBluetoothDevice>,
     onConnect: (String) -> Unit,
     onListen: () -> Unit,
+    emergencyState: EmergencyState,
+    onStartEmergency: () -> Unit,
+    onStopEmergency: () -> Unit,
+    onOpenNetwork: () -> Unit,
+    useLegacyTransport: Boolean,
+    onLegacyTransportChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var isHolding by remember { mutableStateOf(false) }
@@ -609,13 +740,24 @@ private fun MainScreen(
             ) {
                 Text("PLAY LAST RECORDING")
             }
-            TransportControls(
-                state = transportState,
-                pairedDevices = pairedDevices,
-                onListen = onListen,
-                onConnect = onConnect,
+            NetworkControls(
+                emergencyState = emergencyState,
+                onStart = onStartEmergency,
+                onStop = onStopEmergency,
+                onOpenNetwork = onOpenNetwork,
+                useLegacyTransport = useLegacyTransport,
+                onLegacyTransportChange = onLegacyTransportChange,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)
             )
+            if (useLegacyTransport) {
+                TransportControls(
+                    state = transportState,
+                    pairedDevices = pairedDevices,
+                    onListen = onListen,
+                    onConnect = onConnect,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)
+                )
+            }
             BentoControls(
                 unreadCount = unreadCount,
                 onOpenHandsFree = onOpenHandsFree,
@@ -1015,6 +1157,10 @@ private fun NewMessageScreen(
     onDraftChange: (String) -> Unit,
     isSending: Boolean,
     sendError: String?,
+    recipients: List<RecipientOption>,
+    selectedRecipientHex: String?,
+    onSelectRecipient: (String) -> Unit,
+    useLegacyTransport: Boolean,
     onBack: () -> Unit,
     onSend: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -1064,7 +1210,14 @@ private fun NewMessageScreen(
                 fontWeight = FontWeight.Bold
             )
         }
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(12.dp))
+        RecipientPicker(
+            recipients = recipients,
+            selectedRecipientHex = selectedRecipientHex,
+            onSelect = onSelectRecipient,
+            useLegacyTransport = useLegacyTransport,
+        )
+        Spacer(Modifier.height(12.dp))
         OutlinedTextField(
             value = draft,
             onValueChange = onDraftChange,
@@ -1214,11 +1367,7 @@ private fun MessageCard(message: Message, onClick: () -> Unit) {
                 )
                 Spacer(Modifier.width(10.dp))
                 Text(
-                    text = if (isSent) {
-                        listOfNotNull("↑ Sent", message.deliveryState?.label).joinToString(" • ")
-                    } else {
-                        "↓ Received"
-                    },
+                    text = directionLabel(message),
                     color = if (isSent) Color(0xFFF8AD3C) else Color(0xFF6FD4DF),
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Bold
@@ -1240,6 +1389,86 @@ private fun MessageCard(message: Message, onClick: () -> Unit) {
                 .padding(end = 10.dp)
                 .size(18.dp)
         )
+    }
+}
+
+private fun directionLabel(message: Message): String =
+    if (message.direction == MessageDirection.SENT) {
+        listOfNotNull("↑ Sent", message.peerName?.let { "to $it" }, message.deliveryState?.label).joinToString(" • ")
+    } else {
+        listOfNotNull("↓ Received", message.peerName?.let { "from $it" }).joinToString(" • ")
+    }
+
+@Composable
+private fun NetworkControls(
+    emergencyState: EmergencyState,
+    onStart: () -> Unit,
+    onStop: () -> Unit,
+    onOpenNetwork: () -> Unit,
+    useLegacyTransport: Boolean,
+    onLegacyTransportChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val nearbyLinks by ItantraNetwork.nearbyLinkCount.collectAsState(initial = 0)
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = when (emergencyState) {
+                EmergencyState.Off -> "Emergency mode: off"
+                EmergencyState.Starting -> "Emergency mode: starting…"
+                EmergencyState.On -> "Emergency mode: on • $nearbyLinks nearby link(s)"
+                is EmergencyState.Error -> "Emergency mode: ${emergencyState.message}"
+            },
+            color = Color(0xFF91A2B4)
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (emergencyState == EmergencyState.On || emergencyState == EmergencyState.Starting) {
+                Button(onClick = onStop) { Text("STOP EMERGENCY MODE") }
+            } else {
+                Button(onClick = onStart) { Text("START EMERGENCY MODE") }
+            }
+            TextButton(onClick = onOpenNetwork) { Text("Contacts & network") }
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            androidx.compose.material3.Switch(checked = useLegacyTransport, onCheckedChange = onLegacyTransportChange)
+            Spacer(Modifier.width(8.dp))
+            Text("Legacy RFCOMM demo (paired phones, not end-to-end)", color = Color(0xFF637487), fontSize = 12.sp)
+        }
+    }
+}
+
+@Composable
+private fun RecipientPicker(
+    recipients: List<RecipientOption>,
+    selectedRecipientHex: String?,
+    onSelect: (String) -> Unit,
+    useLegacyTransport: Boolean,
+) {
+    if (useLegacyTransport) {
+        Text("Legacy RFCOMM: sent to every connected phone, unencrypted.", color = Color(0xFF91A2B4), fontSize = 13.sp)
+        return
+    }
+    if (recipients.isEmpty()) {
+        Text(
+            "No trusted contacts yet. Open \"Contacts & network\" and scan the other person's QR.",
+            color = Color(0xFF91A2B4),
+            fontSize = 13.sp
+        )
+        return
+    }
+    Row(
+        modifier = Modifier.horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        recipients.forEach { recipient ->
+            val selected = recipient.nodeIdHex == selectedRecipientHex
+            Button(
+                onClick = { onSelect(recipient.nodeIdHex) },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (selected) Color(0xFFF8AD3C) else Color(0x33F8AD3C),
+                    contentColor = if (selected) Color(0xFF2C1800) else Color(0xFFDCE6EF)
+                )
+            ) { Text(recipient.name) }
+        }
     }
 }
 
@@ -1291,11 +1520,7 @@ private fun MessageDetailScreen(
             )
             Spacer(Modifier.width(12.dp))
             Text(
-                text = if (isSent) {
-                    listOfNotNull("↑ Sent", message.deliveryState?.label).joinToString(" • ")
-                } else {
-                    "↓ Received"
-                },
+                text = directionLabel(message),
                 color = if (isSent) Color(0xFFF8AD3C) else Color(0xFF6FD4DF),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold

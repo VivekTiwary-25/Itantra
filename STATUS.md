@@ -31,6 +31,9 @@ fragmentation, Noise, crypto and DTN; no radio). DEVICE-1 = one physical RMX3392
 | EmergencyModeService foreground service | YELLOW | DEVICE-1: foreground, type connectedDevice, no crash |
 | Transport benchmark harness | YELLOW | JVM probes through 2 hops; no radio measurement exists |
 | Gates B–F (`docs/networking/PHYSICAL_TEST_PLAN.md`) | RED | Not run |
+| Product integration: STT draft → trusted recipient → Queued/Relayed/Delivered UI | YELLOW | Build + JVM (state mapping); not run on a phone |
+| Product integration: receive → Logs → TTS only on the end recipient | YELLOW | Build; relay-never-delivers covered by JVM integration test |
+| Legacy RFCOMM demo behind opt-in switch, ACK no longer shown as Delivered | YELLOW | Build + JVM; not re-run physically |
 
 ## Standalone Lane 1 ladder
 

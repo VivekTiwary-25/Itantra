@@ -24,6 +24,21 @@ class MessageDeliveryStateTest {
     }
 
     @Test
+    fun `a legacy hop ack is never shown as delivered`() {
+        assertTrue(legacyAcknowledgedState() != MessageDeliveryState.DELIVERED)
+        assertEquals("Next phone received (legacy)", legacyAcknowledgedState().label)
+    }
+
+    @Test
+    fun `only a verified receipt state maps to delivered`() {
+        val delivered = com.chmod777.itantra.dtn.DeliveryState.entries.filter {
+            it.toMessageDeliveryState() == MessageDeliveryState.DELIVERED
+        }
+        assertEquals(listOf(com.chmod777.itantra.dtn.DeliveryState.DELIVERED), delivered)
+        assertEquals("Relayed", com.chmod777.itantra.dtn.DeliveryState.RELAYED.toMessageDeliveryState().label)
+    }
+
+    @Test
     fun `only the matching message id is acknowledged`() {
         assertTrue(matchesAcknowledgement(42L, 42L))
         assertFalse(matchesAcknowledgement(41L, 42L))
