@@ -1,0 +1,2456 @@
+
+======================================================================
+iTANTRA UNDERSTANDING / TEACHING HANDOFF
+======================================================================
+
+PURPOSE
+-------
+This file is meant to let any capable LLM continue teaching Vivek the
+iTantra architecture from absolute zero, while using the attached build
+specification as the source of truth.
+
+The learner is NOT assumed to know cryptography, networking, Android BLE,
+DTNs, Noise, key derivation, signatures, HMAC, CBOR, or related concepts.
+
+The goal is NOT merely to summarize the design. The goal is to build a
+complete mental model of the design, slowly, without skipping technical
+details.
+
+SOURCE-OF-TRUTH RULE
+--------------------
+1. The complete iTantra v1 build specification is included verbatim later
+   in this file.
+2. Teach what the specification actually says.
+3. Do not silently invent missing details.
+4. If the specification leaves something undefined, say so explicitly.
+5. Claude's audit corrections listed below are proposed corrections to the
+   current build spec. When the relevant architecture section is reached,
+   explain:
+      a. what the original design says;
+      b. how it works;
+      c. what Claude identified as the problem;
+      d. whether/why the correction is needed;
+      e. exactly what changes in message format, verification, database,
+         implementation, or claims.
+6. Do not jump straight to the audit. The learner wants to understand the
+   architecture first, and encounter each audit correction naturally when
+   the corresponding concept is taught.
+
+TEACHING STYLE / PACING
+-----------------------
+Vivek explicitly asked for VERY SMALL chunks.
+
+Hard rules:
+- Never dump an entire main chunk at once.
+- Explain only one small subchunk at a time.
+- Do not assume prior technical knowledge.
+- When a new technical word appears, explain it before relying on it.
+- Technical completeness is required, but delivered incrementally.
+- Use concrete examples with Vivek, Rahul, Priya, and relay phones when useful.
+- Use simple ASCII diagrams liberally.
+- Avoid unexplained notation.
+- If notation such as ||, H(), Sign(), HKDF(), HMAC(), or X25519 appears,
+  explain exactly what it means before proceeding.
+- The learner may interrupt with a side question at any time.
+- If a side question spawns before the current main/subchunk is complete,
+  mark the parent item INCOMPLETE and answer the side question as a nested
+  subchunk.
+- After the side question is resolved, explicitly return to the incomplete
+  parent.
+- Do not move to the next numbered subchunk until Vivek is satisfied.
+
+STATUS FORMAT
+-------------
+At the start or end of each teaching reply, maintain a visible tracker.
+
+Example:
+
+Main Chunk 1 — Identity & trust establishment — 🟡 INCOMPLETE
+Subchunk 1.1 — Public key vs private key — 🟢 CURRENT
+
+If a side branch appears:
+
+Main Chunk 1 — 🟡 INCOMPLETE
+Subchunk 1.2 — Digital signatures — 🟡 INCOMPLETE
+Subchunk 1.2.1 — What a hash function is — 🟢 CURRENT
+
+When finished:
+
+Subchunk 1.2.1 — ✅ COMPLETE
+Return to Subchunk 1.2.
+
+Do NOT mark a parent complete while any child is incomplete.
+
+CURRENT TEACHING STATE
+----------------------
+Main Chunk 1 — Identity & trust establishment — 🟡 INCOMPLETE
+
+The conversation had begun discussing signatures, but Vivek asked to restart
+with the chunk map before continuing. The clean next point is:
+
+Subchunk 1.1 — Public key vs private key
+
+Do not assume the previous explanation is retained. Start 1.1 cleanly and
+briefly.
+
+======================================================================
+CHUNK MAP
+======================================================================
+
+MAIN CHUNK 1 — IDENTITY & TRUST ESTABLISHMENT
+---------------------------------------------
+1.1 Public key vs private key
+1.2 What a digital signature is
+1.3 How Ed25519 signing/verifying works
+1.4 Why a valid signature does NOT automatically mean "this is Vivek"
+1.5 X25519 keypairs: what they are for
+1.6 Identity capsule
+1.7 node_id
+1.8 Self-signing the identity capsule
+1.9 QR exchange and human trust confirmation
+1.10 What gets stored for a trusted contact
+
+Claude audit encountered here:
+- #1 Sender impersonation / trusted-key binding
+- #5 Identity-capsule signature domain separation
+
+MAIN CHUNK 2 — PAIRWISE SECRETS
+-------------------------------
+2.1 What "key agreement" means
+2.2 How X25519 lets Vivek and Rahul derive the same secret
+2.3 What an attacker can and cannot learn
+2.4 Why raw X25519 output is not used directly
+2.5 HKDF from absolute zero
+2.6 pair_secret
+2.7 Why both public keys may need to be bound into the derivation
+2.8 Invalid/all-zero X25519 results
+
+Claude audit encountered here:
+- Part of #2 destination-tag/pair-secret correction
+
+MAIN CHUNK 3 — DESTINATION TAGS
+-------------------------------
+3.1 The privacy problem destination tags solve
+3.2 HMAC from absolute zero
+3.3 Building destination_tag
+3.4 How Rahul recognizes a bundle without revealing "Rahul" to relays
+3.5 Why the current tag is identical in both directions
+3.6 Direction binding
+3.7 What destination tags do NOT hide
+
+Claude audit encountered here:
+- #2 Destination tag is the same in both directions
+
+MAIN CHUNK 4 — BUILDING A PRIVATE MESSAGE
+-----------------------------------------
+4.1 inner_message_id
+4.2 sender and recipient IDs
+4.3 Message text, language, and timestamps
+4.4 deletion_secret
+4.5 Canonical CBOR
+4.6 Domain-separated message signing
+4.7 Correct recipient-side verification order
+
+Claude audit encountered here:
+- #1 Sender impersonation, revisited where it actually matters
+
+MAIN CHUNK 5 — END-TO-END ENCRYPTION
+------------------------------------
+5.1 Encryption vs signing
+5.2 What X25519 sealed boxes are
+5.3 Why only Rahul can decrypt
+5.4 What relays can still see
+5.5 What happens if Rahul's long-term private key is later stolen
+5.6 Why iTantra does not yet have forward secrecy
+
+MAIN CHUNK 6 — THE OUTER BUNDLE
+-------------------------------
+6.1 Why there is an outer envelope at all
+6.2 bundle_id
+6.3 lifetime
+6.4 priority
+6.5 deletion commitment
+6.6 ciphertext hash
+6.7 Relay state: tokens, hop count, age
+6.8 Which fields a malicious relay can modify
+6.9 Binding important outer fields into the signed inner message
+6.10 Padding / message-length leakage
+
+Claude audit encountered here:
+- #3 Outer envelope is not protected
+- Ciphertext-size leakage / padding recommendation
+
+MAIN CHUNK 7 — FINDING NEARBY PHONES AND MAKING A LINK
+------------------------------------------------------
+7.1 BLE advertising
+7.2 BLE scanning
+7.3 What fits inside an advertisement
+7.4 Temporary peer/session IDs
+7.5 Collision problem: both phones trying to connect
+7.6 Revised 31-byte advertisement design
+7.7 GATT server/client basics
+7.8 Fragmentation and reassembly
+7.9 Android scan restrictions and GATT operation queue
+
+Claude audit encountered here:
+- #7 Advertisement cannot carry what §8 needs
+- Android/BLE implementation gotchas
+
+MAIN CHUNK 8 — HOP SECURITY WITH NOISE
+--------------------------------------
+8.1 Why end-to-end encryption alone is not enough for every local protocol frame
+8.2 What a Noise protocol is
+8.3 What "XX" means
+8.4 Noise handshake at a conceptual level
+8.5 Static vs ephemeral keys
+8.6 Why iTantra identity keys must not automatically become Noise relay identities
+8.7 Fresh session static-key requirement
+8.8 Handshake hash and SOS authentication string
+8.9 Noise-library problem on Android
+
+Claude audit encountered here:
+- #6 Relay Noise key is unspecified
+- #9 Noise-library feasibility on Android
+
+MAIN CHUNK 9 — STORE, CARRY AND FORWARD
+---------------------------------------
+9.1 DTN from absolute zero
+9.2 Inventory exchange
+9.3 WANT_RELAY
+9.4 WANT_DESTINATION
+9.5 Why destination claims are not trusted
+9.6 Durable persistence
+9.7 Deduplication
+9.8 Why bundle_id alone is unsafe
+9.9 Relay dedupe vs recipient dedupe
+9.10 Reboot-safe bundle ageing
+
+Claude audit encountered here:
+- #4 Deduplicating by bundle_id alone can block a valid message
+- #8 elapsedRealtime age counter breaks across reboot
+
+MAIN CHUNK 10 — SPRAY-AND-WAIT ROUTING
+--------------------------------------
+10.1 Why unrestricted flooding is bad
+10.2 Copy tokens
+10.3 Binary splitting
+10.4 What happens with the final token
+10.5 Interrupted transfer / lost acknowledgement
+10.6 Why the original "copy budget never exceeds budget" claim is too strong
+10.7 Reconciliation on future encounters
+10.8 Sybil attack stealing spray copies
+
+Claude audit encountered here:
+- Copy-token overcount on interrupted transfer
+- Specific Sybil attack against spray copies
+
+MAIN CHUNK 11 — DELIVERY, RECEIPTS AND DELETION
+-----------------------------------------------
+11.1 What "Relayed" actually means
+11.2 What "Delivered" actually means
+11.3 Deletion secret and commitment
+11.4 Tombstones
+11.5 Signed delivery receipts
+11.6 Why tombstones and receipts are separate
+11.7 Why receipts need inner_message_id
+11.8 Why receipts must not generate receipts
+11.9 Domain separation for receipt signatures
+
+Claude audit encountered here:
+- Receipt rules
+- #5 Signature domain separation
+
+MAIN CHUNK 12 — SOS
+-------------------
+12.1 Why SOS is a separate protocol
+12.2 Stranger discovery
+12.3 Ephemeral incident identity
+12.4 Direct Noise session with stranger
+12.5 "Encrypted" vs "identity verified"
+12.6 Accept/decline
+12.7 Two responders accepting simultaneously
+12.8 Short authentication string
+12.9 SOS waves
+12.10 Multi-hop SOS
+12.11 Cancellation
+12.12 Signature domain separation
+12.13 What gets cut from v1
+
+Claude audit encountered here:
+- #5 SOS signature domain separation
+- Multiple responders accepting at once
+- Trim credential-present / trust State 3 from v1 build
+
+MAIN CHUNK 13 — ANDROID PERSISTENCE, KEY STORAGE, AND REAL-DEVICE SURVIVAL
+-------------------------------------------------------------------------
+13.1 Android Keystore
+13.2 Wrapped key storage
+13.3 Why private keys must not live directly in normal app storage
+13.4 Android Auto Backup problem
+13.5 Reinstall / restore identity behavior
+13.6 Foreground service
+13.7 Screen-off scanning
+13.8 ScanFilter requirement
+13.9 Scan restart limits
+13.10 GATT one-operation-at-a-time queue
+13.11 Status 133 and retry/backoff
+13.12 Simultaneous GATT server/client behavior
+13.13 OEM battery management / Realme RMX3392 testing
+13.14 Reboot persistence and age state
+13.15 Physical test implications
+
+Claude audit encountered here:
+- Key-backup correction
+- BLE/Android gotchas
+- Reboot-age correction where persistence is implemented
+
+MAIN CHUNK 14 — FULL END-TO-END WALKTHROUGHS
+--------------------------------------------
+14.1 Trusted-contact setup: Vivek ↔ Rahul
+14.2 Vivek creates one message
+14.3 Every exact field created
+14.4 Every cryptographic operation
+14.5 Bundle storage on Vivek's phone
+14.6 Vivek meets Relay A
+14.7 Discovery → GATT → Noise
+14.8 Inventory exchange
+14.9 Relay transfer and persistence
+14.10 Relay A later meets Relay B
+14.11 Relay B later meets Rahul
+14.12 Destination recognition
+14.13 Rahul decrypts and authenticates
+14.14 Receipt creation and routing
+14.15 Tombstone / cleanup
+14.16 Sender UI becomes Delivered
+14.17 Repeat the same exercise with a direct SOS session
+14.18 Repeat with multi-hop SOS only after direct SOS is understood
+
+======================================================================
+CLAUDE AUDIT BACKLOG TO INTEGRATE WHILE TEACHING
+======================================================================
+
+These are audit findings supplied after reviewing the build specification.
+Do not front-load all of them. Explain them when their corresponding chunk
+is reached.
+
+1. ANOTHER TRUSTED CONTACT CAN FAKE THE SENDER
+Current concern:
+- Recipient processing says to verify the sender signature, but the inner
+  message contains sender_signing_public_key and then separately resolves
+  sender_node_id.
+- A malicious already-trusted contact could potentially claim another
+  sender_node_id while signing with their own included key if the
+  implementation trusts the included key.
+
+Correction:
+- Ignore the message-supplied key for identity authentication.
+- Resolve sender_node_id to the stored trusted contact.
+- Verify with that contact's previously authenticated stored signing key.
+- Require the pair-secret/destination-tag match to correspond to the same
+  trusted contact as sender_node_id.
+
+Impact:
+- Verification semantics change.
+- No new wire field is required.
+
+2. DESTINATION TAG IS THE SAME IN BOTH DIRECTIONS
+Current concern:
+- Both members of a trusted pair derive the same pair_secret.
+- destination_tag currently depends only on pair_secret and bundle_id.
+- Therefore a phone can match its own outgoing messages when later seeing
+  them in another relay's inventory.
+
+Proposed correction:
+- Bind direction / intended recipient into the tag input, e.g.
+  HMAC(pair_secret,
+       "itantra-v1/destination-tag" || recipient_node_id || bundle_id)
+- Bind both public keys, sorted deterministically, into HKDF info.
+- Check the X25519/library return code and reject invalid/all-zero shared
+  secret results.
+
+Impact:
+- Wire format / derivation semantics change before Phase 4.
+
+3. OUTER ENVELOPE IS NOT PROTECTED END TO END
+Current concern:
+- Signature covers only the inner message.
+- Relay-visible fields such as lifetime, priority, and deletion_commitment
+  can be modified by a malicious relay.
+- A modified deletion_commitment can make legitimate future tombstones fail.
+
+Proposed correction:
+- Put bundle_id, deletion_commitment, lifetime, and priority inside the
+  signed inner message as authenticated copies.
+- Recipient checks they match the outer envelope.
+- Relays still cannot verify those bindings because they cannot decrypt;
+  document this limitation.
+
+Impact:
+- Private-message wire format changes.
+
+4. DEDUPLICATION BY bundle_id ALONE CAN BLOCK THE REAL MESSAGE
+Current concern:
+- bundle_id is visible.
+- An attacker can reuse a visible bundle_id on garbage ciphertext.
+- If a node marks the ID seen before validating the real object, the valid
+  bundle can be discarded later.
+
+Proposed correction:
+- Relay dedupe uses bundle_id + ciphertext_hash.
+- Recipient marks delivery seen only after successful decryption,
+  recipient check, and signature authentication.
+- Recipient-level dedupe uses inner_message_id.
+
+Impact:
+- Database/deduplication key changes.
+
+5. SOME SIGNATURE TYPES LACK DOMAIN SEPARATION
+Affected objects called out by the audit:
+- Identity capsule
+- Delivery receipt
+- SOS request
+- SOS cancellation
+
+Correction:
+Give each signed object a fixed type/domain prefix, e.g.
+- "itantra-v1/capsule"
+- "itantra-v1/receipt"
+- "itantra-v1/sos-request"
+- "itantra-v1/sos-cancel"
+
+Why:
+A signature valid for bytes in one protocol context should not be
+reinterpretable as a signature for another object type.
+
+Impact:
+- Signature semantics / QR interoperability can change.
+- Capsule fix should happen before Phase 1.
+
+6. RELAY NOISE XX STATIC KEY IS UNSPECIFIED
+Current concern:
+- Noise XX exchanges static public keys during the handshake.
+- Reusing long-term iTantra identity keys would reveal a stable identity
+  to every stranger relay.
+
+Proposed correction:
+- Relay sessions use fresh random Noise static keys per Emergency-mode
+  session.
+- Long-term identity keys never enter stranger-relay Noise sessions.
+- SOS trust State 2 short authentication string should be derived from the
+  Noise handshake hash.
+
+Impact:
+- Mostly implementation semantics, not the private-bundle format.
+
+7. BLE ADVERTISEMENT DOES NOT CONTAIN THE ID NEEDED BY §8
+Current concern:
+- Connection collision logic compares peer_session_id.
+- Existing advertisement layout does not include it.
+- Legacy BLE advertising space is very small.
+
+Proposed v1 layout:
+- One service-data field under the iTantra 128-bit UUID containing:
+    1 byte protocol version
+    1 byte flags
+    8-byte rotating random short ID
+- Do not separately include device name or TX power.
+- Rotate the short ID periodically.
+- Explicitly set include-device-name = false and include-TX-power = false.
+
+Impact:
+- Advertisement format changes before Phase 2.
+
+8. AGE COUNTER BREAKS ACROSS DEVICE REBOOT
+Current concern:
+- SystemClock.elapsedRealtime() resets on reboot.
+- Stored pre-reboot bundles cannot continue age correctly from only
+  received_age_ms + (elapsedRealtime_now - received_elapsed_ms).
+
+Proposed correction:
+- Store Android boot count with each bundle.
+- Periodically persist current accumulated age.
+- If boot count changes, resume from the last persisted age rather than
+  subtracting elapsedRealtime values from different boots.
+
+Impact:
+- Adds database/persistence state.
+
+9. NOISE LIBRARY FEASIBILITY MUST BE DECIDED BEFORE PHASE 3
+Audit concern:
+- Mature/maintained Android-native Noise options may be limited.
+- An old Java library may be stale.
+- Rust snow via JNI introduces NDK/JNI and may violate current lane rules.
+- Building Noise manually from crypto primitives is a redesign and should
+  not be done casually.
+
+Required team decision:
+- Pick and pin a reviewed library path before Phase 3.
+- If JNI/NDK is required, explicitly escalate that architectural/build
+  change.
+
+ADDITIONAL PHASE-SPECIFIC AUDIT NOTES
+-------------------------------------
+A. Copy tokens can temporarily overcount after interrupted transfer:
+   sender may not receive the receiver's acknowledgement after receiver
+   already persisted a copy. Reconciliation on future encounters is needed.
+   Acceptance wording should not claim perfect budget preservation under
+   interruption.
+
+B. Delivery receipts:
+   - must include inner_message_id;
+   - must never themselves trigger delivery receipts.
+
+C. Multiple SOS responders:
+   two responders may accept nearly simultaneously.
+   Define first confirmed accept as winner; suppress/notify later accepts.
+
+D. Sybil limitation:
+   a stranger controlling multiple fake identities can consume spray copies.
+   This should be explicitly listed under limitations.
+
+E. Message length leakage:
+   ciphertext size leaks approximate plaintext size.
+   Proposed mitigation: pad into fixed buckets such as
+   256 B, 1 KiB, 4 KiB, 16 KiB.
+
+F. Android Auto Backup:
+   wrapped private-key files should be excluded from backup because the
+   Keystore wrapping key will not survive a restore onto a new install/device.
+   UI should explain that reinstalling loses identity and requires QR
+   re-exchange.
+
+G. Trim SOS for v1:
+   remove "credential-present" and trust State 3 from the build-critical path.
+   Keep responder credentials as future work unless explicitly re-added.
+
+H. Android/BLE implementation gotchas:
+   - Screen-off BLE scanning requires filters.
+   - Avoid restarting scans repeatedly; Android can suppress excessive starts.
+   - GATT operations must be serialized through a queue.
+   - Retry transient GATT failures such as status 133 with bounded backoff.
+   - Test simultaneous GATT client/server operation on real target devices.
+   - Realme/OEM background restrictions require explicit long-duration
+     screen-off testing and possibly battery-optimization exemption guidance.
+
+======================================================================
+HOW TO HANDLE DISAGREEMENTS OR NEW AUDIT FINDINGS
+======================================================================
+
+When another audit or implementation issue appears:
+1. Do not silently overwrite the architecture.
+2. Identify the exact original spec requirement.
+3. Explain the failure/attack in simple terms first.
+4. Then explain the technical mechanics.
+5. Mark whether the fix changes:
+   - wire format;
+   - QR format;
+   - database schema;
+   - cryptographic derivation;
+   - verification order;
+   - Android implementation only;
+   - UI/security claims;
+   - interoperability.
+6. Add the issue to the relevant chunk, not as an unrelated lecture.
+7. Keep any unresolved parent chunk marked INCOMPLETE.
+
+======================================================================
+FULL BUILD SPECIFICATION — VERBATIM
+======================================================================
+
+iTantra v1 — Complete Build Specification
+
+Status: Implementation specification, ready for security/architecture audit
+Target: Android application, initial validation on 3–6 physical phones
+Package: com.chmod777.itantra
+Primary use case: Infrastructure outage / disaster communication
+
+0. AUDITOR INSTRUCTION
+
+Before implementation, audit this specification for:
+
+- cryptographic mistakes;
+- authentication confusion;
+- metadata leaks;
+- replay/downgrade attacks;
+- unsafe trust transitions;
+- incorrect Noise usage;
+- incorrect key derivation or domain separation;
+- Android BLE/GATT feasibility issues;
+- concurrency/state-machine bugs;
+- denial-of-service opportunities;
+- persistence/routing inconsistencies;
+- situations where a UI claim is stronger than the protocol guarantee.
+
+Do not silently redesign the architecture.
+
+For every issue found, report:
+1. the exact problematic requirement;
+2. why it is wrong or risky;
+3. exploit/failure scenario;
+4. minimum correction;
+5. whether the correction changes interoperability or stored data.
+
+Crypto primitives MUST come from maintained, reviewed libraries. No cryptographic primitive may be implemented manually.
+
+1. PRODUCT DEFINITION
+
+iTantra provides exactly two user-facing communication modes.
+
+Mode A — Trusted Person
+
+Example:
+Send Rahul: I am safe. Meet me at the shelter.
+
+Rahul is already a trusted iTantra contact.
+The sender already possesses Rahul's authenticated cryptographic identity.
+
+The message:
+- is encrypted specifically for Rahul;
+- may travel through arbitrary stranger phones;
+- may remain stored on relay phones;
+- may move over several physical encounters;
+- remains unreadable to those relays;
+- eventually reaches Rahul if network mobility permits;
+- is considered Delivered only after authenticated recipient confirmation.
+
+Rahul does not need to be nearby when the message is created.
+
+Mode B — SOS
+
+Example:
+I need a human right now.
+
+There is no intended identity.
+
+iTantra:
+1. finds nearby participating phones;
+2. attempts contact with a small number of nearby candidates;
+3. establishes an encrypted session with a responder;
+4. labels the responder as unverified unless additional authentication occurs;
+5. expands the SOS if nobody nearby responds.
+
+The security statement before authentication is:
+Encrypted connection — identity not verified.
+
+Not:
+Secure person.
+Trusted helper.
+Nearest person.
+
+2. NON-GOALS
+
+v1 does NOT attempt to provide:
+- discovery of an arbitrary unknown person by name;
+- private offline "find Rahul" lookup;
+- one-person-one-identity Sybil resistance;
+- exact physical-distance measurement;
+- guaranteed nearest-helper selection;
+- guaranteed message delivery;
+- guaranteed cooperation from relays;
+- traffic-analysis resistance;
+- global anonymity;
+- thousands-device validated scalability;
+- standardized Bluetooth Mesh;
+- BPv7 interoperability;
+- blockchain/DID-based outage naming;
+- global reputation scores;
+- self-designed cryptography.
+
+If Rahul is not already a trusted contact, Trusted Person mode refuses to address him.
+The appropriate alternative is SOS.
+
+3. HIGH-LEVEL ARCHITECTURE
+
+                         iTANTRA
+
+                 ┌─────────────────────┐
+                 │ EmergencyModeService│
+                 └──────────┬──────────┘
+                            │
+                     BLE discovery
+                            │
+                            ▼
+                  ┌─────────────────┐
+                  │ Peer discovered │
+                  └────────┬────────┘
+                           │
+                           ▼
+                  ┌─────────────────┐
+                  │   PeerLink      │
+                  │                 │
+                  │ BLE GATT — v1   │
+                  │ RFCOMM optional │
+                  └────────┬────────┘
+                           │
+                           ▼
+                    Noise session
+                           │
+            ┌──────────────┴──────────────┐
+            │                             │
+            ▼                             ▼
+
+       DTN BUNDLE LAYER                 SOS LAYER
+       trusted messages             stranger contact
+            │                             │
+       Spray-and-Wait                staged fan-out
+       store/carry                   Noise session
+       deduplication                 ephemeral ID
+       receipts                      explicit trust UI
+       tombstones
+
+The radio only transfers bytes one hop.
+Multi-hop exists entirely in the iTantra application layer.
+
+4. FROZEN TRANSPORT DECISION
+
+4.1 Discovery
+
+BLE advertising + BLE scanning is mandatory.
+
+BLE discovery answers:
+Which iTantra phones are physically reachable right now?
+
+Advertisements MUST NOT expose:
+- user's name;
+- phone number;
+- contact list;
+- long-term cryptographic fingerprint;
+- message contents.
+
+Advertising contains only:
+- iTantra service UUID;
+- protocol major version;
+- capability flags;
+- SOS-active flag where applicable.
+
+RSSI may be recorded as a rough contact-quality signal only.
+
+It MUST NOT be converted into claims such as:
+2.4 metres away.
+or:
+closest human.
+
+5. BYTE TRANSPORT
+
+Canonical v1 transport:
+BLE GATT
+
+All functionality required by v1 MUST work using BLE GATT alone.
+
+Reasons:
+- supports unpaired application communication;
+- supports stranger SOS;
+- supports small encrypted text/control bundles;
+- does not require infrastructure;
+- permits app-layer Noise encryption.
+
+Optional adapter:
+Existing RFCOMM code may be preserved behind the same abstraction.
+
+RFCOMM may be used when:
+- devices are already paired;
+- the connection exists;
+- using it improves transfer reliability.
+
+RFCOMM MUST NOT be required for SOS.
+
+Unpaired insecure RFCOMM MUST NOT be treated as secure unless protected by the same application-layer cryptographic session.
+
+Deferred transports:
+- Wi-Fi Aware;
+- Wi-Fi Direct;
+- Nearby Connections;
+- RTT/UWB;
+- automatic multi-radio negotiation.
+
+The architecture MUST nevertheless make adding them possible later.
+
+6. TRANSPORT ABSTRACTION
+
+Implement:
+
+interface PeerLink {
+    val peerSessionId: ByteArray
+    val state: State
+
+    suspend fun connect()
+    suspend fun send(frame: ByteArray)
+    fun incomingFrames(): Flow<ByteArray>
+    suspend fun close()
+}
+
+Implement initially:
+
+PeerLink
+ ├── BleGattPeerLink        REQUIRED
+ └── RfcommPeerLink         OPTIONAL / adapt existing implementation
+
+Nothing above PeerLink may depend directly on BluetoothGatt, BluetoothSocket, Wi-Fi APIs, MAC addresses, or transport-specific IDs.
+
+A message must be able to travel:
+A --GATT--> B --future transport--> C --GATT--> Rahul
+
+without changing the DTN message format.
+
+7. BLE GATT PROFILE
+
+Use one custom iTantra GATT service.
+
+Conceptually:
+
+iTantraService
+ ├── ClientToServer
+ │      WRITE_WITH_RESPONSE
+ │
+ └── ServerToClient
+        INDICATE
+
+Use application-level fragmentation because GATT MTU varies.
+
+Each fragment includes:
+fragment_version
+connection_session_id
+frame_id
+fragment_index
+fragment_count
+payload_fragment
+
+Requirements:
+- hard maximum frame length;
+- hard maximum fragment count;
+- reject conflicting fragments;
+- reject duplicate malformed fragments;
+- reassembly timeout;
+- memory cap per peer;
+- frame hash or authenticated Noise framing detects corruption.
+
+A completed application frame is passed upward only after full reassembly.
+
+8. PEER CONNECTION COLLISION
+
+Both phones may discover each other simultaneously.
+
+Each Emergency-mode instance therefore generates a random temporary:
+peer_session_id = random 128 bits
+
+After discovering each other, a deterministic connection rule prevents both phones continuously attempting to become client.
+
+Example rule:
+smaller peer_session_id initiates connection
+larger peer_session_id waits
+
+If no connection appears within a bounded retry period, roles may be retried.
+
+This identifier is temporary and MUST NOT be the user's identity.
+
+9. HOP SECURITY
+
+Every established PeerLink runs an application-layer secure session.
+
+For unknown relay peers:
+Noise XX
+
+The Noise implementation MUST come from a reviewed library.
+Do not implement Noise manually.
+
+The hop security layer protects:
+- inventory;
+- bundle transfers;
+- SOS offers;
+- protocol negotiation;
+- control frames
+
+from ordinary passive radio observers.
+
+A relay remains untrusted even after Noise succeeds.
+
+Noise XX means:
+I have an encrypted connection to whoever controls the key participating in this handshake.
+
+It does NOT mean:
+I know who this human is.
+
+10. IDENTITY
+
+Each installation generates two long-term identity keys:
+
+Ed25519
+    signing / identity authentication
+
+X25519
+    end-to-end message encryption / pairwise secret derivation
+
+Private keys MUST NOT be stored directly in SharedPreferences, Room, files, logs, or source code.
+
+If the required primitive can be securely stored directly using Android Keystore, do so.
+
+Otherwise:
+1. generate key material using a cryptographically secure RNG;
+2. store it encrypted;
+3. protect the wrapping key using Android Keystore.
+
+Do not claim hardware-backed protection unless runtime verification proves it.
+
+11. IDENTITY CAPSULE
+
+A user's shareable identity object:
+
+IdentityCapsuleV1 {
+    version
+    signing_public_key
+    encryption_public_key
+    display_name_hint
+    key_epoch
+}
+
+The capsule is self-signed using the Ed25519 private key.
+
+Its cryptographic identifier is derived from the key material, not from the display name.
+
+Conceptually:
+
+node_id =
+Trunc128(
+    SHA256(
+        "itantra-v1/node-id" ||
+        signing_public_key ||
+        encryption_public_key
+    )
+)
+
+The display name is never treated as identity.
+
+12. TRUSTED CONTACT CREATION
+
+v1 uses QR-based contact exchange.
+
+Flow:
+
+Rahul
+  ↓
+Show My iTantra QR
+  ↓
+Vivek scans QR
+  ↓
+capsule signature verified
+  ↓
+fingerprint shown
+  ↓
+Vivek explicitly confirms
+  ↓
+Rahul stored as TRUSTED CONTACT
+
+Contact database stores:
+local_name = "Rahul"
+node_id
+signing_public_key
+encryption_public_key
+fingerprint
+trust_method = QR_VERIFIED
+created_at
+
+A user-facing contact name may be edited without changing cryptographic identity.
+
+13. TRUST RULE
+
+Trusted Person mode MUST NOT send based solely on:
+- display name;
+- Bluetooth device name;
+- Android device name;
+- phone number;
+- MAC address;
+- discovered BLE peer ID.
+
+The selected contact must resolve to exactly one stored trusted capsule.
+
+If not:
+Cannot securely identify this recipient.
+
+Do not guess.
+
+14. PAIRWISE DESTINATION SECRET
+
+We do not expose Rahul's stable cryptographic identifier to relay phones.
+
+For each pair of trusted users derive:
+
+shared =
+X25519(
+    own_encryption_private_key,
+    contact_encryption_public_key
+)
+
+pair_secret =
+HKDF-SHA256(
+    shared,
+    info = "itantra-v1/pair-secret"
+)
+
+Never transmit pair_secret.
+
+15. PER-MESSAGE DESTINATION TAG
+
+Every private bundle receives a random:
+bundle_id = random 128 bits
+
+Its opaque destination tag is:
+
+destination_tag =
+Trunc128(
+    HMAC-SHA256(
+        pair_secret,
+        "itantra-v1/destination-tag" || bundle_id
+    )
+)
+
+Properties intended by this construction:
+- different messages produce different tags;
+- relays cannot convert a tag into "Rahul";
+- no stable recipient identifier is broadcast;
+- Rahul can recognize a message generated by one of his trusted contacts.
+
+Recipient matching:
+
+for contact in trustedContacts:
+    candidate =
+        HMAC(pair_secret(contact), domain || bundle_id)
+
+    if candidate == destination_tag:
+        this bundle may be for me
+
+Then attempt authenticated decryption.
+
+AUDIT THIS CONSTRUCTION CAREFULLY.
+
+In particular review:
+- HKDF salt/info;
+- HMAC domain separation;
+- cross-protocol key reuse;
+- contact-count scaling;
+- active probing;
+- compromise implications.
+
+16. PRIVATE MESSAGE FORMAT
+
+All structured protocol data uses deterministic/canonical CBOR.
+
+A private message has two layers.
+
+Relay-visible envelope:
+
+PrivateBundleV1 {
+    immutable {
+        protocol_version
+        bundle_id
+        destination_tag
+        lifetime_ms
+        priority
+        deletion_commitment
+        ciphertext_hash
+        ciphertext
+    }
+
+    relay_state {
+        copy_tokens
+        hop_count
+        accumulated_age_ms
+    }
+}
+
+Relays may see:
+- bundle ID;
+- opaque destination tag;
+- ciphertext size;
+- coarse priority;
+- remaining age/lifetime;
+- copy tokens;
+- hop count;
+- deletion commitment.
+
+Relays MUST NOT see:
+- Vivek;
+- Rahul;
+- phone numbers;
+- contact names;
+- plaintext;
+- exact location;
+- sender fingerprint;
+- recipient fingerprint.
+
+17. INNER PRIVATE MESSAGE
+
+Generate:
+inner_message_id = random 128 bits
+deletion_secret = random 256 bits
+
+Payload:
+
+PrivateMessageV1 {
+    protocol_version
+    inner_message_id
+    sender_node_id
+    recipient_node_id
+    sender_signing_public_key
+    language
+    text
+    created_time_hint
+    deletion_secret
+}
+
+Sender signs the canonical representation:
+
+signature =
+Ed25519.Sign(
+    "itantra-v1/private-message" ||
+    CanonicalCBOR(PrivateMessageV1)
+)
+
+Then:
+
+SignedPrivateMessageV1 {
+    message
+    signature
+}
+
+18. END-TO-END ENCRYPTION
+
+For v1 use a mature implementation of an X25519-based recipient-only sealed-box construction.
+
+Conceptually:
+
+ciphertext =
+SealedBox(
+    recipient_X25519_public_key,
+    CanonicalCBOR(SignedPrivateMessageV1)
+)
+
+The sender's Ed25519 signature inside the encrypted object provides sender authentication to Rahul after decryption.
+
+Do not create a custom ECDH + AES construction.
+
+If the auditor recommends a mature HPKE implementation instead, the substitution is acceptable only if the complete envelope and authentication semantics are documented.
+
+Forward secrecy for old stored messages after recipient long-term-key compromise is not guaranteed in v1.
+
+X3DH / prekeys / Double Ratchet are future work.
+
+19. DELETION COMMITMENT
+
+Before encryption:
+deletion_secret = random 256 bits
+
+deletion_commitment =
+SHA256(
+    "itantra-v1/delete" ||
+    deletion_secret
+)
+
+deletion_secret stays inside the encrypted private message.
+deletion_commitment is stored in the outer bundle.
+
+Therefore relays know the commitment but not the secret.
+
+20. BUNDLE PERSISTENCE
+
+Every accepted relay stores the entire bundle before acknowledging receipt.
+
+Storage must be durable across:
+- app backgrounding;
+- app process death;
+- screen lock;
+- normal application restart.
+
+Room is appropriate for bundle metadata/state.
+The encrypted bundle bytes may be stored as a BLOB/file-backed payload.
+
+Relay acknowledgement means:
+I persisted these bytes.
+
+It does NOT mean:
+I promise they will reach Rahul.
+
+21. BUNDLE LIFECYCLE
+
+Sender UI states:
+
+QUEUED
+    stored only locally
+
+RELAYED
+    at least one relay accepted a copy
+
+DELIVERED
+    authenticated recipient receipt received
+
+EXPIRED
+    bundle lifetime elapsed without delivery
+
+UNKNOWN
+    state continuity lost
+
+Never display:
+Sent to Rahul
+merely because a relay accepted it.
+
+22. DEFAULT ROUTING PARAMETERS
+
+Centralize these values in one ProtocolConfig.
+
+Initial values:
+
+NORMAL_PRIVATE_COPY_BUDGET = 4
+URGENT_PRIVATE_COPY_BUDGET = 8
+NORMAL_PRIVATE_LIFETIME = 24 hours
+URGENT_PRIVATE_LIFETIME = 6 hours
+PRIVATE_HOP_GUARD = 16
+
+These are starting engineering parameters, not universal truths.
+They MUST be easy to change for testing.
+
+23. BINARY SPRAY-AND-WAIT
+
+Each private bundle begins with L copy tokens.
+
+Example:
+
+A owns 4
+A meets B
+A keeps 2
+B receives 2
+
+B meets C
+B keeps 1
+C receives 1
+
+Transfer rule when:
+copy_tokens > 1
+
+Sender:
+keeps ceil(n / 2)
+
+Receiver:
+gets floor(n / 2)
+
+When:
+copy_tokens == 1
+
+the node waits for a peer claiming destination match.
+
+It does not spray the last relay token arbitrarily.
+
+24. INVENTORY EXCHANGE
+
+Once Noise is established, peers exchange bounded inventories before sending payloads.
+
+Example summary:
+
+BundleSummary {
+    bundle_id
+    destination_tag
+    bundle_kind
+    coarse_priority
+    remaining_lifetime
+    payload_size
+    copy_tokens
+}
+
+Inventory MUST be:
+- paginated;
+- size bounded;
+- filtered to nonexpired objects;
+- free of plaintext.
+
+Receiver responds with requested bundle IDs.
+
+Possible request modes:
+WANT_RELAY
+WANT_DESTINATION
+
+25. DESTINATION RECOGNITION
+
+A peer receiving inventory attempts destination-tag matching using its trusted contacts.
+
+If a match is found:
+WANT_DESTINATION(bundle_id)
+
+A relay cannot cryptographically prove that the peer is telling the truth at this stage.
+
+Therefore:
+A destination claim never causes the existing copy to be deleted.
+
+A destination attempt receives a delivery copy.
+
+The holder retains its own copy until:
+- valid tombstone;
+- authenticated delivery receipt where applicable;
+- expiry;
+- storage eviction policy.
+
+A malicious phone claiming "I am destination" can therefore waste transfer bandwidth but cannot cause the last honest copy to disappear merely by claiming destination status.
+
+Rate-limit destination claims.
+
+26. RECIPIENT PROCESSING
+
+Rahul receives the encrypted bundle.
+
+He:
+1. decrypts using his X25519 private key;
+2. parses canonical CBOR;
+3. verifies sender Ed25519 signature;
+4. verifies recipient_node_id == own node_id;
+5. resolves sender_node_id against trusted contacts;
+6. checks inner message ID for duplicate delivery;
+7. stores the message once;
+8. shows / speaks it once.
+
+If signature or destination checks fail:
+DROP
+
+Do not generate a delivery receipt.
+
+27. DUPLICATION
+
+Maintain:
+SeenBundleStore
+
+keyed by:
+bundle_id
+
+Receiving the same bundle again MUST NOT:
+- show the message again;
+- reset expiry;
+- increase copy budget;
+- generate repeated user notifications.
+
+Seen state survives app restart and lasts at least until bundle expiry plus grace period.
+
+28. DELIVERY TOMBSTONE
+
+After successful recipient decryption:
+Rahul learns deletion_secret.
+
+He produces:
+
+TombstoneV1 {
+    protocol_version
+    ack_of_bundle_id
+    deletion_secret
+    remaining_lifetime
+}
+
+A relay that possesses the original bundle verifies:
+
+SHA256(
+    "itantra-v1/delete" ||
+    deletion_secret
+)
+==
+stored deletion_commitment
+
+If valid:
+delete stored bundle
+store tombstone marker
+
+The tombstone prevents the bundle being reaccepted.
+
+A node SHOULD propagate the tombstone only if it has evidence of the corresponding bundle/seen entry.
+
+29. AUTHENTICATED DELIVERY RECEIPT
+
+Rahul separately creates a signed end-to-end receipt:
+
+DeliveryReceiptV1 {
+    ack_of_bundle_id
+    recipient_node_id
+    status = DELIVERED
+    receipt_time_hint
+}
+
+Rahul signs it with Ed25519.
+
+The receipt is encrypted to the original sender and routed as a small private DTN bundle.
+
+Only after verifying Rahul's signature may the sender UI transition:
+RELAYED → DELIVERED
+
+Tombstone and delivery receipt are intentionally separate:
+
+Tombstone:
+    helps relays clean storage.
+
+Delivery receipt:
+    proves to sender that Rahul accepted it.
+
+30. EXPIRY
+
+Each relay stores:
+received_accumulated_age_ms
+received_at_elapsedRealtime
+
+Current effective age:
+
+received_accumulated_age_ms
++
+(SystemClock.elapsedRealtime() - received_at_elapsedRealtime)
+
+When forwarding, transmit the updated age.
+
+If:
+effective_age >= lifetime
+
+delete bundle and retain only whatever short dedupe record is required.
+
+Wall-clock UTC MUST NOT be the sole expiry mechanism.
+
+31. STORAGE PRESSURE
+
+Eviction priority:
+1. expired objects
+2. already tombstoned objects
+3. low-priority normal bundles
+4. older normal bundles
+5. urgent bundles
+6. active SOS traffic last
+
+Never delete a sender's only remaining copy merely because another relay previously accepted the message.
+
+Storage caps MUST exist globally and per observed origin/session.
+
+32. SOS MODE
+
+SOS is a completely separate protocol path.
+
+It does not require:
+- trusted contacts;
+- previous identity exchange;
+- phone number;
+- Internet;
+- Bluetooth bonding.
+
+The user's mental model:
+Find me somebody who can answer me.
+
+33. SOS START
+
+User explicitly activates SOS.
+
+Generate:
+sos_id = random 128 bits
+incident Noise identity = fresh random keypair
+incident_start_elapsed = elapsedRealtime()
+
+Incident keys MUST NOT automatically link to the user's long-term identity.
+
+Set BLE capability:
+SOS_ACTIVE = true
+
+34. SOS PRE-ACCEPT INFORMATION
+
+Before a responder accepts, disclose only:
+request category
+language
+request age
+rough radio proximity bucket
+credential-present yes/no
+
+Do NOT automatically reveal:
+- person's name;
+- phone number;
+- trusted contact identity;
+- exact GPS position;
+- medical history;
+- microphone stream;
+- camera;
+- contact list.
+
+35. RESPONDER PARTICIPATION
+
+Phones expose:
+Available to help nearby users
+
+as an explicit setting while Emergency mode is active.
+
+Only phones with SOS reception enabled are candidate responders.
+
+Candidate selection uses locally observed BLE RSSI samples.
+
+Collect several samples over roughly 2–3 seconds.
+
+Convert only into:
+STRONG
+MEDIUM
+WEAK
+
+Do not convert to metres.
+
+Within an equal bucket, randomize ordering.
+
+36. SOS WAVE 0
+
+Immediately attempt the top:
+3 candidates
+
+Establish BLE GATT + Noise XX.
+Send the minimal SOS offer through the encrypted Noise channel.
+
+Responder sees:
+
+Someone nearby is requesting help
+
+Category: Medical / trapped / unsafe / communication / other
+Language: Kannada
+Connection: Encrypted
+Identity: Not verified
+
+ACCEPT
+DECLINE
+
+37. SOS TRUST STATES
+
+State 1:
+ENCRYPTED — IDENTITY NOT VERIFIED
+
+Noise XX completed.
+We know the session is encrypted.
+We do not know the human's real identity.
+
+State 2:
+NEARBY DEVICE VERIFIED
+
+The users perform an authenticated physical check such as:
+- matching a short authentication string;
+- scanning a session QR.
+
+This binds the encrypted session to the device/person being physically observed.
+
+It does NOT prove:
+medic
+or:
+police officer.
+
+State 3:
+RESPONDER CREDENTIAL VERIFIED
+
+A future/optional trusted issuer credential authenticates a role.
+
+Example:
+Medic credential verified
+Status information last updated: <time>
+
+Stale status MUST be shown explicitly.
+
+Responder credentials are not required for ordinary human SOS.
+
+38. SOS ACCEPTANCE
+
+When a responder accepts:
+SOS_SESSION_ACTIVE
+
+Chat content passes inside the Noise channel.
+
+Existing STT/TTS sits above this:
+
+speech
+  ↓
+on-device STT
+  ↓
+text
+  ↓
+Noise-encrypted session
+  ↓
+text
+  ↓
+on-device TTS
+
+The networking layer deals with text bytes.
+
+Speech models are outside this specification.
+
+39. SOS WAVE EXPANSION
+
+Initial policy:
+
+Wave 0:
+0–10 seconds
+Top 3 candidates
+1 hop
+
+Wave 1:
+10–25 seconds
+Next 5 candidates / remaining nearby candidates
+1 hop
+
+Wave 2:
+after 25 seconds
+controlled relay
+maximum hop count 2
+
+Wave 3:
+after 60 seconds
+maximum hop count 3
+
+These values are test parameters.
+
+They MUST live in ProtocolConfig.
+
+40. MULTI-HOP SOS REQUEST
+
+SOS dissemination does NOT use normal Spray-and-Wait.
+
+It uses short-lived controlled flooding.
+
+Each SOS request contains:
+sos_id
+request_frame_id
+incident public key
+request category
+language
+age
+remaining TTL
+hop_count
+hop_limit
+signature by incident key
+
+Rules:
+- every phone forwards a given request_frame_id at most once;
+- duplicate cache prevents loops;
+- enforce current hop limit;
+- enforce short TTL;
+- enforce rate limits;
+- forwarding introduces randomized jitter;
+- no long-term sender identity is required.
+
+41. MULTI-HOP SOS SESSION
+
+Direct nearby contact is preferred.
+
+If a remote responder receives a relayed SOS:
+
+Noise handshake messages may themselves be encapsulated in short-lived SOS DTN frames.
+
+Conceptually:
+
+SOS_REQUEST
+   ↓
+relay
+   ↓
+responder
+
+Noise XX handshake message 1
+   ↓
+controlled SOS relay
+
+Noise XX handshake message 2
+   ↓
+controlled SOS relay
+
+Noise XX handshake message 3
+   ↓
+controlled SOS relay
+
+encrypted SOS session frames
+   ↓
+controlled short-TTL relay
+
+This fallback is opportunistic and may not feel "live."
+
+The UI MUST distinguish:
+Nearby live connection
+
+from:
+Relayed emergency connection
+
+Direct nearby SOS is the v1 critical path.
+
+Relayed interactive SOS should be implemented only after the direct path is stable.
+
+42. SOS CANCELLATION
+
+If:
+- user cancels;
+- session ends;
+- responder accepts;
+- SOS expires;
+
+generate a short-lived cancellation/suppression object.
+
+Nodes that recognize it stop forwarding the matching request.
+
+Missed requests naturally expire.
+
+43. SOS TTL
+
+Initial values:
+SOS_DISCOVERY_TTL = 2 minutes
+ACTIVE_SOS_IDLE_TIMEOUT = 30 minutes
+
+A continuing session may renew while active.
+
+Incident ephemeral keys should be discarded when the incident ends.
+
+44. SERVICE ARCHITECTURE
+
+Implement:
+EmergencyModeService
+
+as a user-started Android foreground service.
+
+Responsibilities:
+- BLE advertising;
+- BLE scanning;
+- GATT server;
+- connection manager;
+- peer-session orchestration;
+- transport lifecycle;
+- incoming bundle handling;
+- routing triggers;
+- SOS discovery;
+- service notification;
+- shutdown cleanup.
+
+The foreground notification MUST make emergency operation obvious.
+
+The app must not claim background operation if Android or OEM restrictions have killed it.
+
+45. ANDROID PERMISSIONS
+
+For modern Android, handle as applicable:
+BLUETOOTH_SCAN
+BLUETOOTH_ADVERTISE
+BLUETOOTH_CONNECT
+FOREGROUND_SERVICE
+FOREGROUND_SERVICE_CONNECTED_DEVICE
+POST_NOTIFICATIONS
+
+For older Android compatibility, handle legacy Bluetooth/location requirements correctly.
+
+Future socket-based Wi-Fi transports will require:
+INTERNET
+NEARBY_WIFI_DEVICES
+
+where applicable.
+
+Permission denial must produce a useful UI state, not a crash or silent networking failure.
+
+46. DATABASE MODEL
+
+At minimum:
+IdentityEntity
+TrustedContactEntity
+BundleEntity
+SeenBundleEntity
+TombstoneEntity
+DeliveryReceiptEntity
+SosIncidentEntity
+SosSeenFrameEntity
+PeerObservationEntity
+
+BundleEntity fields include:
+bundle_id
+bundle_type
+immutable_blob
+ciphertext_blob
+copy_tokens
+hop_count
+received_age_ms
+received_elapsed_ms
+priority
+state
+created_local_time
+last_updated
+
+Do not store plaintext inside relay bundle records.
+
+47. MODULE STRUCTURE
+
+Recommended logical package structure:
+
+com.chmod777.itantra
+
+identity/
+    IdentityManager
+    IdentityCapsule
+    TrustedContactStore
+    ContactQrCodec
+
+crypto/
+    KeyManager
+    PrivateMessageCrypto
+    PairSecretDeriver
+    DestinationTag
+    NoiseSession
+    FingerprintCodec
+
+protocol/
+    ProtocolFrame
+    FrameCodec
+    BundleV1
+    TombstoneV1
+    DeliveryReceiptV1
+    SosFrames
+    ProtocolConfig
+
+transport/
+    PeerLink
+    PeerLinkManager
+
+transport/ble/
+    BleDiscoveryManager
+    BleAdvertiser
+    BleScanner
+    BleGattServer
+    BleGattPeerLink
+    FragmentCodec
+    FragmentReassembler
+
+transport/rfcomm/
+    RfcommPeerLink
+
+dtn/
+    BundleStore
+    SeenStore
+    InventorySync
+    SprayRouter
+    ReceiptRouter
+    TombstoneRouter
+    ExpiryManager
+
+sos/
+    SosManager
+    SosCandidateSelector
+    SosSession
+    SosRelayRouter
+
+service/
+    EmergencyModeService
+
+ui/
+    contacts/
+    trustedchat/
+    emergency/
+    sos/
+
+metrics/
+    ProtocolMetrics
+
+Names may adapt to existing project conventions, but architectural boundaries should remain.
+
+48. ROUTER RESPONSIBILITY
+
+SprayRouter decides:
+SHOULD_TRANSFER?
+HOW_MANY_TOKENS?
+
+It must NOT:
+- open Bluetooth sockets;
+- encrypt plaintext;
+- render UI;
+- access Android activities.
+
+PeerLink moves bytes.
+BundleStore stores bytes.
+PrivateMessageCrypto handles end-to-end protection.
+
+Keep these responsibilities separate.
+
+49. INCOMING DATA PIPELINE
+
+Radio bytes
+   ↓
+GATT fragment reassembly
+   ↓
+Noise transport decrypt
+   ↓
+Protocol frame parser
+   ↓
+hard validation / bounds
+   ↓
+dedupe check
+   ↓
+type dispatch
+   ├── inventory
+   ├── bundle
+   ├── tombstone
+   ├── receipt
+   └── SOS frame
+
+Never deserialize arbitrary unbounded input.
+
+Every array, string, blob, collection and nesting depth must have explicit maximums.
+
+50. OUTGOING TRUSTED MESSAGE PIPELINE
+
+User selects Rahul
+       ↓
+TrustedContactStore resolves Rahul
+       ↓
+STT / typed text
+       ↓
+create inner message
+       ↓
+sign Ed25519
+       ↓
+seal to Rahul X25519
+       ↓
+create destination tag
+       ↓
+create bundle
+       ↓
+persist locally
+       ↓
+SprayRouter
+       ↓
+encounter peers
+       ↓
+eventually Rahul
+
+Local persistence MUST happen before attempting transmission.
+
+51. MESSAGE SIZE
+
+v1 Trusted Person messages are text-focused.
+
+Set a strict configurable payload limit.
+
+Recommended starting ceiling:
+PRIVATE_TEXT_MAX = 16 KiB UTF-8
+
+Large:
+- audio;
+- image;
+- video;
+- file
+
+transfer is outside the critical v1 path.
+
+Speech MUST be converted to text locally before network transmission.
+
+52. RATE LIMITING
+
+Rate limiting is abuse containment, not identity proof.
+
+At minimum maintain bounds for:
+- connection attempts per observed peer;
+- Noise handshakes;
+- inventory pages;
+- destination claims;
+- bytes accepted per peer;
+- stored bytes per origin/session where observable;
+- SOS requests;
+- SOS relay frames;
+- malformed frames.
+
+A newly generated identity must not gain unlimited resources.
+
+53. MALICIOUS RELAYS
+
+Assume relay phones may:
+- drop bundles;
+- delay bundles;
+- lie;
+- disappear;
+- duplicate ciphertext;
+- refuse deletion;
+- falsely claim resources.
+
+Do NOT attempt to "solve" this with:
+- global reputation;
+- custody transfer;
+- proof of forwarding;
+- self-reported reliability.
+
+Defense:
+bounded redundancy
++
+end-to-end integrity
++
+expiry
++
+dedupe
++
+keep independent copies
+
+Never hand the final copy to a stranger and delete your own merely because they say:
+I have it.
+
+54. LOGGING
+
+Production logs MUST NOT contain:
+- plaintext message body;
+- contact name;
+- phone number;
+- private key;
+- pair secret;
+- deletion secret;
+- Noise key;
+- responder conversation content.
+
+Debug metrics may contain:
+- truncated/random bundle ID;
+- transition state;
+- transfer size;
+- discovery duration;
+- connection success/failure;
+- hop count;
+- queue length;
+- battery/thermal observations.
+
+55. OFFLINE DEFINITION
+
+iTantra must not depend on an Internet path for either core mode.
+
+Testing offline does NOT mean:
+turn every Wi-Fi radio off.
+
+Some future local transports may use Wi-Fi radios.
+
+Correct proof:
+cellular unavailable
++
+no usable Internet route
++
+Internet request fails
++
+local peer communication still works
+
+56. FAILURE CASES
+
+The implementation MUST handle cleanly:
+Bluetooth disabled
+permission denied
+advertising unsupported
+scanner unavailable
+GATT connect timeout
+GATT disconnect mid-frame
+Noise handshake timeout
+malformed Noise frame
+invalid CBOR
+oversized frame
+duplicate bundle
+expired bundle
+invalid signature
+wrong recipient
+decryption failure
+database failure
+process restart
+screen lock
+peer disappears
+storage full
+SOS rejected
+SOS ignored
+
+No case should cause:
+- app crash;
+- accidental plaintext fallback;
+- automatic trust escalation;
+- deletion of the sender's only copy.
+
+57. UI REQUIREMENTS — TRUSTED MESSAGE
+
+Trusted contact screen displays:
+
+Rahul
+Trusted iTantra contact
+Fingerprint: ...
+
+Message states must use exact semantics:
+Queued
+Relayed
+Delivered
+Expired
+
+Optional user explanation:
+
+Relayed:
+Another phone is carrying the encrypted message.
+Rahul has not confirmed receiving it yet.
+
+58. UI REQUIREMENTS — SOS
+
+Main emergency action should be obvious.
+
+Conceptually:
+I NEED HELP
+Find someone nearby
+
+While searching:
+Looking for nearby people…
+
+When connected:
+Encrypted connection
+Identity not verified
+
+If physically verified:
+Nearby device verified
+
+If credential verified:
+Responder credential verified
+<role>
+
+Status checked against update from:
+<timestamp>
+
+Never use ambiguous green security labels that imply more trust than exists.
+
+59. IMPLEMENTATION ORDER
+
+Do not build everything simultaneously.
+
+Phase 1 — Foundations
+Build:
+ProtocolConfig
+canonical CBOR
+identity keys
+identity capsule
+QR import/export
+TrustedContactStore
+
+Acceptance:
+Two phones can exchange and persist verified identities.
+
+Phase 2 — BLE substrate
+Build:
+EmergencyModeService
+BLE advertise
+BLE scan
+GATT server/client
+fragmentation/reassembly
+PeerLink
+
+Acceptance:
+Two never-paired phones exchange arbitrary test frames without Internet.
+
+Phase 3 — Noise hop security
+Wrap PeerLink in:
+Noise XX
+
+Acceptance:
+Peer protocol frames are never transmitted as plaintext after handshake.
+Malformed/replayed sessions fail safely.
+
+Phase 4 — Direct trusted messaging
+Build:
+destination tags
+private message signing
+sealed-box encryption
+recipient recognition
+decryption
+
+Acceptance:
+A sends encrypted message directly to trusted B.
+Third device capturing/storing bundle cannot decrypt it.
+
+Phase 5 — DTN persistence
+Build:
+BundleStore
+SeenStore
+inventory exchange
+copy-token state
+expiry
+
+Acceptance:
+A can go offline after giving bundle to relay B.
+B later encounters recipient C.
+C receives the message.
+
+Phase 6 — Spray-and-Wait
+
+Implement binary splitting.
+
+Acceptance:
+With copy budget 4, the number of cooperative relay copies never exceeds protocol budget.
+Duplicate encounters do not create infinite copies.
+
+Phase 7 — Delivery cleanup
+
+Build:
+deletion commitment
+tombstone
+authenticated recipient receipt
+
+Acceptance:
+Recipient delivery eventually suppresses copies on relays that encounter the tombstone.
+Sender shows Delivered only after authenticated receipt.
+
+Phase 8 — Direct SOS
+
+Build:
+SOS activation
+candidate discovery
+RSSI bucket
+top-3 selection
+Noise XX
+accept/decline
+encrypted text session
+trust-state UI
+
+Acceptance:
+Two previously unknown, unpaired phones can establish an encrypted SOS conversation without Internet.
+UI explicitly says identity is not verified.
+
+Phase 9 — SOS escalation
+
+Build:
+wave expansion
+SOS dedupe
+hop limits
+controlled forwarding
+cancellation
+
+Direct SOS must already be stable.
+
+Phase 10 — Hardening
+
+Perform:
+malformed-packet tests
+process-kill tests
+screen-off tests
+permission tests
+Bluetooth toggle tests
+duplicate storms
+queue pressure
+rate-limit tests
+multi-device tests
+
+60. REQUIRED PHYSICAL TESTS
+
+Test A — Direct trusted message
+
+Phone A → Phone B
+No Internet.
+B trusted beforehand.
+
+Expected:
+B receives/decrypts.
+Delivery receipt returns.
+A = Delivered.
+
+Test B — Relay message
+
+A ↔ R
+disconnect
+
+later
+
+R ↔ B
+
+A and B never physically meet.
+
+Expected:
+R cannot read message.
+B receives/decrypts.
+
+This is the core DTN demonstration.
+
+Test C — Duplicate route
+
+A → R1
+A → R2
+
+R1 → B
+R2 → B
+
+Expected:
+B displays message exactly once.
+
+Test D — malicious/irrelevant destination claim
+
+Unknown peer requests destination delivery.
+
+Expected:
+- ciphertext may be transferred within rate limits;
+- existing honest copy remains;
+- claimant cannot decrypt;
+- no Delivered state occurs.
+
+Test E — expiry
+
+Prevent recipient encounter until TTL expires.
+
+Expected:
+bundle removed according to policy.
+
+Test F — SOS stranger
+
+Phones have never exchanged contacts and are not bonded.
+
+A starts SOS.
+B accepts.
+
+Expected:
+Noise session established
+encrypted text works
+UI = Identity not verified
+
+Test G — rejected SOS
+
+B declines.
+
+Expected:
+A continues searching / progresses wave.
+
+Test H — app process death
+
+Relay holds bundle.
+Kill app process.
+Restart.
+
+Expected:
+bundle still exists and remains routable.
+
+Test I — no Internet
+
+Internet request intentionally fails.
+Local radios remain available.
+
+Expected:
+trusted messaging and SOS continue functioning.
+
+61. SECURITY TESTS
+
+Auditor/implementation must test:
+- corrupted ciphertext;
+- modified destination tag;
+- modified bundle ID;
+- invalid inner signature;
+- forged tombstone;
+- random deletion secret;
+- replayed tombstone;
+- replayed bundle;
+- duplicate receipt;
+- oversized CBOR;
+- deeply nested CBOR;
+- truncated BLE fragments;
+- fragment floods;
+- replayed Noise handshake;
+- connection churn;
+- many fake peer IDs;
+- repeated fake destination claims;
+- repeated SOS advertisements.
+
+Failure must be safe.
+
+62. ACCEPTANCE GATES
+
+Trusted Person mode:
+- trusted identity exchange works;
+- recipient chosen cryptographically, not by radio identity;
+- relay cannot decrypt;
+- store-carry-forward works;
+- destination can be absent when message is created;
+- dedupe works;
+- bounded replication works;
+- expiry works;
+- recipient acknowledgement works;
+- sender never mistakes relay acceptance for delivery.
+
+SOS mode:
+- requires no prior contact relationship;
+- requires no Bluetooth bonding;
+- discovers a nearby participant;
+- establishes encrypted conversation;
+- stranger remains explicitly unverified;
+- no exact-distance claim;
+- rejection/escalation works;
+- incident identity is temporary;
+- no long-term identity automatically disclosed.
+
+Android:
+- survives normal background/screen-off operation as far as Android permits;
+- foreground service is visible;
+- permission denial is handled;
+- process restart preserves DTN state;
+- no Internet dependency exists.
+
+63. SECURITY CLAIMS WE MAY MAKE
+
+If implementation/testing supports them:
+
+iTantra can send end-to-end encrypted messages to previously trusted contacts through untrusted intermediary phones.
+
+Relay devices carry ciphertext and do not require access to message plaintext.
+
+iTantra uses application-layer store-carry-forward, so the final recipient does not need to be within radio range of the sender when the message is created.
+
+Replication is bounded rather than unrestricted flooding.
+
+Nearby strangers can establish an encrypted SOS conversation without a prior trust relationship.
+
+iTantra distinguishes encrypted communication from verified human identity.
+
+64. CLAIMS WE MUST NOT MAKE
+
+Do not claim:
+All relays are trusted.
+Every message will arrive.
+SOS always finds the nearest human.
+Noise XX proves who the stranger is.
+BLE RSSI proves physical distance.
+iTantra prevents Sybil attacks.
+A responder credential is guaranteed currently unrevoked while offline.
+iTantra is Bluetooth Mesh.
+Thousands of phones have been validated.
+Message metadata is completely hidden.
+The cryptography is formally verified.
+
+65. FINAL ARCHITECTURAL SUMMARY
+
+The complete v1 system is:
+
+                            iTANTRA
+
+                       Emergency Mode
+                             │
+                     BLE advertisement
+                     + BLE scanning
+                             │
+                             ▼
+                        nearby peer
+                             │
+                             ▼
+                     BLE GATT PeerLink
+                             │
+                             ▼
+                         Noise XX
+                             │
+              ┌──────────────┴───────────────┐
+              │                              │
+              ▼                              ▼
+
+        TRUSTED PERSON                     SOS
+              │                              │
+     trusted identity                 no prior identity
+              │                              │
+     pairwise destination             temporary incident ID
+          tag                               │
+              │                       nearby candidates
+     sign + E2E encrypt                     │
+              │                         Noise XX
+              ▼                              │
+        Private Bundle                 encrypted session
+              │                              │
+       Spray-and-Wait                 unverified human
+              │                              │
+      store / carry /                optional later
+          forward                     verification
+              │
+              ▼
+          recipient
+              │
+          decrypt
+              │
+       signed receipt
+              │
+         tombstone
+
+The architecture should be mentally summarized as:
+
+BLE finds phones. GATT moves bytes. Noise protects each local peer session. The iTantra DTN moves private encrypted bundles across encounters. Trusted contacts provide exact recipient identity. SOS deliberately works without identity and starts as an encrypted-but-unverified human connection.
+
+That is the build target.
+
+AUDIT PRIORITY
+
+Attack sections 14–18 first — the pair-secret/destination-tag design and end-to-end envelope are the pieces that were concretized as implementation choices rather than directly lifted from a standard. Review these before implementation.
+

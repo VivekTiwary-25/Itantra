@@ -1,6 +1,34 @@
 # TASK.md — Current Codex Task
 
-## Active task
+## Active task (branch `feature/itantra-v1-networking`)
+
+**iTantra v1 networking: BLE/GATT + PeerLink + Noise XX + secure DTN, then product integration**
+
+Vivek explicitly authorized this work on 2026-09-24 by asking for
+`docs/networking/EXECUTION_SPEC_BLE_BRANCH.md` to be executed. The architecture
+source of truth is the build specification plus audit corrections in
+`docs/networking/ITANTRA_V1_SPEC_AND_AUDIT.txt`. Implementation decisions,
+ambiguities and deviations are recorded in `docs/networking/IMPLEMENTATION_NOTES.md`.
+
+Scope rules changed for this branch only, and why:
+
+- `AGENTS.md` forbids adding Bluetooth/transport, packet formats, databases and
+  architecture layers during Lane 1 work. This branch is not Lane 1 work: it is
+  the explicitly requested networking rebuild, so those layers are in scope here.
+- The earlier guardrail "do not add relay changes or store-and-forward changes"
+  (written for the Dolphin research branch below) does not apply to this branch.
+  The demonstrated RFCOMM path is preserved as prior art behind the new
+  abstraction rather than redesigned in place.
+- `AGENTS.md` "do not commit or change branches unless asked" is satisfied by the
+  execution spec's explicit instruction to create one branch and commit at phase
+  boundaries.
+- Physical GREEN status is still only assigned by Vivek after real-phone tests.
+
+The previous task text is preserved below unchanged.
+
+---
+
+## Previous active task
 
 **Integrated source prepared for Dolphin conditioning research**
 
