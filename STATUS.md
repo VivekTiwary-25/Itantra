@@ -8,6 +8,30 @@ Status meanings:
 
 Never convert status to percentages.
 
+## v1 networking branch (`feature/itantra-v1-networking`)
+
+Evidence levels: JVM = automated JVM tests over in-memory TEST-DOUBLE links (real
+fragmentation, Noise, crypto and DTN; no radio). DEVICE-1 = one physical RMX3392
+(Android 14). No two-phone or three-phone run has happened yet.
+
+| Component | Status | Evidence |
+|---|---|---|
+| Canonical CBOR, ProtocolConfig, frame codecs | YELLOW | JVM |
+| Identity capsule, QR codec, trusted contacts | YELLOW | JVM; QR scan/paste UI not exercised on a phone |
+| Keystore-wrapped identity, no-backup storage | YELLOW | DEVICE-1 instrumented test (wrapping key reports TEE) |
+| Pair secret, destination tags, sign + HPKE seal, recipient verification | YELLOW | JVM, including impersonation/tamper tests |
+| GATT fragmentation / reassembly | YELLOW | JVM |
+| BLE advertise, scan, GATT server start | YELLOW | DEVICE-1: advertiser accepted the 31-byte payload, server registered, scan running. Nothing was seen by a second radio |
+| GATT client link, MTU, CCCD, HELLO, collision rule | RED | Not demonstrated; needs two phones |
+| Noise XX hop sessions | YELLOW | JVM (tamper, replay, plaintext, timeout); not over BLE |
+| DTN store/carry/forward, Spray-and-Wait, receipts, tombstones, expiry | YELLOW | JVM scenarios (spec Tests A–E, H); SQLite durability on DEVICE-1 |
+| Direct SOS (offer/accept/decline/SAS/chat) | YELLOW | JVM |
+| Multi-hop SOS requests and cancellation | YELLOW | JVM unit logic only |
+| Relayed interactive SOS session | RED | Not built (spec §41: after direct SOS is stable) |
+| EmergencyModeService foreground service | YELLOW | DEVICE-1: foreground, type connectedDevice, no crash |
+| Transport benchmark harness | YELLOW | JVM probes through 2 hops; no radio measurement exists |
+| Gates B–F (`docs/networking/PHYSICAL_TEST_PLAN.md`) | RED | Not run |
+
 ## Standalone Lane 1 ladder
 
 | Rung | Goal | Status |
