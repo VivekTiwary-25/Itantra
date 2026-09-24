@@ -60,9 +60,12 @@ No Noise, AEAD, signature or key-agreement primitive is implemented in this repo
    duplicate keys, invalid UTF-8, trailing bytes, and anything over the limits.
    This matches RFC 8949 §4.2.1 core deterministic encoding for that subset.
    Code: `protocol/cbor/`.
-4. **`PeerObservationEntity`** is a table of rotating advertised short IDs, RSSI
-   buckets and last-seen times, pruned after 1 hour. No MAC addresses are
-   persisted. MACs never leave `transport/ble`.
+4. **`PeerObservationEntity`, `SosIncidentEntity` and `SosSeenFrameEntity` are kept
+   in memory, not in SQLite.** Peer observations are rotating short IDs + RSSI,
+   pruned after 4× `peerStaleMs`, and are deliberately not persisted so there is no
+   durable log of radio sightings. SOS state lives for at most minutes (2 min
+   discovery TTL). Incident keys must be discarded when the incident ends (§43), so
+   persisting them would work against the spec. MAC addresses never leave `transport/ble`.
 5. **SOS credentials / trust State 3 are trimmed** from the v1 build (audit G).
    `credential-present` is not sent pre-accept.
 6. **Relayed *interactive* SOS sessions (§41, encapsulated Noise over SOS DTN frames)
@@ -110,3 +113,19 @@ No Noise, AEAD, signature or key-agreement primitive is implemented in this repo
 | Tombstone lifetime | `min(claimed remaining_lifetime, our own record's remaining lifetime)`, capped at the normal lifetime. | `dtn/TombstoneRouter.kt` |
 | Seen-entry retention | Retained until the bundle's remaining lifetime plus a 1 h grace period, using wall clock *for dedupe cleanup only*. Bundle expiry uses the monotonic/boot-count age. | `dtn/` |
 | Hop ACK semantics | `BUNDLE_ACK{status}` means only "I persisted these bytes" (or duplicate/rejected). Sender states: QUEUED → RELAYED on the first persisted ACK (relay or destination-claim copy). DELIVERED only after a verified signed receipt. | `dtn/` |
+
+## 6. Android layer notes
+
+| Topic | Decision |
+|---|---|
+| Foreground service | `EmergencyModeService`, type `connectedDevice`, `START_STICKY`. It restarts Emergency mode only if the user left it on. A refused background start is reported in the UI rather than crashing. |
+| Bluetooth off/on | Radio work is torn down on `STATE_OFF` and restarted on `STATE_ON` while the service lives. |
+| Startup sweep | `NetworkingRuntime.init` runs a DTN sweep immediately, then every 30 s. The first sweep after a reboot re-bases ages onto the new boot count (audit #8), so ageing resumes from the last persisted value. |
+| GATT client | `connectGatt(TRANSPORT_LE)` → 150 ms settle → `discoverServices` → `requestMtu(517)` (failure keeps 23) → CCCD write → HELLO → READY. One op in flight, 5 s per op. Status 133 and other connect failures retry after 0.5 s / 1.5 s / 4 s. |
+| GATT server | Accepts only non-prepared, offset-0 writes to ClientToServer. Pre-API-33 indications are serialised on the shared characteristic object. A superseded link for the same device never disconnects the newer connection. |
+| Early frames | Frames that arrive after the peer's HELLO but before this side is READY are queued, not dropped. The first one is normally Noise message 1. |
+| Scan filter | Service data under the iTantra UUID with mask on the version byte (`0x01`). This keeps screen-off scanning permitted. |
+| Duplicate links | Links are keyed by the HELLO short ID. The link-layer address is used only inside `transport/ble` to avoid dialling a phone we already hold a link to. |
+| RFCOMM | New `RfcommPeerLink` on its own UUID (`7a1c0010-…`), `u32` length-prefixed, always inside Noise, bonded phones only, never used for SOS. The legacy demo transport is untouched. |
+| Metrics | JSONL at `<external files>/bench/events_<run>.jsonl`, CSV per benchmark at `bench/probes_<run>_<ts>.csv`. `t_ns` is `elapsedRealtimeNanos` on that phone only. |
+| Lint | One pre-existing error remains, in legacy `BluetoothRfcommTransport.kt:313` (`MissingPermission`). It is identical at the base commit `230eab9`. |

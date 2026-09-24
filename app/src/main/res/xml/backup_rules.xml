@@ -1,13 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-   Sample backup rules file; uncomment and customize as necessary.
-   See https://developer.android.com/guide/topics/data/autobackup
-   for details.
-   Note: This file is ignored for devices older than API 31
-   See https://developer.android.com/about/versions/12/backup-restore
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+   Auto Backup rules for API 23-30 (spec audit F).
+   Networking identity keys live in noBackupFilesDir and are never backed up. The
+   networking database and its preferences are excluded too: restoring them without
+   the Keystore wrapping key would give a phone contacts and bundles for an identity
+   it can no longer use.
 -->
 <full-backup-content>
-    <!--
-   <include domain="sharedpref" path="."/>
-   <exclude domain="sharedpref" path="device.xml"/>
--->
+    <exclude domain="database" path="itantra_net.db" />
+    <exclude domain="database" path="itantra_net.db-wal" />
+    <exclude domain="database" path="itantra_net.db-shm" />
+    <exclude domain="database" path="itantra_net.db-journal" />
+    <exclude domain="sharedpref" path="itantra_networking.xml" />
 </full-backup-content>

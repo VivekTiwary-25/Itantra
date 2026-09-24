@@ -37,6 +37,7 @@ interface SessionHandle : FrameSink {
     val capabilities: PeerCapabilities
     val handshakeHash: ByteArray
     val openedAtNs: Long
+    val negotiatedMtu: Int?
     suspend fun close()
 }
 
@@ -56,6 +57,7 @@ data class SessionInfo(
     val relaysBundles: Boolean,
     val availableToHelp: Boolean,
     val handshakeMs: Double,
+    val negotiatedMtu: Int?,
 )
 
 /**
@@ -124,6 +126,7 @@ class NetworkingCore(
             override val capabilities = secure.peerCapabilities
             override val handshakeHash get() = secure.handshakeHash
             override val openedAtNs = clock.monotonicNs()
+            override val negotiatedMtu get() = secure.link.negotiatedMtu
             override suspend fun sendFrame(frame: ProtocolFrame) = secure.send(frame.encode())
             override suspend fun close() = secure.close()
         }
@@ -185,6 +188,7 @@ class NetworkingCore(
                 relaysBundles = handle.capabilities.relaysBundles,
                 availableToHelp = handle.capabilities.availableToHelp,
                 handshakeMs = (handshakeNs[handle.peerSessionKey] ?: 0) / 1e6,
+                negotiatedMtu = handle.negotiatedMtu,
             )
         }
     }
