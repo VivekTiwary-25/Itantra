@@ -20,12 +20,14 @@ class JsonlMetricsRecorder(
     private val clock: DtnClock,
 ) : MetricsSink {
     val file: File = File(directory, "events_$runId.jsonl")
-    private val executor = Executors.newSingleThreadExecutor { Thread(it, "itantra-metrics").apply { isDaemon = true } }
+    private val executor = Executors.newSingleThreadScheduledExecutor { Thread(it, "itantra-metrics").apply { isDaemon = true } }
     private var writer: BufferedWriter? = null
     private var linesSinceFlush = 0
 
     init {
         directory.mkdirs()
+        // Quiet periods must not leave events only in memory, where process death would lose them.
+        executor.scheduleWithFixedDelay({ runCatching { writer?.flush() } }, 2, 2, java.util.concurrent.TimeUnit.SECONDS)
     }
 
     override fun record(event: String, fields: Map<String, Any?>) {

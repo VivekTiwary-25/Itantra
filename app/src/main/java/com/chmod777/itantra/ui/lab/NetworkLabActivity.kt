@@ -77,6 +77,8 @@ class NetworkLabActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         NetworkingRuntime.init(this)
+        // Diagnostic hook: `adb shell am start -n com.chmod777.itantra/.ui.lab.NetworkLabActivity --ez autostart true`.
+        if (intent.getBooleanExtra("autostart", false) && BluetoothPermissions.areGranted(this)) EmergencyModeService.start(this)
         setContent {
             SIH_iTantraTheme {
                 Surface(Modifier.fillMaxSize()) { NetworkLabScreen() }

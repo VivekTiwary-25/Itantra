@@ -32,8 +32,8 @@ import com.chmod777.itantra.protocol.ProtocolConfig
  * exists only in `outgoing` (the user's own sent items) and `delivered` (the
  * user's own inbox).
  */
-class NetDatabase(context: Context, private val config: ProtocolConfig) :
-    SQLiteOpenHelper(context, NAME, null, VERSION), DtnStore, TrustedContactStore {
+class NetDatabase(context: Context, private val config: ProtocolConfig, name: String = NAME) :
+    SQLiteOpenHelper(context, name, null, VERSION), DtnStore, TrustedContactStore {
 
     override fun onConfigure(db: SQLiteDatabase) {
         db.enableWriteAheadLogging()
