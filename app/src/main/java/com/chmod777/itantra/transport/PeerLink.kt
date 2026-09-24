@@ -26,6 +26,9 @@ interface PeerLink {
     /** Largest single frame this link accepts. */
     val maxFrameBytes: Int
 
+    /** Negotiated ATT MTU for BLE GATT links; null for stream transports. For metrics only. */
+    val negotiatedMtu: Int? get() = null
+
     suspend fun connect()
 
     /** Suspends until every fragment of [frame] is accepted by the radio stack, or throws [LinkClosedException]. */

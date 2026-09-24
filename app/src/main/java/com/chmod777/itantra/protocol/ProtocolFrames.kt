@@ -334,10 +334,14 @@ class SosSimpleFrame(override val type: FrameType, val sosId: ByteArray) : Proto
     }
 
     companion object {
-        private val SIMPLE_TYPES = setOf(FrameType.SOS_ACCEPT, FrameType.SOS_DECLINE, FrameType.SOS_CONFIRM, FrameType.SOS_BUSY, FrameType.SOS_END)
+        // Not a stored set: this companion is initialised while FrameType's entries are still being built.
+        private fun isSimple(type: FrameType) = when (type) {
+            FrameType.SOS_ACCEPT, FrameType.SOS_DECLINE, FrameType.SOS_CONFIRM, FrameType.SOS_BUSY, FrameType.SOS_END -> true
+            else -> false
+        }
 
         fun decode(map: Cbor.Map, @Suppress("UNUSED_PARAMETER") config: ProtocolConfig): SosSimpleFrame {
-            val type = FrameType.fromWire(map.uint(0))?.takeIf { it in SIMPLE_TYPES }
+            val type = FrameType.fromWire(map.uint(0))?.takeIf { isSimple(it) }
                 ?: throw MalformedInputException("not a simple SOS frame")
             map.requireOnlyKeys(0, 1)
             return SosSimpleFrame(type, map.bytes(1, ID_BYTES))
