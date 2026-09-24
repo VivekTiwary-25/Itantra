@@ -24,6 +24,12 @@ Scope rules changed for this branch only, and why:
   boundaries.
 - Physical GREEN status is still only assigned by Vivek after real-phone tests.
 
+Current state (2026-09-24): Batch 1 and Batch 2 are implemented, JVM-tested and
+build-tested. Single-phone checks passed on RMX3392. No phone-to-phone run exists yet.
+Next resume point: run `docs/networking/PHYSICAL_TEST_PLAN.md` Gates B–F and product
+tests A–C on 2–3 phones, then fix what they expose. Do not add relayed interactive SOS
+until direct SOS is physically stable (spec §41).
+
 The previous task text is preserved below unchanged.
 
 ---
