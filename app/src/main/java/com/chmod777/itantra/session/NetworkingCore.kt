@@ -11,6 +11,7 @@ import com.chmod777.itantra.protocol.FrameType
 import com.chmod777.itantra.protocol.ProtocolConfig
 import com.chmod777.itantra.protocol.ProtocolFrame
 import com.chmod777.itantra.protocol.cbor.MalformedInputException
+import com.chmod777.itantra.transport.LinkClosedException
 import com.chmod777.itantra.transport.PeerLink
 import com.chmod777.itantra.transport.SlidingWindowLimiter
 import com.chmod777.itantra.transport.TransportKind
@@ -139,11 +140,17 @@ class NetworkingCore(
         features.forEach { it.onSessionOpened(handle) }
 
         val roundLoop = launch {
-            encounter.startRound(force = true)
-            while (true) {
-                // A store change or the periodic anti-entropy timer, whichever comes first.
-                withTimeoutOrNull(config.periodicInventoryRoundMs) { rounds.receive() }
-                while (!encounter.startRound()) delay(config.minInventoryRoundIntervalMs)
+            try {
+                encounter.startRound(force = true)
+                while (true) {
+                    // A store change or the periodic anti-entropy timer, whichever comes first.
+                    withTimeoutOrNull(config.periodicInventoryRoundMs) { rounds.receive() }
+                    while (!encounter.startRound()) delay(config.minInventoryRoundIntervalMs)
+                }
+            } catch (e: LinkClosedException) {
+                // The link died under us: end this session cleanly so a new one can form.
+                metrics.record("round_send_failed", mapOf("link" to handle.linkId, "cause" to e.message))
+                secure.close()
             }
         }
         var strikes = 0

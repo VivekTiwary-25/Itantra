@@ -209,8 +209,10 @@ class SosManager(
         val signature = Primitives.ed25519Sign(own.signingSeed, Domains.SOS_OFFER, signed)
         offersToSend.forEach { session ->
             val age = clock.elapsedMs() - own.startElapsedMs
-            session.sendFrame(SosOfferFrame(own.sosId, own.category, own.language, age, own.publicKey, signature))
-            metrics.record("sos_offer_tx", mapOf("link" to session.linkId))
+            // One dead candidate session must not abort the wave for the others.
+            runCatching { session.sendFrame(SosOfferFrame(own.sosId, own.category, own.language, age, own.publicKey, signature)) }
+                .onSuccess { metrics.record("sos_offer_tx", mapOf("link" to session.linkId)) }
+                .onFailure { metrics.record("sos_offer_send_failed", mapOf("link" to session.linkId)) }
         }
         if (relayHopLimit != null) broadcastRequest(own, relayHopLimit)
     }
@@ -225,7 +227,7 @@ class SosManager(
         relayRouter.decide(requestFrameId.toHex(), own.sosId.toHex(), 0, hopLimit, config.sosDiscoveryTtlMs, clock.elapsedMs())
         val age = clock.elapsedMs() - own.startElapsedMs
         val frame = SosRequestFrame(own.sosId, requestFrameId, own.publicKey, own.category, own.language, age, config.sosDiscoveryTtlMs, 0, hopLimit, signature)
-        sessions().forEach { it.sendFrame(frame) }
+        sessions().forEach { runCatching { it.sendFrame(frame) } }
         metrics.record("sos_request_tx", mapOf("hop_limit" to hopLimit, "sessions" to sessions().size))
     }
 

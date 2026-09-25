@@ -21,6 +21,7 @@ import com.chmod777.itantra.sos.OutgoingSosState
 import com.chmod777.itantra.sos.SosManager
 import com.chmod777.itantra.transport.ble.BleLinkManager
 import com.chmod777.itantra.transport.rfcomm.RfcommLinkConnector
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -61,7 +62,12 @@ class EmergencySession(
     dtn: DtnNode,
     availableToHelp: Boolean,
 ) {
-    val scope = CoroutineScope(parentScope.coroutineContext + SupervisorJob(parentScope.coroutineContext[Job]))
+    // Radio-facing background work (inventory rounds, SOS waves) must never take the whole
+    // app down: a send on a dying link crashed the process in the two-phone test.
+    val scope = CoroutineScope(
+        parentScope.coroutineContext + SupervisorJob(parentScope.coroutineContext[Job]) +
+            CoroutineExceptionHandler { _, e -> metrics.record("uncaught_coroutine_exception", mapOf("type" to e.javaClass.simpleName, "cause" to e.message)) },
+    )
     lateinit var core: NetworkingCore
         private set
     val probes = ProbeService(clock, metrics, config) { core.sessionHandles() }
@@ -121,7 +127,12 @@ class EmergencySession(
  */
 object NetworkingRuntime {
     val config: ProtocolConfig = ProtocolConfig.DEFAULT
-    val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    val scope = CoroutineScope(
+        SupervisorJob() + Dispatchers.Default +
+            CoroutineExceptionHandler { _, e ->
+                if (initialized) metrics.record("uncaught_coroutine_exception", mapOf("type" to e.javaClass.simpleName, "cause" to e.message))
+            },
+    )
 
     private var initialized = false
     lateinit var clock: AndroidDtnClock
