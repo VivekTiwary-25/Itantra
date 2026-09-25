@@ -70,7 +70,10 @@ class SecureSession private constructor(
     suspend fun send(plaintext: ByteArray) {
         sendMutex.withLock {
             val ciphertext = transport.encrypt(plaintext)
-            link.send(LinkFrame(LinkFrameType.NOISE_TRANSPORT, ciphertext).encode())
+            val frame = LinkFrame(LinkFrameType.NOISE_TRANSPORT, ciphertext).encode()
+            if (SessionFaultInjection.consumeCorrupt()) frame[frame.size - 1] = (frame[frame.size - 1].toInt() xor 0x01).toByte()
+            link.send(frame)
+            if (SessionFaultInjection.consumeReplay()) link.send(frame)
         }
     }
 
@@ -152,3 +155,19 @@ class SecureSession private constructor(
 }
 
 class SessionTerminatedException(message: String) : LinkClosedException(message)
+
+/**
+ * Physical-validation fault switches. Both default to off and nothing in the
+ * production app sets them; only the debug-build validation receiver does, to prove
+ * over a real radio that a modified or replayed Noise frame is rejected.
+ */
+object SessionFaultInjection {
+    @Volatile private var corruptNext = false
+    @Volatile private var replayNext = false
+
+    fun armCorruptNextFrame() { corruptNext = true }
+    fun armReplayNextFrame() { replayNext = true }
+
+    internal fun consumeCorrupt(): Boolean = corruptNext.also { if (it) corruptNext = false }
+    internal fun consumeReplay(): Boolean = replayNext.also { if (it) replayNext = false }
+}

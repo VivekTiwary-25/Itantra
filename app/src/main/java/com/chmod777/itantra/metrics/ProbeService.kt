@@ -79,7 +79,12 @@ class ProbeService(
             metrics.record("probe_tx", mapOf("probe" to idHex, "hops" to hops, "payload_bytes" to payloadBytes, "frame_bytes" to encodedBytes, "send_ns" to sentNs - start, "link" to firstHop.linkId))
             val echo = withTimeout(timeoutMs) { entry.deferred.await() }
             val rtt = clock.monotonicNs() - start
-            if (echo.hopsTraversed == hops) result(true, null, rtt, echo) else result(false, "route_short:${echo.hopsTraversed}/$hops", rtt, echo)
+            when {
+                echo.hopsTraversed != hops -> result(false, "route_short:${echo.hopsTraversed}/$hops", rtt, echo)
+                // With echo_payload the bytes must come back identical: reassembly integrity, not just arrival.
+                echoPayload && !echo.payload.contentEquals(frame.payload) -> result(false, "payload_mismatch", rtt, echo)
+                else -> result(true, null, rtt, echo)
+            }
         } catch (_: TimeoutCancellationException) {
             result(false, "timeout", null, null)
         } catch (e: Exception) {
