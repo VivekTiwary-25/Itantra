@@ -50,6 +50,7 @@ data class ProtocolConfig(
     val inventoryPageSize: Int = 32,
     val maxInventoryPages: Int = 16,
     val maxWantsPerEncounterRound: Int = 64,
+    /** Per session, per sliding minute (not lifetime caps). */
     val maxDestinationClaimsPerSession: Int = 16,
     val maxBytesAcceptedPerSession: Long = 2L * 1024 * 1024,
     val maxBundlesAcceptedPerSession: Int = 64,
@@ -61,6 +62,8 @@ data class ProtocolConfig(
     val expirySweepIntervalMs: Long = 30_000,
     val pendingSplitTimeoutMs: Long = 10 * 60_000L,
     val minInventoryRoundIntervalMs: Long = 5_000,
+    /** Anti-entropy: each live session re-runs inventory at least this often, so refused or missed transfers retry. */
+    val periodicInventoryRoundMs: Long = 30_000,
 
     // --- SOS (spec §35, §39, §43, audit C/G) ---
     val sosRssiSampleWindowMs: Long = 2_500,

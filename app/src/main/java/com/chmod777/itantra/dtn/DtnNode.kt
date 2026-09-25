@@ -37,11 +37,28 @@ sealed interface DtnEvent {
  * Per-session abuse budget (spec §52). One instance per Noise session; a new
  * session identity starts fresh but is still bounded.
  */
-class SessionBudget(val peerSessionKey: String) {
-    var destinationClaims = 0
-    var bytesAccepted = 0L
-    var bundlesAccepted = 0
+class SessionBudget(val peerSessionKey: String, private val windowMs: Long = 60_000) {
+    private val claimTimes = ArrayDeque<Long>()
+    private val accepted = ArrayDeque<Pair<Long, Int>>()
     val outstandingWants = HashMap<String, WantMode>()
+
+    /**
+     * Rate limits over a sliding window, not lifetime caps: a BLE session can last hours,
+     * and a lifetime cap starved a legitimate recipient after 16 messages (two-phone test).
+     */
+    fun tryDestinationClaim(nowMs: Long, maxPerWindow: Int): Boolean {
+        while (claimTimes.isNotEmpty() && nowMs - claimTimes.first() >= windowMs) claimTimes.removeFirst()
+        if (claimTimes.size >= maxPerWindow) return false
+        claimTimes.addLast(nowMs)
+        return true
+    }
+
+    fun tryAccept(nowMs: Long, bytes: Int, maxBundlesPerWindow: Int, maxBytesPerWindow: Long): Boolean {
+        while (accepted.isNotEmpty() && nowMs - accepted.first().first >= windowMs) accepted.removeFirst()
+        if (accepted.size >= maxBundlesPerWindow || accepted.sumOf { it.second.toLong() } + bytes > maxBytesPerWindow) return false
+        accepted.addLast(nowMs to bytes)
+        return true
+    }
 }
 
 /** Result of processing one inbound bundle: the hop ACK plus any tombstones to push back. */
@@ -126,7 +143,9 @@ class DtnNode(
     fun inventory(): List<BundleSummary> = synchronized(lock) {
         store.allBundles()
             .filter { !it.isExpired(clock) && store.tombstone(it.bundle.bundleId) == null }
-            .sortedWith(compareByDescending<StoredBundle> { it.bundle.priority.wire }.thenByDescending { it.remainingLifetimeMs(clock) })
+            // Urgent first, then oldest first. Newest-first starved older messages for minutes
+            // once destination claims hit their rate limit (two-phone test).
+            .sortedWith(compareByDescending<StoredBundle> { it.bundle.priority.wire }.thenBy { it.remainingLifetimeMs(clock) })
             .take(config.inventoryPageSize * config.maxInventoryPages)
             .map {
                 BundleSummary(
@@ -191,11 +210,10 @@ class DtnNode(
         val ageMs = stored.age.effectiveAgeMs(clock)
         when (want.mode) {
             WantMode.DESTINATION -> {
-                if (budget.destinationClaims >= config.maxDestinationClaimsPerSession) {
+                if (!budget.tryDestinationClaim(clock.elapsedMs(), config.maxDestinationClaimsPerSession)) {
                     emit(DtnEvent.Rejected("destination-claim rate limit"))
                     return null
                 }
-                budget.destinationClaims++
                 BundleFrame(WantMode.DESTINATION, stored.immutableBytes, RelayState(0, stored.hopCount, ageMs))
             }
             WantMode.RELAY -> {
@@ -231,14 +249,10 @@ class DtnNode(
             return ack(AckStatus.TOMBSTONED, listOf(TombstoneV1(record.bundleId, record.deletionSecret, remainingTombstoneMs(record))))
         }
         if (frame.relayState.accumulatedAgeMs >= bundle.lifetimeMs) return ack(AckStatus.REJECTED)
-        if (budget.bytesAccepted + frame.immutableBytes.size > config.maxBytesAcceptedPerSession ||
-            budget.bundlesAccepted >= config.maxBundlesAcceptedPerSession
-        ) {
+        if (!budget.tryAccept(clock.elapsedMs(), frame.immutableBytes.size, config.maxBundlesAcceptedPerSession, config.maxBytesAcceptedPerSession)) {
             emit(DtnEvent.Rejected("per-session acceptance cap"))
             return ack(AckStatus.REJECTED)
         }
-        budget.bytesAccepted += frame.immutableBytes.size
-        budget.bundlesAccepted++
 
         return when (frame.mode) {
             WantMode.DESTINATION -> ingestAsDestination(bundle, ::ack)

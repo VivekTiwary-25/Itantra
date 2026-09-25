@@ -145,6 +145,10 @@ class DtnScenarioTest {
             if (vivek.node.serveWant(WantEntry(out.bundleId, stored.bundle.ciphertextHash, WantMode.DESTINATION), budget) != null) served++
         }
         assertEquals(config.maxDestinationClaimsPerSession, served)
+        // A rate limit, not a lifetime cap: a legitimate recipient is served again next minute
+        // (regression: a long-lived BLE session stalled after 16 messages on real phones).
+        clock.advance(61_000)
+        assertNotNull(vivek.node.serveWant(WantEntry(out.bundleId, stored.bundle.ciphertextHash, WantMode.DESTINATION), budget))
         // Mallory "acknowledges" as a destination: at most RELAYED, and our copy stays.
         vivek.node.onAck(BundleAckFrame(out.bundleId, stored.bundle.ciphertextHash, AckStatus.ACCEPTED_AS_DESTINATION_ATTEMPT), budget)
         assertEquals(DeliveryState.RELAYED, vivek.outgoingState(out.bundleId))
@@ -267,6 +271,18 @@ class DtnScenarioTest {
         // A tombstoned bundle is not re-accepted.
         meet(vivek, relay)
         assertTrue(relay.copies(out.bundleId).isEmpty())
+    }
+
+    @Test
+    fun inventoryListsUrgentThenOldestFirst() {
+        val (vivek, _, rahul) = trustedPair()
+        val first = vivek.node.createMessage(rahul.identity.nodeId, "first", "en")
+        clock.advance(1_000)
+        val second = vivek.node.createMessage(rahul.identity.nodeId, "second", "en")
+        clock.advance(1_000)
+        val urgent = vivek.node.createMessage(rahul.identity.nodeId, "urgent", "en", Priority.URGENT)
+        val order = vivek.node.inventory().map { it.bundleId.toList() }
+        assertEquals(listOf(urgent.bundleId, first.bundleId, second.bundleId).map { it.toList() }, order)
     }
 
     @Test

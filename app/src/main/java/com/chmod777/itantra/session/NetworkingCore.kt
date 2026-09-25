@@ -22,6 +22,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import java.util.concurrent.ConcurrentHashMap
 
 fun interface FrameSink {
@@ -139,7 +140,9 @@ class NetworkingCore(
 
         val roundLoop = launch {
             encounter.startRound(force = true)
-            for (request in rounds) {
+            while (true) {
+                // A store change or the periodic anti-entropy timer, whichever comes first.
+                withTimeoutOrNull(config.periodicInventoryRoundMs) { rounds.receive() }
                 while (!encounter.startRound()) delay(config.minInventoryRoundIntervalMs)
             }
         }
