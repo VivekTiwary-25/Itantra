@@ -68,6 +68,8 @@ class BleLinkManager(
     private val links = ConcurrentHashMap<String, BleGattLinkCore>()
     private val linkedAddresses = ConcurrentHashMap<BleGattLinkCore, String>()
     private val connecting = ConcurrentHashMap.newKeySet<String>()
+    /** Device addresses with a client attempt in flight: one GATT client per peer device, ever. */
+    private val connectingAddresses = ConcurrentHashMap.newKeySet<String>()
     private val prioritized = ConcurrentHashMap.newKeySet<String>()
 
     @Volatile private var localShortId = Primitives.randomBytes(LinkFrame.SHORT_ID_BYTES)
@@ -177,7 +179,9 @@ class BleLinkManager(
         for ((id, observation) in candidates) {
             if (id in connecting) continue
             val address = observation.hit.device.address
-            val alreadyLinked = links.containsKey(id) || linkedAddresses.containsValue(address)
+            // Also by address: a peer that restarted Emergency mode advertises a new short ID, and a
+            // second GATT client to the same device makes its server mix up both clients' frames.
+            val alreadyLinked = links.containsKey(id) || linkedAddresses.containsValue(address) || address in connectingAddresses
             val decision = policy.decide(
                 localShortId = localShortId,
                 peerShortId = observation.hit.payload.shortId,
@@ -195,6 +199,8 @@ class BleLinkManager(
 
     private fun connect(id: String, observation: Observation) {
         if (!attemptLimiter.tryAcquire(id, clock.elapsedMs())) return
+        val address = observation.hit.device.address
+        if (!connectingAddresses.add(address)) return
         connecting += id
         val link = BleGattClientLink(context, observation.hit.device, observation.hit.payload.shortId, localShortId, config, clock, metrics)
         metrics.record("connect_attempt", mapOf("peer" to id.take(8), "link" to link.linkId))
@@ -206,6 +212,7 @@ class BleLinkManager(
                 metrics.record("connect_failed", mapOf("peer" to id.take(8), "cause" to e.message))
             } finally {
                 connecting -= id
+                connectingAddresses -= address
             }
         }
     }
@@ -224,6 +231,14 @@ class BleLinkManager(
             metrics.record("link_duplicate_resolved", mapOf("kept" to keep.linkId, "dropped" to drop.linkId, "apart_ms" to apartMs))
             drop.closeKeepingConnection()
             if (keep === existing) return
+        }
+        // A different short ID on the same device means the peer restarted Emergency mode:
+        // its old session is gone, so our old link to it is stale.
+        address?.let { addr ->
+            linkedAddresses.filter { (other, otherAddr) -> otherAddr == addr && other !== link }.keys.forEach { stale ->
+                metrics.record("link_superseded_same_device", mapOf("kept" to link.linkId, "dropped" to stale.linkId))
+                stale.closeKeepingConnection()
+            }
         }
         links[peerId] = link
         address?.let { linkedAddresses[link] = it }
