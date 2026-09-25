@@ -35,19 +35,32 @@ class LinkFrame(val type: LinkFrameType, val body: ByteArray) {
             return LinkFrame(type, bytes.copyOfRange(1, bytes.size))
         }
 
-        fun hello(shortId: ByteArray): LinkFrame {
+        fun hello(shortId: ByteArray, attMtu: Int? = null): LinkFrame {
             require(shortId.size == SHORT_ID_BYTES)
-            return LinkFrame(LinkFrameType.HELLO, byteArrayOf(HELLO_VERSION.toByte()) + shortId)
+            val mtu = attMtu?.let { byteArrayOf((it ushr 8).toByte(), it.toByte()) } ?: ByteArray(0)
+            return LinkFrame(LinkFrameType.HELLO, byteArrayOf(HELLO_VERSION.toByte()) + shortId + mtu)
         }
 
-        /** Returns the peer's advertised short ID from a HELLO body. */
+        /**
+         * Returns the peer's advertised short ID and, if present, the ATT MTU the GATT
+         * client negotiated. Android does not report MTU to a GATT server when a client
+         * reuses an existing LE connection, so the client states it here (optional u16).
+         */
         @Throws(MalformedInputException::class)
-        fun parseHello(frame: LinkFrame): ByteArray {
+        fun parseHello(frame: LinkFrame): Hello {
             if (frame.type != LinkFrameType.HELLO) throw MalformedInputException("expected HELLO")
-            if (frame.body.size != 1 + SHORT_ID_BYTES || frame.body[0].toInt() != HELLO_VERSION) {
+            val body = frame.body
+            if ((body.size != 1 + SHORT_ID_BYTES && body.size != 3 + SHORT_ID_BYTES) || body[0].toInt() != HELLO_VERSION) {
                 throw MalformedInputException("malformed HELLO")
             }
-            return frame.body.copyOfRange(1, frame.body.size)
+            val mtu = if (body.size == 3 + SHORT_ID_BYTES) {
+                ((body[9].toInt() and 0xFF) shl 8) or (body[10].toInt() and 0xFF)
+            } else {
+                null
+            }
+            return Hello(body.copyOfRange(1, 1 + SHORT_ID_BYTES), mtu)
         }
     }
 }
+
+class Hello(val shortId: ByteArray, val attMtu: Int?)

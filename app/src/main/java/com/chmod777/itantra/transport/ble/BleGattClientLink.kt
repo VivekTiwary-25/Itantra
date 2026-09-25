@@ -55,6 +55,8 @@ class BleGattClientLink(
                 if (!connected.isCompleted) connected.complete(if (status == BluetoothGatt.GATT_SUCCESS) -1 else status)
                 step?.complete(-2)
                 if (state == PeerLink.State.READY) onTransportDisconnected("gatt disconnected status=$status")
+                // A lingering (duplicate-dropped) client is released once Android reports the connection gone.
+                if (keepConnectionOnRelease) closeLingering()
             }
         }
 
@@ -205,5 +207,25 @@ class BleGattClientLink(
         runCatching { g.close() }
     }
 
-    override fun releaseTransport() = closeGatt()
+    override fun releaseTransport() {
+        if (keepConnectionOnRelease) {
+            lingering += this
+            while (lingering.size > MAX_LINGERING) lingering.firstOrNull()?.closeLingering()
+        } else {
+            closeGatt()
+        }
+    }
+
+    private fun closeLingering() {
+        lingering -= this
+        closeGatt()
+    }
+
+    companion object {
+        private const val MAX_LINGERING = 4
+        private val lingering: MutableSet<BleGattClientLink> = java.util.Collections.newSetFromMap(java.util.concurrent.ConcurrentHashMap())
+
+        /** Releases every lingering GATT client (Emergency mode stopping). */
+        fun closeAllLingering() = lingering.toList().forEach { it.closeLingering() }
+    }
 }

@@ -50,6 +50,24 @@ class FragmentationTest {
     }
 
     @Test
+    fun helloCarriesAnOptionalMtuHintAndRejectsOtherLengths() {
+        val id = ByteArray(8) { it.toByte() }
+        val plain = com.chmod777.itantra.protocol.LinkFrame.parseHello(
+            com.chmod777.itantra.protocol.LinkFrame.decode(com.chmod777.itantra.protocol.LinkFrame.hello(id).encode()),
+        )
+        assertArrayEquals(id, plain.shortId)
+        assertNull(plain.attMtu)
+        val hinted = com.chmod777.itantra.protocol.LinkFrame.parseHello(
+            com.chmod777.itantra.protocol.LinkFrame.decode(com.chmod777.itantra.protocol.LinkFrame.hello(id, 517).encode()),
+        )
+        assertEquals(517, hinted.attMtu)
+        val bad = com.chmod777.itantra.protocol.LinkFrame(com.chmod777.itantra.protocol.LinkFrameType.HELLO, ByteArray(10) { 1 })
+        assertThrows(com.chmod777.itantra.protocol.cbor.MalformedInputException::class.java) {
+            com.chmod777.itantra.protocol.LinkFrame.parseHello(bad)
+        }
+    }
+
+    @Test
     fun smallestMtuCarriesTheLargestFrameWithinTheFragmentCap() {
         val fragments = FragmentCodec.fragment(ByteArray(config.maxLinkFrameBytes), 1, 1, 20, config)
         assertTrue(fragments.size <= config.maxFragmentsPerFrame)
@@ -134,6 +152,22 @@ class FragmentationTest {
         // Both sides agree which duplicate link to keep.
         assertEquals(LinkRole.INITIATOR, policy.preferredLocalRole(low, high))
         assertEquals(LinkRole.RESPONDER, policy.preferredLocalRole(high, low))
+    }
+
+    @Test
+    fun staleLinkIsSupersededButGenuineCollisionsFollowTheIdRule() {
+        val policy = ConnectionRolePolicy(config)
+        val low = byteArrayOf(0, 0, 0, 0, 0, 0, 0, 1)
+        val high = byteArrayOf(-1, 0, 0, 0, 0, 0, 0, 0)
+        val sec = 1_000_000_000L
+        // Regression (two phones, Android 16): our old client link was dead on the peer's side and
+        // the peer re-dialled 60 s later; keeping the old link stalled reconnection for ~40 s.
+        assertTrue(policy.keepNewerDuplicate(low, high, LinkRole.INITIATOR, 0, LinkRole.RESPONDER, 60 * sec))
+        // Genuine collision within the window: the smaller short ID's initiated link wins on both sides.
+        assertTrue(!policy.keepNewerDuplicate(low, high, LinkRole.INITIATOR, 0, LinkRole.RESPONDER, 2 * sec))
+        assertTrue(policy.keepNewerDuplicate(high, low, LinkRole.INITIATOR, 0, LinkRole.RESPONDER, 2 * sec))
+        // A second link in the same role is always a newer session.
+        assertTrue(policy.keepNewerDuplicate(low, high, LinkRole.RESPONDER, 0, LinkRole.RESPONDER, 1))
     }
 
     @Test

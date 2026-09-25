@@ -108,6 +108,7 @@ class BleLinkManager(
         links.clear()
         linkedAddresses.clear()
         server.stop()
+        BleGattClientLink.closeAllLingering()
         publishStatus()
     }
 
@@ -217,10 +218,11 @@ class BleLinkManager(
         val peerId = link.peerSessionId.toHex()
         val existing = links[peerId]
         if (existing != null && existing.state == PeerLink.State.READY) {
-            val preferred = policy.preferredLocalRole(localShortId, link.peerSessionId)
-            val (keep, drop) = if (link.role == preferred) link to existing else existing to link
-            metrics.record("link_duplicate_resolved", mapOf("kept" to keep.linkId, "dropped" to drop.linkId))
-            scope.launch { drop.close() }
+            val apartMs = (link.readyAtNs - existing.readyAtNs) / 1_000_000
+            val keepNewer = policy.keepNewerDuplicate(localShortId, link.peerSessionId, existing.role, existing.readyAtNs, link.role, link.readyAtNs)
+            val (keep, drop) = if (keepNewer) link to existing else existing to link
+            metrics.record("link_duplicate_resolved", mapOf("kept" to keep.linkId, "dropped" to drop.linkId, "apart_ms" to apartMs))
+            drop.closeKeepingConnection()
             if (keep === existing) return
         }
         links[peerId] = link

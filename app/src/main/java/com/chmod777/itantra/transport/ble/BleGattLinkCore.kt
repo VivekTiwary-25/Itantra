@@ -65,6 +65,25 @@ abstract class BleGattLinkCore(
     private val helloReceived = CompletableDeferred<ByteArray>()
     protected val openedAtNs: Long = clock.monotonicNs()
 
+    /** When this link turned READY (this phone's monotonic clock); 0 before that. */
+    @Volatile var readyAtNs: Long = 0L
+        private set
+
+    /**
+     * All GATT connections between two phones share one LE connection. A link dropped as
+     * a duplicate must therefore end its session without tearing that connection down,
+     * or the link being kept dies with it (observed on Android 16).
+     */
+    open fun closeKeepingConnection() {
+        if (state == PeerLink.State.CLOSED || state == PeerLink.State.FAILED) return
+        mark("link_closed_keeping_connection")
+        keepConnectionOnRelease = true
+        mutableState.value = PeerLink.State.CLOSED
+        shutdown()
+    }
+
+    @Volatile protected var keepConnectionOnRelease = false
+
     /** Starts one GATT write/indication. Returns false when Android refused to start it. */
     protected abstract fun startFragmentWrite(fragment: ByteArray): Boolean
 
@@ -77,13 +96,15 @@ abstract class BleGattLinkCore(
 
     /** Called by the subclass once the byte pipe is usable (client: CCCD written; server: CCCD enabled). */
     protected suspend fun completeHelloAndBecomeReady() {
-        writeFrameRaw(LinkFrame.hello(localShortId).encode())
+        // Only the GATT client knows the negotiated MTU for certain; it tells the server.
+        writeFrameRaw(LinkFrame.hello(localShortId, if (role == LinkRole.INITIATOR) attMtu else null).encode())
         val peerId = try {
             withTimeout(config.gattOperationTimeoutMs * 2) { helloReceived.await() }
         } catch (e: TimeoutCancellationException) {
             throw LinkClosedException("no HELLO from peer", e)
         }
         peerShortId = peerId
+        readyAtNs = clock.monotonicNs()
         mutableState.value = PeerLink.State.READY
         mark("link_ready", mapOf("mtu" to attMtu, "peer" to peerId.toHex().take(8)))
     }
@@ -165,8 +186,14 @@ abstract class BleGattLinkCore(
         val isHello = frame.isNotEmpty() && frame[0].toInt() == LinkFrameType.HELLO.wire
         if (isHello) {
             try {
-                val peerId = LinkFrame.parseHello(LinkFrame.decode(frame))
-                if (!helloReceived.complete(peerId)) mark("hello_duplicate")
+                val hello = LinkFrame.parseHello(LinkFrame.decode(frame))
+                hello.attMtu?.let { hinted ->
+                    if (role == LinkRole.RESPONDER && hinted > attMtu) {
+                        attMtu = hinted.coerceAtMost(MAX_ATT_MTU)
+                        mark("mtu_from_hello", mapOf("mtu" to attMtu))
+                    }
+                }
+                if (!helloReceived.complete(hello.shortId)) mark("hello_duplicate")
             } catch (e: MalformedInputException) {
                 mark("hello_malformed", mapOf("cause" to e.message))
             }
@@ -213,6 +240,11 @@ abstract class BleGattLinkCore(
         mark("link_close_requested")
         mutableState.value = PeerLink.State.CLOSED
         shutdown()
+    }
+
+    companion object {
+        /** Largest ATT MTU the BLE spec allows; bounds a peer's HELLO hint. */
+        const val MAX_ATT_MTU = 517
     }
 
     /** Periodic reassembly timeout sweep, driven by the link manager. */

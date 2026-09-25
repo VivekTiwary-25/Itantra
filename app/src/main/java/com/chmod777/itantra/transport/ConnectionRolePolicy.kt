@@ -36,6 +36,26 @@ class ConnectionRolePolicy(private val config: ProtocolConfig) {
      */
     fun preferredLocalRole(localShortId: ByteArray, peerShortId: ByteArray): LinkRole =
         if (compareUnsigned(localShortId, peerShortId) < 0) LinkRole.INITIATOR else LinkRole.RESPONDER
+
+    /**
+     * Which of two READY links to the same peer to keep (true = keep the newer one).
+     * - Same role twice: the peer opened a new client session, so the older one is stale.
+     * - READY further apart than [ProtocolConfig.duplicateLinkWindowMs]: not a collision. The
+     *   peer only dials when it holds no link to us, so the older link is dead on its side.
+     * - Otherwise a genuine collision: keep the link whose initiator has the smaller short ID.
+     */
+    fun keepNewerDuplicate(
+        localShortId: ByteArray,
+        peerShortId: ByteArray,
+        existingRole: LinkRole,
+        existingReadyAtNs: Long,
+        newerRole: LinkRole,
+        newerReadyAtNs: Long,
+    ): Boolean = when {
+        newerRole == existingRole -> true
+        (newerReadyAtNs - existingReadyAtNs) / 1_000_000 > config.duplicateLinkWindowMs -> true
+        else -> newerRole == preferredLocalRole(localShortId, peerShortId)
+    }
 }
 
 /**

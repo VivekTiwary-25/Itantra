@@ -112,7 +112,19 @@ class BleGattServer(
             val isCccd = descriptor.uuid == GattProfile.CCCD_UUID && descriptor.characteristic.uuid == GattProfile.SERVER_TO_CLIENT_UUID
             if (responseNeeded) server?.sendResponse(device, requestId, if (isCccd) BluetoothGatt.GATT_SUCCESS else BluetoothGatt.GATT_FAILURE, 0, null)
             if (isCccd && value != null && value.contentEquals(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE)) {
-                links[device.address]?.let { link -> scope.launch { link.onIndicationsEnabled() } }
+                val existing = links[device.address]
+                val link = if (existing == null || existing.handshakeStarted) {
+                    // A client subscribing again is a new client session. Android reuses the LE
+                    // connection, so no new STATE_CONNECTED arrives and any existing entry is stale.
+                    BleGattServerLink(this@BleGattServer, device, localShortId(), config, clock, metrics).also { fresh ->
+                        links[device.address] = fresh
+                        fresh.onCentralConnected()
+                        existing?.let { stale -> scope.launch { stale.detachUnused("superseded by a new client subscription") } }
+                    }
+                } else {
+                    existing
+                }
+                scope.launch { link.onIndicationsEnabled() }
             }
         }
 
@@ -208,13 +220,18 @@ class BleGattServerLink internal constructor(
 
     @Volatile private var readying = false
 
+    /** True once this link has started its HELLO exchange (a CCCD enable was seen). */
+    internal val handshakeStarted: Boolean get() = readying
+
     @Volatile private var detached = false
 
     /** Drops a never-used server entry without touching the underlying LE connection. */
-    internal fun detachUnused() {
+    override fun closeKeepingConnection() = detachUnused("dropped as duplicate")
+
+    internal fun detachUnused(reason: String = "central never enabled indications") {
         detached = true
-        mark("server_link_unused_detached")
-        onTransportDisconnected("central never enabled indications")
+        mark("server_link_unused_detached", mapOf("cause" to reason))
+        onTransportDisconnected(reason)
     }
 
     /** Link-layer address, used only inside `transport/ble` to avoid duplicate links. */

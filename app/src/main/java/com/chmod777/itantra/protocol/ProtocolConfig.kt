@@ -23,6 +23,8 @@ data class ProtocolConfig(
     val gattRetryBackoffMs: List<Long> = listOf(500, 1_500, 4_000),
     val maxLinks: Int = 6,
     val roleWaitMs: Long = 6_000,
+    /** Two links to one peer that became READY further apart than this are not a collision: the older is stale. */
+    val duplicateLinkWindowMs: Long = 10_000,
     val connectAttemptsPerPeerPerMinute: Int = 4,
     val advertisedIdRotationMs: Long = 15 * 60_000,
     val peerStaleMs: Long = 30_000,
