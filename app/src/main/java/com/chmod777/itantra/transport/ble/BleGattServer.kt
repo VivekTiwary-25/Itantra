@@ -47,7 +47,8 @@ class BleGattServer(
     private val links = ConcurrentHashMap<String, BleGattServerLink>()
     private val serviceAdded = CompletableDeferred<Boolean>()
 
-    val activeLinkCount: Int get() = links.size
+    /** READY links only. Pending entries may be phantoms (see onConnectionStateChange). */
+    val activeLinkCount: Int get() = links.values.count { it.state == PeerLink.State.READY }
 
     private val callback = object : BluetoothGattServerCallback() {
         override fun onServiceAdded(status: Int, service: BluetoothGattService) {
@@ -58,7 +59,7 @@ class BleGattServer(
             val key = device.address
             when (newState) {
                 BluetoothProfile.STATE_CONNECTED -> {
-                    if (links.size >= config.maxLinks) {
+                    if (activeLinkCount >= config.maxLinks) {
                         metrics.record("gatt_server_reject", mapOf("cause" to "link limit"))
                         server?.cancelConnection(device)
                         return
@@ -66,6 +67,13 @@ class BleGattServer(
                     val link = BleGattServerLink(this@BleGattServer, device, localShortId(), config, clock, metrics)
                     links.put(key, link)?.let { old -> scope.launch { old.close() } }
                     link.onCentralConnected()
+                    // Android reports every LE connection to this phone here, including the one this
+                    // phone opened itself as a GATT client. Such a "central" never enables indications.
+                    // Forget it after the setup timeout WITHOUT cancelling the shared connection.
+                    scope.launch {
+                        kotlinx.coroutines.delay(config.linkSetupTimeoutMs)
+                        if (link.state == PeerLink.State.CONNECTING && links.remove(key, link)) link.detachUnused()
+                    }
                 }
                 BluetoothProfile.STATE_DISCONNECTED -> links.remove(key)?.onDisconnected("central disconnected status=$status")
             }
@@ -200,6 +208,15 @@ class BleGattServerLink internal constructor(
 
     @Volatile private var readying = false
 
+    @Volatile private var detached = false
+
+    /** Drops a never-used server entry without touching the underlying LE connection. */
+    internal fun detachUnused() {
+        detached = true
+        mark("server_link_unused_detached")
+        onTransportDisconnected("central never enabled indications")
+    }
+
     /** Link-layer address, used only inside `transport/ble` to avoid duplicate links. */
     internal val deviceAddress: String get() = device.address
 
@@ -235,5 +252,7 @@ class BleGattServerLink internal constructor(
 
     override fun startFragmentWrite(fragment: ByteArray): Boolean = owner.indicate(device, fragment)
 
-    override fun releaseTransport() = owner.disconnect(this, device)
+    override fun releaseTransport() {
+        if (!detached) owner.disconnect(this, device)
+    }
 }

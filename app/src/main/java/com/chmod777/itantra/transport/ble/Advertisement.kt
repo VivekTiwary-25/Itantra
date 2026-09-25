@@ -45,4 +45,14 @@ object GattProfile {
     /** ATT header overhead for a write/indication value. */
     const val ATT_OVERHEAD = 3
     const val DEFAULT_ATT_MTU = 23
+
+    /**
+     * Largest attribute value Android accepts (Core spec GATT maximum). On API 33+
+     * `writeCharacteristic` / `notifyCharacteristicChanged` throw for longer values,
+     * so an MTU of 517 still allows only 512-byte fragments (found on real phones).
+     */
+    const val MAX_ATTRIBUTE_VALUE = 512
+
+    /** Bytes available for one fragment (header + payload) at a negotiated ATT MTU. */
+    fun fragmentBudget(attMtu: Int): Int = minOf(attMtu - ATT_OVERHEAD, MAX_ATTRIBUTE_VALUE)
 }

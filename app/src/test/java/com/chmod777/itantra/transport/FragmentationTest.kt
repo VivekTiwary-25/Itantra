@@ -4,6 +4,7 @@ import com.chmod777.itantra.protocol.ProtocolConfig
 import com.chmod777.itantra.transport.ble.AdvertisementPayload
 import com.chmod777.itantra.transport.ble.FragmentCodec
 import com.chmod777.itantra.transport.ble.FragmentReassembler
+import com.chmod777.itantra.transport.ble.GattProfile
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -33,6 +34,18 @@ class FragmentationTest {
                 assertTrue(fragments.all { it.size <= attPayload })
                 assertArrayEquals(frame, reassemble(fragments))
             }
+        }
+    }
+
+    @Test
+    fun fragmentsNeverExceedAndroidsMaximumAttributeLength() {
+        // Regression: at MTU 517 fragments were 514 B and Android threw IllegalArgumentException.
+        assertEquals(512, GattProfile.fragmentBudget(517))
+        assertEquals(20, GattProfile.fragmentBudget(23))
+        assertEquals(182, GattProfile.fragmentBudget(185))
+        for (mtu in listOf(23, 185, 247, 512, 515, 516, 517)) {
+            val fragments = FragmentCodec.fragment(ByteArray(16_000), 1, 1, GattProfile.fragmentBudget(mtu), config)
+            assertTrue("mtu $mtu", fragments.all { it.size <= GattProfile.MAX_ATTRIBUTE_VALUE && it.size <= mtu - 3 })
         }
     }
 

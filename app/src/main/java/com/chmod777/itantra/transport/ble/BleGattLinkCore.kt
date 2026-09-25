@@ -94,8 +94,7 @@ abstract class BleGattLinkCore(
     }
 
     private suspend fun writeFrameRaw(frame: ByteArray) = sendMutex.withLock {
-        val payloadBudget = attMtu - GattProfile.ATT_OVERHEAD
-        val fragments = FragmentCodec.fragment(frame, connectionSessionId, nextFrameId++ and 0xFFFF, payloadBudget, config)
+        val fragments = FragmentCodec.fragment(frame, connectionSessionId, nextFrameId++ and 0xFFFF, GattProfile.fragmentBudget(attMtu), config)
         val started = clock.monotonicNs()
         for (fragment in fragments) writeOneFragment(fragment)
         metrics.record(
@@ -113,7 +112,15 @@ abstract class BleGattLinkCore(
             if (state == PeerLink.State.CLOSED || state == PeerLink.State.FAILED) throw LinkClosedException("link closed mid-frame")
             val completion = CompletableDeferred<Boolean>()
             pendingWrite = completion
-            if (!startFragmentWrite(fragment)) {
+            val started = try {
+                startFragmentWrite(fragment)
+            } catch (e: RuntimeException) {
+                // A frame that is only partly on air would desynchronise Noise nonces: close instead.
+                pendingWrite = null
+                failAndClose("GATT write threw ${e.javaClass.simpleName}: ${e.message}")
+                throw LinkClosedException("GATT write threw", e)
+            }
+            if (!started) {
                 pendingWrite = null
                 // Android returns false/busy when an operation is still settling; back off briefly.
                 if (++attempt > 5) {

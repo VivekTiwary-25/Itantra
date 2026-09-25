@@ -93,7 +93,7 @@ class BenchmarkRunner(private val probes: ProbeService, private val directory: F
         val frameBytes = ProbeFrame(ByteArray(ProbeFrame.PROBE_ID_BYTES), r.hopsRequested - 1, 0, r.echoPayload, ByteArray(r.payloadBytes)).encode().size
         val noiseBytes = frameBytes + NOISE_TAG_BYTES
         val linkFrameBytes = noiseBytes + 1
-        val perFragment = mtu?.let { it - GattProfile.ATT_OVERHEAD - FragmentCodec.HEADER_BYTES }
+        val perFragment = mtu?.let { GattProfile.fragmentBudget(it) - FragmentCodec.HEADER_BYTES }
         val fragments = perFragment?.let { (linkFrameBytes + it - 1) / it }
         val fragmentBytes = fragments?.let { linkFrameBytes + it * FragmentCodec.HEADER_BYTES }
         return listOf(
