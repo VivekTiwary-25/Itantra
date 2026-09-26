@@ -32,7 +32,7 @@ h2{margin:4px 0 12px;font-size:24px}
 .wave i{width:5px;background:var(--g);border-radius:3px;animation:w .8s ease-in-out infinite alternate}
 @keyframes w{from{height:6px}to{height:32px}}
 @media (prefers-reduced-motion:reduce){.wave i{animation:none;height:18px}}
-.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.row3{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0}
 .tile{min-height:88px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-weight:700;font-size:16px}
 .tile.r{border:2px solid var(--r)}
 .tile span{font-size:28px}
@@ -52,11 +52,18 @@ h2{margin:4px 0 12px;font-size:24px}
 .alert{border:3px solid var(--r);border-radius:22px;padding:14px;background:color-mix(in srgb,var(--r) 10%,var(--bg))}
 .pri{background:var(--g);color:var(--on);border:0;font-weight:800;width:100%}
 nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
-nav div{max-width:440px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
-nav button{border:0;background:none;min-height:52px;font-size:13px;color:var(--mut)}nav .on{color:var(--tx);font-weight:800;border-top:3px solid var(--tx);border-radius:0}
+nav div{max-width:440px;margin:auto;display:grid;grid-template-columns:repeat(5,1fr);gap:2px}
+nav button{border:0;background:none;min-height:52px;padding:8px 3px;font-size:12px;color:var(--mut)}nav .on{color:var(--tx);font-weight:800;border-top:3px solid var(--tx);border-radius:0}
 body.em nav,body.em .adv{display:none}
 #toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:12px 16px;border-radius:14px;font-weight:600;max-width:90%;display:none}
 svg text{fill:var(--tx);font-size:11px}
+.topline{display:flex;align-items:center;gap:10px;margin-bottom:12px}.topline h2{margin:0}.back{width:52px;min-height:52px;padding:0;font-size:29px}
+.field{display:grid;gap:6px;margin:12px 0}.field>span{font-size:14px;font-weight:700;color:var(--mut)}select,input[type=text]{width:100%;min-height:54px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--tx);font:inherit}
+.contact{width:100%;display:grid;gap:5px;text-align:left;margin:8px 0;padding:14px}.contact b{font-size:19px}.trust{color:var(--g);font-size:14px;font-weight:700}.empty{text-align:center;padding:24px 14px;border:1px dashed var(--line);border-radius:16px;color:var(--mut)}
+.fp{padding:12px;border:1px solid var(--line);border-radius:12px;color:var(--a);font-weight:700;letter-spacing:.05em}.danger{width:100%;color:var(--r);border-color:var(--r);margin-top:8px}.wide{width:100%;margin-top:8px}.check{display:flex;align-items:flex-start;gap:10px;margin:14px 0;padding:12px;border:1px solid var(--line);border-radius:14px}.check input{width:20px;height:20px;flex:none;accent-color:var(--g)}
+.qr{width:210px;height:210px;margin:18px auto;display:grid;place-items:center;border:14px solid #fff;border-radius:8px;color:#10151c;background:repeating-linear-gradient(0deg,transparent 0 11px,#10151c 11px 20px,transparent 20px 27px),repeating-linear-gradient(90deg,transparent 0 11px,#10151c 11px 20px,transparent 20px 27px);background-color:#fff;background-blend-mode:multiply}.qr b{padding:8px;background:#fff;color:#10151c}
+.scanner{height:250px;display:grid;place-items:center;margin:18px 0;border:2px solid var(--g);border-radius:22px;background:radial-gradient(circle,rgba(61,220,132,.12),transparent 65%);color:var(--mut)}
+.hf{min-height:520px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}.hf-orb{width:190px;height:190px;display:grid;place-items:center;border:3px solid var(--g);border-radius:50%;background:color-mix(in srgb,var(--g) 12%,var(--card));font-size:58px;animation:hf 1.8s ease-in-out infinite}.hf-actions{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:34px}@keyframes hf{50%{box-shadow:0 0 0 18px color-mix(in srgb,var(--g) 14%,transparent)}}
 </style></head><body>
 <div class="app">
 <header><b>iTantra</b><div class="seg" role="group" aria-label="Mode"><button id="mN" class="on">Normal</button><button id="mE">Emergency</button></div></header>
@@ -65,6 +72,7 @@ svg text{fill:var(--tx);font-size:11px}
  <div class="pill g" style="border-color:var(--g)">🟢 Direct link · no internet needed · 6 nearby</div>
  <button class="hold" id="talk" aria-label="Hold to talk, release to send"><div class="wave" id="wave"></div><span>🎙️</span>Hold to talk<small>Release to send</small></button>
  <div class="row3">
+  <button class="tile" data-go="handsfree"><span>🎧</span>Hands-free</button>
   <button class="tile r" data-go="help"><span>🚨</span>Help</button>
   <button class="tile" id="loc"><span>📍</span>Location</button>
   <button class="tile" data-go="alert"><span>🔊</span>Listen</button>
@@ -73,7 +81,12 @@ svg text{fill:var(--tx);font-size:11px}
 </section>
 
 <section id="talkS" hidden>
- <h2>Sent to Arjun</h2>
+ <div class="topline"><button class="back" data-go="home" aria-label="Back">‹</button><h2>Review message</h2></div>
+ <div class="card">
+  <label class="field"><span>Trusted recipient</span><select id="recipient"><option value="">Choose a trusted contact</option></select></label>
+  <div class="mut">The recipient can be offline or far away. iTantra will queue the message until a route becomes available.</div>
+  <button class="wide" data-go="contacts">Manage trusted contacts</button>
+ </div>
  <div class="card">
   <div class="orig"><span class="mut">You said · <span class="fromL">Kannada</span> · original</span><div class="txt" id="tO"></div><button class="play" id="pO">🔊 Play original</button></div>
   <div class="trans"><span class="mut">They hear · <span id="toL">English</span> · translated</span><div class="txt" id="tT"></div><button class="play" id="pT">🔊 Play translation</button></div>
@@ -81,9 +94,14 @@ svg text{fill:var(--tx);font-size:11px}
   <div id="warn" class="a" style="margin-top:8px;display:none">⚠ Audio was noisy. The translation may be wrong, so the original voice is sent too.</div>
  </div>
  <div class="card"><b>Did we get it right?</b><div class="mut">iTantra reads your words back in your own language before it counts as sent.</div>
-  <div class="two" style="margin-top:8px"><button id="ok">✓ Yes, send</button><button id="redo">↺ Say again</button></div>
-  <div class="steps" id="st"><span class="g">✓ Sent</span><span class="g">✓ Relayed by 2 devices</span><span class="a">◔ Arjun has not heard it yet</span></div></div>
+  <div class="two" style="margin-top:8px"><button id="ok">✓ Queue message</button><button id="redo">↺ Say again</button></div>
+  <div class="steps" id="st"><span class="a">Choose a trusted recipient, then queue the message.</span></div></div>
  <label class="mut"><input type="checkbox" id="noise"> Simulate a noisy place</label>
+</section>
+
+<section id="handsfree" hidden>
+ <div class="topline"><button class="back" data-go="home" aria-label="Back">‹</button><h2>Hands-free</h2></div>
+ <div class="hf"><div class="hf-orb" aria-hidden="true">🎙️</div><h2>Listening…</h2><p class="mut">Speak normally. Tap Done when you finish. Your words will open as an editable draft.</p><div class="hf-actions"><button data-go="home">Cancel</button><button class="pri" id="hfDone">Done</button></div></div>
 </section>
 
 <section id="help" hidden>
@@ -110,6 +128,46 @@ svg text{fill:var(--tx);font-size:11px}
  </div>
 </section>
 
+<section id="contacts" hidden>
+ <h2>Trusted contacts</h2>
+ <p class="mut">Contacts are trusted through an in-person QR identity exchange. They do not need to be nearby when you message them.</p>
+ <div id="contactList"></div>
+ <div class="empty" id="contactEmpty"><b>No trusted contacts yet</b><br>Scan the QR of someone you know to add them.</div>
+ <button class="pri wide" data-go="scan">Scan a contact QR</button>
+ <button class="wide" data-go="identity">Show my identity QR</button>
+</section>
+
+<section id="identity" hidden>
+ <div class="topline"><button class="back" data-go="contacts" aria-label="Back">‹</button><h2>My iTantra identity</h2></div>
+ <p class="mut">Show this QR to someone you know. They must compare and confirm the identity on their phone before trusting it.</p>
+ <div class="qr" aria-label="Simulated identity QR"><b>iTantra</b></div>
+ <div class="card"><b>You</b><p class="fp">Identity check: 8F2C · 91A4</p><p class="mut">Your display name is a hint. The identity check is what contacts confirm.</p></div>
+ <button class="wide" data-go="scan">Scan someone else's QR</button>
+</section>
+
+<section id="scan" hidden>
+ <div class="topline"><button class="back" data-go="contacts" aria-label="Back">‹</button><h2>Scan contact QR</h2></div>
+ <p class="mut">Ask the other person to open My iTantra identity. Confirm that the identity check matches their phone.</p>
+ <div class="scanner">Simulated camera view</div>
+ <button class="pri wide" id="scanNow">Simulate scanning Arjun's QR</button>
+</section>
+
+<section id="confirm" hidden>
+ <div class="topline"><button class="back" data-go="scan" aria-label="Back">‹</button><h2>Confirm this person</h2></div>
+ <div class="card"><span class="trust">Identity from QR</span><h2>Arjun</h2><p class="fp">Identity check: 62AB · 7D91</p><p class="mut">The name is only a hint. Compare this check with the other person's phone before adding them.</p></div>
+ <label class="field"><span>Name on this phone</span><input type="text" id="contactName" value="Arjun" maxlength="40"></label>
+ <label class="check"><input type="checkbox" id="contactChecked"><span>I compared this identity with the person</span></label>
+ <button class="pri wide" id="addContact" disabled>Add trusted contact</button>
+</section>
+
+<section id="contactD" hidden>
+ <div class="topline"><button class="back" data-go="contacts" aria-label="Back">‹</button><h2>Trusted contact</h2></div>
+ <div class="card"><span class="trust">Trusted iTantra contact</span><h2 id="contactTitle"></h2><p class="fp" id="contactFp"></p><p class="mut">This identity was confirmed by QR exchange. Renaming the local label does not change the trusted identity.</p></div>
+ <button class="pri wide" id="messageContact">Message this person</button>
+ <button class="wide" id="renameContact">Rename local label</button>
+ <button class="danger" id="forgetContact">Forget contact</button>
+</section>
+
 <section id="net" hidden>
  <h2>Direct network</h2>
  <div class="card"><svg viewBox="0 0 300 210" width="100%" role="img" aria-label="You connected to 6 devices, some through relays">
@@ -127,14 +185,28 @@ svg text{fill:var(--tx);font-size:11px}
 </section>
 </div>
 <div id="toast" role="status"></div>
-<nav><div><button data-go="home" class="on">🏠<br>Home</button><button data-go="alert">🚨<br>Alerts</button><button data-go="net">📡<br>Network</button><button data-go="lang">🌐<br>Language</button></div></nav>
+<nav><div><button data-go="home" class="on">🏠<br>Home</button><button data-go="contacts">👤<br>Contacts</button><button data-go="alert">🚨<br>Alerts</button><button data-go="net">📡<br>Network</button><button data-go="lang">🌐<br>Language</button></div></nav>
 <script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-const L={hi:{n:'हिन्दी',c:'hi-IN',s:'हम यहाँ फँसे हुए हैं',e:'Hindi'},kn:{n:'ಕನ್ನಡ',c:'kn-IN',s:'ನಾವು ಇಲ್ಲಿ ಸಿಲುಕಿಕೊಂಡಿದ್ದೇವೆ',e:'Kannada'},bn:{n:'বাংলা',c:'bn-IN',s:'আমরা এখানে আটকে আছি',e:'Bengali'},ta:{n:'தமிழ்',c:'ta-IN',s:'நாங்கள் இங்கே சிக்கிக்கொண்டோம்',e:'Tamil'},en:{n:'English',c:'en-IN',s:'We are trapped here.',e:'English'}};
+const L={
+ en:{n:'English',c:'en-IN',s:'We are trapped here.',e:'English'},
+ hi:{n:'हिन्दी',c:'hi-IN',s:'हम यहाँ फँसे हुए हैं',e:'Hindi'},
+ gu:{n:'ગુજરાતી',c:'gu-IN',s:'અમે અહીં ફસાઈ ગયા છીએ',e:'Gujarati'},
+ mr:{n:'मराठी',c:'mr-IN',s:'आम्ही येथे अडकलो आहोत',e:'Marathi'},
+ kn:{n:'ಕನ್ನಡ',c:'kn-IN',s:'ನಾವು ಇಲ್ಲಿ ಸಿಲುಕಿಕೊಂಡಿದ್ದೇವೆ',e:'Kannada'},
+ ml:{n:'മലയാളം',c:'ml-IN',s:'ഞങ്ങൾ ഇവിടെ കുടുങ്ങിയിരിക്കുന്നു',e:'Malayalam'},
+ ta:{n:'தமிழ்',c:'ta-IN',s:'நாங்கள் இங்கே சிக்கிக்கொண்டோம்',e:'Tamil'},
+ te:{n:'తెలుగు',c:'te-IN',s:'మేము ఇక్కడ చిక్కుకున్నాము',e:'Telugu'},
+ or:{n:'ଓଡ଼ିଆ',c:'or-IN',s:'ଆମେ ଏଠାରେ ଫସି ରହିଛୁ',e:'Odia'},
+ bn:{n:'বাংলা',c:'bn-IN',s:'আমরা এখানে আটকে আছি',e:'Bengali'}
+};
 let lg='kn';
+const CONTACTS_KEY='itantra-sih-reference-contacts-v1';
+let contacts=[];let activeContact='';
+try{const saved=JSON.parse(localStorage.getItem(CONTACTS_KEY)||'[]');if(Array.isArray(saved))contacts=saved}catch(e){}
 function speak(t,c){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang=c;speechSynthesis.speak(u)}catch(e){}toast('🔊 '+t)}
 function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display='none',2200)}
-function go(id){$$('section').forEach(s=>s.hidden=s.id!==id);$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===id));scrollTo(0,0)}
+function go(id){$$('section').forEach(s=>s.hidden=s.id!==id);const roots=['home','contacts','alert','net','lang'];$('nav').hidden=!roots.includes(id);$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===id));if(id==='contacts')renderContacts();if(id==='talkS')render();scrollTo(0,0)}
 $$('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
 $('#mN').onclick=()=>mode(0);$('#mE').onclick=()=>mode(1);
 function mode(e){document.body.classList.toggle('em',!!e);$('#mE').classList.toggle('on',!!e);$('#mN').classList.toggle('on',!e);go('home')}
@@ -144,6 +216,7 @@ tk.onpointerdown=()=>{t0=Date.now();tk.classList.add('rec')};
 ['pointerup','pointerleave','pointercancel'].forEach(v=>tk.addEventListener(v,()=>tk.classList.remove('rec')));
 tk.onclick=e=>{if(Date.now()-t0>400||e.detail===0){render();go('talkS')}else toast('Keep holding while you speak')};
 $('#loc').onclick=()=>toast('📍 Location shared with 6 nearby devices');
+$('#hfDone').onclick=()=>{render();go('talkS')};
 function hold(el,ms,done){let t;el.style.setProperty('--ms',ms+'ms');const up=()=>{clearTimeout(t);el.classList.remove('down')};
  el.onpointerdown=()=>{el.classList.add('down');t=setTimeout(()=>{up();done()},ms)};['pointerup','pointerleave','pointercancel'].forEach(v=>el.addEventListener(v,up))}
 hold($('#sos'),2000,()=>{$('#sent').style.display='block';if(navigator.vibrate)navigator.vibrate(200)});
@@ -152,13 +225,25 @@ $$('#needs button').forEach(b=>b.onclick=()=>b.classList.toggle('sel'));
 let n=3;$('#p').onclick=()=>$('#ppl').textContent=++n;$('#m').onclick=()=>$('#ppl').textContent=n=Math.max(1,n-1);
 $$('#reps button').forEach(b=>b.onclick=()=>toast('Sent in Kannada: “'+b.textContent+'”'));
 function render(){const l=L[lg],to=lg==='en'?L.hi:L.en;$('#tO').textContent=l.s;$('#tT').textContent=lg==='en'?L.hi.s:'We are trapped here.';$('#toL').textContent=to.e;$$('.fromL').forEach(e=>e.textContent=l.e);$('#hl').textContent=l.e;
- $('#pO').onclick=()=>speak(l.s,l.c);$('#pT').onclick=()=>speak($('#tT').textContent,to.c);noisy()}
+ $('#pO').onclick=()=>speak(l.s,l.c);$('#pT').onclick=()=>speak($('#tT').textContent,to.c);renderRecipients();noisy()}
 function noisy(){const x=$('#noise').checked;$('#cf').textContent=x?'Translation confidence: 61%, low. Check the original.':'Translation confidence: 92%, high';$('#cf').className=x?'a':'mut';$('#cb').style.width=x?'61%':'92%';$('#cb').style.background=x?'var(--a)':'var(--g)';$('#warn').style.display=x?'block':'none'}
 $('#noise').onchange=noisy;
-$('#ok').onclick=()=>{$('#st').innerHTML='<span class="g">✓ Sent</span><span class="g">✓ Relayed by 2 devices</span><span class="g">✓ Arjun heard it</span>';toast('✓ Delivered')};
+$('#ok').onclick=()=>{const id=$('#recipient').value,contact=contacts.find(c=>c.id===id);if(!contact){toast('Choose a trusted recipient first');return}activeContact=id;$('#st').innerHTML=`<span class="g">✓ Queued for ${contact.name}</span><span class="a">Stored on this phone · waiting for a route</span>`;toast('Message queued safely')};
 $('#redo').onclick=()=>go('home');$('#pA').onclick=()=>speak('We are trapped here.','en-IN');
 $('#ls').innerHTML=Object.entries(L).map(([k,v])=>`<div class="lang"><button class="n${k===lg?' sel':''}" data-k="${k}">${v.n}</button><button aria-label="Hear ${v.e}" data-s="${k}">🔊</button></div>`).join('');
 $$('[data-k]').forEach(b=>b.onclick=()=>{lg=b.dataset.k;$$('[data-k]').forEach(x=>x.classList.toggle('sel',x===b));render();toast('Language: '+L[lg].e)});
 $$('[data-s]').forEach(b=>b.onclick=()=>speak(L[b.dataset.s].n,L[b.dataset.s].c));
+function saveContacts(){localStorage.setItem(CONTACTS_KEY,JSON.stringify(contacts))}
+function renderRecipients(){const select=$('#recipient'),chosen=select.value||activeContact;select.innerHTML='<option value="">Choose a trusted contact</option>';contacts.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name;select.append(o)});select.value=contacts.some(c=>c.id===chosen)?chosen:'';$('#ok').disabled=!contacts.length}
+function renderContacts(){const list=$('#contactList');list.innerHTML='';$('#contactEmpty').hidden=contacts.length>0;contacts.forEach(c=>{const b=document.createElement('button');b.className='contact';b.innerHTML=`<b>${escapeHtml(c.name)}</b><span class="trust">Trusted iTantra contact</span><span class="mut">Identity confirmed by QR · can receive later</span>`;b.onclick=()=>{activeContact=c.id;renderContactDetail();go('contactD')};list.append(b)});renderRecipients()}
+function renderContactDetail(){const c=contacts.find(x=>x.id===activeContact);if(!c){go('contacts');return}$('#contactTitle').textContent=c.name;$('#contactFp').textContent='Identity check: '+c.fingerprint}
+function escapeHtml(value){const d=document.createElement('div');d.textContent=value;return d.innerHTML}
+$('#recipient').onchange=e=>{activeContact=e.target.value};
+$('#scanNow').onclick=()=>{if(contacts.some(c=>c.fingerprint==='62AB · 7D91')){toast('Arjun is already a trusted contact');go('contacts');return}$('#contactChecked').checked=false;$('#addContact').disabled=true;$('#contactName').value='Arjun';go('confirm')};
+$('#contactChecked').onchange=e=>{$('#addContact').disabled=!e.target.checked};
+$('#addContact').onclick=()=>{const name=$('#contactName').value.trim();if(!$('#contactChecked').checked)return;if(!name){toast('Enter a name for this contact');$('#contactName').focus();return}const contact={id:'c'+Date.now(),name:name.slice(0,40),fingerprint:'62AB · 7D91'};contacts.push(contact);activeContact=contact.id;saveContacts();renderContacts();toast('Trusted contact added');go('contacts')};
+$('#messageContact').onclick=()=>{render();$('#recipient').value=activeContact;go('talkS')};
+$('#renameContact').onclick=()=>{const c=contacts.find(x=>x.id===activeContact);if(!c)return;const name=prompt('Name on this phone',c.name);if(name&&name.trim()){c.name=name.trim().slice(0,40);saveContacts();renderContactDetail();renderRecipients();toast('Local label renamed')}};
+$('#forgetContact').onclick=()=>{const c=contacts.find(x=>x.id===activeContact);if(!c)return;if(confirm(`Forget ${c.name}? You will need to exchange QR identities again before sending new messages.`)){contacts=contacts.filter(x=>x.id!==c.id);activeContact='';saveContacts();renderContacts();toast('Trusted contact forgotten');go('contacts')}};
 render();
 </script></body></html>
