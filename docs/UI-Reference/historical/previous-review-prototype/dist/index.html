@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#07111c" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2307111c'/%3E%3Ccircle cx='32' cy='32' r='23' fill='%23f8ad3c'/%3E%3Cpath d='M32 18v21m-8-8a8 8 0 0 0 16 0m-8 8v8m-6 0h12' fill='none' stroke='%232c1800' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E" />
+    <title>iTantra — App Flow Review</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="phone" id="phone" aria-label="iTantra application prototype">
+        <div class="statusbar" aria-hidden="true"><span>4:32</span><span>▂▄▆ 19%</span></div>
+
+        <!-- 1. MAIN / RADIO -->
+        <section class="screen is-active" id="screen-main" data-state="idle">
+          <header class="topbar"><h1 class="wordmark">iTantra</h1></header>
+
+          <div class="voice">
+            <div class="orb-wrap">
+              <span class="ring r1"></span>
+              <span class="ring r2"></span>
+              <button class="ptt" id="ptt" type="button" aria-label="Hold to talk">
+                <svg class="ic-mic" viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="8.4" y="3.25" width="7.2" height="11.5" rx="3.6"></rect>
+                  <path d="M5.75 11.8v.65a6.25 6.25 0 0 0 12.5 0v-.65M12 18.7v2.05M9.2 20.75h5.6"></path>
+                </svg>
+                <span class="ptt-label">Hold to talk</span>
+              </button>
+            </div>
+            <p class="status" id="main-status" aria-live="polite">Idle</p>
+            <p class="hint" id="main-hint"></p>
+            <div class="fail" id="main-fail" hidden>
+              <button type="button" class="btn-quiet" data-act="retry-main">Try again</button>
+              <button type="button" class="btn-quiet" data-act="continue-text">Continue as text</button>
+            </div>
+            <label class="language-pill" id="language-wrap">Language
+              <select id="language-select" aria-label="Speech language">
+                <option value="en">English</option><option value="hi">Hindi</option>
+                <option value="gu">Gujarati</option><option value="mr">Marathi</option>
+                <option value="ta">Tamil</option><option value="te">Telugu</option>
+                <option value="or">Odia</option><option value="bn">Bengali</option>
+              </select>
+            </label>
+          </div>
+
+          <nav class="bento" aria-label="Other ways to communicate">
+            <button class="tile tile-hf" type="button" data-go="hf">
+              <span class="tile-head">
+                <span class="tile-title">Hands-free</span>
+                <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
+              </span>
+              <span class="wave" aria-hidden="true">
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+              </span>
+            </button>
+            <div class="bento-row">
+              <button class="tile tile-small" type="button" data-go="editor-blank">
+                <svg class="tile-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19.2 8.8a2.1 2.1 0 0 0-3-3L5 17v3ZM14.5 7.5l3 3"></path></svg>
+                <span class="tile-title">Text</span>
+                <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
+              </button>
+              <button class="tile tile-small" type="button" data-go="logs">
+                <svg class="tile-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19 16H10l-4.5 3.5V16H5a1.5 1.5 0 0 1-1.5-1.5v-8A1.5 1.5 0 0 1 5 5Z"></path></svg>
+                <span class="tile-title">Logs</span>
+                <span class="badge" id="unread-badge" hidden>0</span>
+                <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
+              </button>
+            </div>
+          </nav>
+        </section>
+
+        <!-- 2. HANDS-FREE -->
+        <section class="screen" id="screen-hf" data-state="listening">
+          <header class="topbar">
+            <button class="icon-btn" type="button" data-act="hf-back" aria-label="Back">
+              <svg viewBox="0 0 24 24"><path d="M19 12H5m6-6-6 6 6 6"></path></svg>
+            </button>
+            <h1 class="wordmark">iTantra</h1>
+          </header>
+
+          <div class="hf-body">
+            <div class="hf-orb">
+              <span class="ring h1"></span>
+              <span class="ring h2"></span>
+              <span class="ring h3"></span>
+              <span class="core">
+                <svg class="ic-mic" viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="8.4" y="3.25" width="7.2" height="11.5" rx="3.6"></rect>
+                  <path d="M5.75 11.8v.65a6.25 6.25 0 0 0 12.5 0v-.65M12 18.7v2.05M9.2 20.75h5.6"></path>
+                </svg>
+              </span>
+            </div>
+            <p class="status" id="hf-status" aria-live="polite">Listening…</p>
+            <p class="hint" id="hf-hint">Speak normally</p>
+            <div class="fail" id="hf-fail" hidden>
+              <button type="button" class="btn-quiet" data-act="retry-hf">Try again</button>
+              <button type="button" class="btn-quiet" data-act="continue-text">Continue as text</button>
+            </div>
+          </div>
+
+          <footer class="foot">
+            <button class="btn-primary" id="hf-done" type="button" data-act="hf-done">Done</button>
+          </footer>
+        </section>
+
+        <!-- 3. NEW MESSAGE / SHARED EDITOR -->
+        <section class="screen" id="screen-editor">
+          <header class="topbar">
+            <button class="icon-btn" type="button" data-act="editor-back" aria-label="Back">
+              <svg viewBox="0 0 24 24"><path d="M19 12H5m6-6-6 6 6 6"></path></svg>
+            </button>
+            <h1 class="title">New message</h1>
+          </header>
+          <div class="editor-body">
+            <label class="sr-only" for="editor-input">Message</label>
+            <textarea id="editor-input" placeholder="Type your message"></textarea>
+          </div>
+          <p class="send-error" id="send-error" role="alert" hidden></p>
+          <footer class="foot">
+            <button class="btn-primary" id="editor-send" type="button" data-act="editor-send" disabled>Send</button>
+          </footer>
+
+          <div class="dialog-scrim" id="discard-dialog" hidden>
+            <div class="dialog" role="alertdialog" aria-labelledby="dlg-title" aria-describedby="dlg-body">
+              <h2 id="dlg-title">Discard this message?</h2>
+              <p id="dlg-body">Your draft will be lost if you go back now.</p>
+              <div class="dialog-actions">
+                <button type="button" class="btn-text" data-act="discard-cancel">Cancel</button>
+                <button type="button" class="btn-text btn-danger" data-act="discard-confirm">Discard</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. LOGS -->
+        <section class="screen" id="screen-logs">
+          <header class="topbar">
+            <button class="icon-btn" type="button" data-go="main" aria-label="Back">
+              <svg viewBox="0 0 24 24"><path d="M19 12H5m6-6-6 6 6 6"></path></svg>
+            </button>
+            <div>
+              <h1 class="title">Logs</h1>
+              <p class="subtitle">Conversation History</p>
+            </div>
+          </header>
+          <div class="log-list" id="log-list"></div>
+          <div class="logs-empty" id="logs-empty" hidden>No messages yet</div>
+        </section>
+
+        <!-- 5. MESSAGE DETAIL -->
+        <section class="screen" id="screen-detail">
+          <header class="topbar">
+            <button class="icon-btn" type="button" data-go="logs" aria-label="Back to logs">
+              <svg viewBox="0 0 24 24"><path d="M19 12H5m6-6-6 6 6 6"></path></svg>
+            </button>
+            <div>
+              <h1 class="title">Message</h1>
+              <p class="subtitle">Conversation Detail</p>
+            </div>
+          </header>
+          <article class="doc" id="detail-doc">
+            <div class="doc-meta">
+              <time class="doc-time" id="detail-time"></time>
+              <span class="doc-date" id="detail-date"></span>
+              <span class="dir" id="detail-dir"></span>
+            </div>
+            <p class="doc-body" id="detail-body"></p>
+          </article>
+        </section>
+      </section>
+
+      <aside class="panel" aria-label="Review and simulator controls">
+        <span class="panel-label">iTantra · interactive review</span>
+        <p class="panel-lead">Use the phone as the app. These controls simulate events outside it. <a href="#assumptions-title">My assumptions ↓</a></p>
+
+        <section class="panel-section" aria-labelledby="sim-title">
+          <h2 id="sim-title">Simulator</h2>
+          <label class="control-label" for="voice-result">Next voice result</label>
+          <select id="voice-result" class="panel-select">
+            <option value="success">Transcript ready</option>
+            <option value="empty">No speech detected</option>
+            <option value="error">Transcription fails</option>
+            <option value="mic">Microphone unavailable</option>
+          </select>
+          <label class="control-label" for="send-result">Next send result</label>
+          <select id="send-result" class="panel-select">
+            <option value="success">Sent to transport</option>
+            <option value="disconnected">Not connected</option>
+            <option value="error">Send error</option>
+          </select>
+          <button type="button" class="sim-button" id="simulate-speech" disabled>Simulate speech in Hands-free</button>
+          <button type="button" class="sim-button" id="ack-pending" disabled>Simulate recipient ACK</button>
+          <label class="control-label" for="incoming-text">Incoming message</label>
+          <textarea id="incoming-text" class="panel-input" rows="2">We are safe at the shelter. Please confirm your location.</textarea>
+          <button type="button" class="sim-button accent-outline" id="receive-message">Simulate receive</button>
+          <button type="button" class="reset" id="reset">Reset review</button>
+        </section>
+
+        <section class="panel-section" aria-labelledby="assumptions-title">
+          <h2 id="assumptions-title">My assumptions</h2>
+          <p class="panel-note">Choices the newer handoff leaves open. Switch the major ones live. Changing starting history resets this review.</p>
+          <fieldset class="choice"><legend>Hands-free state change</legend>
+            <label><input type="radio" name="hf-mode" value="event" checked /> Simulated speech event <em>Recommended</em></label>
+            <label><input type="radio" name="hf-mode" value="immediate" /> Recording on entry</label>
+          </fieldset>
+          <fieldset class="choice"><legend>Starting history</legend>
+            <label><input type="radio" name="history-mode" value="sample" checked /> Three sample unread messages <em>Recommended</em></label>
+            <label><input type="radio" name="history-mode" value="empty" /> Empty Logs</label>
+          </fieldset>
+          <fieldset class="choice"><legend>Recipient acknowledgement</legend>
+            <label><input type="radio" name="ack-mode" value="manual" checked /> Trigger in simulator <em>Recommended</em></label>
+            <label><input type="radio" name="ack-mode" value="auto" /> After a short delay</label>
+          </fieldset>
+          <ul class="assumption-list">
+            <li>Speech, network results and incoming messages are simulated; the site never uses your mic or radio.</li>
+            <li>Voice yields one final sample transcript. No streaming transcript or automatic send is implied.</li>
+            <li>The language list matches the eight options in the current Android selector. Kannada and Malayalam are target languages, but not current selector options.</li>
+            <li>A successful transport write appears in Logs as <strong>Awaiting ACK</strong>; only an ACK changes it to <strong>Delivered</strong>.</li>
+            <li>Sample history uses today’s date and local clock format. New messages use your browser’s local time.</li>
+            <li>This review keeps changes in this browser tab across reloads. Reset restores the selected starting history.</li>
+          </ul>
+        </section>
+      </aside>
+    </main>
+    <script src="./app.js"></script>
+  </body>
+</html>

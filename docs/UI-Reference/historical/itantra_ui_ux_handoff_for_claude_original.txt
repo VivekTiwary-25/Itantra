@@ -1,0 +1,594 @@
+iTantra UI/UX Handoff for Claude
+================================
+
+Purpose
+-------
+This file consolidates ALL UI/UX and message-state decisions made in the discussion so far, including the A9 typed-message decisions, screen structure, unread semantics, and the final mockup direction.
+
+The goal is to keep the implementation disciplined: establish the correct shared message state and screen flows now, while NOT pulling in later transport/STT/TTS/alert architecture prematurely.
+
+This is the authoritative UI/UX handoff. `TASK.md` still controls the current implementation scope, `docs/CONTRACTS.md` controls cross-lane boundaries, and `docs/LANE_1_APP_AND_CAPTURE.md` controls the Lane 1 ladder and acceptance criteria.
+
+
+1. Core product hierarchy
+-------------------------
+iTantra is voice-first.
+
+Primary interaction:
+- Push-to-Talk (PTT)
+
+Equally important voice capability:
+- Hands-free mode
+
+Fallback interaction:
+- Typed text
+
+History/navigation:
+- Logs
+
+Important hierarchy:
+- PTT and Hands-free are both first-class required voice features.
+- Text is a fallback path, not an equal "mode" in product importance.
+- Logs is history/navigation, not a communication mode.
+- The UI should visually reflect this hierarchy rather than presenting Hands-free and Text as equivalent segmented options.
+
+
+2. Final screen map
+-------------------
+There are 5 core screens:
+
+1) Main / Radio screen
+2) Hands-free screen
+3) New Message / shared Message Editor screen
+4) Logs screen
+5) Message Detail screen
+
+Do NOT create separate screens for temporary interaction states like:
+- PTT recording
+- PTT processing
+- Transcribing
+- Voice failure
+- Send success
+Those are states of the relevant existing screens.
+
+
+3. Shared message state: the important A9 architectural decision
+---------------------------------------------------------------
+There should be ONE shared observable message list used by all relevant screens.
+
+Do NOT create separate stores such as:
+- fakeMessages
+- typedMessages
+- transcriptMessages
+- receivedMessages
+- logsMessages
+
+Conceptually there should be one message source of truth for confirmed messages. Producers append only when a message actually enters history:
+- user presses Send after typing in the shared editor
+- user presses Send after reviewing/editing a PTT transcript draft
+- user presses Send after reviewing/editing a Hands-free transcript draft
+- transport delivers an incoming received message
+
+A voice transcript is editor draft content, not a message. Producing a transcript must not append it directly to the shared message list.
+
+The shared message state must live above the individual Main and Logs screens so both read the same data.
+
+The goal is:
+- A9 typed SEND adds to the same list.
+- Voice input pre-fills the shared editor; the user's later Send adds to the same list.
+- Later transport receive adds to the same list.
+- Logs and unread UI are derived from that shared state.
+
+For the prototype, do NOT over-engineer this into repositories, databases, DI, etc. A clean shared observable Compose state owned above the screens is enough unless existing code already has a simple appropriate structure.
+
+
+4. Message model / unread semantics
+-----------------------------------
+The Logs badge on the Main screen is NOT total message count.
+
+It represents:
+- unread INCOMING messages only
+
+Therefore:
+- Outgoing/user-created messages are effectively already read.
+- Incoming messages start unread.
+- Opening the Logs screen itself does NOT mark anything read.
+- A specific incoming message becomes read only when that individual message is opened in Message Detail.
+- The unread badge should ideally be derived from per-message read state, not manually maintained as a separate drifting counter.
+
+Conceptually each message eventually needs enough information for:
+- text
+- timestamp
+- direction (sent vs received)
+- read state (relevant for incoming messages)
+
+If a strict category has to be forced onto outgoing messages for read-state purposes:
+- outgoing messages start as read
+
+Logs contains the full history:
+- all sent messages
+- all received messages
+- messages remain in history
+
+Newest-first ordering is preferred and should be preserved.
+
+New typed A9 messages should be timestamped using the same visible format as existing messages.
+
+
+5. A9 typed-message scope
+-------------------------
+A9 should establish typed message creation cleanly.
+
+For A9:
+- User can open the dedicated Text / New Message screen.
+- User can type a multiline message.
+- SEND creates a local timestamped outgoing message in the shared list.
+- Message appears in Logs.
+- Outgoing message does NOT increment unread count.
+- Newest-first ordering.
+- After SEND, return to the Main screen.
+
+Do NOT wire:
+- Transport
+- Bluetooth
+- Wi-Fi
+- sendMessage transport abstraction
+- STT
+- TTS
+- alerts
+- receiver behavior
+- mode toggles beyond the UI currently being built
+- later ladder-rung behavior
+
+A9 SEND means:
+"add this local outgoing message to shared app state"
+NOT:
+"send it to another device"
+
+This is deliberate scope control.
+
+
+6. Main / Radio screen (Screen 1)
+---------------------------------
+Maintain the visual language of the current implemented app:
+- very dark navy/black background
+- "iTantra" text at upper left
+- very large orange circular HOLD TO TALK control
+- simple microphone icon
+- "Idle" status below when inactive
+- clean, sparse layout
+- no unnecessary dashboard decoration
+
+PLAY LAST RECORDING is a temporary capture-verification control, not final product UI. Do not let it drive the screen design; remove it during final integration/product cleanup once capture verification no longer needs it.
+
+Final hierarchy beneath the PTT:
+- small amount of breathing room
+- Bento-style control area
+
+Bento layout:
+- Hands-free gets the prominent full-width horizontal tile/row.
+- Hands-free tile uses a waveform / vertical audio-bar style visual.
+- Beneath it are two smaller side-by-side boxes:
+  - Text
+  - Logs
+- Logs includes unread incoming badge.
+- Text gets a writing/edit icon.
+- Logs gets a message/chat icon.
+
+Conceptual layout:
+
+    [ BIG ORANGE HOLD TO TALK ]
+
+             Idle
+
+    [ Hands-free                > ]
+    [ waveform / listening bars   ]
+
+    [ Text        > ] [ Logs  3 > ]
+
+Visual priority:
+- PTT remains the dominant element.
+- Hands-free is the strongest Bento element because it is a required major mode.
+- Text is visible and easy to access, but smaller because it is the fallback.
+- Logs is similarly a supporting/history tile.
+
+No latest-message preview on Main.
+No full conversation list on Main.
+No inline text composer on Main.
+
+Tapping:
+- Hands-free -> Hands-free screen
+- Text -> New Message editor screen, blank
+- Logs -> Logs screen
+
+
+7. PTT behavior on Main screen
+------------------------------
+PTT states happen on the SAME Main screen; do not create a separate PTT page.
+
+Lane 1 does not assume that speech recognition produces real-time or streaming text. The minimum UI contract is that capture/processing can eventually deliver one final transcript result, which opens the shared editor as a draft. Partial transcripts may be supported later only if Lane 3 exposes them.
+
+Idle:
+- big orange HOLD TO TALK
+- Idle status
+
+While held / recording:
+- Main screen visually focuses on recording
+- surrounding UI may fade/recede
+- PTT area can become the pulsing/ring listening/recording treatment
+- status becomes Recording... / Listening... as appropriate
+
+On release:
+- brief processing feedback where supported
+- exact Listening / Recording / Transcribing transitions must follow Lane 3's eventual interface rather than Lane 1 inventing decoder behavior
+
+When transcript is ready:
+- open the shared New Message editor
+- pre-fill it with the transcript
+- user can edit before sending
+
+If transcription fails:
+- provide a retry / fallback path
+- Text mode is the fallback
+- conceptually "continue as text" is appropriate
+- do not invent a whole new screen for failure
+
+The broader input convergence is:
+
+PTT -> transcript -> Message Editor -> Send -> Logs
+Hands-free -> transcript -> Message Editor -> Send -> Logs
+Text -> blank Message Editor -> Send -> Logs
+
+
+8. Hands-free screen (Screen 2)
+-------------------------------
+Reference shape:
+- Keep the current existing screen's overall structure.
+- Same dark background.
+- iTantra branding / header.
+- Centered orange/gold microphone orb.
+- Concentric rings around the orb.
+- Sparse layout.
+- Human-readable state text below.
+
+Remove debug-looking text like:
+- progress=0.137
+
+Hands-free screen purpose:
+- capture/listen only
+- editing does NOT happen on this screen
+
+Controls:
+- Back option is available at all times.
+- A clear Done button is present.
+
+Visual/state behavior:
+- Listening... when waiting for speech
+- Recording... while speech is being captured
+- Transcribing... after Done / when processing
+- rings/orb can animate more actively while recording
+- keep the UI calm and focused
+
+These labels describe the intended visual vocabulary, not a requirement for streaming transcription. The accepted post-acceptance correction starts the existing shared PTT recorder on Hands-free entry and finalizes it at Done or Back; the completion transcript remains a fake stand-in for UI testing. VAD, pause segmentation, real STT, and final state/event mapping wait for Lane 3 integration.
+
+Suggested helper text:
+- Listening... / Speak normally
+- Recording... / We'll stop when you pause
+- Transcribing... / Preparing your message
+
+Preferred icon treatment:
+- avoid using red for the mic unless red has a real semantic meaning
+- dark/black/white/gold is more consistent with the app
+- red can read as error/warning/stop
+
+Hands-free flow:
+1. User taps Hands-free tile on Main.
+2. Hands-free screen opens.
+3. Listening/recording occurs.
+4. User taps Done when finished.
+5. App transcribes.
+6. Open the shared New Message editor with transcript pre-filled.
+7. User edits if needed.
+8. User taps Send.
+9. Message enters shared Logs.
+10. Return to Main after send.
+
+Important decision:
+- YES, show the transcript after Done.
+- Do NOT auto-send a voice transcript.
+- The transcript goes into the shared editor for review/editing first.
+
+Back behavior:
+- Back is always available.
+- If no transcript/draft exists yet, Back can simply return.
+- Once the transcript exists in the editor, backing out should trigger the discard confirmation described below.
+
+
+9. New Message / shared Message Editor (Screen 3)
+-------------------------------------------------
+Header:
+- "New message"
+Use the same title whether:
+- opened blank from Text
+- opened pre-filled from PTT
+- opened pre-filled from Hands-free
+
+The mental model:
+- a focused mini text editor / Notepad-like writing screen
+- NOT a tiny chat input
+- comfortable for full paragraphs / multiline text
+- no clutter
+
+Layout:
+- back arrow
+- "New message" title
+- large multiline writing area
+- prominent Send button at bottom
+- no Logs button
+- no PTT button
+- no extra controls unless later genuinely needed
+
+Entry modes:
+A) Text tile:
+- editor opens blank
+
+B) PTT / Hands-free:
+- editor opens pre-filled with transcript
+- user can correct/edit it
+
+Send behavior:
+- Send creates outgoing message in shared list
+- outgoing message is already read
+- it appears in Logs
+- return to Main after send
+
+Back behavior:
+- If editor is empty, Back can leave normally.
+- If editor contains a draft/transcript and user presses Back:
+  show confirmation popup
+
+Popup:
+Title:
+- "Discard this message?"
+
+Body:
+- "Your transcript will be lost if you go back now."
+For manually typed text, wording can be generalized if implementation needs one shared dialog.
+
+Actions:
+- Cancel -> stay in editor
+- Discard -> throw away draft/transcript and return
+
+No auto-send.
+
+
+10. Logs screen (Screen 4)
+--------------------------
+Keep the already-made Logs screen with minimal changes.
+
+Existing structure is good:
+- back arrow
+- Logs
+- Conversation History
+- vertical list of message cards
+- dark theme
+- newest first
+
+Each row/card:
+- timestamp
+- message preview text
+- chevron on right to show it opens Message Detail
+
+Direction symmetry:
+- Incoming should explicitly show:
+  ↓ Received
+- Outgoing should explicitly show:
+  ↑ Sent
+
+Do NOT make "no label" imply received.
+Both directions should be explicit for symmetry.
+
+Unread/read treatment:
+- unread incoming message:
+  - bright cyan left stripe/accent
+  - Received label
+- read incoming message:
+  - Received label remains
+  - stripe disappears or becomes much subtler
+- outgoing:
+  - Sent label
+  - outgoing is not part of unread behavior
+
+Important:
+- Opening Logs does NOT mark messages read.
+- Only opening the individual incoming message does that.
+
+Logs is read-only history.
+No composer lives here.
+No total message count is required in the Logs header.
+
+
+11. Message Detail screen (Screen 5)
+------------------------------------
+Purpose:
+- read one full message cleanly
+- especially useful for long paragraph messages
+- read-only
+
+Preferred style:
+- plain document view
+- lots of breathing room
+- minimal borders
+- avoid card-inside-card visual clutter
+
+Layout:
+- back arrow
+- title "Message"
+- optional subtitle such as "Conversation Detail"
+- timestamp
+- date if useful
+- direction badge/label:
+  - Received
+  - Sent
+- full message body as clean readable text
+
+No editing here.
+
+Unread behavior:
+- If incoming message was unread, opening Message Detail marks that specific message as read.
+- Returning to Logs should reflect that:
+  - unread badge count is reduced
+  - unread stripe/accent on that message is removed/subdued
+
+Back:
+- returns to Logs
+
+
+12. Text as fallback behavior
+-----------------------------
+Typed Text is always available from the Main screen through its Bento tile.
+
+It is intentionally a fallback:
+- if PTT cannot work
+- if Hands-free cannot work
+- if microphone permission/capture fails
+- if transcription fails
+then the app can route/suggest the Text path.
+
+However:
+- Text still deserves a visible Bento tile.
+- It should not be hidden so deeply that the fallback becomes hard to access.
+- The tile should simply be visually smaller than Hands-free to communicate hierarchy.
+
+
+13. Why the shared editor matters
+---------------------------------
+Do NOT create separate UIs for:
+- typed message composition
+- PTT transcript review
+- Hands-free transcript review
+
+All three converge on the SAME editor:
+
+PTT -----------\
+Hands-free ----- > New Message Editor -> Send -> Logs
+Text ----------/
+
+Difference:
+- Text opens it blank.
+- Voice modes open it pre-filled.
+
+This keeps the product and implementation much simpler.
+
+
+14. Why the shared message bucket matters
+-----------------------------------------
+The app should not end up with:
+- Main showing one message count
+- Logs holding a different list
+- typed messages stored separately
+- sent messages that originated from voice stored in a separate history
+- received radio messages inventing another mechanism
+
+The desired data flow is:
+
+typed draft -> user Send ---------------------\
+PTT transcript -> editor draft -> user Send --- > ONE SHARED MESSAGE LIST
+Hands-free transcript -> draft -> user Send ---/              |
+incoming radio ----------------------------------------------/|
+                                                               +-> Main unread badge
+                                                               +-> Logs
+                                                               +-> Message Detail
+
+Unread count is not messages.size.
+Unread count is the number of unread incoming messages.
+
+
+15. Temporary screen states that are NOT new screens
+----------------------------------------------------
+Treat these as states of existing screens:
+- Main idle
+- Main PTT recording
+- Main PTT transcribing
+- Hands-free listening
+- Hands-free recording
+- Hands-free transcribing
+- editor with blank text
+- editor with transcript
+- discard popup
+- voice failure / continue as text
+- send success/failure
+
+Avoid screen proliferation.
+
+
+16. Current visual language to preserve
+---------------------------------------
+Across all screens:
+- very dark navy/near-black background
+- clean white primary text
+- muted gray secondary text
+- orange/gold as primary action/accent color
+- cyan/teal used selectively for received/unread states
+- rounded rectangles where cards/tiles are actually useful
+- generous spacing
+- minimal clutter
+- simple Android-style navigation/back affordances
+- do not turn the prototype into an over-designed dashboard
+
+The Main screen should remain visually closest to the actual current app screenshot:
+- iTantra upper left
+- huge orange PTT circle
+- Idle status
+- Bento controls below
+
+
+17. Final UX summary
+--------------------
+Main:
+- PTT dominates
+- Hands-free prominent Bento tile
+- Text + Logs smaller Bento tiles beneath
+
+Hands-free:
+- sparse capture screen
+- orb + rings
+- Listening / Recording / Transcribing
+- Back always available
+- Done to finish capture
+- transcript then goes to editor
+
+New Message:
+- large focused multiline editor
+- blank for Text
+- pre-filled for voice transcripts
+- Send
+- discard confirmation on backing out with content
+
+Logs:
+- all sent + received history
+- newest first
+- explicit Sent / Received labels
+- unread incoming visually accented
+- opening Logs does not mark read
+
+Message Detail:
+- clean read-only document view
+- full message + stored date/time metadata
+- opening unread incoming message marks it read
+
+
+18. Scope discipline reminder
+-----------------------------
+Do not use these UI decisions as permission to implement later rungs early.
+
+`TASK.md` controls which part of this direction is active. A9 remains the accepted historical milestone that established the shared observable message state, dedicated editor, local typed Send, Logs visibility, and outgoing read semantics.
+
+The following behavior is integration-deferred rather than standalone Lane 1 UI work:
+- real PTT transcription waits on Lane 3
+- Hands-free local WAV capture is implemented through the shared PTT recorder; VAD, pause segmentation, real STT, and final state/event mapping wait on Lane 3
+- streaming versus final-only transcript delivery remains intentionally unresolved until Lane 3 exposes its decoder/API
+- real outgoing send and incoming receive wait on Lane 2
+- alert metadata remains an unresolved Lane 1/Lane 2 prerequisite; do not invent a packet or message field locally
+- received-alert maximum-volume, non-interruptible TTS still remains required, but depends on Lane 2 Transport and Lane 3 Speech integration
+- PLAY LAST RECORDING is removed during final integration/product cleanup when it is no longer needed for capture verification

@@ -1,5 +1,16 @@
 # AGENTS.md — iTantra
 
+## UI/UX prototype routing
+
+For website prototyping, design review, and review-guide work under
+`docs/UI-Reference/`, read `docs/UI-Reference/AGENTS.md` and
+`docs/UI-Reference/HANDOFF.md` before acting. Those scoped instructions define
+the ideal-product mockup's source priorities and verification. The Android
+implementation scope, five-screen reference, native-only rule, and physical
+acceptance ladder below apply to Android implementation work. They do not
+reduce the ideal-product website's scope. Keep UI/UX work on the user-selected
+`UI/UX_discussion` branch; do not switch to `lane/app` for that work.
+
 Before starting any work in this repo, read `docs/SESSION_HANDOFF.md` in full for project context and current state.
 
 ## Purpose

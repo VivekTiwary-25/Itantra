@@ -1,0 +1,7 @@
+# Local tooling and generated verification artifacts
+__pycache__/
+*.py[cod]
+.venv/
+node_modules/
+playwright-report/
+test-results/

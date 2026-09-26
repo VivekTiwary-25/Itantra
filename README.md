@@ -1,5 +1,14 @@
 # iTantra
 
+## UI/UX review branch
+
+The `UI/UX_discussion` branch carries the complete-product interactive website
+and design review material. Start at
+[the UI/UX README](docs/UI-Reference/README.md) and
+[the current handoff](docs/UI-Reference/HANDOFF.md).
+The prototype is a simulation of the ideal product; Android implementation
+milestones below are separate engineering context.
+
 iTantra is our Smart India Hackathon prototype for offline multilingual speech communication over low-bandwidth local links.
 
 The core flow is:

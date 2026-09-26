@@ -1,5 +1,13 @@
 # SESSION_HANDOFF.md — iTantra integrated TTS recovery
 
+## UI/UX work on `UI/UX_discussion`
+
+The transferable ideal-product website, authoritative design documents, and
+review guide are in `docs/UI-Reference/`. For that work, resume from
+`docs/UI-Reference/AGENTS.md` and `docs/UI-Reference/HANDOFF.md`. The engineering
+snapshot below describes the Android implementation; it does not restrict the
+ideal-product mockup's capabilities or screen count.
+
 Updated on 2026-09-11 after refreshing `origin` and confirming the integrated source line. This is a resume snapshot, not a replacement for the domain-specific sources listed below.
 
 ## Source precedence

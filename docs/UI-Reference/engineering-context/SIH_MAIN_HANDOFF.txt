@@ -1,0 +1,1363 @@
+SIH_MAIN_HANDOFF.txt
+====================
+
+PROJECT: iTantra — SIH 2026, ISRO Problem Statement 26173
+TEAM: chmod 777
+PRIMARY USER / CURRENT DRIVER: Vivek
+DATE OF HANDOFF: 25 Sep 2026
+PURPOSE OF THIS FILE:
+This is a continuity handoff for a fresh ChatGPT/LLM thread. Read this whole file before giving advice. The project has moved through many experiments, and several earlier assumptions are now obsolete. Treat the CURRENT VERIFIED STATE below as authoritative unless a newer real-device result supersedes it.
+
+IMPORTANT COMMUNICATION / WORKSTYLE RULES
+----------------------------------------
+1. Vivek often wants to move FAST, but explanations should still be small and sequential when he asks "wait", "what happened?", "come again", or says he zoned out.
+2. Do not dump giant explanations unless he asks for them.
+3. Use casual warmth; "pooks" is fine.
+4. Do NOT preemptively minimize scope. This was explicitly agreed:
+   "You don't get to minimize. I decide minimization."
+   Explain the complete route/cost/risk. Let Vivek decide what to cut.
+5. Never fabricate measured metrics. If something is conceptual, simulated, upstream, inferred, or unverified on-device, label it clearly.
+6. Do not celebrate a narrow success as if the whole subsystem is solved.
+7. For agent prompts, be extremely concrete about:
+   - repo/path
+   - exact scope
+   - what NOT to touch
+   - expected outputs
+   - proof criteria
+   - stop condition
+8. When a test result comes back, first explain in plain English what actually changed, then decide the next gate.
+9. Prefer preserving previous known-good artifacts and building new candidates alongside them.
+10. Avoid "just make it work" modifications that weaken security, benchmarks, or reproducibility.
+
+===============================================================================
+0. ONE-SENTENCE CURRENT STATUS
+===============================================================================
+
+iTantra now has:
+- a genuinely working Hindi STT model on Android,
+- a desktop-proven one-big-encoder + tiny-language-wrapper multilingual STT packaging architecture,
+- a built but still-being-real-radio-validated Bluetooth/DTN/security stack,
+- a tiny multilingual recording utility for collecting benchmark audio,
+while the two major still-unfinished product lanes are TTS and UI, followed by full end-to-end sandwich integration and final SIH evidence.
+
+CURRENT ACTIVE WORK AT THE MOMENT THIS HANDOFF WAS REQUESTED:
+- Friends are collecting multilingual STT audio samples right now.
+- Opus is running real two-phone Bluetooth/networking validation right now.
+- UI is not yet the polished final product surface.
+- TTS still needs final multilingual validation/integration.
+- After those: integrate STT → networking → TTS and measure the complete user-visible path.
+
+===============================================================================
+1. PRODUCT / SIH PROBLEM
+===============================================================================
+
+Problem statement:
+ISRO SIH 2026 PS 26173 — iTantra / Indian multilingual TTS & STT aided neural transceiver radio access.
+
+Core intended scenario:
+Two Android phones communicate with no SIM, no tower, no router, no internet.
+
+Basic product loop:
+Phone A:
+speech
+→ local STT
+→ compact text
+→ local wireless transport
+
+Phone B:
+text received
+→ local TTS
+→ audible speech
+
+The "iTantra sandwich" means exactly:
+TOP BREAD = STT
+MIDDLE = networking / Bluetooth / DTN bridge
+BOTTOM BREAD = TTS
+
+Required languages:
+- Hindi
+- Gujarati
+- Marathi
+- Kannada
+- Malayalam
+- Tamil
+- Telugu
+- Odia
+- Bengali
+- English
+
+Current product decisions:
+- Manual language selector for v1.
+- Automatic LID is NOT the priority now.
+- Both PTT and hands-free are in the broader concept.
+- Disaster/outage resilience is a major motivation, but do not frame the whole product as only a disaster app.
+- Text transport is the core compression insight:
+  around 10 seconds raw PCM can be hundreds of KB, while recognized text may be only hundreds of bytes.
+
+===============================================================================
+2. SIH EVALUATION / PRESENTATION DISCIPLINE
+===============================================================================
+
+Known emphasis from prior discussion:
+- Accuracy: ~40%
+- Efficiency: ~20%
+- Latency: ~20%
+- Remaining criteria also matter, but these are central.
+
+Important:
+- Do NOT call (1 - WER) "accuracy" casually; WER can exceed 100% because insertions count.
+- No known hard SIH WER cutoff was identified.
+- Slide/evidence labels previously agreed:
+  MEASURED
+  UPSTREAM
+  DERIVED
+  TARGET
+  UNKNOWN
+
+Core evidence to show eventually:
+STT:
+- WER
+- CER
+- inference latency
+- RTF
+- model size
+- RAM / CPU
+
+Networking:
+- discovery/setup
+- A→B delivery
+- reconnect
+- fragmentation
+- encryption/Noise
+- DTN queue/persistence
+- later A→B→C relay if a third phone is available
+- success/failure counts
+- latency distribution
+
+TTS:
+- intelligibility / subjective quality
+- latency / RTF
+- model size
+- CPU / RAM
+- per-language support status
+
+Integrated killer metric:
+speech ends on A → remote speech begins on B/C.
+
+===============================================================================
+3. REPO / ENVIRONMENT / DEVICE CONTEXT
+===============================================================================
+
+Main repo:
+D:\projects\sih\itantra
+
+Android package:
+com.chmod777.itantra
+
+Primary OS:
+Windows 11
+
+User prefers:
+terminal-first workflow
+
+ADB:
+adb is NOT added to PATH on the user's system.
+Typical PowerShell helper:
+$adb = "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe"
+
+Then:
+& $adb devices
+
+When 2 phones are attached:
+ALWAYS use:
+& $adb -s DEVICE_SERIAL ...
+
+Do not run ambiguous adb commands with two attached devices.
+
+Known phones / device history:
+1. RMX3392
+   - Android 14 / API 34
+   - arm64-v8a
+   - previously used for Android STT prototype
+2. RMX5108IN
+   - recorder app verified on this device
+3. At the moment of this handoff, TWO physical phones are connected for networking validation.
+   Do NOT assume which exact two models unless Opus reports them.
+
+===============================================================================
+4. STT — CURRENT VERIFIED STATE
+===============================================================================
+
+THIS SECTION OVERRIDES OLDER STT ASSUMPTIONS.
+
+4.1 Historical models
+---------------------
+Earlier app used sherpa-onnx Dolphin CTC INT8 for several Indic languages.
+
+Dolphin issues:
+- Hindi sometimes poor.
+- One known Hindi clip produced Arabic/Perso-Arabic script.
+- Current CTC path cannot force language cleanly in the way hoped.
+- Upstream forced-language experiment showed forcing hi/IN barely helped.
+
+Whisper history:
+- Whisper tiny.en INT8 remains useful for English.
+- Whisper base multilingual INT8 existed for Hindi fallback historically.
+- A dedicated Kannada tiny experiment was bad.
+- Crucially, Whisper Hindi had never previously been benchmarked fairly on the same 10 clips.
+
+That gap is now closed.
+
+4.2 Canonical 10-clip Hindi benchmark
+-------------------------------------
+Dataset:
+local-recordings/hindi/hindi_01.wav ... hindi_10.wav
+with matching:
+hindi_01.txt ... hindi_10.txt
+
+IMPORTANT:
+References intentionally preserve some Latin-script English words in code-mixed Hindi.
+Examples include words such as:
+message
+internet
+bridge
+etc.
+
+Therefore:
+a model writing an English word phonetically in Devanagari can be correct to the ear but still be penalized by strict WER/CER.
+
+Do NOT silently change normalization or references.
+
+Canonical scorer functions were:
+norm
+lev
+wer
+cer
+wrong_scripts
+
+4.3 Dolphin forced-language experiment
+--------------------------------------
+Upstream PyTorch Dolphin forced hi/IN vs auto:
+
+AUTO:
+WER 60/166 = 36.14%
+CER 246/800 = 30.75%
+wrong-script: 1/10
+
+FORCED hi/IN:
+WER 59/166 = 35.54%
+CER 242/800 = 30.25%
+wrong-script: 1/10
+
+Only 1/10 clips changed.
+Conclusion:
+language forcing was NOT the main issue.
+Do not spend effort porting forced-language Dolphin decoder merely to solve Hindi.
+
+4.4 IndicConformer-600M bake-off
+--------------------------------
+Model:
+AI4Bharat IndicConformer-600M
+
+Environment:
+Downloaded under:
+D:\projects\sih\itantra\.indicconformer-600m\model
+
+Initial full snapshot:
+~2.38 GB download
+~809 files
+
+Virtual env:
+D:\projects\sih\itantra\.venv-indicconformer600m
+
+Key result on same 10 Hindi clips:
+
+IndicConformer CTC:
+WER 41/166 = 24.70%
+CER 190/800 = 23.75%
+wrong-script = 0/10
+
+IndicConformer RNNT:
+WER 41/166 = 24.70%
+CER 190/800 = 23.75%
+wrong-script = 0/10
+
+Historical Dolphin forced:
+WER 35.54%
+CER 30.25%
+
+So IndicConformer clearly beat Dolphin on this benchmark.
+
+CTC vs RNNT:
+- aggregate scores identical
+- RNNT was slower
+- only small per-clip transcript differences
+Engineering decision:
+CTC is the preferred deployment path unless new evidence changes that.
+
+Important nuance:
+Identical CTC/RNNT aggregate accuracy on 10 clips is consistent with the encoder driving most quality, but do NOT overclaim this as a proven architectural theorem.
+
+4.5 Whisper base INT8 re-benchmark
+----------------------------------
+This was run using the app's actual:
+base-encoder.int8.onnx
+base-decoder.int8.onnx
+base-tokens.txt
+
+Forced:
+language="hi"
+task="transcribe"
+2 threads
+CPU
+greedy
+sherpa-onnx Python 1.13.7
+
+Result:
+WER = 158/166 = 95.18%
+CER = 670/800 = 83.75%
+
+It produced:
+- Romanized Hindi
+- English translation-like outputs on several clips
+- 0/10 clips with Devanagari
+
+The old wrong_scripts() function did NOT catch Roman output because it only flagged non-Devanagari/non-Latin scripts.
+
+Conclusion:
+Whisper base INT8 is decisively unsuitable for this Hindi benchmark.
+Do not revive it as the preferred Hindi STT candidate unless there is major new evidence.
+
+Current Hindi quality ranking on this dataset:
+IndicConformer-600M CTC >>> Dolphin forced >>> Whisper base INT8
+
+4.6 Quantization — huge result
+------------------------------
+The winning IndicConformer CTC was quantized with ONNX Runtime dynamic INT8.
+
+Two variants:
+
+INT8-A:
+- quantized 217 MatMul nodes with weights
+- safer / least invasive
+
+INT8-B:
+- INT8-A plus 48 pointwise kernel-size-1 Convs rewritten as:
+  Transpose → MatMul → Add → Transpose
+
+FP32 required CTC size:
+2496.9 MB
+
+INT8-A:
+906.1 MB
+63.7% reduction
+
+INT8-B:
+680.0 MB
+72.8% reduction
+
+Accuracy:
+
+FP32:
+WER 24.70%
+CER 23.75%
+
+INT8-A:
+WER 24.70%
+CER 24.12%
+
+INT8-B:
+WER 24.70%
+CER 24.00%
+
+Wrong-script:
+0/10 for all
+
+INT8-B:
+same WER, tiny CER drift, much smaller.
+It became the preferred deployment candidate.
+
+Important:
+The original FP32 model was preserved byte-identically.
+
+Same-machine timing:
+FP32 mean ~6.00 s / 10 clips
+INT8-A mean ~3.26 s
+INT8-B mean ~3.09 s
+
+Do NOT compare those directly to older 17.3 s runs from a different harness.
+
+Quantization files:
+.indicconformer-600m\quantization\
+
+Quantized candidates:
+.indicconformer-600m\quantized-ctc-int8\
+
+4.7 Preprocessor / deployment audit
+-----------------------------------
+Concern:
+working model used preprocessor.ts, which looked like it might force PyTorch/TorchScript onto Android.
+
+Audit result:
+NO HARD BLOCKER.
+
+preprocessor.ts contains no learned weights and no training-only magic.
+
+It performs:
+- pre-emphasis 0.97
+- reflect pad 256 each side
+- STFT
+  n_fft=512
+  hop=160
+  Hann window=400
+- power spectrum
+- 80-band Slaney mel filterbank, 0–8 kHz
+- log(x + 2^-24)
+- per-feature mean/std normalization over time
+  N-1 variance
+  +1e-5 std stabilization
+
+Output:
+(80, T)
+T = L//160 + 1
+
+Sherpa already has a NeMo CTC-style feature frontend.
+The desktop audit found sherpa features close enough and preserved aggregate WER.
+An 80-sample reflected prefix improved feature alignment on desktop but later gave no benefit on the actual phone.
+
+Conclusion:
+Do NOT drag PyTorch onto Android.
+Use sherpa frontend.
+
+4.8 Sherpa-compatible fused Hindi model
+---------------------------------------
+Problem:
+original IndicConformer deployment was split encoder + CTC head.
+Sherpa wanted one model outputting log-probs.
+
+A fused Hindi model was built:
+- INT8-B encoder
+- Hindi-specific head
+- LogSoftmax
+- sherpa metadata
+- proper <blk> token handling
+
+Approx size:
+656.9 MB
+
+Desktop sherpa result:
+correct Hindi
+same benchmark behavior
+
+4.9 REAL ANDROID IndicConformer result
+--------------------------------------
+This is a major verified milestone.
+
+On real Android device RMX3392:
+- Android 14 / API 34
+- arm64-v8a
+- MediaTek MT6877 / Dimensity 900
+- ~7.7 GB RAM
+
+Model loaded from app private filesDir, NOT APK asset.
+
+On-device fused model location in prototype:
+/data/data/com.chmod777.itantra.icproto/files/model/model.int8.onnx
+
+Load:
+3.0–4.2 s fresh process
+
+Memory:
+Before load:
+RSS ~95 MB
+PSS ~36 MB
+
+After load:
+RSS ~832 MB
+PSS ~747 MB
+
+After 50 decodes:
+RSS ~875 MB
+PSS ~789 MB
+
+Peak:
+RSS ~900 MB
+PSS ~814 MB
+
+No OOM.
+No lowmemorykiller kill.
+No unsupported ORT op.
+No 2× transient spike when loading by filesystem path.
+
+First known clip:
+hindi_03
+transcript exactly:
+भारी बारिश के कारण मुख्य सड़क पूरी तरह बंद है और वैकल्पिक रास्ता उपलब्ध नहीं है
+
+This matched desktop exactly and was 0 WER for that clip.
+
+All 10 clips on Android:
+WER 41/166 = 24.70%
+CER 192/800 = 24.00%
+wrong-script 0/10
+
+Android + 80-sample prefix:
+WER 25.30%
+CER 23.88%
+No real benefit.
+
+Latency:
+2 threads:
+cold first inference ~869–899 ms for ~8.6 s audio
+warm mean ~814 ms / clip
+feature extraction ~9 ms
+steady RTF ~0.104
+roughly ~10x faster than real time
+
+4 threads were slower:
+RTF ~0.120
+
+Decision:
+use 2 threads.
+
+This proves:
+- ARM64 MatMulInteger works
+- DynamicQuantizeLinear works
+- Conv→MatMul transformed path works
+- FP32 remaining Convs work
+- actual Android CPU execution works
+
+4.10 Multilingual shared architecture
+-------------------------------------
+This is the latest STT architecture result.
+
+The goal:
+avoid 9 × ~657 MB fused models.
+
+Original model language structure discovered:
+- encoder is language-agnostic
+- head is one shared 1x1 Conv with 5633 rows
+- 22 languages × 256 token rows
+- + 1 shared blank row at global index 5632
+- each language uses its own 256 rows + the shared blank
+- local output size 257
+- local blank id 256
+
+Desired iTantra languages:
+hi, gu, mr, kn, ml, ta, te, or, bn
+
+Four options tested:
+
+OPTION A
+shared encoder + separate tiny head ONNX
+- technically clean
+- bit-exact
+- head switch 2–3 ms
+- BUT sherpa cannot directly run split model this way without custom glue
+
+OPTION B
+one ONNX with lang_id input
+- works in ORT
+- sherpa fails because it only feeds expected inputs and not extra lang_id
+
+OPTION C — CHOSEN CURRENTLY
+thin sherpa-compatible per-language wrappers referencing ONE shared external weight file
+- no custom native code
+- one large physical encoder copy on disk
+- works with sherpa
+- Hindi bit-exact vs known-good fused model
+- downside: switching language reloads encoder/session
+
+OPTION D
+custom native adapter
+- would enable keeping encoder resident and swapping small heads
+- needs Kotlin/native/JNI/ORT integration
+- estimated 1–2 days
+- not chosen yet
+
+Option C storage:
+Shared INT8-B encoder weights:
+~651.95 MB
+
+Encoder graph:
+~4 MB
+
+Per language:
+~1.05 MB head slice + ~2.8 KB tokens
+but practical wrapper overhead makes each extra language ~5.05 MB total.
+
+Total all 9:
+~697.42 MB
+
+Bad architecture:
+9 × fused models ~5912.49 MB
+
+Saving:
+~5215 MB
+~88.2%
+
+IMPORTANT:
+This shares storage, NOT active session RAM.
+
+Current language switch behavior:
+release recognizer
+→ construct selected <lang>.onnx wrapper
+→ reload same shared encoder weights
+
+Desktop reload:
+~2.3 s
+
+Expected phone switch:
+around previous 3–4 s ballpark, but this exact external-data multilingual package has NOT yet been run on Android.
+
+Two simultaneous recognizers:
+~1.3 GB desktop private memory
+So do not keep two alive.
+
+Option A would avoid reload, but requires custom integration.
+
+Multilingual package folder:
+.indicconformer-600m\multilingual-adapters\
+
+Key files:
+architecture.md
+language_map.json
+storage_report.md
+adapter_builder.py
+verify_hindi.py
+language_switch_demo.py
+verification_results.json
+
+Shared artifacts:
+multilingual-adapters\shared\
+
+Per-language:
+multilingual-adapters\languages\hi\
+... gu, mr, kn, ml, ta, te, or, bn
+
+4.11 What is actually quality-proven per language
+-------------------------------------------------
+Hindi:
+QUALITY BENCHMARKED
+- 10 labelled clips
+- real Android
+- WER/CER measured
+
+Other 8 Indian languages:
+STRUCTURALLY VERIFIED ONLY
+- vocab correct
+- tokens unique
+- blank correct
+- rows match original model mask
+- wrapper executes
+- output dimension correct
+- correct script mapping
+- sherpa/ORT runs
+
+BUT:
+No trusted accuracy benchmark yet.
+
+DO NOT say:
+"IndicConformer is accurate for all nine."
+
+Allowed:
+"The architecture supports all nine required Indian languages; Hindi is quantitatively validated, while the other eight are structurally validated pending speech benchmarks."
+
+CURRENT ACTIVE STT TASK:
+Friends are collecting samples right now using the dedicated recorder app.
+Once pulled:
+- organize WAV + reference pairs
+- benchmark each language
+- compute WER/CER
+- decide whether IndicConformer replaces Dolphin everywhere
+- only add per-language fallbacks if evidence says needed
+
+===============================================================================
+5. MULTILINGUAL RECORDING TOOL
+===============================================================================
+
+A tiny standalone Android recorder was built specifically for STT benchmark collection.
+
+Project:
+D:\projects\sih\iTantraRecorder
+
+Package:
+com.chmod777.itantra.recorder
+
+Purpose:
+No STT, no TTS, no networking.
+Only:
+select language
+optional reference text
+record proper ASR WAV
+save organized by language.
+
+Supported selector:
+en, hi, gu, mr, kn, ml, ta, te, or, bn
+
+Audio format VERIFIED on real device RMX5108IN:
+- RIFF/WAVE
+- PCM format 1
+- signed 16-bit little-endian
+- mono
+- 16000 Hz
+- valid 44-byte WAV header
+
+Storage:
+/sdcard/Android/data/com.chmod777.itantra.recorder/files/recordings/
+
+Expected layout:
+recordings/
+  en/
+  hi/
+  gu/
+  mr/
+  kn/
+  ml/
+  ta/
+  te/
+  or/
+  bn/
+
+Sequential filenames:
+hi_001.wav
+hi_002.wav
+...
+kn_001.wav
+...
+
+Optional matching reference:
+hi_001.txt
+etc.
+
+Manifest:
+recordings/manifest.jsonl
+
+Exact pull:
+adb pull /sdcard/Android/data/com.chmod777.itantra.recorder/files/recordings local-recordings
+
+Because adb is not on PATH, likely:
+& $adb pull ...
+
+Recorder setup result:
+- installed and launched
+- microphone granted
+- real capture verified
+- manifest created
+- automated test file cleaned up
+- phone dataset left empty for real collection
+
+Sidecar .txt path was implemented but at the moment of setup had not yet been physically exercised in the setup run. If not subsequently verified, verify one throwaway sample before relying on hundreds of clips.
+
+CURRENTLY:
+Friends are collecting multilingual samples "as we speak" per Vivek.
+
+===============================================================================
+6. NETWORKING / BLUETOOTH / DTN
+===============================================================================
+
+Networking is NOT simple RFCOMM anymore.
+
+Canonical intended architecture:
+- BLE advertising/scanning mandatory
+- BLE GATT canonical v1 transport
+- RFCOMM retained only as optional fallback / old path
+- PeerLink abstraction
+- GATT client/server
+- fragmentation + reassembly
+- Noise XX hop/session security
+- trusted recipient messaging
+- signed identity capsules
+- persistent DTN store
+- bounded replication / Spray-and-Wait
+- duplicate suppression
+- expiry
+- receipts
+- tombstones
+- separate SOS path
+- application-layer multi-hop / store-carry-forward
+- NOT standardized Bluetooth Mesh
+
+Branch:
+feature/itantra-v1-networking
+
+Last known previous HEAD before current physical run:
+64ba490
+
+Previous reported state:
+- 10 commits on top of research/dolphin-conditioned@230eab9
+- nothing pushed
+- unrelated .gitignore edit for Dolphin venv entries was intentionally left uncommitted
+- networking specs moved into docs/networking/
+
+Specs:
+docs/networking/ITANTRA_V1_SPEC_AND_AUDIT.txt
+docs/networking/EXECUTION_SPEC_BLE_BRANCH.md
+
+TASK.md records branch scope.
+
+Previously implemented / JVM-tested:
+- protocol config
+- canonical CBOR
+- frame codecs
+- identity capsule / QR
+- trusted contacts
+- keystore-wrapped identity keys
+- pair secret
+- direction-bound destination tags
+- signing + encryption
+- recipient checks
+- GATT fragmentation/reassembly
+- BLE advertising/scanning/GATT
+- PeerLink
+- Noise
+- encrypted messages
+- DTN store
+- Spray-and-Wait
+- receipts
+- tombstones
+- SOS
+- integration hooks
+
+Automated tests:
+73 JVM tests
+
+IMPORTANT:
+Before current run, there had NOT been complete real two-phone validation of the new architecture.
+
+CURRENT ACTIVE NETWORKING TASK:
+Opus is running REAL TWO-PHONE validation right now with two physical devices connected.
+
+Its mission:
+- identify both devices explicitly
+- build/install branch on both
+- real BLE discovery
+- GATT connection
+- fragmentation/reassembly
+- Noise XX
+- encrypted A→B
+- encrypted B→A
+- 20–50 deterministic messages each way if possible
+- latency
+- reconnect
+- queue while peer unavailable
+- DTN persistence
+- receipt/tombstone/duplicate behavior
+- optional direct SOS if easy
+- logs / machine-readable results
+- fix only concrete bugs
+- no architectural weakening
+- no laptop relaying app data
+
+VERY IMPORTANT:
+Laptop/USB/ADB is only for:
+- install
+- launch
+- logs
+- orchestration
+- pulling artifacts
+
+Actual app data path MUST be phone-to-phone BLE.
+
+No multi-hop claim yet.
+A→B→C needs a THIRD physical phone.
+
+When Opus returns:
+read the result carefully and distinguish:
+- TWO-PHONE NETWORKING VALIDATED
+vs
+- WORKS WITH LIMITATIONS
+vs
+- BLOCKED
+
+Do not jump straight to "networking done" without checking:
+- discovery
+- GATT
+- Noise
+- encrypted messaging
+- failures
+- reconnect
+- DTN persistence
+- duplicate suppression
+- real measured latency
+
+===============================================================================
+7. TTS — CURRENT STATUS
+===============================================================================
+
+TTS is the main unfinished technical lane besides remaining STT language validation and networking physical validation.
+
+Earlier state:
+- sherpa-onnx TTS infrastructure exists
+- Piper voices used historically:
+  English en_US ryan
+  Hindi hi_IN pratham
+- Indic-TTS was researched for broader Indian-language coverage
+- earlier app claims about all 10 languages have evolved and should NOT be blindly trusted without current measured evidence
+- there was a separate AI/TTS testing lane/team
+
+Current project-level need:
+TTS must be brought to the same evidence quality as STT:
+- all required languages mapped to actual model/voice path
+- Android viable
+- model size known
+- load behavior known
+- latency / RTF known
+- intelligibility checked
+- failure modes known
+- packaging/storage architecture understood
+
+Do NOT assume all 10 are production-ready merely because an older demo claimed broad coverage.
+
+Likely TTS work should include:
+1. exact current model inventory
+2. language-by-language mapping
+3. model licensing/source provenance
+4. offline Android runtime viability
+5. size + memory
+6. real-device sample generation
+7. listener/intelligibility check
+8. integrated remote text→speech test
+
+===============================================================================
+8. UI — CURRENT STATUS
+===============================================================================
+
+UI is not polished/final yet.
+
+This is NOT blocking low-level validation.
+
+Needed final-ish product surface probably includes:
+- device/peer discovery / connection state
+- language selector
+- PTT flow
+- possibly hands-free toggle
+- clear recording/transcribing state
+- outgoing text/status
+- incoming text/status
+- TTS playback state
+- failure/retry state
+- possibly trusted-contact / SOS flows depending final demo scope
+
+Important:
+Do not let UI work trigger architecture rewrites.
+The product logic should be callable through debug/test paths before UI polish.
+
+Current recommendation:
+UI lane can proceed in parallel with TTS while Vivek/assistant monitor STT + networking validation.
+
+===============================================================================
+9. WHAT IS LEFT, HIGH LEVEL
+===============================================================================
+
+CURRENT ACTIVE:
+STT multilingual quality collection/testing    IN PROGRESS
+Networking two-phone physical validation       IN PROGRESS
+
+MAIN REMAINING LANES:
+TTS                                              TODO / active elsewhere
+UI polish / product surface                      TODO
+
+AFTER THOSE:
+FULL INTEGRATION / SANDWICH VALIDATION           TODO
+END-TO-END METRICS                               TODO
+FINAL DEMO VIDEO / PPT evidence                  TODO
+
+Simple map:
+
+STT model research            DONE
+Hindi benchmark               DONE
+INT8 quantization             DONE
+Hindi Android execution       DONE
+Shared multilingual storage   DONE
+Other-language STT quality    IN PROGRESS
+
+Networking implementation     DONE
+JVM tests                     DONE
+2-phone physical validation   IN PROGRESS
+3-phone real multi-hop        TODO, needs third phone
+
+TTS multilingual validation   TODO / separate lane
+UI polish                     TODO / separate lane
+
+Full STT→NET→TTS integration  TODO
+End-to-end measurements       TODO
+Final SIH evidence            TODO
+
+===============================================================================
+10. FULL END-TO-END TARGET
+===============================================================================
+
+The final proof should be something like:
+
+PHONE A
+user speaks
+→ microphone audio
+→ selected-language STT
+→ transcript
+→ networking stack
+→ encrypted BLE / DTN transport
+→ PHONE B receives
+→ TTS
+→ PHONE B speaks aloud
+
+Potential measured timestamps:
+t0 = user stops speaking on A
+t1 = STT transcript ready
+t2 = message handed to network
+t3 = B receives/decrypts
+t4 = TTS starts
+t5 = speech playback ends
+
+Primary integrated metric:
+t4 - t0
+= speech-stop-to-remote-speech-start latency
+
+Secondary:
+- STT time
+- transport time
+- TTS startup time
+- total RAM
+- thermal behavior
+- failures/retries
+- model reload penalty on language change
+
+===============================================================================
+11. STT MULTILINGUAL DEPLOYMENT CAVEATS TO REMEMBER
+===============================================================================
+
+Current chosen storage architecture (Option C):
+- one physical shared encoder weight file
+- 9 thin wrappers
+- no large encoder duplication on disk
+- works with sherpa desktop
+
+BUT:
+language switching reloads the encoder/session.
+
+Potential future improvement (Option A):
+shared encoder session remains alive
++ tiny head swaps
+= ~2–3 ms head switch on desktop
+
+But Option A needs custom adapter/native integration.
+Do NOT spend 1–2 days on it unless the 2–4 second selector reload becomes a real product/demo problem.
+
+External-data Android loading of the full 9-language package is still unverified unless a newer test has happened after this handoff.
+
+Potential Android test:
+- copy 697 MB package to filesDir
+- load hi wrapper
+- transcribe known Hindi
+- switch to kn/ta wrapper
+- inspect load time + RSS transient
+- switch back to hi
+- verify parity
+- confirm no 2× memory transient
+
+===============================================================================
+12. BENCHMARK / SCIENTIFIC DISCIPLINE
+===============================================================================
+
+Never:
+- change references after seeing model outputs
+- change normalization to make one model look better
+- hide per-clip regressions
+- mix desktop CPU timing with phone timing as if comparable
+- compare old harness timings against new harness timings without labeling
+- call structural verification "accuracy"
+- infer all-language quality from Hindi
+- infer multi-hop from two-phone tests
+- infer Android from desktop
+- infer actual RAM from model file size
+- fabricate success rates
+
+For STT:
+micro-average WER/CER using total edits / total reference units.
+
+For code-mix:
+strict WER is useful but may over-penalize equivalent transliteration.
+If later adding a script-agnostic/normalized metric:
+KEEP strict canonical score as primary.
+Add alternate score as a supplementary metric only.
+
+===============================================================================
+13. KNOWN GOOD / BAD DECISIONS
+===============================================================================
+
+GOOD / CURRENT:
+- IndicConformer-600M CTC
+- INT8-B as preferred deployment candidate
+- sherpa frontend
+- 2 threads on RMX3392-class phone
+- load large model by filesystem path, not APK asset
+- shared storage architecture for 9 languages
+- English separate
+- manual language selector
+- preserve Dolphin only as rollback until broader language tests settle
+- real-device evidence before product claims
+
+REJECTED / DEPRIORITIZED:
+- forced-language Dolphin port as main fix
+- Whisper base INT8 Hindi
+- 9 independent ~657 MB fused IndicConformer models
+- PyTorch/TorchScript on Android
+- bundling 657 MB model directly as normal APK asset
+- premature Option A native adapter before proving current approach is insufficient
+- claims that structurally verified languages are accuracy-validated
+
+===============================================================================
+14. ABOUT DOLPHIN NOW
+===============================================================================
+
+Do not treat Dolphin as the desired final architecture for the nine Indian languages if IndicConformer validates well across them.
+
+Why it still exists:
+temporary rollback / comparison / fallback.
+
+If IndicConformer quality is good across the 8 remaining languages:
+Dolphin can disappear from the final Indian-language STT path.
+
+English stays separate.
+
+If one or two Indic languages are weak:
+use targeted fallback(s), not necessarily an all-language fallback architecture.
+
+===============================================================================
+15. ABOUT THE FRIEND'S OLD "PER-LANGUAGE INDICCONFORMER" IDEA
+===============================================================================
+
+Earlier friend proposal:
+one ~120M per-language IndicConformer per Indian language.
+
+Why it was deprioritized as default:
+- ~470 MB FP32 each
+- 9 × ~470 MB = ~4.23 GB
+- even proposed INT8 ~180–220 MB each = ~1.6–2.0 GB STT
+- load-one-at-a-time solves RAM, not storage
+- downloadable language packs are awkward during outages if not preloaded
+- quality was not yet proven
+- current 600M shared encoder solution offers one shared core + tiny language-specific output slices
+
+BUT:
+per-language models remain a possible targeted fallback if a specific language performs badly in the shared 600M model.
+
+===============================================================================
+16. NETWORKING SECURITY / ARCHITECTURE TEACHING CONTEXT
+===============================================================================
+
+There is a large "source of truth" teaching manual previously generated:
+iTantra_Source_of_Truth_Teaching_Manual_v1.pdf
+
+It was around:
+145 pages
+14 main chunks
+139 subchunks
+
+Teaching progression had started:
+Main Chunk 1 Identity & trust establishment
+Subchunk 1.1 public vs private key
+completed:
+1.1.1 what is a key
+1.1.2 why two related keys
+1.1.3 what each does
+next:
+1.1.4 X25519 public/private pair
+
+This teaching work is separate from engineering execution.
+Do NOT block engineering on teaching completion.
+
+===============================================================================
+17. GIT / BRANCH HYGIENE
+===============================================================================
+
+Important prior networking branch:
+feature/itantra-v1-networking
+
+Last known previous HEAD:
+64ba490
+
+Do not:
+- pull blindly
+- reset
+- rebase
+- discard local changes
+- commit unrelated .gitignore edit
+
+If current head has moved:
+inspect actual history first.
+
+Previous unrelated .gitignore edit:
+Dolphin venv entries
+was intentionally uncommitted.
+
+Agent rule:
+when told to preserve baseline:
+copy/branch/create new candidate.
+Never overwrite known-good models or prior benchmark results.
+
+===============================================================================
+18. HOW TO HANDLE UPCOMING RESULTS
+===============================================================================
+
+IF OPUS RETURNS NETWORKING SUCCESS:
+Do not immediately declare "middle layer done".
+Check:
+- both physical devices identified
+- actual BLE used
+- discovery
+- GATT
+- Noise handshake
+- encrypted A→B
+- encrypted B→A
+- count successes/failures
+- latency
+- reconnect
+- DTN queued delivery
+- duplicate suppression
+- receipt/tombstone behavior
+- source fixes
+- no laptop relay
+Then mark:
+TWO-PHONE PHYSICAL VALIDATION = green
+
+Still pending:
+third-phone A→B→C multi-hop.
+
+IF STT MULTILINGUAL SAMPLES ARRIVE:
+1. pull whole recorder dataset
+2. verify WAV metadata
+3. verify .txt sidecars
+4. map language
+5. run same scoring discipline
+6. report per-language:
+   - clips
+   - words
+   - WER
+   - CER
+   - wrong-script
+   - exact bad cases
+7. identify weak languages
+8. only then decide fallback architecture.
+
+IF TTS TEAM RETURNS:
+Require:
+- exact model per language
+- model size
+- runtime
+- Android status
+- measured latency
+- actual generated samples
+- intelligibility evidence
+- license/source
+Do not accept "supports language X" without proof of the artifact actually running.
+
+IF UI ARRIVES:
+Do not judge only aesthetics.
+Check:
+- actual state wiring
+- language routing
+- peer connection state
+- PTT lifecycle
+- receive/send states
+- TTS playback state
+- error handling
+- debugability for demo
+
+===============================================================================
+19. IDEAL NEXT FEW TASKS AFTER CURRENT ACTIVE RUNS
+===============================================================================
+
+A. Read Opus two-phone result.
+If pass:
+- preserve evidence
+- decide whether 3-phone test is immediately possible.
+
+B. Receive/pull multilingual STT recorder data.
+- benchmark all 8 remaining Indic languages.
+- decide final STT language routing.
+
+C. Drive TTS to a measured language-by-language matrix.
+
+D. Drive UI to a functional integration surface.
+
+E. Merge/integrate:
+STT → networking → TTS
+behind usable controls.
+
+F. Run full sandwich on at least two phones.
+
+G. Measure:
+- end-to-end latency
+- STT latency
+- transport latency
+- TTS startup latency
+- total memory
+- stability
+- thermal behavior if time permits
+
+H. Final demo/PPT:
+use only measured claims where available.
+Use "concept/target" labels for anything unmeasured.
+
+===============================================================================
+20. FINAL "DO NOT FORGET" LIST
+===============================================================================
+
+- Hindi IndicConformer CTC is real, measured, and Android-proven.
+- Whisper base INT8 Hindi is terrible on our benchmark.
+- Dolphin is no longer best Hindi.
+- INT8-B preserved WER while shrinking CTC by ~73%.
+- Android RTF ~0.104 on RMX3392 with 2 threads.
+- Peak RSS ~900 MB on that phone.
+- One shared 9-language package is ~697 MB on disk.
+- Other 8 Indic languages are NOT yet quality-benchmarked.
+- Friends are collecting those samples right now.
+- Recorder app exists and works.
+- Two-phone networking real validation is running right now.
+- Three-phone multi-hop still needs a third phone.
+- TTS remains a major unfinished technical lane.
+- UI remains a major unfinished product lane.
+- Full sandwich integration has not yet been revalidated with the newest STT + newest networking stack.
+- Do not minimize scope without Vivek choosing the cut.
+
+===============================================================================
+21. QUICK STATUS TABLE
+===============================================================================
+
+STT Hindi research ...................... DONE
+STT Hindi benchmark ..................... DONE
+IndicConformer 600M quality ............. DONE
+INT8 quantization ....................... DONE
+Sherpa adapter .......................... DONE
+Android Hindi execution ................. DONE
+Shared multilingual storage ............. DONE
+8-language quality benchmark ............ IN PROGRESS
+English STT ............................. separate / existing tiny.en path
+
+Networking architecture ................. IMPLEMENTED
+Networking JVM tests .................... 73 PASS
+Two-phone real BLE ...................... IN PROGRESS NOW
+Three-phone multi-hop ................... PENDING
+
+Recorder utility ........................ DONE
+Sample collection ....................... IN PROGRESS NOW
+
+TTS ..................................... MAIN REMAINING LANE
+UI ...................................... MAIN REMAINING LANE
+
+Full integration ........................ PENDING
+End-to-end metrics ...................... PENDING
+Final PPT/demo evidence ................. PENDING
+
+===============================================================================
+22. RECOMMENDED FIRST MESSAGE IN THE NEW THREAD
+===============================================================================
+
+Suggested user opener:
+
+"I'm continuing iTantra SIH work. Read the attached SIH_MAIN_HANDOFF.txt fully before answering. The live state is: friends are collecting multilingual STT samples, Opus is currently validating the networking stack on two connected phones, and we now need to drive TTS + UI while preparing for full integration. Do not re-explain the project from scratch unless I ask."
+
+===============================================================================
+END OF HANDOFF
+===============================================================================
