@@ -1,0 +1,93 @@
+[
+  {
+    "path": "D:\\iTantra-tts-bn-indic",
+    "branch": "tts/bn/indic-tts",
+    "head": "0e63c4581f4a1fa465ed64e17ef5ff4067e16edc",
+    "tracked_diff": "",
+    "status": "?? tools/\n?? tts-research/"
+  },
+  {
+    "path": "D:\\iTantra-tts-gu-indic",
+    "branch": "tts/gu/indic-tts",
+    "head": "0e63c4581f4a1fa465ed64e17ef5ff4067e16edc",
+    "tracked_diff": "",
+    "status": "?? tools/\n?? tts-research/"
+  },
+  {
+    "path": "D:\\iTantra-tts-mr-indic",
+    "branch": "tts/mr/indic-tts",
+    "head": "0e63c4581f4a1fa465ed64e17ef5ff4067e16edc",
+    "tracked_diff": "",
+    "status": "?? tools/\n?? tts-research/"
+  },
+  {
+    "path": "D:\\iTantra-tts-kn-indic",
+    "branch": "tts/kn/indic-tts",
+    "head": "0e63c4581f4a1fa465ed64e17ef5ff4067e16edc",
+    "tracked_diff": "",
+    "status": "?? tools/\n?? tts-research/"
+  },
+  {
+    "path": "D:\\iTantra-tts-ta-indic",
+    "branch": "tts/ta/indic-tts",
+    "head": "0e63c4581f4a1fa465ed64e17ef5ff4067e16edc",
+    "tracked_diff": "",
+    "status": "?? FRONTEND_REPAIR_REPORT.md\n?? FRONTEND_REPAIR_RESULTS.csv\n?? tools/\n?? tts-research/"
+  },
+  {
+    "path": "D:\\iTantra-tts-te-indic",
+    "branch": "tts/te/indic-tts",
+    "head": "0e63c4581f4a1fa465ed64e17ef5ff4067e16edc",
+    "tracked_diff": "",
+    "status": "?? tools/\n?? tts-research/"
+  },
+  {
+    "path": "D:\\iTantra-tts-or-indic",
+    "branch": "tts/or/indic-tts",
+    "head": "0e63c4581f4a1fa465ed64e17ef5ff4067e16edc",
+    "tracked_diff": "",
+    "status": "?? tools/\n?? tts-research/"
+  },
+  {
+    "path": "D:\\iTantra-tts-bn-rasa",
+    "branch": "tts/bn/rasa",
+    "head": "0e63c4581f4a1fa465ed64e17ef5ff4067e16edc",
+    "tracked_diff": "",
+    "status": ""
+  },
+  {
+    "path": "D:\\iTantra-tts-mr-rasa",
+    "branch": "tts/mr/rasa",
+    "head": "0e63c4581f4a1fa465ed64e17ef5ff4067e16edc",
+    "tracked_diff": "",
+    "status": ""
+  },
+  {
+    "path": "D:\\iTantra-tts-kn-rasa",
+    "branch": "tts/kn/rasa",
+    "head": "0e63c4581f4a1fa465ed64e17ef5ff4067e16edc",
+    "tracked_diff": "",
+    "status": ""
+  },
+  {
+    "path": "D:\\iTantra-tts-ta-rasa",
+    "branch": "tts/ta/rasa",
+    "head": "0e63c4581f4a1fa465ed64e17ef5ff4067e16edc",
+    "tracked_diff": "",
+    "status": ""
+  },
+  {
+    "path": "D:\\iTantra-tts-te-rasa",
+    "branch": "tts/te/rasa",
+    "head": "0e63c4581f4a1fa465ed64e17ef5ff4067e16edc",
+    "tracked_diff": "",
+    "status": ""
+  },
+  {
+    "path": "D:\\iTantra-tts-ml",
+    "original_tts_branch": "tts/ml/piper",
+    "current_branch": "UI/UX_discussion",
+    "head": "c53382feba7ba14da3647d31edb335189b8b58e1",
+    "note": "Malayalam work is untracked here; folder later reused for UI/UX."
+  }
+]

@@ -1,5 +1,13 @@
 # TASK.md — Current Codex Task
 
+## TTS transfer checkpoint
+
+On `codex/tts-research-handoff`, the current task is to preserve and transfer
+existing offline TTS desktop research, latest frontend repair work, and evidence.
+Read `tts-research/HANDOFF.md`, scoped instructions, and the original TTS handoff.
+Do not resume the separate Dolphin STT task below or start a new model experiment
+merely because this branch was cloned. Follow the user's next TTS request.
+
 ## Active task
 
 **Integrated source prepared for Dolphin conditioning research**

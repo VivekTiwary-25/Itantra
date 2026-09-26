@@ -1,0 +1,3 @@
+# Keep copied experiment scripts/vendor bytes identical to source manifests.
+*.py -text
+vendor/** -text

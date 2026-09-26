@@ -1,0 +1,8 @@
+# Preserve frozen input/evidence hashes across Windows and Linux clones.
+ORIGINAL_TTS_HANDOFF.md -text
+inputs/** -text
+run1/** -text
+original-scripts/** -text
+frontend-repair/** -text
+evidence/** -text
+results/** -text

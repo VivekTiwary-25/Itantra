@@ -1,0 +1,96 @@
+{
+  "model_dir": "/mnt/d/iTantra-tts-models/ta",
+  "load_seconds": 16.465,
+  "records": [
+    {
+      "number": 1,
+      "language_code": "ta",
+      "text": "நதியின் நீர்மட்டம் வேகமாக உயர்கிறது. பாதுகாப்பான இடத்திற்குச் செல்லுங்கள்.",
+      "wav": "/mnt/d/iTantra-tts-ta-indic/local-recordings/ta-indic/01.wav",
+      "generation_seconds": 2.675,
+      "audio_seconds": 7.42,
+      "sample_rate": 22050
+    },
+    {
+      "number": 2,
+      "language_code": "ta",
+      "text": "பள்ளி அருகே தீப்பற்றி உள்ளது. தூரமாக இருங்கள்.",
+      "wav": "/mnt/d/iTantra-tts-ta-indic/local-recordings/ta-indic/02.wav",
+      "generation_seconds": 1.792,
+      "audio_seconds": 5.284,
+      "sample_rate": 22050
+    },
+    {
+      "number": 3,
+      "language_code": "ta",
+      "text": "சந்தைக்குப் பிறகு இடதுபுறம் திரும்புங்கள்.",
+      "wav": "/mnt/d/iTantra-tts-ta-indic/local-recordings/ta-indic/03.wav",
+      "generation_seconds": 1.342,
+      "audio_seconds": 3.937,
+      "sample_rate": 22050
+    },
+    {
+      "number": 4,
+      "language_code": "ta",
+      "text": "பழைய பாலத்தைக் கடந்து மருத்துவமனை முன் நிற்குங்கள்.",
+      "wav": "/mnt/d/iTantra-tts-ta-indic/local-recordings/ta-indic/04.wav",
+      "generation_seconds": 1.544,
+      "audio_seconds": 4.308,
+      "sample_rate": 22050
+    },
+    {
+      "number": 5,
+      "language_code": "ta",
+      "text": "தயவுசெய்து கிராமத்தின் வடக்குப் பகுதிக்கு ஒரு மருத்துவரை அனுப்புங்கள்.",
+      "wav": "/mnt/d/iTantra-tts-ta-indic/local-recordings/ta-indic/05.wav",
+      "generation_seconds": 1.978,
+      "audio_seconds": 5.248,
+      "sample_rate": 22050
+    },
+    {
+      "number": 6,
+      "language_code": "ta",
+      "text": "மூன்று குழந்தைகள் கோவிலில் சிக்கியுள்ளனர். உதவி செய்யுங்கள்.",
+      "wav": "/mnt/d/iTantra-tts-ta-indic/local-recordings/ta-indic/06.wav",
+      "generation_seconds": 1.936,
+      "audio_seconds": 5.853,
+      "sample_rate": 22050
+    },
+    {
+      "number": 7,
+      "language_code": "ta",
+      "text": "இன்று மாலை நாம் வீட்டில் சந்திப்போம்.",
+      "wav": "/mnt/d/iTantra-tts-ta-indic/local-recordings/ta-indic/07.wav",
+      "generation_seconds": 1.296,
+      "audio_seconds": 3.507,
+      "sample_rate": 22050
+    },
+    {
+      "number": 8,
+      "language_code": "ta",
+      "text": "என் சகோதரன் காலையில் கடைக்குச் செல்வான்.",
+      "wav": "/mnt/d/iTantra-tts-ta-indic/local-recordings/ta-indic/08.wav",
+      "generation_seconds": 1.049,
+      "audio_seconds": 3.658,
+      "sample_rate": 22050
+    },
+    {
+      "number": 9,
+      "language_code": "ta",
+      "text": "மருந்துக்காக ௧௨ பெட்டிகளை கொண்டு வாருங்கள்.",
+      "wav": "/mnt/d/iTantra-tts-ta-indic/local-recordings/ta-indic/09.wav",
+      "generation_seconds": 1.353,
+      "audio_seconds": 3.878,
+      "sample_rate": 22050
+    },
+    {
+      "number": 10,
+      "language_code": "ta",
+      "text": "சென்னையின் அண்ணா சாலையில் என்னை சந்திக்கவும்.",
+      "wav": "/mnt/d/iTantra-tts-ta-indic/local-recordings/ta-indic/10.wav",
+      "generation_seconds": 1.517,
+      "audio_seconds": 4.285,
+      "sample_rate": 22050
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "snapshot_date": "2026-09-26",
+  "note": "Archive hashes recorded in RUN 1 logs; URLs and sizes checked against official GitHub release metadata during transfer. Weights are not included. Download only the selected candidate or separately copy and verify original archives.",
+  "assets": [
+    {"code":"bn","name":"bn.zip","url":"https://github.com/AI4Bharat/Indic-TTS/releases/download/v1-checkpoints-release/bn.zip","bytes":1512955815,"sha256":"4250053d69a15c75ad3e48a1e2d2ef025f75a5b22e9fde2e0a45225b6899fb6f","extracted_root":"bn","license_gate":"Checkpoint terms UNKNOWN; MIT code is not proof of weight terms."},
+    {"code":"gu","name":"gu.zip","url":"https://github.com/AI4Bharat/Indic-TTS/releases/download/v1-checkpoints-release/gu.zip","bytes":1518484594,"sha256":"7cb5bfa35e14f93469c3f56afa9225d0494615a961868b2966ac4f04f8f7e8d0","extracted_root":"gu","license_gate":"Checkpoint terms UNKNOWN."},
+    {"code":"mr","name":"mr.zip","url":"https://github.com/AI4Bharat/Indic-TTS/releases/download/v1-checkpoints-release/mr.zip","bytes":1514815493,"sha256":"d4457b2b9d2604396ab214d6ef8b3d4689f3bfd1312814ca295f44af5def90a0","extracted_root":"mr","license_gate":"Checkpoint terms UNKNOWN."},
+    {"code":"kn","name":"kn.zip","url":"https://github.com/AI4Bharat/Indic-TTS/releases/download/v1-checkpoints-release/kn.zip","bytes":1519176042,"sha256":"1ba360afa417f4346ddb8573ac74032c93dde83f4a5b90b6ef0d7c7976268216","extracted_root":"kn","license_gate":"Checkpoint terms UNKNOWN."},
+    {"code":"ta","name":"ta.zip","url":"https://github.com/AI4Bharat/Indic-TTS/releases/download/v1-checkpoints-release/ta.zip","bytes":1520799925,"sha256":"9c443f2304df959db3e8ae308a6380cefb24084901551a9e77188a992cf578e5","extracted_root":"ta","license_gate":"Checkpoint terms UNKNOWN; repaired pronunciation unreviewed."},
+    {"code":"te","name":"te.zip","url":"https://github.com/AI4Bharat/Indic-TTS/releases/download/v1-checkpoints-release/te.zip","bytes":1513806634,"sha256":"c568b55c5e3317c18fc942f46703ff0664beef75c23fcfa059a8396574b0cf23","extracted_root":"te","license_gate":"Checkpoint terms UNKNOWN; repaired pronunciation unreviewed."},
+    {"code":"or","name":"or.zip","url":"https://github.com/AI4Bharat/Indic-TTS/releases/download/v1-checkpoints-release/or.zip","bytes":1516409500,"sha256":"eff767d91415fde8b9c24a01aa37076c56d468a97efca42e5c9dc78f44c9500b","extracted_root":"or","license_gate":"Checkpoint terms UNKNOWN; repaired pronunciation unreviewed."},
+    {"code":"ml","name":"vits-piper-ml_IN-arjun-medium.tar.bz2","url":"https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-piper-ml_IN-arjun-medium.tar.bz2","bytes":67222458,"sha256":"3058d098e8b1ffcdd6069e96b1d492f319333235912a627c309c7c54cea59acf","extracted_root":"vits-piper-ml_IN-arjun-medium","license_gate":"Review original voice/dataset attribution terms; listener/phone acceptance pending."}
+  ],
+  "rasa": {"source":"https://huggingface.co/ai4bharat/vits_rasa_13","status":"Weights not downloaded; official access gate returned HTTP 401 in RUN 1."},
+  "mms": {"source":"https://huggingface.co/facebook/mms-tts","status":"No download or implementation; human CC BY-NC 4.0 decision not recorded."},
+  "baseline_assets": {"restore_script":"setup-models.ps1","note":"Baseline English/Hindi and STT provisioning is separate from these research archives."}
+}
