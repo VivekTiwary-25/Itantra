@@ -22,12 +22,15 @@ import java.io.File
  */
 class TtsHelper(private val context: Context) {
 
-    private data class Voice(val modelDir: String, val onnxFileName: String)
+    // Piper voices phonemise through espeak-ng-data; MMS voices use sherpa-onnx's character
+    // frontend and ship no espeak data.
+    private data class Voice(val modelDir: String, val onnxFileName: String, val usesEspeak: Boolean = true, val numThreads: Int = 2)
 
     private val voices = mapOf(
         "en" to Voice("vits-piper-en_US-ryan-medium", "en_US-ryan-medium.onnx"),
         "hi" to Voice("vits-piper-hi_IN-pratham-medium", "hi_IN-pratham-medium.onnx"),
-        "ml" to Voice("vits-piper-ml_IN-arjun-medium", "ml_IN-arjun-medium.onnx")
+        "ml" to Voice("vits-piper-ml_IN-arjun-medium", "ml_IN-arjun-medium.onnx"),
+        "bn" to Voice("vits-mms-ben", "model.onnx", usesEspeak = false, numThreads = 4)
     )
 
     private val lock = Any()
@@ -101,7 +104,7 @@ class TtsHelper(private val context: Context) {
         val destDir = File(context.filesDir, voice.modelDir)
         val modelPath = File(destDir, voice.onnxFileName).absolutePath
         val tokensPath = File(destDir, "tokens.txt")
-        val dataDir = File(destDir, "espeak-ng-data").absolutePath
+        val dataDir = if (voice.usesEspeak) File(destDir, "espeak-ng-data").absolutePath else ""
 
         installAssets(voice.modelDir, destDir)
         normaliseTokens(tokensPath)
@@ -114,7 +117,7 @@ class TtsHelper(private val context: Context) {
                     tokens = tokensPath.absolutePath,
                     dataDir = dataDir
                 ),
-                numThreads = 2,
+                numThreads = voice.numThreads,
                 debug = false
             )
         )

@@ -17,7 +17,9 @@ Date 2026-09-26. **QUALITY UNVERIFIED — no listener. Not GREEN.**
 | config.json | 1,887 | ec453d50be1976ddb3b501c7dc09128cdf360b83e5b0cf7dec68dc5caa460f49 |
 | vocab.txt | 268 | 7085f1a1f6040b4da0ac55bb3ff91b77229d1ed14f7d86df2b23676a1a2cb81b |
 | model.onnx (fp32, converted) | 114,065,046 | f8f7bf4f0b703f706e0531ff2b364bf9a3ebb8bed69262258f543e0212094e71 |
-| tokens.txt (generated) | 554 | dccea18a779700cf02507b18ae5a7c77f382a25802ed671bd9c28fa82635a031 |
+| tokens.txt (generated, then normalized to LF) | 480 | a74190ec42b8f0afb349276430c716f1b585090d8fe6d3c1d6d5fe510798a387 |
+
+**tokens.txt hazard:** `vits-mms.py` writes tokens.txt with Python text mode, i.e. CRLF on Windows (554 B, sha dccea18a...). A CRLF tokens.txt aborts the process in sherpa-onnx on Android (see TtsHelper), so it was converted to LF (`tr -d ""`) before use; desktop results below were regenerated with the LF file.
 
 Large files stay outside Git (`D:\iTantra-tts-models\mms-ben`). Not quantized. Exported ONNX bytes may differ across torch versions; pin the hash of what was validated.
 
@@ -39,7 +41,7 @@ The stub is safe: `maximum_path` is only used in training; the export path never
 
 ## Desktop validation (sherpa-onnx 1.13.7, CPU, 2 threads)
 - 10 draft sentences x2 passes = 20 syntheses, all succeeded. Audio 1.9-3.8 s, 16 kHz mono; RMS 0.15-0.19, peak <=0.94 (not silent, no clipping).
-- Desktop warm RTF ~0.33-0.42; model load timing in `evidence/raw/timings.json`. Different lengths all worked (dynamic-length graph, unlike the Indic-TTS acoustic export).
+- Desktop RTF was 0.33-0.42 on a quiet host (first run) but 0.4-1.4 on reruns while the host was busy; treat desktop timing as noisy; model load timing in `evidence/raw/timings.json`. Different lengths all worked (dynamic-length graph, unlike the Indic-TTS acoustic export).
 - **Frontend finding:** the vocab has no danda `।` (U+0964) and no Bengali digits `১২`; sherpa logs "Skip unknown character" and drops them
   (the reference MMS space's `filter_oov` does the same). All ten draft lines end in `।`, so sentence-final punctuation is dropped;
   line 9 lost `১২` (message meaning changes; audio 2.35 s). ASCII digits ARE in the vocab: with `12` line 9 grew to 2.81 s.

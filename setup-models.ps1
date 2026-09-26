@@ -1,6 +1,9 @@
 ﻿param(
     [string]$RepoRoot = (Get-Location).Path,
-    [switch]$Force
+    [switch]$Force,
+    # Bengali (Meta MMS-TTS, CC BY-NC 4.0) has no official prebuilt sherpa-onnx package. Point this at the
+    # locally converted model.onnx (see tts-research/mms-ben/MMS_BN_CONVERSION.md); it is hash-checked.
+    [string]$MmsBengaliModel = ""
 )
 
 Set-StrictMode -Version Latest
@@ -380,6 +383,24 @@ Run this script from the ROOT of the iTantra repository, or pass:
             Write-Host "[CLEAN] Removing temporary archives/extraction files..."
             Remove-Item -LiteralPath $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
         }
+    }
+
+    Write-Step "Bengali MMS TTS (optional)"
+    $MmsBnDir = Join-Path $Assets "vits-mms-ben"
+    $MmsBnDest = Join-Path $MmsBnDir "model.onnx"
+    $MmsBnSha = "f8f7bf4f0b703f706e0531ff2b364bf9a3ebb8bed69262258f543e0212094e71"
+    if (-not (Test-Path -LiteralPath $MmsBnDest -PathType Leaf) -or $Force) {
+        if ($MmsBengaliModel -and (Test-Path -LiteralPath $MmsBengaliModel -PathType Leaf)) {
+            Assert-Sha256 $MmsBengaliModel $MmsBnSha "Bengali MMS model.onnx"
+            Copy-Item -LiteralPath $MmsBengaliModel -Destination $MmsBnDest -Force
+        }
+        else {
+            Write-Warn "Bengali MMS model.onnx not installed. Convert it (tts-research/mms-ben/MMS_BN_CONVERSION.md) and rerun with -MmsBengaliModel <path>. Bengali TTS is skipped until then."
+        }
+    }
+    if (Test-Path -LiteralPath $MmsBnDest -PathType Leaf) {
+        Assert-Sha256 $MmsBnDest $MmsBnSha "Bengali MMS model.onnx"
+        Write-Ok "Bengali MMS TTS present and verified."
     }
 
     Write-Step "Final verification"

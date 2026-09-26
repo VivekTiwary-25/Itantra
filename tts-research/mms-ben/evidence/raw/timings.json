@@ -1,7 +1,7 @@
 {
   "model": "D:\\iTantra-tts-models\\mms-ben\\model.onnx",
   "sherpa_onnx": "1.13.7",
-  "load_seconds": 0.757,
+  "load_seconds": 0.885,
   "records": [
     {
       "number": 1,
@@ -13,11 +13,11 @@
         "U+0964"
       ],
       "wav": "01.wav",
-      "generation_seconds": 1.168,
-      "audio_seconds": 3.31,
-      "rtf": 0.353,
+      "generation_seconds": 1.345,
+      "audio_seconds": 3.406,
+      "rtf": 0.395,
       "sample_rate": 16000,
-      "samples": 52956
+      "samples": 54489
     },
     {
       "number": 2,
@@ -29,11 +29,11 @@
         "U+0964"
       ],
       "wav": "02.wav",
-      "generation_seconds": 1.17,
-      "audio_seconds": 2.942,
-      "rtf": 0.398,
+      "generation_seconds": 2.811,
+      "audio_seconds": 3.185,
+      "rtf": 0.883,
       "sample_rate": 16000,
-      "samples": 47064
+      "samples": 50953
     },
     {
       "number": 3,
@@ -45,11 +45,11 @@
         "U+0964"
       ],
       "wav": "03.wav",
-      "generation_seconds": 0.629,
-      "audio_seconds": 1.928,
-      "rtf": 0.326,
+      "generation_seconds": 2.215,
+      "audio_seconds": 2.096,
+      "rtf": 1.057,
       "sample_rate": 16000,
-      "samples": 30844
+      "samples": 33537
     },
     {
       "number": 4,
@@ -61,11 +61,11 @@
         "U+0964"
       ],
       "wav": "04.wav",
-      "generation_seconds": 1.136,
-      "audio_seconds": 3.151,
-      "rtf": 0.361,
+      "generation_seconds": 4.101,
+      "audio_seconds": 3.18,
+      "rtf": 1.29,
       "sample_rate": 16000,
-      "samples": 50410
+      "samples": 50888
     },
     {
       "number": 5,
@@ -77,11 +77,11 @@
         "U+0964"
       ],
       "wav": "05.wav",
-      "generation_seconds": 1.33,
-      "audio_seconds": 3.785,
-      "rtf": 0.351,
+      "generation_seconds": 4.287,
+      "audio_seconds": 3.619,
+      "rtf": 1.184,
       "sample_rate": 16000,
-      "samples": 60564
+      "samples": 57912
     },
     {
       "number": 6,
@@ -93,11 +93,11 @@
         "U+0964"
       ],
       "wav": "06.wav",
-      "generation_seconds": 1.397,
-      "audio_seconds": 3.49,
-      "rtf": 0.4,
+      "generation_seconds": 4.681,
+      "audio_seconds": 3.585,
+      "rtf": 1.306,
       "sample_rate": 16000,
-      "samples": 55843
+      "samples": 57356
     },
     {
       "number": 7,
@@ -109,11 +109,11 @@
         "U+0964"
       ],
       "wav": "07.wav",
-      "generation_seconds": 0.834,
-      "audio_seconds": 2.137,
-      "rtf": 0.39,
+      "generation_seconds": 3.187,
+      "audio_seconds": 2.336,
+      "rtf": 1.364,
       "sample_rate": 16000,
-      "samples": 34193
+      "samples": 37373
     },
     {
       "number": 8,
@@ -125,11 +125,11 @@
         "U+0964"
       ],
       "wav": "08.wav",
-      "generation_seconds": 0.83,
-      "audio_seconds": 1.96,
-      "rtf": 0.424,
+      "generation_seconds": 2.932,
+      "audio_seconds": 2.062,
+      "rtf": 1.422,
       "sample_rate": 16000,
-      "samples": 31365
+      "samples": 32988
     },
     {
       "number": 9,
@@ -143,11 +143,11 @@
         "U+09E8"
       ],
       "wav": "09.wav",
-      "generation_seconds": 0.895,
-      "audio_seconds": 2.347,
-      "rtf": 0.381,
+      "generation_seconds": 2.973,
+      "audio_seconds": 2.298,
+      "rtf": 1.294,
       "sample_rate": 16000,
-      "samples": 37556
+      "samples": 36766
     },
     {
       "number": 10,
@@ -159,11 +159,11 @@
         "U+0964"
       ],
       "wav": "10.wav",
-      "generation_seconds": 1.188,
-      "audio_seconds": 3.286,
-      "rtf": 0.362,
+      "generation_seconds": 3.717,
+      "audio_seconds": 3.05,
+      "rtf": 1.219,
       "sample_rate": 16000,
-      "samples": 52573
+      "samples": 48799
     },
     {
       "number": 1,
@@ -175,11 +175,11 @@
         "U+0964"
       ],
       "wav": "01_r2.wav",
-      "generation_seconds": 1.167,
-      "audio_seconds": 3.218,
-      "rtf": 0.363,
+      "generation_seconds": 3.44,
+      "audio_seconds": 3.09,
+      "rtf": 1.113,
       "sample_rate": 16000,
-      "samples": 51485
+      "samples": 49432
     },
     {
       "number": 2,
@@ -191,11 +191,11 @@
         "U+0964"
       ],
       "wav": "02_r2.wav",
-      "generation_seconds": 1.144,
-      "audio_seconds": 2.931,
-      "rtf": 0.39,
+      "generation_seconds": 3.97,
+      "audio_seconds": 2.901,
+      "rtf": 1.369,
       "sample_rate": 16000,
-      "samples": 46899
+      "samples": 46417
     },
     {
       "number": 3,
@@ -207,11 +207,11 @@
         "U+0964"
       ],
       "wav": "03_r2.wav",
-      "generation_seconds": 0.628,
-      "audio_seconds": 1.925,
-      "rtf": 0.326,
+      "generation_seconds": 2.159,
+      "audio_seconds": 2.006,
+      "rtf": 1.076,
       "sample_rate": 16000,
-      "samples": 30797
+      "samples": 32100
     },
     {
       "number": 4,
@@ -223,11 +223,11 @@
         "U+0964"
       ],
       "wav": "04_r2.wav",
-      "generation_seconds": 1.13,
-      "audio_seconds": 3.057,
-      "rtf": 0.37,
+      "generation_seconds": 3.765,
+      "audio_seconds": 3.088,
+      "rtf": 1.219,
       "sample_rate": 16000,
-      "samples": 48909
+      "samples": 49409
     },
     {
       "number": 5,
@@ -239,11 +239,11 @@
         "U+0964"
       ],
       "wav": "05_r2.wav",
-      "generation_seconds": 1.27,
-      "audio_seconds": 3.549,
-      "rtf": 0.358,
+      "generation_seconds": 4.147,
+      "audio_seconds": 3.594,
+      "rtf": 1.154,
       "sample_rate": 16000,
-      "samples": 56783
+      "samples": 57506
     },
     {
       "number": 6,
@@ -255,11 +255,11 @@
         "U+0964"
       ],
       "wav": "06_r2.wav",
-      "generation_seconds": 1.366,
-      "audio_seconds": 3.504,
-      "rtf": 0.39,
+      "generation_seconds": 4.642,
+      "audio_seconds": 3.61,
+      "rtf": 1.286,
       "sample_rate": 16000,
-      "samples": 56071
+      "samples": 57766
     },
     {
       "number": 7,
@@ -271,11 +271,11 @@
         "U+0964"
       ],
       "wav": "07_r2.wav",
-      "generation_seconds": 0.875,
-      "audio_seconds": 2.166,
-      "rtf": 0.404,
+      "generation_seconds": 3.006,
+      "audio_seconds": 2.354,
+      "rtf": 1.277,
       "sample_rate": 16000,
-      "samples": 34653
+      "samples": 37667
     },
     {
       "number": 8,
@@ -287,11 +287,11 @@
         "U+0964"
       ],
       "wav": "08_r2.wav",
-      "generation_seconds": 0.845,
-      "audio_seconds": 2.073,
-      "rtf": 0.408,
+      "generation_seconds": 2.716,
+      "audio_seconds": 2.042,
+      "rtf": 1.33,
       "sample_rate": 16000,
-      "samples": 33163
+      "samples": 32665
     },
     {
       "number": 9,
@@ -305,11 +305,11 @@
         "U+09E8"
       ],
       "wav": "09_r2.wav",
-      "generation_seconds": 0.955,
-      "audio_seconds": 2.482,
-      "rtf": 0.385,
+      "generation_seconds": 1.806,
+      "audio_seconds": 2.474,
+      "rtf": 0.73,
       "sample_rate": 16000,
-      "samples": 39715
+      "samples": 39582
     },
     {
       "number": 10,
@@ -321,11 +321,11 @@
         "U+0964"
       ],
       "wav": "10_r2.wav",
-      "generation_seconds": 1.132,
-      "audio_seconds": 3.165,
-      "rtf": 0.358,
+      "generation_seconds": 1.218,
+      "audio_seconds": 3.087,
+      "rtf": 0.395,
       "sample_rate": 16000,
-      "samples": 50640
+      "samples": 49384
     }
   ]
 }
