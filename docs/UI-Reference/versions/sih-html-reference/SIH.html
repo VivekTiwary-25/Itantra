@@ -1,0 +1,527 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>iTantra prototype</title>
+<style>
+:root{--bg:#10151c;--card:#19212b;--line:#2b3644;--tx:#f2f5f8;--mut:#9fb0c0;--g:#3ddc84;--a:#ffb020;--r:#ff5a4d;--on:#0b1117;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#eef2f6;--card:#fff;--line:#cfd8e1;--tx:#111a23;--mut:#4d5c6b;--g:#0f8a45;--a:#a86400;--r:#c4271b;--on:#fff}}
+:root[data-theme="dark"]{--bg:#10151c;--card:#19212b;--line:#2b3644;--tx:#f2f5f8;--mut:#9fb0c0;--g:#3ddc84;--a:#ffb020;--r:#ff5a4d;--on:#0b1117}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:17px/1.4 system-ui,"Noto Sans","Noto Sans Kannada","Noto Sans Devanagari","Noto Sans Bengali","Noto Sans Tamil",sans-serif}
+.app{max-width:440px;margin:auto;padding:12px 14px 96px}
+button{font:inherit;color:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);border-radius:16px;min-height:56px;padding:12px}
+button:focus-visible{outline:3px solid var(--tx);outline-offset:2px}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
+header b{font-size:22px}
+.seg{display:flex;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.seg button{border:0;border-radius:0;min-height:44px;background:none;color:var(--mut)}
+.seg .on{background:var(--tx);color:var(--bg);font-weight:700}
+body.em .seg .on{background:var(--r);color:#fff}
+.nearby-indicator{display:inline-flex;align-items:center;gap:4px;padding:6px 9px;border:1px solid var(--g);border-radius:999px;color:var(--g);font-size:14px;font-weight:800;white-space:nowrap}
+.pill{display:flex;gap:8px;align-items:center;padding:12px 14px;border-radius:14px;border:2px solid;font-weight:600;margin-bottom:14px}
+.g{color:var(--g)}.a{color:var(--a)}.r{color:var(--r)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;margin-bottom:12px}
+.mut{color:var(--mut);font-size:15px}
+h2{margin:4px 0 12px;font-size:24px}
+.hold{position:relative;overflow:hidden;width:100%;min-height:210px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:3px solid var(--g);border-radius:28px;font-size:26px;font-weight:800;touch-action:none;user-select:none}
+.hold span{font-size:56px}.hold small{font-size:16px;font-weight:500;color:var(--mut)}
+.hold::after{content:"";position:absolute;left:0;bottom:0;height:8px;width:0;background:var(--tx)}
+.hold.down::after{width:100%;transition:width var(--ms,2s) linear}
+.hold.rec{background:color-mix(in srgb,var(--g) 18%,var(--card))}
+.hold.help{border-color:var(--r);min-height:170px}
+.wave{display:none;gap:3px;align-items:end;height:34px}
+.rec .wave{display:flex}.rec span,.rec small{display:none}
+.wave i{width:5px;background:var(--g);border-radius:3px;animation:w .8s ease-in-out infinite alternate}
+@keyframes w{from{height:6px}to{height:32px}}
+@media (prefers-reduced-motion:reduce){.wave i{animation:none;height:18px}}
+.row3{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0}
+.home-language{display:flex;align-items:center;justify-content:center;gap:8px;margin:12px auto 0;color:var(--mut);font-size:14px}.home-language select{width:auto;min-height:38px;padding:5px 28px 5px 9px;border-radius:10px;font-size:14px}
+.tile.emergency-only{display:none}body.em .normal-only,body.em .home-language,body.em #queueSummary,body.em #readinessBanner{display:none}body.em .tile.emergency-only{display:flex}body.em .row3{grid-template-columns:repeat(2,1fr)}body.em [data-go="help"]{order:1}body.em #locationButton{order:2}body.em [data-go="alert"]{order:3}body.em [data-go="handsfree"]{order:4}
+.tile{min-height:88px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-weight:700;font-size:16px}
+.tile.r{border:2px solid var(--r)}
+.tile span{font-size:28px}
+.orig,.trans{border-radius:14px;padding:12px;margin:8px 0;border:1px solid var(--line)}
+.trans{border-left:5px solid var(--g)}.orig{border-left:5px solid var(--tx)}
+.txt{font-size:22px;margin:4px 0 8px}
+.play{width:100%;min-height:52px;font-weight:700}
+.bar{height:10px;border-radius:5px;background:var(--line);overflow:hidden}.bar i{display:block;height:100%;background:var(--g)}
+.steps{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.steps span{border:1px solid var(--line);border-radius:20px;padding:6px 10px;font-size:14px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.chips button{min-height:52px;flex:1 1 44%}
+.chips .sel{border:2px solid var(--r);background:color-mix(in srgb,var(--r) 16%,var(--card))}
+.lang{display:grid;grid-template-columns:1fr 56px;gap:6px;margin-bottom:8px}
+.lang .n{font-size:24px;text-align:left}.lang .sel{border:3px solid var(--g)}
+.alert{border:3px solid var(--r);border-radius:22px;padding:14px;background:color-mix(in srgb,var(--r) 10%,var(--bg))}
+.pri{background:var(--g);color:var(--on);border:0;font-weight:800;width:100%}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+nav div{max-width:440px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:2px}
+nav button{border:0;background:none;min-height:52px;padding:8px 3px;font-size:12px;color:var(--mut)}nav .on{color:var(--tx);font-weight:800;border-top:3px solid var(--tx);border-radius:0}
+body.em nav,body.em .adv{display:none}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:12px 16px;border-radius:14px;font-weight:600;max-width:90%;display:none}
+svg text{fill:var(--tx);font-size:11px}
+.topline{display:flex;align-items:center;gap:10px;margin-bottom:12px}.topline h2{margin:0}.back{width:52px;min-height:52px;padding:0;font-size:29px}
+.field{display:grid;gap:6px;margin:12px 0}.field>span{font-size:14px;font-weight:700;color:var(--mut)}select,input[type=text]{width:100%;min-height:54px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--tx);font:inherit}
+.contact{width:100%;display:grid;gap:5px;text-align:left;margin:8px 0;padding:14px}.contact b{font-size:19px}.trust{color:var(--g);font-size:14px;font-weight:700}.empty{text-align:center;padding:24px 14px;border:1px dashed var(--line);border-radius:16px;color:var(--mut)}
+.fp{padding:12px;border:1px solid var(--line);border-radius:12px;color:var(--a);font-weight:700;letter-spacing:.05em}.danger{width:100%;color:var(--r);border-color:var(--r);margin-top:8px}.wide{width:100%;margin-top:8px}.check{display:flex;align-items:flex-start;gap:10px;margin:14px 0;padding:12px;border:1px solid var(--line);border-radius:14px}.check input{width:20px;height:20px;flex:none;accent-color:var(--g)}
+.qr{width:210px;height:210px;margin:18px auto;display:grid;place-items:center;border:14px solid #fff;border-radius:8px;color:#10151c;background:repeating-linear-gradient(0deg,transparent 0 11px,#10151c 11px 20px,transparent 20px 27px),repeating-linear-gradient(90deg,transparent 0 11px,#10151c 11px 20px,transparent 20px 27px);background-color:#fff;background-blend-mode:multiply}.qr b{padding:8px;background:#fff;color:#10151c}
+.scanner{height:250px;display:grid;place-items:center;margin:18px 0;border:2px solid var(--g);border-radius:22px;background:radial-gradient(circle,rgba(61,220,132,.12),transparent 65%);color:var(--mut)}
+.hf{min-height:520px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}.hf-orb{width:190px;height:190px;display:grid;place-items:center;border:3px solid var(--g);border-radius:50%;background:color-mix(in srgb,var(--g) 12%,var(--card));font-size:58px;animation:hf 1.8s ease-in-out infinite}.hf-actions{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:34px}@keyframes hf{50%{box-shadow:0 0 0 18px color-mix(in srgb,var(--g) 14%,transparent)}}
+.banner{width:100%;display:grid;gap:3px;margin-bottom:12px;padding:12px 14px;text-align:left;border:2px solid var(--g)}.banner b{font-size:16px}.banner.blocked{border-color:var(--r)}
+textarea{width:100%;min-height:132px;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--tx);font:inherit;resize:vertical}.short{min-height:78px}.count{display:flex;justify-content:space-between;gap:10px;font-size:13px;color:var(--mut)}.count .over{color:var(--r)}
+.state-card,.log,.offer,.ready-row{width:100%;display:grid;gap:5px;margin:8px 0;padding:13px;border:1px solid var(--line);border-radius:14px;background:var(--card);text-align:left}.log.unread{border-left:5px solid var(--g)}.log.urgent{border-top-color:var(--r)}.meta{display:flex;justify-content:space-between;gap:8px;color:var(--mut);font-size:13px}.status-label{font-size:14px;font-weight:800;color:var(--a)}
+.emergency-screen{padding-top:4px}.emergency-screen h2{margin-bottom:8px}.emergency-mode-row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;margin:10px 0;padding:12px;border:1px solid #39788a;border-radius:15px;background:color-mix(in srgb,#59d7e6 5%,var(--card))}.emergency-mode-row b,.emergency-mode-row small{display:block}.emergency-mode-row small{margin-top:2px;color:var(--mut);font-size:12px}.signal-dot{width:12px;height:12px;border-radius:50%;background:#59d7e6;box-shadow:0 0 0 5px color-mix(in srgb,#59d7e6 16%,transparent)}.emergency-toggle{min-height:40px;padding:7px 10px;border-color:var(--a);color:var(--a);font-size:13px;font-weight:800}.emergency-availability{margin:10px 0 14px;border-color:var(--line)}.emergency-availability input{accent-color:var(--a)}.emergency-talk{min-height:210px}.emergency-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0}.emergency-actions .tile{min-height:104px}.offers-heading{margin:18px 0 8px;font-size:18px}.emergency-empty{margin:0;padding:20px 14px;border-style:dashed}.emergency-empty b{display:block;color:var(--tx)}.emergency-empty small{display:block;margin-top:4px;color:var(--mut)}
+.ready-row{grid-template-columns:1fr auto}.ready-row span{font-size:14px;font-weight:800;color:var(--g)}.ready-row small{grid-column:1/-1;color:var(--mut)}.ready-row.blocked span{color:var(--r)}
+.urgent{display:flex;align-items:flex-start;gap:10px;margin:12px 0;padding:12px;border:1px solid var(--line);border-radius:14px}.urgent input,.switch input{width:20px;height:20px;accent-color:var(--a)}.switch{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0;padding:13px;border:1px solid var(--line);border-radius:14px}.switch input{width:38px}
+.search{text-align:center;padding:56px 8px}.search-orb{width:140px;height:140px;display:grid;place-items:center;margin:0 auto 22px;border:3px solid var(--r);border-radius:50%;font-size:50px;animation:hf 1.8s ease-in-out infinite}.trustbox{padding:13px;border:1px solid var(--a);border-radius:14px;background:color-mix(in srgb,var(--a) 8%,var(--card))}.code{text-align:center;margin:10px 0;padding:12px;border-radius:12px;background:var(--bg);color:var(--g);font-size:20px;font-weight:800;letter-spacing:.08em}.messages{display:grid;gap:8px;margin:12px 0}.bubble{max-width:88%;padding:10px 12px;border-radius:13px;background:var(--card)}.bubble.mine{justify-self:end;border:1px solid var(--a)}
+.review{max-width:440px;margin:28px auto 110px;padding:14px;border:1px solid var(--line);border-radius:18px;background:var(--card)}.review summary{cursor:pointer;font-size:19px;font-weight:800}.review h3{margin:18px 0 8px}.review button,.review select,.review textarea{width:100%;margin:5px 0}.review textarea{min-height:74px}.review-note{font-size:14px;color:var(--mut)}
+[hidden]{display:none!important}.error{margin:10px 0;padding:11px;border-radius:12px;background:color-mix(in srgb,var(--r) 12%,var(--card));color:var(--r)}
+</style></head><body>
+<div class="app">
+<header><b>iTantra</b><span class="nearby-indicator" aria-label="6 nearby devices">📡 6</span><div class="seg" role="group" aria-label="Mode"><button id="mN" class="on">Normal</button><button id="mE">Emergency</button></div></header>
+
+<section id="onboarding">
+ <h2>Ready before you need it</h2>
+ <p class="mut">Set up the capabilities iTantra uses during an outage. Typing remains available if voice or camera access is unavailable.</p>
+ <div class="card"><b>Local iTantra identity created</b><p class="mut">This installation has an identity used to recognize trusted contacts and protect messages.</p></div>
+ <div id="permissionList"></div>
+ <button class="pri wide" id="finishOnboarding">Enter iTantra</button>
+</section>
+
+<section id="home" hidden>
+ <button class="banner" id="readinessBanner" data-go="settings" hidden><b id="readinessTitle">Local radio ready</b><small id="readinessCopy">Internet is not needed. Messages may wait for a route.</small></button>
+ <button class="hold" id="talk" aria-label="Hold to talk, release to send"><div class="wave" id="wave"></div><span>🎙️</span>Hold to talk<small>Release to send</small></button>
+ <label class="home-language">Message language <select id="homeLang" aria-label="Message language"></select></label>
+ <div class="row3">
+  <button class="tile" data-go="handsfree"><span>🎧</span>Hands-free</button>
+  <button class="tile normal-only" id="openText"><span>⌨️</span>Text</button>
+  <button class="tile" data-go="alert"><span>🔊</span>Listen</button>
+  <button class="tile r" data-go="help"><span>🚨</span>Help</button>
+  <button class="tile emergency-only" id="locationButton"><span>📍</span>Location</button>
+ </div>
+ <p class="mut" id="queueSummary" style="text-align:center;margin-top:10px">No outgoing messages waiting.</p>
+ <div class="card adv"><b>How it works</b><p class="mut" style="margin:6px 0 0">You speak in <span id="hl">Kannada</span>. iTantra understands. They hear you in their language, and see what you actually said.</p></div>
+</section>
+
+<section id="talkS" hidden>
+ <div class="topline"><button class="back" id="composeBack" aria-label="Back">‹</button><h2 id="composeTitle">New message</h2></div>
+ <div class="card">
+  <label class="field"><span>Trusted recipient</span><select id="recipient"><option value="">Choose a trusted contact</option></select></label>
+  <div class="mut" id="recipientHelp">The recipient can be offline or far away. iTantra will queue the message until a route becomes available.</div>
+  <button class="wide" id="manageContactsButton" data-go="contacts">Manage trusted contacts</button>
+ </div>
+ <div class="card" id="voiceReview">
+  <div class="orig"><span class="mut">You said · <span class="fromL">Kannada</span> · original</span><div class="txt" id="tO"></div><button class="play" id="pO">🔊 Play original</button></div>
+  <div class="trans"><span class="mut">They hear · <span id="toL">English</span> · <span id="translationLabel">translated</span></span><div class="txt" id="tT"></div><button class="play" id="pT">🔊 Play translation</button></div>
+  <div class="mut" id="cf">Translation confidence: 92%, high</div><div class="bar"><i id="cb" style="width:92%"></i></div>
+  <div id="warn" class="a" style="margin-top:8px;display:none">⚠ Audio was noisy. The translation may be wrong, so the original voice is sent too.</div>
+ </div>
+ <label class="field"><span>Message language</span><select id="composeLang"></select></label>
+ <label class="field"><span>Your editable message</span><textarea id="draftText" maxlength="650" placeholder="Type your message"></textarea></label>
+ <div class="count"><span>Text is saved as a draft until you send it.</span><span id="draftCount">0 / 500</span></div>
+ <label class="urgent"><input type="checkbox" id="urgent"><span><b>Urgent message</b><br><small class="mut">May receive priority. Delivery is still not guaranteed.</small></span></label>
+ <p class="error" id="sendError" hidden></p>
+ <button class="pri wide" id="ok">Send message</button>
+ <button class="wide" id="redo">Discard and start again</button>
+ <label class="mut" id="noiseRow"><input type="checkbox" id="noise"> Simulate a noisy place</label>
+</section>
+
+<section id="handsfree" hidden>
+ <div class="topline"><button class="back" data-go="home" aria-label="Back">‹</button><h2>Hands-free</h2></div>
+ <div class="hf"><div class="hf-orb" aria-hidden="true">🎙️</div><h2 id="hfStatus">Listening…</h2><p class="mut" id="hfHint">Speak normally. Tap Done when you finish. Your words will open as an editable draft.</p><p class="error" id="hfError" hidden></p><div class="hf-actions"><button data-go="home">Cancel</button><button class="pri" id="hfDone">Done</button></div><button class="wide" id="hfRetry" hidden>Try again</button></div>
+</section>
+
+<section id="voiceReply" hidden>
+ <div class="topline"><button class="back" data-go="alert" aria-label="Back">‹</button><h2>Reply with voice</h2></div>
+ <div class="card"><b>Replying to the nearby emergency message</b><p class="mut" style="margin-bottom:0">Your reply will open as editable text before it is sent. The original voice is kept with it.</p></div>
+ <button class="hold" id="replyTalk" aria-label="Hold to record a voice reply"><div class="wave" id="replyWave"></div><span>🎙️</span>Hold to reply<small>Release to review</small></button>
+ <button class="wide" id="replyHandsfree">🎧 Reply Hands-free</button>
+</section>
+
+<section id="help" hidden>
+ <h2>I need help</h2>
+ <div class="card"><b>What is the problem?</b><span class="mut"> (optional, tap or just speak)</span>
+  <div class="chips" id="needs"><button>🚑 Injured</button><button>🧱 Trapped</button><button>🔥 Fire</button><button>💧 No water</button></div>
+  <div style="display:flex;align-items:center;gap:12px">👥 People with me<button id="m" aria-label="Fewer" style="width:56px">−</button><b id="ppl" style="font-size:24px">3</b><button id="p" aria-label="More" style="width:56px">+</button></div></div>
+ <button class="hold help" id="sos"><span>🚨</span>Hold to send help<small>Hold for 2 seconds. Your location is shared.</small></button>
+ <div class="card g" id="sent" style="display:none;margin-top:12px;border-color:var(--g)"><b>✓ Help sent</b><div>📍 Location shared · 🎙️ Voice attached</div><div>4 of 6 devices received it</div><div class="mut">iTantra keeps retrying through relays until someone confirms.</div></div>
+</section>
+
+<section id="alert" hidden>
+ <div class="alert">
+  <div class="r" style="font-weight:800;font-size:22px">🚨 Emergency message</div>
+  <div>From a nearby user · <b>Medium radio signal</b> · passed through relays</div>
+  <button class="play" id="pA" style="margin:10px 0">▶ Play message · 0:18</button>
+  <div class="orig"><span class="mut">Original · Kannada</span><div class="txt">ನಾವು ಇಲ್ಲಿ ಸಿಲುಕಿಕೊಂಡಿದ್ದೇವೆ</div></div>
+  <div class="trans"><span class="mut">Translated · English · confidence 92%</span><div class="txt">We are trapped here.</div></div>
+  <div class="card" style="margin:8px 0"><b>Understood from the message</b><div>🧱 Trapped · 👥 3 people · 📍 Location received</div></div>
+  <b>Reply in one tap (sent in their language)</b>
+  <div class="chips" id="reps"><button>Help is coming</button><button>Stay where you are</button><button>Is anyone hurt?</button><button>I will call for help</button></div>
+  <button class="pri" data-go="voiceReply">🎙️ Reply with voice</button>
+  <button data-go="home" style="width:100%;margin-top:8px">Dismiss</button>
+ </div>
+</section>
+
+<section id="contacts" hidden>
+ <h2>Trusted contacts</h2>
+ <p class="mut">Contacts are trusted through an in-person QR identity exchange. They do not need to be nearby when you message them.</p>
+ <div id="contactList"></div>
+ <div class="empty" id="contactEmpty"><b>No trusted contacts yet</b><br>Scan the QR of someone you know to add them.</div>
+ <button class="pri wide" data-go="scan">Scan a contact QR</button>
+ <button class="wide" data-go="identity">Show my identity QR</button>
+</section>
+
+<section id="identity" hidden>
+ <div class="topline"><button class="back" data-go="contacts" aria-label="Back">‹</button><h2>My iTantra identity</h2></div>
+ <p class="mut">Show this QR to someone you know. They must compare and confirm the identity on their phone before trusting it.</p>
+ <div class="qr" aria-label="Simulated identity QR"><b>iTantra</b></div>
+ <div class="card"><b>You</b><p class="fp">Identity check: 8F2C · 91A4</p><p class="mut">Your display name is a hint. The identity check is what contacts confirm.</p></div>
+ <button class="wide" data-go="scan">Scan someone else's QR</button>
+</section>
+
+<section id="scan" hidden>
+ <div class="topline"><button class="back" data-go="contacts" aria-label="Back">‹</button><h2>Scan contact QR</h2></div>
+ <p class="mut">Ask the other person to open My iTantra identity. Confirm that the identity check matches their phone.</p>
+ <div class="scanner">Simulated camera view</div>
+ <p class="mut" id="scanNotice">Camera permission is required. Use Review simulator to choose a QR outcome.</p>
+ <button class="pri wide" id="scanNow">Simulate scanning Arjun's QR</button>
+</section>
+
+<section id="confirm" hidden>
+ <div class="topline"><button class="back" data-go="scan" aria-label="Back">‹</button><h2>Confirm this person</h2></div>
+ <div class="card"><span class="trust">Identity from QR</span><h2 id="candidateName">Arjun</h2><p class="fp" id="candidateFp">Identity check: 62AB · 7D91</p><p class="mut" id="candidateWarning">The name is only a hint. Compare this check with the other person's phone before adding them.</p></div>
+ <label class="field"><span>Name on this phone</span><input type="text" id="contactName" value="Arjun" maxlength="40"></label>
+ <label class="check"><input type="checkbox" id="contactChecked"><span>I compared this identity with the person</span></label>
+ <button class="pri wide" id="addContact" disabled>Add trusted contact</button>
+</section>
+
+<section id="contactD" hidden>
+ <div class="topline"><button class="back" data-go="contacts" aria-label="Back">‹</button><h2>Trusted contact</h2></div>
+ <div class="card"><span class="trust" id="contactTrust">Trusted iTantra contact</span><h2 id="contactTitle"></h2><p class="fp" id="contactFp"></p><p class="mut" id="contactCopy">This identity was confirmed by QR exchange. Renaming the local label does not change the trusted identity.</p></div>
+ <button class="pri wide" id="messageContact">Message this person</button>
+ <button class="wide" id="renameContact">Rename local label</button>
+ <button class="danger" id="forgetContact">Forget contact</button>
+</section>
+
+<section id="logs" hidden>
+ <h2>Messages</h2>
+ <p class="mut">Incoming and outgoing trusted messages. Opening one incoming message marks only that message read.</p>
+ <div id="logList"></div>
+ <div class="empty" id="logsEmpty"><b>No messages yet</b><br>Voice, Hands-free, and typed messages appear together here.</div>
+</section>
+
+<section id="messageD" hidden>
+ <div class="topline"><button class="back" data-go="logs" aria-label="Back">‹</button><h2>Message</h2></div>
+ <div class="meta"><span id="detailDirection"></span><time id="detailTime"></time></div>
+ <h2 id="detailPerson"></h2>
+ <div class="card"><p id="detailBody" style="white-space:pre-wrap"></p><p class="mut" id="detailLanguage"></p></div>
+ <div class="state-card" id="detailState"></div>
+ <div id="ttsControls" hidden><button class="wide" id="ttsPlay">Play aloud</button><button class="wide" id="ttsStop" hidden>Stop</button><p class="mut" id="ttsStatus">Text remains saved if speech is unavailable.</p></div>
+</section>
+
+<section id="settings" hidden>
+ <div class="topline"><button class="back" data-go="home" aria-label="Back">‹</button><h2>Readiness & identity</h2></div>
+ <div id="readinessList"></div>
+ <button class="wide" data-go="onboarding">Review permissions</button>
+ <button class="wide" id="restoreReadiness" hidden>Restore local participation</button>
+ <div class="card"><b>Identity recovery</b><p class="mut">A reinstall may create a new identity. Previously trusted contacts would need to scan your new QR.</p></div>
+ <button class="wide" data-go="identity">Show my identity QR</button>
+ <button class="danger" id="reinstall">Simulate reinstall / identity loss</button>
+ <p class="error" id="identityLost" hidden>This installation now has a new identity. Re-exchange QR identities before sending to previous contacts.</p>
+</section>
+
+<section id="emergency" class="emergency-screen" hidden>
+ <h2>Emergency Mode</h2>
+ <div class="emergency-mode-row"><span class="signal-dot" aria-hidden="true"></span><div><b id="emergencyStatus">Active · local participation on</b><small id="emergencyCopy">Looking for nearby iTantra phones.</small></div><button class="emergency-toggle" id="emergencyToggle">Stop</button></div>
+ <label class="switch emergency-availability"><span><b>Available to help</b><br><small class="mut">Receive SOS offers from people nearby or through relays. This does not make you an official responder.</small></span><input type="checkbox" id="available"></label>
+ <p class="error" id="emergencyWarning" hidden></p>
+ <button class="hold emergency-talk" id="emergencyTalk" aria-label="Hold to talk, release to create a message"><div class="wave" id="emergencyWave"></div><span>🎙️</span>Hold to talk<small>Release to review and send</small></button>
+ <div class="emergency-actions">
+  <button class="tile r" data-go="sosCreate"><span>🚨</span>Help</button>
+  <button class="tile" id="emergencyLocation"><span>📍</span>Location</button>
+  <button class="tile" data-go="alert"><span>🔊</span>Listen</button>
+  <button class="tile" data-go="handsfree"><span>🎧</span>Hands-free</button>
+ </div>
+ <h2 class="offers-heading">SOS offers</h2><div id="offerList"></div><div class="empty emergency-empty" id="offersEmpty"><b>No requests waiting</b><small>Offers appear here when you are available to help.</small></div>
+</section>
+
+<section id="sosCreate" hidden>
+ <div class="topline"><button class="back" data-go="emergency" aria-label="Back">‹</button><h2>Request help</h2></div>
+ <p class="mut">Ask available people to respond. You do not need a trusted contact first.</p>
+ <label class="field"><span>What kind of help?</span><select id="sosCategory"><option>Medical</option><option>Trapped</option><option>Unsafe</option><option>Communication</option><option>Other</option></select></label>
+ <label class="field"><span>Language</span><select id="sosLang"></select></label>
+ <label class="field"><span>Brief note (optional)</span><textarea class="short" id="sosNote" placeholder="Share details after someone accepts"></textarea></label>
+ <p class="mut">Before acceptance, responders see only category, language, request age, and rough radio signal.</p>
+ <button class="danger" id="startSos">Start SOS search</button>
+</section>
+
+<section id="sosSearch" hidden>
+ <div class="topline"><button class="back" data-go="emergency" aria-label="Back">‹</button><h2>Finding a responder</h2></div>
+ <div class="search"><div class="search-orb">🚨</div><h2 id="searchTitle">Looking for nearby people…</h2><p class="mut" id="searchCopy">No one has responded yet. Your request remains active.</p><div class="steps"><span id="directStep" class="g">Nearby search</span><span id="relayStep">Wider relay search</span></div></div>
+ <button class="danger" id="cancelSos">Cancel SOS</button>
+</section>
+
+<section id="sosSession" hidden>
+ <div class="topline"><button class="back" data-go="logs" aria-label="Back">‹</button><h2>SOS conversation</h2></div>
+ <div class="trustbox"><b id="sessionOther">Responder connected</b><p class="mut" id="sessionRoute">Nearby live connection</p><strong id="sessionTrust">Encrypted connection · Identity not verified</strong></div>
+ <div class="card" id="verifyPanel"><b>Check the nearby device</b><p class="mut">Matching this code verifies the nearby device in this session. It does not verify a profession or intentions.</p><div class="code">RIVER · 42</div><div class="two"><button id="verifyMatch">Codes match</button><button id="verifyMismatch">Mismatch</button></div><button class="wide" id="verifySkip">Can't compare</button></div>
+ <div class="messages" id="sosMessages"></div>
+ <button class="wide" id="sosTts" hidden>Play latest reply aloud</button>
+ <label class="field"><span>Reply</span><textarea class="short" id="sosReply"></textarea></label>
+ <div class="two"><button id="sosSpeak">Speak</button><button class="pri" id="sendSosReply">Send</button></div>
+ <button class="danger" id="endSos">End SOS session</button>
+</section>
+
+<section id="offer" hidden>
+ <div class="topline"><button class="back" data-go="emergency" aria-label="Back">‹</button><h2>SOS request</h2></div>
+ <div class="alert"><b>Someone is requesting help</b><h2 id="offerCategory">Medical</h2><p>Language: <strong id="offerLanguage">Kannada</strong></p><p>Radio signal: <strong>Medium · rough only</strong></p><div class="trustbox"><b>Encrypted if accepted · Identity not verified</b><p class="mut">You may talk without knowing who this person is.</p></div></div>
+ <div class="two" style="margin-top:12px"><button id="declineOffer">Decline</button><button class="pri" id="acceptOffer">Accept</button></div>
+</section>
+
+<section id="net" hidden>
+ <h2>Direct network</h2>
+ <div class="card"><svg viewBox="0 0 300 210" width="100%" role="img" aria-label="You connected to 6 devices, some through relays">
+  <g stroke="var(--line)" stroke-width="3"><line x1="150" y1="105" x2="55" y2="45"/><line x1="150" y1="105" x2="245" y2="45"/><line x1="150" y1="105" x2="60" y2="165"/><line x1="245" y1="45" x2="282" y2="112"/><line x1="60" y1="165" x2="140" y2="195" stroke-dasharray="5 4"/><line x1="55" y1="45" x2="18" y2="105"/></g>
+  <g fill="var(--g)"><circle cx="55" cy="45" r="14"/><circle cx="245" cy="45" r="14"/><circle cx="282" cy="112" r="11"/><circle cx="18" cy="105" r="11"/><circle cx="60" cy="165" r="14"/></g><circle cx="140" cy="195" r="11" fill="var(--a)"/>
+  <circle cx="150" cy="105" r="22" fill="var(--tx)"/><text x="150" y="109" text-anchor="middle" style="fill:var(--bg);font-weight:700">You</text>
+  <text x="55" y="22" text-anchor="middle">Arjun</text><text x="245" y="22" text-anchor="middle">Meera</text><text x="140" y="180" text-anchor="middle">Weak</text></svg>
+  <div>6 devices active · 4 strong · 1 weak</div></div>
+ <div class="card"><div class="g">🟢 Connected: messages can be delivered</div><div class="a">🟡 Weak or working: still trying</div><div class="r">🔴 Needs action: emergency</div><div>⚪ Information</div></div>
+ <div class="card"><b>Battery-safe relaying</b><div class="mut">Your phone passes messages on for others. It pauses when battery is below 15%.</div></div>
+</section>
+
+<section id="lang" hidden>
+ <h2>How do you want to hear iTantra?</h2><div id="ls"></div>
+</section>
+</div>
+<div id="toast" role="status"></div>
+<nav hidden><div><button data-go="home" class="on">🏠<br>Home</button><button data-go="contacts">👤<br>Contacts</button><button data-go="logs">▤<br>Logs</button><button data-go="net">📡<br>Network</button></div></nav>
+
+<details class="review" id="reviewPanel">
+ <summary>Review simulator</summary>
+ <p class="review-note">These controls fake system and network events. The app does not use a real microphone, QR camera, or outage network.</p>
+ <h3>Voice and storage</h3>
+ <label class="field"><span>Next voice result</span><select id="voiceOutcome"><option value="success">Transcript ready</option><option value="empty">No speech detected</option><option value="error">Transcription fails</option><option value="mic">Microphone unavailable</option></select></label>
+ <label class="field"><span>Next message save</span><select id="saveOutcome"><option value="success">Stored locally</option><option value="storage">Storage full</option><option value="database">Message store unavailable</option></select></label>
+ <label class="field"><span>Next QR scan</span><select id="qrOutcome"><option value="valid">New identity</option><option value="duplicate">Already trusted</option><option value="same-name">Same name, different identity</option><option value="changed">Trusted person's identity changed</option><option value="own">My own identity</option><option value="malformed">Invalid QR</option><option value="camera">Camera unavailable</option></select></label>
+ <h3>Message journey</h3>
+ <button data-message-state="relayed">Relay accepts encrypted copy</button><button data-message-state="delivered">Recipient confirms delivery</button><button data-message-state="expired">Message expires</button><button data-message-state="unknown">State becomes unknown</button>
+ <label class="field"><span>Incoming trusted message</span><textarea id="incomingText">We are safe at the shelter. Please confirm your location.</textarea></label>
+ <button id="receiveMessage">Receive once</button><button id="receiveDuplicate">Receive duplicate copy</button><label class="check"><input type="checkbox" id="ttsFail"><span>Next speech playback fails</span></label>
+ <h3>Readiness and recovery</h3>
+ <select id="readinessCase"><option value="ready">All ready · no internet</option><option value="bluetooth">Bluetooth off</option><option value="permission">Nearby permission denied</option><option value="background">Background participation stopped</option><option value="notifications">Notifications denied</option><option value="battery">Battery critically low</option><option value="restart">App restarted · preserve data</option><option value="reinstall">Reinstall · identity lost</option></select>
+ <button id="applyReadiness">Apply condition</button><button class="danger" id="resetReview">Reset full review</button>
+</details>
+<script>
+(()=>{
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const L={
+ en:{n:'English',c:'en-IN',s:'We are trapped here.',e:'English'},
+ hi:{n:'हिन्दी',c:'hi-IN',s:'हम यहाँ फँसे हुए हैं',e:'Hindi'},
+ gu:{n:'ગુજરાતી',c:'gu-IN',s:'અમે અહીં ફસાઈ ગયા છીએ',e:'Gujarati'},
+ mr:{n:'मराठी',c:'mr-IN',s:'आम्ही येथे अडकलो आहोत',e:'Marathi'},
+ kn:{n:'ಕನ್ನಡ',c:'kn-IN',s:'ನಾವು ಇಲ್ಲಿ ಸಿಲುಕಿಕೊಂಡಿದ್ದೇವೆ',e:'Kannada'},
+ ml:{n:'മലയാളം',c:'ml-IN',s:'ഞങ്ങൾ ഇവിടെ കുടുങ്ങിയിരിക്കുന്നു',e:'Malayalam'},
+ ta:{n:'தமிழ்',c:'ta-IN',s:'நாங்கள் இங்கே சிக்கிக்கொண்டோம்',e:'Tamil'},
+ te:{n:'తెలుగు',c:'te-IN',s:'మేము ఇక్కడ చిక్కుకున్నాము',e:'Telugu'},
+ or:{n:'ଓଡ଼ିଆ',c:'or-IN',s:'ଆମେ ଏଠାରେ ଫସି ରହିଛୁ',e:'Odia'},
+ bn:{n:'বাংলা',c:'bn-IN',s:'আমরা এখানে আটকে আছি',e:'Bengali'}
+};
+let lg='kn';
+const CONTACTS_KEY='itantra-sih-reference-contacts-v1';
+let contacts=[];let activeContact='';
+try{const saved=JSON.parse(localStorage.getItem(CONTACTS_KEY)||'[]');if(Array.isArray(saved))contacts=saved}catch(e){}
+function speak(t,c){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang=c;speechSynthesis.speak(u)}catch(e){}toast('🔊 '+t)}
+function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display='none',2200)}
+function go(id){$$('section').forEach(s=>s.hidden=s.id!==id);const roots=['home','contacts','alert','net','lang'];$('nav').hidden=!roots.includes(id);$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===id));if(id==='contacts')renderContacts();if(id==='talkS')render();scrollTo(0,0)}
+$$('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+$('#mN').onclick=()=>mode(0);$('#mE').onclick=()=>mode(1);
+function mode(e){document.body.classList.toggle('em',!!e);$('#mE').classList.toggle('on',!!e);$('#mN').classList.toggle('on',!e);go('home')}
+$('#wave').innerHTML=Array.from({length:18},(_,i)=>`<i style="animation-delay:${(i%6)*.12}s"></i>`).join('');
+let t0=0;const tk=$('#talk');
+tk.onpointerdown=()=>{t0=Date.now();tk.classList.add('rec')};
+['pointerup','pointerleave','pointercancel'].forEach(v=>tk.addEventListener(v,()=>tk.classList.remove('rec')));
+tk.onclick=e=>{if(Date.now()-t0>400||e.detail===0){render();go('talkS')}else toast('Keep holding while you speak')};
+$('#loc').onclick=()=>toast('📍 Location shared with 6 nearby devices');
+$('#hfDone').onclick=()=>{render();go('talkS')};
+function hold(el,ms,done){let t;el.style.setProperty('--ms',ms+'ms');const up=()=>{clearTimeout(t);el.classList.remove('down')};
+ el.onpointerdown=()=>{el.classList.add('down');t=setTimeout(()=>{up();done()},ms)};['pointerup','pointerleave','pointercancel'].forEach(v=>el.addEventListener(v,up))}
+hold($('#sos'),2000,()=>{$('#sent').style.display='block';if(navigator.vibrate)navigator.vibrate(200)});
+$('#sos').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){$('#sent').style.display='block'}};
+$$('#needs button').forEach(b=>b.onclick=()=>b.classList.toggle('sel'));
+let n=3;$('#p').onclick=()=>$('#ppl').textContent=++n;$('#m').onclick=()=>$('#ppl').textContent=n=Math.max(1,n-1);
+$$('#reps button').forEach(b=>b.onclick=()=>toast('Sent in Kannada: “'+b.textContent+'”'));
+function render(){const l=L[lg],to=lg==='en'?L.hi:L.en;$('#tO').textContent=l.s;$('#tT').textContent=lg==='en'?L.hi.s:'We are trapped here.';$('#toL').textContent=to.e;$$('.fromL').forEach(e=>e.textContent=l.e);$('#hl').textContent=l.e;
+ $('#pO').onclick=()=>speak(l.s,l.c);$('#pT').onclick=()=>speak($('#tT').textContent,to.c);renderRecipients();noisy()}
+function noisy(){const x=$('#noise').checked,translating=state.draft.language!=='en';if(!translating){$('#cf').textContent='English selected · translation not needed';$('#cf').className='mut';$('#cb').style.width='100%';$('#cb').style.background='var(--g)';$('#warn').style.display='none';return}$('#cf').textContent=x?'Translation confidence: 61%, low. Check the original.':'Translation confidence: 92%, high';$('#cf').className=x?'a':'mut';$('#cb').style.width=x?'61%':'92%';$('#cb').style.background=x?'var(--a)':'var(--g)';$('#warn').style.display=x?'block':'none'}
+$('#noise').onchange=noisy;
+$('#ok').onclick=()=>{const id=$('#recipient').value,contact=contacts.find(c=>c.id===id);if(!contact){toast('Choose a trusted recipient first');return}activeContact=id;$('#st').innerHTML=`<span class="g">✓ Queued for ${contact.name}</span><span class="a">Stored on this phone · waiting for a route</span>`;toast('Message queued safely')};
+$('#redo').onclick=()=>go('home');$('#pA').onclick=()=>speak('We are trapped here.','en-IN');
+$('#ls').innerHTML=Object.entries(L).map(([k,v])=>`<div class="lang"><button class="n${k===lg?' sel':''}" data-k="${k}">${v.n}</button><button aria-label="Hear ${v.e}" data-s="${k}">🔊</button></div>`).join('');
+$$('[data-k]').forEach(b=>b.onclick=()=>{lg=b.dataset.k;$$('[data-k]').forEach(x=>x.classList.toggle('sel',x===b));render();toast('Language: '+L[lg].e)});
+$$('[data-s]').forEach(b=>b.onclick=()=>speak(L[b.dataset.s].n,L[b.dataset.s].c));
+function saveContacts(){localStorage.setItem(CONTACTS_KEY,JSON.stringify(contacts))}
+function renderRecipients(){const select=$('#recipient'),chosen=select.value||activeContact;select.innerHTML='<option value="">Choose a trusted contact</option>';contacts.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name;select.append(o)});select.value=contacts.some(c=>c.id===chosen)?chosen:'';$('#ok').disabled=!contacts.length}
+function renderContacts(){const list=$('#contactList');list.innerHTML='';$('#contactEmpty').hidden=contacts.length>0;contacts.forEach(c=>{const b=document.createElement('button');b.className='contact';b.innerHTML=`<b>${escapeHtml(c.name)}</b><span class="trust">Trusted iTantra contact</span><span class="mut">Identity confirmed by QR · can receive later</span>`;b.onclick=()=>{activeContact=c.id;renderContactDetail();go('contactD')};list.append(b)});renderRecipients()}
+function renderContactDetail(){const c=contacts.find(x=>x.id===activeContact);if(!c){go('contacts');return}$('#contactTitle').textContent=c.name;$('#contactFp').textContent='Identity check: '+c.fingerprint}
+function escapeHtml(value){const d=document.createElement('div');d.textContent=value;return d.innerHTML}
+$('#recipient').onchange=e=>{activeContact=e.target.value};
+$('#scanNow').onclick=()=>{if(contacts.some(c=>c.fingerprint==='62AB · 7D91')){toast('Arjun is already a trusted contact');go('contacts');return}$('#contactChecked').checked=false;$('#addContact').disabled=true;$('#contactName').value='Arjun';go('confirm')};
+$('#contactChecked').onchange=e=>{$('#addContact').disabled=!e.target.checked};
+$('#addContact').onclick=()=>{const name=$('#contactName').value.trim();if(!$('#contactChecked').checked)return;if(!name){toast('Enter a name for this contact');$('#contactName').focus();return}const contact={id:'c'+Date.now(),name:name.slice(0,40),fingerprint:'62AB · 7D91'};contacts.push(contact);activeContact=contact.id;saveContacts();renderContacts();toast('Trusted contact added');go('contacts')};
+$('#messageContact').onclick=()=>{render();$('#recipient').value=activeContact;go('talkS')};
+$('#renameContact').onclick=()=>{const c=contacts.find(x=>x.id===activeContact);if(!c)return;const name=prompt('Name on this phone',c.name);if(name&&name.trim()){c.name=name.trim().slice(0,40);saveContacts();renderContactDetail();renderRecipients();toast('Local label renamed')}};
+$('#forgetContact').onclick=()=>{const c=contacts.find(x=>x.id===activeContact);if(!c)return;if(confirm(`Forget ${c.name}? You will need to exchange QR identities again before sending new messages.`)){contacts=contacts.filter(x=>x.id!==c.id);activeContact='';saveContacts();renderContacts();toast('Trusted contact forgotten');go('contacts')}};
+render();
+});
+
+(()=>{
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const LANGS={
+ en:{native:'English',name:'English',voice:'en-IN',sample:'We are safe at the school shelter. Please meet us there when you can.'},
+ hi:{native:'हिन्दी',name:'Hindi',voice:'hi-IN',sample:'हम स्कूल के आश्रय स्थल पर सुरक्षित हैं।'},
+ gu:{native:'ગુજરાતી',name:'Gujarati',voice:'gu-IN',sample:'અમે શાળાના આશ્રયસ્થાને સુરક્ષિત છીએ.'},
+ mr:{native:'मराठी',name:'Marathi',voice:'mr-IN',sample:'आम्ही शाळेच्या निवाऱ्यात सुरक्षित आहोत.'},
+ kn:{native:'ಕನ್ನಡ',name:'Kannada',voice:'kn-IN',sample:'ನಾವು ಶಾಲೆಯ ಆಶ್ರಯದಲ್ಲಿ ಸುರಕ್ಷಿತವಾಗಿದ್ದೇವೆ.'},
+ ml:{native:'മലയാളം',name:'Malayalam',voice:'ml-IN',sample:'ഞങ്ങൾ സ്കൂൾ അഭയകേന്ദ്രത്തിൽ സുരക്ഷിതരാണ്.'},
+ ta:{native:'தமிழ்',name:'Tamil',voice:'ta-IN',sample:'நாங்கள் பள்ளி முகாமில் பாதுகாப்பாக இருக்கிறோம்.'},
+ te:{native:'తెలుగు',name:'Telugu',voice:'te-IN',sample:'మేము పాఠశాల ఆశ్రయంలో సురక్షితంగా ఉన్నాము.'},
+ or:{native:'ଓଡ଼ିଆ',name:'Odia',voice:'or-IN',sample:'ଆମେ ବିଦ୍ୟାଳୟ ଆଶ୍ରୟସ୍ଥଳରେ ସୁରକ୍ଷିତ ଅଛୁ।'},
+ bn:{native:'বাংলা',name:'Bengali',voice:'bn-IN',sample:'আমরা স্কুলের আশ্রয়কেন্দ্রে নিরাপদে আছি।'}
+};
+const STORE='itantra-sih-reference-v2';
+const legacyContacts=()=>{try{return JSON.parse(localStorage.getItem('itantra-sih-reference-contacts-v1')||'[]')}catch(_){return[]}};
+const fresh=()=>({
+ ready:false,permissions:{nearby:false,notifications:false,microphone:false,camera:false},readiness:'ready',
+ identityVersion:1,identityLost:false,contacts:legacyContacts().map(c=>({...c,valid:c.valid!==false})),messages:[],nextId:1,
+ draft:{text:'',recipient:'',language:'kn',urgent:false,source:'typed'},selectedContact:'',selectedMessage:'',lastReceivedId:'',pendingCandidate:null,
+ emergency:{active:false,available:false},offers:[],selectedOffer:'',
+ sos:{status:'idle',role:'requester',category:'Medical',language:'kn',note:'',route:'direct',trust:'unverified',responder:'',messages:[],notice:''}
+});
+let state=fresh();
+try{const saved=JSON.parse(localStorage.getItem(STORE)||'null');if(saved)state={...fresh(),...saved,permissions:{...fresh().permissions,...saved.permissions},draft:{...fresh().draft,...saved.draft},emergency:{...fresh().emergency,...saved.emergency},sos:{...fresh().sos,...saved.sos}}}catch(_){}
+let current=state.ready?'home':'onboarding',capture=false,searchTimer=null,nextHandsfreeSource='handsfree';
+const ALERT_REPLY='alert-requester';
+const appScreens=$$('.app > section');
+const roots=['home','contacts','logs','net','lang','help'];
+const stateCopy={
+ queued:['Queued','Stored on this phone. No relay has confirmed carrying a copy yet.'],
+ relayed:['Relayed','Another phone carries an encrypted copy. The intended recipient has not confirmed delivery.'],
+ delivered:['Delivered','The trusted recipient confirmed delivery. This does not mean the message was opened or read.'],
+ expired:['Expired','Its allowed lifetime ended without confirmed delivery. iTantra does not know why.'],
+ unknown:['Unknown','State continuity was lost. iTantra cannot safely claim whether delivery occurred.']
+};
+function fillWave(selector){const wave=$(selector);wave.replaceChildren(...Array.from({length:18},(_,index)=>{const bar=document.createElement('i');bar.style.animationDelay=`${(index%6)*.12}s`;return bar}))}
+fillWave('#wave');fillWave('#emergencyWave');fillWave('#replyWave');
+function save(){try{localStorage.setItem(STORE,JSON.stringify(state))}catch(_){}}
+function toast(text){const el=$('#toast');el.textContent=text;el.style.display='block';clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.style.display='none',2500)}
+function now(){return new Date().toISOString()}
+function stamp(value){return new Intl.DateTimeFormat(undefined,{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(value))}
+function langLabel(code){const l=LANGS[code];return l?`${l.name} · ${l.native}`:code}
+function validContacts(){return state.contacts.filter(c=>c.valid)}
+function populateSelect(select,value){select.replaceChildren(...Object.entries(LANGS).map(([code,l])=>{const o=document.createElement('option');o.value=code;o.textContent=`${l.name} · ${l.native}`;return o}));select.value=value in LANGS?value:'en'}
+function go(id){if(id==='home'&&state.emergency.active)id='emergency';if(!$('#'+id))return;current=id;appScreens.forEach(s=>s.hidden=s.id!==id);$('nav').hidden=!roots.includes(id);$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===id));renderFor(id);scrollTo(0,0)}
+function renderFor(id){if(id==='home')renderHome();if(id==='onboarding')renderPermissions();if(id==='talkS')syncCompose();if(id==='handsfree')renderHandsfree();if(id==='contacts')renderContacts();if(id==='contactD')renderContactDetail();if(id==='logs'||id==='messageD')renderLogs();if(id==='settings')renderReadiness();if(id==='emergency'||id==='offer')renderEmergency();if(id==='identity')renderIdentity()}
+document.addEventListener('click',e=>{const goButton=e.target.closest('[data-go]');if(goButton){e.preventDefault();if(goButton.dataset.go==='handsfree')nextHandsfreeSource='handsfree';go(goButton.dataset.go)}});
+function renderMode(){document.body.classList.toggle('em',state.emergency.active);$('#mE').classList.toggle('on',state.emergency.active);$('#mN').classList.toggle('on',!state.emergency.active)}
+$('#mN').onclick=()=>{state.emergency.active=false;state.emergency.available=false;save();renderMode();go('home')};
+$('#mE').onclick=()=>{state.emergency.active=true;save();renderMode();go('emergency')};
+function renderLanguagePicker(){const list=$('#ls');list.replaceChildren();Object.entries(LANGS).forEach(([code,l])=>{const row=document.createElement('div');row.className='lang';const choose=document.createElement('button');choose.className='n'+(state.draft.language===code?' sel':'');choose.textContent=`${l.name} · ${l.native}`;choose.onclick=()=>{state.draft.language=code;save();renderLanguagePicker();renderHome();toast('Message language: '+l.name)};const hear=document.createElement('button');hear.textContent='🔊';hear.setAttribute('aria-label','Hear '+l.name);hear.onclick=()=>speak(l.native,code);row.append(choose,hear);list.append(row)})}
+function speak(text,code,statusNode=null){if($('#ttsFail')?.checked){if(statusNode)statusNode.textContent='Speech unavailable. The text remains saved.';toast('Speech unavailable · text remains available');return}try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=LANGS[code]?.voice||'en-IN';speechSynthesis.speak(u);if(statusNode)statusNode.textContent='Playing aloud…'}catch(_){if(statusNode)statusNode.textContent='Speech unavailable. The text remains saved.'}toast('🔊 '+text)}
+function readinessInfo(){if(!state.permissions.nearby||state.readiness==='permission')return['Nearby permission required','Messages remain saved, but this phone cannot discover or relay until permission is allowed.',true];if(state.readiness==='bluetooth')return['Bluetooth is off','Messages can queue on this phone. Turn Bluetooth on to discover nearby iTantra phones.',true];if(state.readiness==='background')return['Background participation stopped','Queued messages remain saved. Restart Emergency Mode to participate.',true];if(state.readiness==='battery')return['Battery critically low','Local participation may stop soon. Keep the phone charged if possible.',true];if(!state.permissions.notifications||state.readiness==='notifications')return['Notifications limited','Messages work, but alerts may be missed while the app is closed.',true];return['Local radio ready','Internet is not needed. Messages may wait for a route.',false]}
+function renderHome(){renderMode();populateSelect($('#homeLang'),state.draft.language);const [title,copy,blocked]=readinessInfo(),emergency=state.emergency.active;$('#readinessTitle').textContent=emergency?'🟢 Direct link · no internet needed · 6 nearby':title;$('#readinessCopy').textContent=copy;$('#readinessCopy').hidden=emergency;$('#readinessBanner').classList.toggle('blocked',!emergency&&blocked);$('#hl').textContent=LANGS[state.draft.language].name;const waiting=state.messages.filter(m=>m.direction==='out'&&['queued','relayed'].includes(m.state)).length;$('#queueSummary').textContent=waiting?`${waiting} outgoing message${waiting===1?'':'s'} still moving through the network.`:'No outgoing messages waiting.'}
+
+function voiceResult(source){const handsfree=source==='handsfree'||source==='alert-reply-handsfree',result=$('#voiceOutcome').value;if(!state.permissions.microphone||result==='mic'){if(handsfree)showHandsfreeError('Microphone unavailable');else toast('Microphone unavailable · use Reply Hands-free or allow microphone access');return}if(result==='empty'){if(handsfree)showHandsfreeError('No speech detected');else toast('No speech detected · try again');return}if(result==='error'){if(handsfree)showHandsfreeError('Transcription failed');else toast('Transcription failed · try again');return}const alertReply=source==='alert-reply'||source==='alert-reply-handsfree';openCompose(LANGS[state.draft.language].sample,alertReply?'alert-reply':source,alertReply?ALERT_REPLY:null)}
+function bindTalk(talk,source='ptt'){let recording=false,lastRelease=0;const release=e=>{if(!recording)return;recording=false;lastRelease=Date.now();talk.classList.remove('rec');if(e)e.preventDefault();voiceResult(source)};talk.onpointerdown=e=>{e.preventDefault();recording=true;talk.classList.add('rec');if(e.pointerId!==undefined)try{talk.setPointerCapture(e.pointerId)}catch(_){}};talk.onpointerup=release;talk.onpointercancel=()=>{recording=false;talk.classList.remove('rec')};talk.onkeydown=e=>{if((e.key===' '||e.key==='Enter')&&!e.repeat){recording=true;talk.classList.add('rec')}};talk.onkeyup=e=>{if(e.key===' '||e.key==='Enter')release(e)};talk.onclick=e=>{if(Date.now()-lastRelease<500)return;e.preventDefault();voiceResult(source)}}
+bindTalk($('#talk'));bindTalk($('#emergencyTalk'));bindTalk($('#replyTalk'),'alert-reply');
+function renderHandsfree(){const blocked=!state.permissions.microphone||$('#voiceOutcome').value==='mic';$('#hfStatus').textContent=blocked?'Microphone unavailable':'Listening…';$('#hfHint').textContent=blocked?'Allow microphone access in Readiness, or continue as text.':'Speak normally. Tap Done when you finish. Your words will open as an editable draft.';$('#hfError').hidden=true;$('#hfRetry').hidden=!blocked;$('#hfDone').disabled=blocked}
+function showHandsfreeError(message){$('#hfStatus').textContent='Could not create a transcript';$('#hfError').textContent=message+'. Try again or continue as text.';$('#hfError').hidden=false;$('#hfRetry').hidden=false;$('#hfDone').disabled=true}
+$('#hfDone').onclick=()=>voiceResult(nextHandsfreeSource);$('#hfRetry').onclick=renderHandsfree;
+$('#replyHandsfree').onclick=()=>{nextHandsfreeSource='alert-reply-handsfree';go('handsfree')};
+$('#openText').onclick=()=>openCompose('','typed');
+$('#locationButton').onclick=()=>toast('Location is prepared for your Help request');
+$('#emergencyLocation').onclick=()=>toast('Location is prepared for your SOS request');
+let helpPeople=3,helpTimer=null;
+$$('#needs button').forEach(button=>button.onclick=()=>button.classList.toggle('sel'));
+$('#m').onclick=()=>{$('#ppl').textContent=helpPeople=Math.max(1,helpPeople-1)};
+$('#p').onclick=()=>{$('#ppl').textContent=helpPeople=Math.min(99,helpPeople+1)};
+function clearHelpHold(){clearTimeout(helpTimer);helpTimer=null;$('#sos').classList.remove('rec')}
+function sendSimpleHelp(){clearHelpHold();$('#sent').style.display='block';try{navigator.vibrate?.(180)}catch(_){};toast('Help request sent · iTantra will keep retrying')}
+$('#sos').onpointerdown=e=>{e.preventDefault();$('#sos').classList.add('rec');helpTimer=setTimeout(sendSimpleHelp,2000)};
+$('#sos').onpointerup=clearHelpHold;$('#sos').onpointercancel=clearHelpHold;$('#sos').onpointerleave=clearHelpHold;
+function openCompose(text,source='typed',recipient=null){state.draft.source=source;if(text!==null)state.draft.text=text;state.draft.recipient=recipient===null?'':recipient;save();go('talkS')}
+function renderRecipients(){const select=$('#recipient'),wanted=state.draft.recipient;select.replaceChildren();const first=document.createElement('option');first.value='';first.textContent='Choose a trusted contact';select.append(first);if(wanted===ALERT_REPLY){const reply=document.createElement('option');reply.value=ALERT_REPLY;reply.textContent='Nearby emergency requester';select.append(reply)}validContacts().forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name;select.append(o)});select.value=wanted===ALERT_REPLY||validContacts().some(c=>c.id===wanted)?wanted:'';if(select.value!==wanted){state.draft.recipient=select.value;save()}}
+function syncCompose(){renderRecipients();populateSelect($('#composeLang'),state.draft.language);$('#draftText').value=state.draft.text;$('#urgent').checked=state.draft.urgent;const alertReply=state.draft.source==='alert-reply',voice=state.draft.source!=='typed';$('#voiceReview').hidden=true;$('#noiseRow').hidden=true;$('#composeTitle').textContent=alertReply?'Review emergency reply':voice?'Review message':'New text message';$('#recipient').disabled=alertReply;$('#recipient').previousElementSibling.textContent=alertReply?'Reply recipient':'Trusted recipient';$('#recipientHelp').textContent=alertReply?'This reply returns to the nearby requester through the emergency route. Delivery may still be delayed.':'The recipient can be offline or far away. iTantra will queue the message until a route becomes available.';$('#manageContactsButton').hidden=alertReply;const l=LANGS[state.draft.language],translating=state.draft.language!=='en',to=translating?LANGS.en:l;$('#tO').textContent=state.draft.text||l.sample;$('#tT').textContent=translating?'We are safe at the shelter. Please meet us there when you can.':state.draft.text||l.sample;$('#toL').textContent=to.name;$('#translationLabel').textContent=translating?'translated':'same language';$('#pT').textContent=translating?'🔊 Play translation':'🔊 Play message';$$('.fromL').forEach(e=>e.textContent=l.name);$('#pO').onclick=()=>speak($('#draftText').value||l.sample,state.draft.language);$('#pT').onclick=()=>speak($('#tT').textContent,to.voice);if(!translating){$('#cf').textContent='English selected · translation not needed';$('#cb').style.width='100%'}updateDraftCount();noisy()}
+function updateDraftCount(){const len=[...state.draft.text].length;$('#draftCount').textContent=`${len} / 500`;$('#draftCount').classList.toggle('over',len>500);$('#ok').disabled=!state.draft.text.trim()||!state.draft.recipient||len>500}
+$('#draftText').oninput=e=>{state.draft.text=e.target.value;save();updateDraftCount()};
+$('#recipient').onchange=e=>{state.draft.recipient=e.target.value;save();updateDraftCount()};
+$('#composeLang').onchange=e=>{state.draft.language=e.target.value;save();syncCompose();renderLanguagePicker()};
+$('#homeLang').onchange=e=>{state.draft.language=e.target.value;save();renderHome();renderLanguagePicker();toast('Message language: '+LANGS[state.draft.language].name)};
+$('#urgent').onchange=e=>{state.draft.urgent=e.target.checked;save()};
+function noisy(){const x=$('#noise').checked,translating=state.draft.language!=='en';if(!translating){$('#cf').textContent='English selected · translation not needed';$('#cf').className='mut';$('#cb').style.width='100%';$('#cb').style.background='var(--g)';$('#warn').style.display='none';return}$('#cf').textContent=x?'Translation confidence: 61%, low. Check the original.':'Translation confidence: 92%, high';$('#cf').className=x?'a':'mut';$('#cb').style.width=x?'61%':'92%';$('#cb').style.background=x?'var(--a)':'var(--g)';$('#warn').style.display=x?'block':'none'}
+$('#noise').onchange=noisy;
+function composeError(text){$('#sendError').textContent=text;$('#sendError').hidden=false}
+$('#ok').onclick=()=>{const alertReply=state.draft.source==='alert-reply',contact=alertReply?{id:ALERT_REPLY,name:'Nearby emergency requester'}:state.contacts.find(c=>c.id===state.draft.recipient&&c.valid);if(!contact){composeError('Choose one valid trusted contact. Nearby devices are not recipients.');return}const text=state.draft.text.trim(),len=[...text].length;if(!text)return;if(len>500){composeError('Message is too long. Shorten it before sending; no text was removed.');return}if($('#saveOutcome').value!=='success'){composeError('This message could not be safely stored on your phone. Your draft is still here.');return}state.messages.push({id:'m'+state.nextId++,direction:'out',contactId:contact.id,contactName:contact.name,text,language:state.draft.language,urgent:state.draft.urgent,state:'queued',time:now(),read:true});state.draft={text:'',recipient:'',language:state.draft.language,urgent:false,source:'typed'};save();toast(alertReply?'Emergency voice reply queued':'Message queued safely on this phone');go('home')};
+function discardDraft(){if(state.draft.text&&!confirm('Discard this message draft?'))return;if(state.draft.source==='alert-reply')state.draft.recipient='';state.draft.text='';state.draft.urgent=false;state.draft.source='typed';save();go('home')}
+$('#composeBack').onclick=discardDraft;$('#redo').onclick=discardDraft;
+
+function renderContacts(){const list=$('#contactList');list.replaceChildren();$('#contactEmpty').hidden=state.contacts.length>0;state.contacts.forEach(c=>{const b=document.createElement('button');b.className='contact';const name=document.createElement('b');name.textContent=c.name;const trust=document.createElement('span');trust.className=c.valid?'trust':'r';trust.textContent=c.valid?'Trusted iTantra contact':'QR re-exchange required';const detail=document.createElement('span');detail.className='mut';detail.textContent=c.valid?'Identity confirmed by QR · can receive later':'Identity changed or was lost · sending blocked';b.append(name,trust,detail);b.onclick=()=>{state.selectedContact=c.id;save();go('contactD')};list.append(b)});renderRecipients()}
+function selectedContact(){return state.contacts.find(c=>c.id===state.selectedContact)}
+function renderContactDetail(){const c=selectedContact();if(!c){go('contacts');return}$('#contactTitle').textContent=c.name;$('#contactFp').textContent='Identity check: '+c.fingerprint;$('#contactTrust').textContent=c.valid?'Trusted iTantra contact':'QR re-exchange required';$('#contactTrust').className=c.valid?'trust':'r';$('#contactCopy').textContent=c.valid?'This identity was confirmed by QR exchange. Renaming the local label does not change the trusted identity.':'This contact cannot receive new messages until you compare and confirm their new identity.';$('#messageContact').disabled=!c.valid}
+function renderIdentity(){$('.qr b').textContent='iTantra '+state.identityVersion;$('.fp',$('#identity')).textContent=`Identity check: ${state.identityVersion===1?'8F2C · 91A4':'B7D1 · 44E'+state.identityVersion}`}
+function scanCase(){const outcome=$('#qrOutcome').value,notice=$('#scanNotice');if(!state.permissions.camera||outcome==='camera'){notice.textContent='Camera unavailable. Allow camera access in Readiness, then try again.';return}if(outcome==='malformed'){notice.textContent='This QR could not be validated. Ask for a current iTantra identity QR.';return}if(outcome==='own'){notice.textContent='That is your own identity. Ask the other person to show their QR.';return}if(outcome==='duplicate'){notice.textContent=state.contacts.length?'This identity is already trusted. Open it from Contacts.':'No contact exists yet. Choose New identity in the simulator.';return}const changed=outcome==='changed',sameName=outcome==='same-name',existing=selectedContact()||state.contacts[0];if(changed&&!existing){notice.textContent='Add a contact first, then simulate an identity change.';return}const shown=changed?existing.name:'Arjun',fp=changed?'C81F · 20B7':sameName?'A40D · 996C':'62AB · 7D91';$('#candidateName').textContent=shown;$('#candidateFp').textContent='Identity check: '+fp;$('#candidateWarning').textContent=changed?`This differs from ${shown}'s trusted identity. Compare the new check before replacing it.`:sameName?'A trusted contact already uses this name, but this is a different identity. Confirm the person and choose a distinct local name.':'The name is only a hint. Compare this check with the other person before adding them.';$('#contactName').value=sameName?'Arjun (new)':shown;$('#contactChecked').checked=false;$('#addContact').disabled=true;state.pendingCandidate={fingerprint:fp,changed,replaceId:changed?existing.id:null};save();go('confirm')}
+$('#scanNow').onclick=scanCase;$('#contactChecked').onchange=e=>$('#addContact').disabled=!e.target.checked;
+$('#addContact').onclick=()=>{if(!$('#contactChecked').checked||!state.pendingCandidate)return;const name=$('#contactName').value.trim();if(!name){toast('Enter a name for this contact');return}const candidate=state.pendingCandidate;if(candidate.changed&&!confirm('Replace the old trusted identity after comparing the new identity with this person?'))return;if(candidate.changed)state.contacts=state.contacts.filter(c=>c.id!==candidate.replaceId);if(state.contacts.some(c=>c.fingerprint===candidate.fingerprint)){toast('This identity is already trusted');go('contacts');return}const c={id:'c'+state.nextId++,name:name.slice(0,40),fingerprint:candidate.fingerprint,valid:true,added:now()};state.contacts.push(c);state.selectedContact=c.id;state.pendingCandidate=null;save();toast('Trusted contact added');go('contacts')};
+$('#messageContact').onclick=()=>{const c=selectedContact();if(c?.valid)openCompose('', 'typed',c.id)};
+$('#renameContact').onclick=()=>{const c=selectedContact();if(!c)return;const value=prompt('Name on this phone',c.name);if(value?.trim()){c.name=value.trim().slice(0,40);save();renderContactDetail();renderContacts();toast('Local label renamed')}};
+$('#forgetContact').onclick=()=>{const c=selectedContact();if(c&&confirm(`Forget ${c.name}? You will need to exchange QR identities again before sending new messages.`)){state.contacts=state.contacts.filter(x=>x.id!==c.id);if(state.draft.recipient===c.id)state.draft.recipient='';state.selectedContact='';save();toast('Trusted contact forgotten');go('contacts')}};
+
+function renderLogs(){const list=$('#logList');list.replaceChildren();const messages=[...state.messages].sort((a,b)=>new Date(b.time)-new Date(a.time));$('#logsEmpty').hidden=messages.length>0;messages.forEach(m=>{const b=document.createElement('button');b.className='log'+(m.direction==='in'&&!m.read?' unread':'')+(m.urgent?' urgent':'');const top=document.createElement('div');top.className='meta';const who=document.createElement('b');who.textContent=m.direction==='in'?'↓ Received · '+m.contactName:'↑ To '+m.contactName;const when=document.createElement('span');when.textContent=stamp(m.time);top.append(who,when);const text=document.createElement('span');text.textContent=m.text;const meta=document.createElement('small');meta.className='mut';meta.textContent=langLabel(m.language)+(m.urgent?' · Urgent':'');b.append(top,text,meta);if(m.direction==='out'){const status=document.createElement('span');status.className='status-label';status.textContent=stateCopy[m.state]?.[0]||'Unknown';b.append(status)}b.onclick=()=>{state.selectedMessage=m.id;if(m.direction==='in')m.read=true;save();go('messageD')};list.append(b)});const m=state.messages.find(x=>x.id===state.selectedMessage);if(!m)return;$('#detailDirection').textContent=m.direction==='in'?'↓ Received':'↑ Sent';$('#detailTime').textContent=stamp(m.time);$('#detailPerson').textContent=m.contactName;$('#detailBody').textContent=m.text;$('#detailLanguage').textContent=langLabel(m.language)+(m.urgent?' · Urgent message':'');$('#detailState').hidden=m.direction==='in';if(m.direction==='out'){$('#detailState').replaceChildren();const b=document.createElement('b');b.textContent=stateCopy[m.state]?.[0]||'Unknown';const p=document.createElement('p');p.className='mut';p.textContent=stateCopy[m.state]?.[1]||stateCopy.unknown[1];$('#detailState').append(b,p)}$('#ttsControls').hidden=m.direction!=='in';$('#ttsStatus').textContent='Text remains saved if speech is unavailable.'}
+function latestOutgoing(){return[...state.messages].reverse().find(m=>m.direction==='out')}
+$$('[data-message-state]').forEach(button=>button.onclick=()=>{const m=latestOutgoing(),target=button.dataset.messageState;if(!m){toast('Send a trusted message first');return}if(m.state==='delivered'&&target!=='delivered'){toast('Recipient-confirmed delivery cannot be reversed');return}if(target==='relayed'&&m.state!=='queued'){toast('Only a Queued message can newly become Relayed');return}if(target==='delivered'&&!['queued','relayed','unknown'].includes(m.state)){toast('This message is no longer waiting for delivery');return}if(['expired','unknown'].includes(target)&&!['queued','relayed'].includes(m.state)){toast('Choose a message that is still Queued or Relayed');return}m.state=target;save();renderLogs();renderHome();toast('Latest message is now '+stateCopy[target][0])});
+function receiveTrusted(duplicate=false){if(duplicate&&state.lastReceivedId){toast('Duplicate copy ignored · no second message or speech event');return}const contact=validContacts()[0];if(!contact){toast('Add a trusted contact before simulating an incoming message');return}const text=$('#incomingText').value.trim();if(!text)return;const id='m'+state.nextId++;state.messages.push({id,direction:'in',contactId:contact.id,contactName:contact.name,text,language:state.draft.language,urgent:false,time:now(),read:false});state.lastReceivedId=id;save();renderLogs();toast('Incoming trusted message saved')}
+$('#receiveMessage').onclick=()=>receiveTrusted(false);$('#receiveDuplicate').onclick=()=>receiveTrusted(true);
+$('#ttsPlay').onclick=()=>{const m=state.messages.find(x=>x.id===state.selectedMessage);if(m?.direction==='in')speak(m.text,m.language,$('#ttsStatus'))};
+$('#ttsStop').onclick=()=>{try{speechSynthesis.cancel()}catch(_){};$('#ttsStatus').textContent='Playback stopped. The text remains saved.'};
+
+const permissionLabels={nearby:['Nearby devices','Discover and relay with local iTantra phones.'],notifications:['Notifications','Receive message and SOS alerts while closed.'],microphone:['Microphone','Create voice drafts. Typing remains available.'],camera:['Camera','Scan trusted-contact QR identities.']};
+function renderPermissions(){const list=$('#permissionList');list.replaceChildren();Object.entries(permissionLabels).forEach(([key,[name,copy]])=>{const row=document.createElement('div');row.className='ready-row'+(state.permissions[key]?'':' blocked');const b=document.createElement('b');b.textContent=name;const button=document.createElement('button');button.textContent=state.permissions[key]?'Allowed':'Allow';button.onclick=()=>{state.permissions[key]=!state.permissions[key];if(key==='nearby'&&state.permissions.nearby&&state.readiness==='permission')state.readiness='ready';save();renderPermissions()};const small=document.createElement('small');small.textContent=copy;row.append(b,button,small);list.append(row)});$('#finishOnboarding').textContent=state.ready?'Return to iTantra':'Enter iTantra'}
+$('#finishOnboarding').onclick=()=>{state.ready=true;save();go('home')};
+function renderReadiness(){const [nearbyTitle,nearbyCopy,nearbyBlocked]=readinessInfo();const rows=[['Local identity',state.identityLost?'New identity':'Ready',state.identityLost?'Contacts need a new QR exchange after reinstall.':'This installation can be recognized by trusted contacts.',state.identityLost],['Nearby radio',nearbyBlocked?'Action needed':'Ready',nearbyCopy,nearbyBlocked],['Notifications',state.permissions.notifications&&state.readiness!=='notifications'?'Ready':'Limited','Alerts may be missed while the app is closed.',!state.permissions.notifications||state.readiness==='notifications'],['Voice input',state.permissions.microphone?'Ready':'Permission needed','Typing remains available.',!state.permissions.microphone],['Camera for QR',state.permissions.camera?'Ready':'Permission needed','Needed only to scan a trusted contact.',!state.permissions.camera],['Emergency background work',state.emergency.active&&state.readiness!=='background'?'Active':'Off or limited',state.readiness==='background'?'Background participation stopped. Restart Emergency Mode.':'A visible notification may be required when active.',!state.emergency.active||state.readiness==='background']];const list=$('#readinessList');list.replaceChildren();rows.forEach(([name,status,copy,blocked])=>{const row=document.createElement('div');row.className='ready-row'+(blocked?' blocked':'');const b=document.createElement('b');b.textContent=name;const s=document.createElement('span');s.textContent=status;const small=document.createElement('small');small.textContent=copy;row.append(b,s,small);list.append(row)});$('#identityLost').hidden=!state.identityLost;$('#restoreReadiness').hidden=!['bluetooth','background'].includes(state.readiness)}
+$('#restoreReadiness').onclick=()=>{state.readiness='ready';save();renderReadiness();renderHome();toast('Local participation restored')};
+function simulateReinstall(){state.identityVersion++;state.identityLost=true;state.contacts.forEach(c=>c.valid=false);state.draft.recipient='';save();renderContacts();renderReadiness();toast('New local identity created · contacts require QR re-exchange')}
+$('#reinstall').onclick=()=>{if(confirm('Simulate reinstall and invalidate existing trusted relationships?'))simulateReinstall()};
+$('#applyReadiness').onclick=()=>{const value=$('#readinessCase').value;if(value==='restart'){save();toast('App restarted · queued messages and contacts preserved');go(state.ready?'home':'onboarding');return}if(value==='reinstall'){simulateReinstall();go('settings');return}state.readiness=value;if(value==='permission')state.permissions.nearby=false;if(value==='notifications')state.permissions.notifications=false;if(value==='ready'){state.permissions.nearby=true;state.permissions.notifications=true}save();renderHome();renderReadiness();toast('Readiness condition applied')};
+$('#resetReview').onclick=()=>{if(confirm('Reset the complete review and clear simulated contacts, messages, and permissions?')){localStorage.removeItem(STORE);localStorage.removeItem('itantra-sih-reference-contacts-v1');location.reload()}};
+
+function canParticipate(){return state.permissions.nearby&&!['permission','bluetooth','background'].includes(state.readiness)}
+function startEmergency(){if(!canParticipate()){state.emergency.active=false;state.emergency.available=false;save();toast('Nearby radio is not ready. Review permissions or Bluetooth state.');return false}state.emergency.active=true;save();renderMode();return true}
+function renderEmergency(){renderMode();const active=state.emergency.active;$('#emergencyStatus').textContent=active?'Active · local participation on':'Emergency Mode is off';$('#emergencyCopy').textContent=active?'Looking for nearby iTantra phones.':'Turn on Emergency Mode to look for nearby iTantra phones.';$('#emergencyToggle').textContent=active?'Stop':'Start';$('#available').checked=active&&state.emergency.available;$('#available').disabled=!active;$('#emergencyWarning').hidden=true;const list=$('#offerList');list.replaceChildren();$('#offersEmpty').hidden=state.offers.length>0;state.offers.forEach(o=>{const b=document.createElement('button');b.className='offer';b.innerHTML=`<b>${o.category} request</b><span class="mut">${langLabel(o.language)} · ${o.status}</span>`;b.onclick=()=>{state.selectedOffer=o.id;save();go('offer')};list.append(b)});const offer=state.offers.find(o=>o.id===state.selectedOffer);if(offer){$('#offerCategory').textContent=offer.category;$('#offerLanguage').textContent=LANGS[offer.language]?.name||offer.language}}
+$('#emergencyToggle').onclick=()=>{if(state.emergency.active){if(state.sos.status==='session'&&!confirm('Stop Emergency Mode and end the active SOS session?'))return;state.emergency={active:false,available:false};if(state.sos.status==='session')state.sos.status='ended';save();renderMode();go('home');return}if(startEmergency())go('emergency')};
+$('#available').onchange=e=>{state.emergency.available=state.emergency.active&&e.target.checked;save();renderEmergency()};
+function newOffer(busy=false){if(!state.emergency.active||!state.emergency.available){toast('Start Emergency Mode and turn on Available to help first');return}const status=busy||state.sos.status==='session'?'Busy · cannot accept':'Waiting';const offer={id:'o'+state.nextId++,category:'Medical',language:'kn',status,time:now()};state.offers.push(offer);state.selectedOffer=offer.id;save();renderEmergency();toast(status.startsWith('Busy')?'Incoming SOS recorded while busy':'Incoming SOS offer received');if(!busy&&state.sos.status!=='session')go('offer')}
+if($('#incomingOffer'))$('#incomingOffer').onclick=()=>newOffer(false);if($('#busyOffer'))$('#busyOffer').onclick=()=>newOffer(true);
+$('#declineOffer').onclick=()=>{const offer=state.offers.find(o=>o.id===state.selectedOffer);if(offer)offer.status='Declined';save();toast('SOS offer declined');go('emergency')};
+$('#acceptOffer').onclick=()=>{const offer=state.offers.find(o=>o.id===state.selectedOffer);if(!offer||offer.status!=='Waiting'){toast('This offer can no longer be accepted');return}offer.status='Accepted';state.sos={status:'session',role:'responder',category:offer.category,language:offer.language,note:'',route:'direct',trust:'unverified',responder:'Requester',messages:[],notice:''};save();go('sosSession')};
+function startSos(){if(!state.emergency.active&&!startEmergency()){toast('Emergency Mode could not start. Restore local radio first.');return}state.sos={status:'searching',role:'requester',category:$('#sosCategory').value,language:$('#sosLang').value,note:$('#sosNote').value.trim(),route:'direct',trust:'unverified',responder:'',messages:[],notice:''};save();go('sosSearch');clearTimeout(searchTimer);searchTimer=setTimeout(()=>{if(state.sos.status==='searching'){state.sos.route='relay';state.sos.notice='No nearby answer yet. Trying farther relays.';save();renderSosSearch()}},4500)}
+$('#startSos').onclick=startSos;
+function renderSosSearch(){const relay=state.sos.route==='relay';$('#searchTitle').textContent=relay?'Trying farther relays…':'Looking for nearby people…';$('#searchCopy').textContent=state.sos.notice||'No one has responded yet. Your request remains active.';$('#directStep').className=relay?'':'g';$('#relayStep').className=relay?'a':''}
+$('#cancelSos').onclick=()=>{if(confirm('Cancel this SOS search?')){state.sos.status='cancelled';state.sos.notice='Search cancelled by requester.';save();toast('SOS search cancelled');go('emergency')}};
+function acceptSos(route,race=false){if(state.sos.status!=='searching'){toast('Start an SOS search first');return}state.sos.status='session';state.sos.route=route;state.sos.responder=route==='direct'?'Nearby responder':'Relayed responder';state.sos.notice=race?'One responder connected. A second acceptance was told the request was already answered.':'';save();clearTimeout(searchTimer);go('sosSession');if(race)toast('First confirmed responder connected · second was too late')}
+function renderSosSession(){const s=state.sos;$('#sessionOther').textContent=s.role==='responder'?'Requester connected':s.responder||'Responder connected';$('#sessionRoute').textContent=s.route==='direct'?'Nearby live connection':'Relayed emergency connection · replies may be delayed';$('#sessionTrust').textContent=s.trust==='verified'?'Nearby device verified':'Encrypted connection · Identity not verified';$('#verifyPanel').hidden=s.route!=='direct'||s.trust==='verified';const list=$('#sosMessages');list.replaceChildren();s.messages.forEach(m=>{const b=document.createElement('div');b.className='bubble'+(m.mine?' mine':'');b.textContent=m.text;list.append(b)});const incoming=[...s.messages].reverse().find(m=>!m.mine);$('#sosTts').hidden=!incoming;if(s.notice)toast(s.notice)}
+$('#verifyMatch').onclick=()=>{state.sos.trust='verified';state.sos.notice='Nearby device verified for this session. This does not verify a profession or intentions.';save();renderSosSession()};
+$('#verifySkip').onclick=()=>{state.sos.trust='unverified';state.sos.notice='Verification skipped. The connection remains encrypted and identity remains unverified.';save();renderSosSession()};
+$('#verifyMismatch').onclick=()=>{state.sos.trust='unverified';state.sos.notice='Codes did not match. Do not treat this nearby person as verified.';save();renderSosSession()};
+$('#sendSosReply').onclick=()=>{const text=$('#sosReply').value.trim();if(!text)return;state.sos.messages.push({mine:true,text,time:now()});$('#sosReply').value='';save();renderSosSession()};
+$('#sosSpeak').onclick=()=>{$('#sosReply').value=LANGS[state.sos.language]?.sample||LANGS.en.sample};
+if($('#sosIncomingReply'))$('#sosIncomingReply').onclick=()=>{if(state.sos.status!=='session'){toast('Open an active SOS session first');return}state.sos.messages.push({mine:false,text:'I can help. Tell me what you can see nearby.',time:now()});save();renderSosSession();toast('SOS reply received')};
+$('#sosTts').onclick=()=>{const m=[...state.sos.messages].reverse().find(x=>!x.mine);if(m)speak(m.text,state.sos.language)};
+$('#endSos').onclick=()=>{if(confirm('End this SOS session?')){state.sos.status='ended';state.sos.notice='SOS session ended.';save();toast('SOS session ended');go('emergency')}};
+$$('[data-sos]').forEach(b=>b.onclick=()=>{const action=b.dataset.sos;if(action==='expand'){if(state.sos.status!=='searching'){toast('Start an SOS search first');return}state.sos.route='relay';state.sos.notice='No nearby answer yet. Trying farther relays.';save();renderSosSearch();return}if(action==='direct')return acceptSos('direct');if(action==='relay')return acceptSos('relay');if(action==='race')return acceptSos('direct',true);if(action==='expire'){if(state.sos.status==='searching'){state.sos.status='expired';state.sos.notice='SOS request expired without a confirmed responder.';save();toast(state.sos.notice);go('emergency')}else toast('Start an SOS search first');return}if(action==='interrupt'){if(state.sos.status==='session'){state.sos.notice='Connection interrupted. Text remains saved while iTantra tries to reconnect.';save();renderSosSession()}else toast('Open an active SOS session first');return}if(action==='timeout'){if(state.sos.status==='session'){state.sos.status='ended';state.sos.notice='SOS session timed out.';save();toast(state.sos.notice);go('emergency')}else toast('Open an active SOS session first')}});
+
+$('#pA').onclick=()=>speak('We are trapped here.','en');
+$$('#reps button').forEach(b=>b.onclick=()=>toast('Reply prepared in the requester’s language: “'+b.textContent+'”'));
+populateSelect($('#homeLang'),state.draft.language);populateSelect($('#composeLang'),state.draft.language);populateSelect($('#sosLang'),state.sos.language);renderLanguagePicker();
+renderMode();go(current);
+})();
+</script></body></html>
