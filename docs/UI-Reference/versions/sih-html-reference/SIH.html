@@ -1,0 +1,164 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>iTantra prototype</title>
+<style>
+:root{--bg:#10151c;--card:#19212b;--line:#2b3644;--tx:#f2f5f8;--mut:#9fb0c0;--g:#3ddc84;--a:#ffb020;--r:#ff5a4d;--on:#0b1117;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#eef2f6;--card:#fff;--line:#cfd8e1;--tx:#111a23;--mut:#4d5c6b;--g:#0f8a45;--a:#a86400;--r:#c4271b;--on:#fff}}
+:root[data-theme="dark"]{--bg:#10151c;--card:#19212b;--line:#2b3644;--tx:#f2f5f8;--mut:#9fb0c0;--g:#3ddc84;--a:#ffb020;--r:#ff5a4d;--on:#0b1117}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:17px/1.4 system-ui,"Noto Sans","Noto Sans Kannada","Noto Sans Devanagari","Noto Sans Bengali","Noto Sans Tamil",sans-serif}
+.app{max-width:440px;margin:auto;padding:12px 14px 96px}
+button{font:inherit;color:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);border-radius:16px;min-height:56px;padding:12px}
+button:focus-visible{outline:3px solid var(--tx);outline-offset:2px}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
+header b{font-size:22px}
+.seg{display:flex;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.seg button{border:0;border-radius:0;min-height:44px;background:none;color:var(--mut)}
+.seg .on{background:var(--tx);color:var(--bg);font-weight:700}
+body.em .seg .on{background:var(--r);color:#fff}
+.pill{display:flex;gap:8px;align-items:center;padding:12px 14px;border-radius:14px;border:2px solid;font-weight:600;margin-bottom:14px}
+.g{color:var(--g)}.a{color:var(--a)}.r{color:var(--r)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;margin-bottom:12px}
+.mut{color:var(--mut);font-size:15px}
+h2{margin:4px 0 12px;font-size:24px}
+.hold{position:relative;overflow:hidden;width:100%;min-height:210px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:3px solid var(--g);border-radius:28px;font-size:26px;font-weight:800;touch-action:none;user-select:none}
+.hold span{font-size:56px}.hold small{font-size:16px;font-weight:500;color:var(--mut)}
+.hold::after{content:"";position:absolute;left:0;bottom:0;height:8px;width:0;background:var(--tx)}
+.hold.down::after{width:100%;transition:width var(--ms,2s) linear}
+.hold.rec{background:color-mix(in srgb,var(--g) 18%,var(--card))}
+.hold.help{border-color:var(--r);min-height:170px}
+.wave{display:none;gap:3px;align-items:end;height:34px}
+.rec .wave{display:flex}.rec span,.rec small{display:none}
+.wave i{width:5px;background:var(--g);border-radius:3px;animation:w .8s ease-in-out infinite alternate}
+@keyframes w{from{height:6px}to{height:32px}}
+@media (prefers-reduced-motion:reduce){.wave i{animation:none;height:18px}}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.tile{min-height:88px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-weight:700;font-size:16px}
+.tile.r{border:2px solid var(--r)}
+.tile span{font-size:28px}
+.orig,.trans{border-radius:14px;padding:12px;margin:8px 0;border:1px solid var(--line)}
+.trans{border-left:5px solid var(--g)}.orig{border-left:5px solid var(--tx)}
+.txt{font-size:22px;margin:4px 0 8px}
+.play{width:100%;min-height:52px;font-weight:700}
+.bar{height:10px;border-radius:5px;background:var(--line);overflow:hidden}.bar i{display:block;height:100%;background:var(--g)}
+.steps{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.steps span{border:1px solid var(--line);border-radius:20px;padding:6px 10px;font-size:14px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.chips button{min-height:52px;flex:1 1 44%}
+.chips .sel{border:2px solid var(--r);background:color-mix(in srgb,var(--r) 16%,var(--card))}
+.lang{display:grid;grid-template-columns:1fr 56px;gap:6px;margin-bottom:8px}
+.lang .n{font-size:24px;text-align:left}.lang .sel{border:3px solid var(--g)}
+.alert{border:3px solid var(--r);border-radius:22px;padding:14px;background:color-mix(in srgb,var(--r) 10%,var(--bg))}
+.pri{background:var(--g);color:var(--on);border:0;font-weight:800;width:100%}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+nav div{max-width:440px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+nav button{border:0;background:none;min-height:52px;font-size:13px;color:var(--mut)}nav .on{color:var(--tx);font-weight:800;border-top:3px solid var(--tx);border-radius:0}
+body.em nav,body.em .adv{display:none}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:12px 16px;border-radius:14px;font-weight:600;max-width:90%;display:none}
+svg text{fill:var(--tx);font-size:11px}
+</style></head><body>
+<div class="app">
+<header><b>iTantra</b><div class="seg" role="group" aria-label="Mode"><button id="mN" class="on">Normal</button><button id="mE">Emergency</button></div></header>
+
+<section id="home">
+ <div class="pill g" style="border-color:var(--g)">🟢 Direct link · no internet needed · 6 nearby</div>
+ <button class="hold" id="talk" aria-label="Hold to talk, release to send"><div class="wave" id="wave"></div><span>🎙️</span>Hold to talk<small>Release to send</small></button>
+ <div class="row3">
+  <button class="tile r" data-go="help"><span>🚨</span>Help</button>
+  <button class="tile" id="loc"><span>📍</span>Location</button>
+  <button class="tile" data-go="alert"><span>🔊</span>Listen</button>
+ </div>
+ <div class="card adv"><b>How it works</b><p class="mut" style="margin:6px 0 0">You speak in <span id="hl">Kannada</span>. iTantra understands. They hear you in their language, and see what you actually said.</p></div>
+</section>
+
+<section id="talkS" hidden>
+ <h2>Sent to Arjun</h2>
+ <div class="card">
+  <div class="orig"><span class="mut">You said · <span class="fromL">Kannada</span> · original</span><div class="txt" id="tO"></div><button class="play" id="pO">🔊 Play original</button></div>
+  <div class="trans"><span class="mut">They hear · <span id="toL">English</span> · translated</span><div class="txt" id="tT"></div><button class="play" id="pT">🔊 Play translation</button></div>
+  <div class="mut" id="cf">Translation confidence: 92%, high</div><div class="bar"><i id="cb" style="width:92%"></i></div>
+  <div id="warn" class="a" style="margin-top:8px;display:none">⚠ Audio was noisy. The translation may be wrong, so the original voice is sent too.</div>
+ </div>
+ <div class="card"><b>Did we get it right?</b><div class="mut">iTantra reads your words back in your own language before it counts as sent.</div>
+  <div class="two" style="margin-top:8px"><button id="ok">✓ Yes, send</button><button id="redo">↺ Say again</button></div>
+  <div class="steps" id="st"><span class="g">✓ Sent</span><span class="g">✓ Relayed by 2 devices</span><span class="a">◔ Arjun has not heard it yet</span></div></div>
+ <label class="mut"><input type="checkbox" id="noise"> Simulate a noisy place</label>
+</section>
+
+<section id="help" hidden>
+ <h2>I need help</h2>
+ <div class="card"><b>What is the problem?</b><span class="mut"> (optional, tap or just speak)</span>
+  <div class="chips" id="needs"><button>🚑 Injured</button><button>🧱 Trapped</button><button>🔥 Fire</button><button>💧 No water</button></div>
+  <div style="display:flex;align-items:center;gap:12px">👥 People with me<button id="m" aria-label="Fewer" style="width:56px">−</button><b id="ppl" style="font-size:24px">3</b><button id="p" aria-label="More" style="width:56px">+</button></div></div>
+ <button class="hold help" id="sos"><span>🚨</span>Hold to send help<small>Hold for 2 seconds. Your location is shared.</small></button>
+ <div class="card g" id="sent" style="display:none;margin-top:12px;border-color:var(--g)"><b>✓ Help sent</b><div>📍 Location shared · 🎙️ Voice attached</div><div>4 of 6 devices received it</div><div class="mut">iTantra keeps retrying through relays until someone confirms.</div></div>
+</section>
+
+<section id="alert" hidden>
+ <div class="alert">
+  <div class="r" style="font-weight:800;font-size:22px">🚨 Emergency message</div>
+  <div>From a nearby user · <b>2.3 km</b> · passed through 2 devices</div>
+  <button class="play" id="pA" style="margin:10px 0">▶ Play message · 0:18</button>
+  <div class="orig"><span class="mut">Original · Kannada</span><div class="txt">ನಾವು ಇಲ್ಲಿ ಸಿಲುಕಿಕೊಂಡಿದ್ದೇವೆ</div></div>
+  <div class="trans"><span class="mut">Translated · English · confidence 92%</span><div class="txt">We are trapped here.</div></div>
+  <div class="card" style="margin:8px 0"><b>Understood from the message</b><div>🧱 Trapped · 👥 3 people · 📍 Location received</div></div>
+  <b>Reply in one tap (sent in their language)</b>
+  <div class="chips" id="reps"><button>Help is coming</button><button>Stay where you are</button><button>Is anyone hurt?</button><button>I will call for help</button></div>
+  <button class="pri" data-go="talkS">🎙️ Reply with voice</button>
+  <button data-go="home" style="width:100%;margin-top:8px">Dismiss</button>
+ </div>
+</section>
+
+<section id="net" hidden>
+ <h2>Direct network</h2>
+ <div class="card"><svg viewBox="0 0 300 210" width="100%" role="img" aria-label="You connected to 6 devices, some through relays">
+  <g stroke="var(--line)" stroke-width="3"><line x1="150" y1="105" x2="55" y2="45"/><line x1="150" y1="105" x2="245" y2="45"/><line x1="150" y1="105" x2="60" y2="165"/><line x1="245" y1="45" x2="282" y2="112"/><line x1="60" y1="165" x2="140" y2="195" stroke-dasharray="5 4"/><line x1="55" y1="45" x2="18" y2="105"/></g>
+  <g fill="var(--g)"><circle cx="55" cy="45" r="14"/><circle cx="245" cy="45" r="14"/><circle cx="282" cy="112" r="11"/><circle cx="18" cy="105" r="11"/><circle cx="60" cy="165" r="14"/></g><circle cx="140" cy="195" r="11" fill="var(--a)"/>
+  <circle cx="150" cy="105" r="22" fill="var(--tx)"/><text x="150" y="109" text-anchor="middle" style="fill:var(--bg);font-weight:700">You</text>
+  <text x="55" y="22" text-anchor="middle">Arjun</text><text x="245" y="22" text-anchor="middle">Meera</text><text x="140" y="180" text-anchor="middle">Weak</text></svg>
+  <div>6 devices · 4 strong · 1 weak · nearest 20 m</div></div>
+ <div class="card"><div class="g">🟢 Connected: messages can be delivered</div><div class="a">🟡 Weak or working: still trying</div><div class="r">🔴 Needs action: emergency</div><div>⚪ Information</div></div>
+ <div class="card"><b>Battery-safe relaying</b><div class="mut">Your phone passes messages on for others. It pauses when battery is below 15%.</div></div>
+</section>
+
+<section id="lang" hidden>
+ <h2>How do you want to hear iTantra?</h2><div id="ls"></div>
+</section>
+</div>
+<div id="toast" role="status"></div>
+<nav><div><button data-go="home" class="on">🏠<br>Home</button><button data-go="alert">🚨<br>Alerts</button><button data-go="net">📡<br>Network</button><button data-go="lang">🌐<br>Language</button></div></nav>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const L={hi:{n:'हिन्दी',c:'hi-IN',s:'हम यहाँ फँसे हुए हैं',e:'Hindi'},kn:{n:'ಕನ್ನಡ',c:'kn-IN',s:'ನಾವು ಇಲ್ಲಿ ಸಿಲುಕಿಕೊಂಡಿದ್ದೇವೆ',e:'Kannada'},bn:{n:'বাংলা',c:'bn-IN',s:'আমরা এখানে আটকে আছি',e:'Bengali'},ta:{n:'தமிழ்',c:'ta-IN',s:'நாங்கள் இங்கே சிக்கிக்கொண்டோம்',e:'Tamil'},en:{n:'English',c:'en-IN',s:'We are trapped here.',e:'English'}};
+let lg='kn';
+function speak(t,c){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang=c;speechSynthesis.speak(u)}catch(e){}toast('🔊 '+t)}
+function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display='none',2200)}
+function go(id){$$('section').forEach(s=>s.hidden=s.id!==id);$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===id));scrollTo(0,0)}
+$$('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+$('#mN').onclick=()=>mode(0);$('#mE').onclick=()=>mode(1);
+function mode(e){document.body.classList.toggle('em',!!e);$('#mE').classList.toggle('on',!!e);$('#mN').classList.toggle('on',!e);go('home')}
+$('#wave').innerHTML=Array.from({length:18},(_,i)=>`<i style="animation-delay:${(i%6)*.12}s"></i>`).join('');
+let t0=0;const tk=$('#talk');
+tk.onpointerdown=()=>{t0=Date.now();tk.classList.add('rec')};
+['pointerup','pointerleave','pointercancel'].forEach(v=>tk.addEventListener(v,()=>tk.classList.remove('rec')));
+tk.onclick=e=>{if(Date.now()-t0>400||e.detail===0){render();go('talkS')}else toast('Keep holding while you speak')};
+$('#loc').onclick=()=>toast('📍 Location shared with 6 nearby devices');
+function hold(el,ms,done){let t;el.style.setProperty('--ms',ms+'ms');const up=()=>{clearTimeout(t);el.classList.remove('down')};
+ el.onpointerdown=()=>{el.classList.add('down');t=setTimeout(()=>{up();done()},ms)};['pointerup','pointerleave','pointercancel'].forEach(v=>el.addEventListener(v,up))}
+hold($('#sos'),2000,()=>{$('#sent').style.display='block';if(navigator.vibrate)navigator.vibrate(200)});
+$('#sos').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){$('#sent').style.display='block'}};
+$$('#needs button').forEach(b=>b.onclick=()=>b.classList.toggle('sel'));
+let n=3;$('#p').onclick=()=>$('#ppl').textContent=++n;$('#m').onclick=()=>$('#ppl').textContent=n=Math.max(1,n-1);
+$$('#reps button').forEach(b=>b.onclick=()=>toast('Sent in Kannada: “'+b.textContent+'”'));
+function render(){const l=L[lg],to=lg==='en'?L.hi:L.en;$('#tO').textContent=l.s;$('#tT').textContent=lg==='en'?L.hi.s:'We are trapped here.';$('#toL').textContent=to.e;$$('.fromL').forEach(e=>e.textContent=l.e);$('#hl').textContent=l.e;
+ $('#pO').onclick=()=>speak(l.s,l.c);$('#pT').onclick=()=>speak($('#tT').textContent,to.c);noisy()}
+function noisy(){const x=$('#noise').checked;$('#cf').textContent=x?'Translation confidence: 61%, low. Check the original.':'Translation confidence: 92%, high';$('#cf').className=x?'a':'mut';$('#cb').style.width=x?'61%':'92%';$('#cb').style.background=x?'var(--a)':'var(--g)';$('#warn').style.display=x?'block':'none'}
+$('#noise').onchange=noisy;
+$('#ok').onclick=()=>{$('#st').innerHTML='<span class="g">✓ Sent</span><span class="g">✓ Relayed by 2 devices</span><span class="g">✓ Arjun heard it</span>';toast('✓ Delivered')};
+$('#redo').onclick=()=>go('home');$('#pA').onclick=()=>speak('We are trapped here.','en-IN');
+$('#ls').innerHTML=Object.entries(L).map(([k,v])=>`<div class="lang"><button class="n${k===lg?' sel':''}" data-k="${k}">${v.n}</button><button aria-label="Hear ${v.e}" data-s="${k}">🔊</button></div>`).join('');
+$$('[data-k]').forEach(b=>b.onclick=()=>{lg=b.dataset.k;$$('[data-k]').forEach(x=>x.classList.toggle('sel',x===b));render();toast('Language: '+L[lg].e)});
+$$('[data-s]').forEach(b=>b.onclick=()=>speak(L[b.dataset.s].n,L[b.dataset.s].c));
+render();
+</script></body></html>
