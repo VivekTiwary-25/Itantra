@@ -26,7 +26,8 @@ class TtsHelper(private val context: Context) {
 
     private val voices = mapOf(
         "en" to Voice("vits-piper-en_US-ryan-medium", "en_US-ryan-medium.onnx"),
-        "hi" to Voice("vits-piper-hi_IN-pratham-medium", "hi_IN-pratham-medium.onnx")
+        "hi" to Voice("vits-piper-hi_IN-pratham-medium", "hi_IN-pratham-medium.onnx"),
+        "ml" to Voice("vits-piper-ml_IN-arjun-medium", "ml_IN-arjun-medium.onnx")
     )
 
     private val lock = Any()

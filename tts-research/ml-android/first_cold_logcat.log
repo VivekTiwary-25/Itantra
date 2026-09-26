@@ -1,0 +1,12 @@
+﻿--------- beginning of main
+09-26 21:07:42.913 11744 11797 D ITANTRA_TTS: debug speak lang=ml codepoints=62
+09-26 21:07:42.913 11744 11797 D ITANTRA_TTS: speak lang=ml textLen=62
+09-26 21:07:42.924 11744 11797 D ITANTRA_TTS: installing assets 'vits-piper-ml_IN-arjun-medium' -> /data/user/0/com.chmod777.itantra/files/vits-piper-ml_IN-arjun-medium
+09-26 21:07:45.927 11744 11797 D ITANTRA_TTS: installed 'vits-piper-ml_IN-arjun-medium' deltaMs=3003
+09-26 21:07:45.964 11744 11797 D ITANTRA_TTS: initialising 'ml' model=/data/user/0/com.chmod777.itantra/files/vits-piper-ml_IN-arjun-medium/ml_IN-arjun-medium.onnx
+09-26 21:07:51.893 11744 11797 D ITANTRA_TTS: initialised 'ml' sampleRate=22050
+09-26 21:07:51.893 11744 11797 D ITANTRA_TTS: synthesis start lang=ml
+09-26 21:07:55.983 11744 11797 D ITANTRA_TTS: synthesis done lang=ml samples=119356 rate=22050 deltaMs=4089
+09-26 21:07:56.022 11744 11797 D ITANTRA_TTS: playback start samples=119356 rate=22050
+09-26 21:08:01.476 11744 11797 D ITANTRA_TTS: playback end
+09-26 21:08:01.481 11744 11797 D ITANTRA_TTS: debug speak returned lang=ml

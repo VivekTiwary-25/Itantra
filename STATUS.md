@@ -50,6 +50,7 @@ The confirmed integrated baseline is `origin/typed-text-integration@21e28fd`:
 | Full English speech → STT → text transmission/relay → receive → audible TTS | GREEN — consistently reliable during the demonstrated pipeline |
 | Hindi transport and receive-side TTS | GREEN — physically demonstrated |
 | Hindi Dolphin STT accuracy | YELLOW — working but unreliable; badly incorrect text or the wrong script can occur |
+| Malayalam TTS (Piper Arjun) on RMX3392 via `TtsHelper` | YELLOW — loads, synthesizes and plays locally, 20/20 runs, no crashes; QUALITY UNVERIFIED (no listener), real receive path not exercised; see `tts-research/ml-android/ML_ARJUN_ANDROID_REPORT.md` |
 | Other-language end-to-end paths | RED — not demonstrated by this evidence |
 
 Integrated recovery-line changes:

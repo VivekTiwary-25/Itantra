@@ -170,8 +170,13 @@ private val TTS_SAMPLE_TEXT = mapOf(
     "ta" to "இது ஒரு சோதனை செய்தி",
     "te" to "ఇది ఒక పరీక్ష సందేశం",
     "or" to "ଏହା ଏକ ପରୀକ୍ଷା ବାର୍ତ୍ତା",
-    "bn" to "এটি একটি পরীক্ষা বার্তা"
+    "bn" to "এটি একটি পরীক্ষা বার্তা",
+    "ml" to "നദിയിലെ വെള്ളം വേഗത്തിൽ ഉയരുന്നു. സുരക്ഷിത സ്ഥലത്തേക്ക് പോകുക."
 )
+
+// The temporary Test TTS control also lists Malayalam, which has a voice but no
+// STT/compose support, so it is kept out of SUPPORTED_LANGUAGES.
+private val TTS_TEST_LANGUAGES = SUPPORTED_LANGUAGES + ("ml" to "Malayalam")
 
 private val MessageListSaver = Saver<SnapshotStateList<Message>, ArrayList<Bundle>>(
     save = { messages ->
@@ -785,7 +790,8 @@ private fun LanguageSelector(
     selectedCode: String,
     onSelect: (String) -> Unit,
     enabled: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    languages: List<Pair<String, String>> = SUPPORTED_LANGUAGES
 ) {
     var expanded by remember { mutableStateOf(false) }
     val shape = RoundedCornerShape(20.dp)
@@ -807,7 +813,7 @@ private fun LanguageSelector(
             )
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            SUPPORTED_LANGUAGES.forEach { (code, name) ->
+            languages.forEach { (code, name) ->
                 DropdownMenuItem(
                     text = { Text(name) },
                     onClick = {
@@ -877,7 +883,8 @@ private fun TestTtsSection(
                     languageCode = selected
                 },
                 enabled = !isSpeaking,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                languages = TTS_TEST_LANGUAGES
             )
             Button(
                 enabled = !isSpeaking && hasVoice && text.isNotBlank(),
