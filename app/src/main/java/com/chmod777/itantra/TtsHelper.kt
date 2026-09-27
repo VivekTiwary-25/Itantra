@@ -40,6 +40,13 @@ class TtsHelper(private val context: Context) {
         "bn" to Voice(
             "vits-mms-ben", "model.onnx", usesEspeak = false, numThreads = 4,
             normalize = BengaliTextNormalizer::normalize
+        ),
+        // model.onnx is the MMS ory export with its HiFi-GAN decoder in fp16 (tts-research/mms-ory).
+        // Thread count follows the Bengali finding (4 threads on RMX3392's decoder-bound graph) as a
+        // starting point; not independently profiled on-device for Odia in this run.
+        "or" to Voice(
+            "vits-mms-ory", "model.onnx", usesEspeak = false, numThreads = 4,
+            normalize = OdiaTextNormalizer::normalize
         )
     )
 

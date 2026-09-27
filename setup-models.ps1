@@ -4,7 +4,11 @@
     # Bengali (Meta MMS-TTS, CC BY-NC 4.0) has no official prebuilt sherpa-onnx package. Point this at the
     # locally converted model with its decoder in fp16 (tts-research/mms-ben/MMS_BN_CONVERSION.md, then
     # tts-research/mms-ben/speed/SPEED_REPORT.md); it is hash-checked.
-    [string]$MmsBengaliModel = ""
+    [string]$MmsBengaliModel = "",
+    # Odia (Meta MMS-TTS, CC BY-NC 4.0) has no official prebuilt sherpa-onnx package either. Point this at
+    # the locally converted model with its decoder in fp16 (tts-research/mms-ory/MMS_ORY_CONVERSION.md); it
+    # is hash-checked.
+    [string]$MmsOdiaModel = ""
 )
 
 Set-StrictMode -Version Latest
@@ -403,6 +407,25 @@ Run this script from the ROOT of the iTantra repository, or pass:
     if (Test-Path -LiteralPath $MmsBnDest -PathType Leaf) {
         Assert-Sha256 $MmsBnDest $MmsBnSha "Bengali MMS model.onnx"
         Write-Ok "Bengali MMS TTS present and verified."
+    }
+
+    Write-Step "Odia MMS TTS (optional)"
+    $MmsOryDir = Join-Path $Assets "vits-mms-ory"
+    $MmsOryDest = Join-Path $MmsOryDir "model.onnx"
+    # fp16-decoder model derived from the fp32 export 81c08eda...2fb90e by tts-research/mms-ory/mms_decoder_fp16.py.
+    $MmsOrySha = "3dddf002b8e760ff75dec0d9fba2e08b1a2279e3fd78edf100da0cad23741f69"
+    if (-not (Test-Path -LiteralPath $MmsOryDest -PathType Leaf) -or $Force) {
+        if ($MmsOdiaModel -and (Test-Path -LiteralPath $MmsOdiaModel -PathType Leaf)) {
+            Assert-Sha256 $MmsOdiaModel $MmsOrySha "Odia MMS model.onnx"
+            Copy-Item -LiteralPath $MmsOdiaModel -Destination $MmsOryDest -Force
+        }
+        else {
+            Write-Warn "Odia MMS model.onnx not installed. Convert it (tts-research/mms-ory/MMS_ORY_CONVERSION.md) and rerun with -MmsOdiaModel <path>. Odia TTS is skipped until then."
+        }
+    }
+    if (Test-Path -LiteralPath $MmsOryDest -PathType Leaf) {
+        Assert-Sha256 $MmsOryDest $MmsOrySha "Odia MMS model.onnx"
+        Write-Ok "Odia MMS TTS present and verified."
     }
 
     Write-Step "Final verification"
