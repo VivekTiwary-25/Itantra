@@ -40,6 +40,13 @@ class TtsHelper(private val context: Context) {
         "bn" to Voice(
             "vits-mms-ben", "model.onnx", usesEspeak = false, numThreads = 4,
             normalize = BengaliTextNormalizer::normalize
+        ),
+        // model.onnx is the MMS `tel` export with its HiFi-GAN decoder in fp16, same recipe as Bengali
+        // (tts-research/mms-tel/MMS_TEL_CONVERSION.md). Thread count carried over from Bengali, unverified
+        // on-device for Telugu; the foreman benchmarks and may retune it.
+        "te" to Voice(
+            "vits-mms-tel", "model.onnx", usesEspeak = false, numThreads = 4,
+            normalize = TeluguTextNormalizer::normalize
         )
     )
 

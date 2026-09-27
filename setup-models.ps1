@@ -4,7 +4,10 @@
     # Bengali (Meta MMS-TTS, CC BY-NC 4.0) has no official prebuilt sherpa-onnx package. Point this at the
     # locally converted model with its decoder in fp16 (tts-research/mms-ben/MMS_BN_CONVERSION.md, then
     # tts-research/mms-ben/speed/SPEED_REPORT.md); it is hash-checked.
-    [string]$MmsBengaliModel = ""
+    [string]$MmsBengaliModel = "",
+    # Telugu (Meta MMS-TTS, CC BY-NC 4.0), same situation: point this at the locally converted model with
+    # its decoder in fp16 (tts-research/mms-tel/MMS_TEL_CONVERSION.md); it is hash-checked.
+    [string]$MmsTeluguModel = ""
 )
 
 Set-StrictMode -Version Latest
@@ -403,6 +406,26 @@ Run this script from the ROOT of the iTantra repository, or pass:
     if (Test-Path -LiteralPath $MmsBnDest -PathType Leaf) {
         Assert-Sha256 $MmsBnDest $MmsBnSha "Bengali MMS model.onnx"
         Write-Ok "Bengali MMS TTS present and verified."
+    }
+
+    Write-Step "Telugu MMS TTS (optional)"
+    $MmsTeDir = Join-Path $Assets "vits-mms-tel"
+    $MmsTeDest = Join-Path $MmsTeDir "model.onnx"
+    # fp16-decoder model derived from the fp32 export 82ef682c...378fe by mms-ben/speed/mms_decoder_fp16.py
+    # (tts-research/mms-tel/MMS_TEL_CONVERSION.md).
+    $MmsTeSha = "9318f02ed147569af62592798b4770177eedb1ea79e9f6678b22b2edd0934677"
+    if (-not (Test-Path -LiteralPath $MmsTeDest -PathType Leaf) -or $Force) {
+        if ($MmsTeluguModel -and (Test-Path -LiteralPath $MmsTeluguModel -PathType Leaf)) {
+            Assert-Sha256 $MmsTeluguModel $MmsTeSha "Telugu MMS model.onnx"
+            Copy-Item -LiteralPath $MmsTeluguModel -Destination $MmsTeDest -Force
+        }
+        else {
+            Write-Warn "Telugu MMS model.onnx not installed. Convert it (tts-research/mms-tel/MMS_TEL_CONVERSION.md) and rerun with -MmsTeluguModel <path>. Telugu TTS is skipped until then."
+        }
+    }
+    if (Test-Path -LiteralPath $MmsTeDest -PathType Leaf) {
+        Assert-Sha256 $MmsTeDest $MmsTeSha "Telugu MMS model.onnx"
+        Write-Ok "Telugu MMS TTS present and verified."
     }
 
     Write-Step "Final verification"
