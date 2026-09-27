@@ -8,7 +8,10 @@
     # Odia (Meta MMS-TTS, CC BY-NC 4.0) has no official prebuilt sherpa-onnx package either. Point this at
     # the locally converted model with its decoder in fp16 (tts-research/mms-ory/MMS_ORY_CONVERSION.md); it
     # is hash-checked.
-    [string]$MmsOdiaModel = ""
+    [string]$MmsOdiaModel = "",
+    # Gujarati (Meta MMS-TTS, CC BY-NC 4.0), same situation: locally converted, decoder in fp16
+    # (tts-research/mms-guj); hash-checked.
+    [string]$MmsGujaratiModel = ""
 )
 
 Set-StrictMode -Version Latest
@@ -426,6 +429,25 @@ Run this script from the ROOT of the iTantra repository, or pass:
     if (Test-Path -LiteralPath $MmsOryDest -PathType Leaf) {
         Assert-Sha256 $MmsOryDest $MmsOrySha "Odia MMS model.onnx"
         Write-Ok "Odia MMS TTS present and verified."
+    }
+
+    Write-Step "Gujarati MMS TTS (optional)"
+    $MmsGuDir = Join-Path $Assets "vits-mms-guj"
+    $MmsGuDest = Join-Path $MmsGuDir "model.onnx"
+    # fp16-decoder model derived from the fp32 export 593b73e7...76cba by tts-research/mms-guj/mms_decoder_fp16.py.
+    $MmsGuSha = "3ce0a3206080915f6541c00bcd26df1f2817d118d6e324fda62011d679583601"
+    if (-not (Test-Path -LiteralPath $MmsGuDest -PathType Leaf) -or $Force) {
+        if ($MmsGujaratiModel -and (Test-Path -LiteralPath $MmsGujaratiModel -PathType Leaf)) {
+            Assert-Sha256 $MmsGujaratiModel $MmsGuSha "Gujarati MMS model.onnx"
+            Copy-Item -LiteralPath $MmsGujaratiModel -Destination $MmsGuDest -Force
+        }
+        else {
+            Write-Warn "Gujarati MMS model.onnx not installed. Convert it (tts-research/mms-guj/MMS_GUJ_CONVERSION.md), derive the fp16-decoder model and rerun with -MmsGujaratiModel <path>. Gujarati TTS is skipped until then."
+        }
+    }
+    if (Test-Path -LiteralPath $MmsGuDest -PathType Leaf) {
+        Assert-Sha256 $MmsGuDest $MmsGuSha "Gujarati MMS model.onnx"
+        Write-Ok "Gujarati MMS TTS present and verified."
     }
 
     Write-Step "Final verification"
