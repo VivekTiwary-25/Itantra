@@ -42,3 +42,9 @@ Dynamic quantization rewrites the 183 Conv ops as ConvInteger, which ONNX Runtim
 ## Data-integrity note
 The first INT8 run (`int8_CONTAMINATED_two_drivers_logcat.log`, 39 syntheses) is contaminated: a forked helper subagent in this session also drove the phone at the same time, so it was discarded. Its trend agrees with the clean run (median RTF ~6.8), but all numbers above come from the clean single-driver rerun.
 After the experiment the fp32 model was restored (hash verified), the fp32 APK was rebuilt clean and reinstalled. The INT8 model files are not committed (they stay in `D:\iTantra-tts-models\mms-ben\`).
+
+## Later finding (2026-09-27, `speed/SPEED_REPORT.md`)
+These timings were measured with the app not visible: its process was in the `background` cpuset (cpu0-3, the four
+Cortex-A55 cores). The numbers above are kept as recorded. With the app visible the same fp32 model runs at RTF ~1.05;
+the shipped model (decoder in fp16) runs at RTF 0.77 in the app. After the INT8 experiment the phone was in fact still
+running the INT8 file: `TtsHelper` reused the old on-device copy because its install marker ignored APK updates (fixed).

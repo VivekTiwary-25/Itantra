@@ -1,0 +1,25 @@
+--------- beginning of main
+09-27 08:16:48.431 D/ITANTRA_BENCH(32107): bench init tag=dec16noct-t4 threads=4 provider=cpu ms=1308
+09-27 08:16:51.166 D/ITANTRA_BENCH(32107): bench gen tag=dec16noct-t4 cp=44 samples=56463 rate=16000 ms=2735
+09-27 08:16:51.166 D/ITANTRA_BENCH(32107): bench done
+09-27 08:16:54.138 D/ITANTRA_BENCH(32107): bench gen tag=dec16noct-t4 cp=44 samples=52177 rate=16000 ms=2567
+09-27 08:16:54.138 D/ITANTRA_BENCH(32107): bench done
+09-27 08:16:56.972 D/ITANTRA_BENCH(32107): bench gen tag=dec16noct-t4 cp=37 samples=46461 rate=16000 ms=2437
+09-27 08:16:56.972 D/ITANTRA_BENCH(32107): bench done
+09-27 08:16:58.597 D/ITANTRA_BENCH(32107): bench gen tag=dec16noct-t4 cp=28 samples=31857 rate=16000 ms=1416
+09-27 08:16:58.597 D/ITANTRA_BENCH(32107): bench done
+09-27 08:17:01.296 D/ITANTRA_BENCH(32107): bench gen tag=dec16noct-t4 cp=43 samples=50070 rate=16000 ms=2492
+09-27 08:17:01.296 D/ITANTRA_BENCH(32107): bench done
+09-27 08:17:04.412 D/ITANTRA_BENCH(32107): bench gen tag=dec16noct-t4 cp=51 samples=56001 rate=16000 ms=2747
+09-27 08:17:04.412 D/ITANTRA_BENCH(32107): bench done
+09-27 08:17:07.888 D/ITANTRA_BENCH(32107): bench gen tag=dec16noct-t4 cp=45 samples=58301 rate=16000 ms=3107
+09-27 08:17:07.888 D/ITANTRA_BENCH(32107): bench done
+09-27 08:17:10.198 D/ITANTRA_BENCH(32107): bench gen tag=dec16noct-t4 cp=32 samples=35847 rate=16000 ms=2004
+09-27 08:17:10.198 D/ITANTRA_BENCH(32107): bench done
+09-27 08:17:12.538 D/ITANTRA_BENCH(32107): bench gen tag=dec16noct-t4 cp=27 samples=34475 rate=16000 ms=1946
+09-27 08:17:12.538 D/ITANTRA_BENCH(32107): bench done
+09-27 08:17:14.849 D/ITANTRA_BENCH(32107): bench gen tag=dec16noct-t4 cp=34 samples=37806 rate=16000 ms=1939
+09-27 08:17:14.849 D/ITANTRA_BENCH(32107): bench done
+09-27 08:17:17.628 D/ITANTRA_BENCH(32107): bench gen tag=dec16noct-t4 cp=44 samples=49162 rate=16000 ms=2475
+09-27 08:17:17.628 D/ITANTRA_BENCH(32107): bench done
+09-27 08:17:17.822 D/ITANTRA_BENCH(32107): bench done

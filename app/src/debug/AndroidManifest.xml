@@ -6,6 +6,10 @@
         <receiver
             android:name="com.chmod777.itantra.DebugTtsReceiver"
             android:exported="true" />
+        <!-- Debug-only: times sherpa-onnx generate() on pushed candidate models (no playback). -->
+        <receiver
+            android:name="com.chmod777.itantra.DebugTtsBenchReceiver"
+            android:exported="true" />
     </application>
 
 </manifest>

@@ -23,14 +23,24 @@ import java.io.File
 class TtsHelper(private val context: Context) {
 
     // Piper voices phonemise through espeak-ng-data; MMS voices use sherpa-onnx's character
-    // frontend and ship no espeak data.
-    private data class Voice(val modelDir: String, val onnxFileName: String, val usesEspeak: Boolean = true, val numThreads: Int = 2)
+    // frontend and ship no espeak data, so they may need `normalize` to keep text in-vocabulary.
+    private data class Voice(
+        val modelDir: String,
+        val onnxFileName: String,
+        val usesEspeak: Boolean = true,
+        val numThreads: Int = 2,
+        val normalize: ((String) -> String)? = null
+    )
 
     private val voices = mapOf(
         "en" to Voice("vits-piper-en_US-ryan-medium", "en_US-ryan-medium.onnx"),
         "hi" to Voice("vits-piper-hi_IN-pratham-medium", "hi_IN-pratham-medium.onnx"),
         "ml" to Voice("vits-piper-ml_IN-arjun-medium", "ml_IN-arjun-medium.onnx"),
-        "bn" to Voice("vits-mms-ben", "model.onnx", usesEspeak = false, numThreads = 4)
+        // model.onnx is the MMS export with its HiFi-GAN decoder in fp16 (tts-research/mms-ben/speed).
+        "bn" to Voice(
+            "vits-mms-ben", "model.onnx", usesEspeak = false, numThreads = 4,
+            normalize = BengaliTextNormalizer::normalize
+        )
     )
 
     private val lock = Any()
@@ -66,9 +76,11 @@ class TtsHelper(private val context: Context) {
             }
 
             try {
+                val spoken = voice.normalize?.invoke(text) ?: text
+                if (spoken != text) Log.d(TAG, "normalised lang=$languageCode textLen=${text.length}->${spoken.length}")
                 val startMs = SystemClock.elapsedRealtime()
                 Log.d(TAG, "synthesis start lang=$languageCode")
-                val audio = engine.generate(text = text, sid = 0, speed = 1.0f)
+                val audio = engine.generate(text = spoken, sid = 0, speed = 1.0f)
                 Log.d(
                     TAG,
                     "synthesis done lang=$languageCode samples=${audio.samples.size} " +
@@ -130,11 +142,14 @@ class TtsHelper(private val context: Context) {
     /**
      * Copies the model out of assets on first use. A marker file records that the
      * previous copy finished, so an interrupted copy is redone instead of being
-     * reused as a half-populated model directory.
+     * reused as a half-populated model directory. The marker also names the APK
+     * build it came from: an updated APK may ship a different model under the same
+     * file name, and reusing the old copy silently ran a stale model.
      */
     private fun installAssets(assetDir: String, destDir: File) {
         val marker = File(destDir, INSTALL_MARKER)
-        if (marker.exists()) return
+        val stamp = "$assetDir@${apkUpdateTime()}"
+        if (marker.exists() && marker.readText() == stamp) return
 
         if (destDir.exists() && !destDir.deleteRecursively()) {
             throw IllegalStateException("could not clear stale model dir ${destDir.absolutePath}")
@@ -142,9 +157,12 @@ class TtsHelper(private val context: Context) {
         Log.d(TAG, "installing assets '$assetDir' -> ${destDir.absolutePath}")
         val startMs = SystemClock.elapsedRealtime()
         copyAssetFolder(context.assets, assetDir, destDir.absolutePath)
-        marker.writeText(assetDir)
+        marker.writeText(stamp)
         Log.d(TAG, "installed '$assetDir' deltaMs=${SystemClock.elapsedRealtime() - startMs}")
     }
+
+    private fun apkUpdateTime(): Long =
+        context.packageManager.getPackageInfo(context.packageName, 0).lastUpdateTime
 
     /**
      * sherpa-onnx's piper token reader calls exit(-1) — killing the process with no

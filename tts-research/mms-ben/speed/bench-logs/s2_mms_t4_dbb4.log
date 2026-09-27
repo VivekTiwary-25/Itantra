@@ -1,0 +1,25 @@
+--------- beginning of main
+09-27 07:51:32.421 D/ITANTRA_BENCH(26981): bench init tag=mms-t4-dbb threads=4 provider=cpu:/data/user/0/com.chmod777.itantra/files/bench/cfg/dbb4.cfg ms=3865
+09-27 07:51:39.601 D/ITANTRA_BENCH(26981): bench gen tag=mms-t4-dbb cp=44 samples=51533 rate=16000 ms=7181
+09-27 07:51:39.601 D/ITANTRA_BENCH(26981): bench done
+09-27 07:51:47.916 D/ITANTRA_BENCH(26981): bench gen tag=mms-t4-dbb cp=44 samples=52892 rate=16000 ms=7921
+09-27 07:51:47.916 D/ITANTRA_BENCH(26981): bench done
+09-27 07:51:56.001 D/ITANTRA_BENCH(26981): bench gen tag=mms-t4-dbb cp=37 samples=46855 rate=16000 ms=7688
+09-27 07:51:56.001 D/ITANTRA_BENCH(26981): bench done
+09-27 07:52:00.726 D/ITANTRA_BENCH(26981): bench gen tag=mms-t4-dbb cp=28 samples=32667 rate=16000 ms=4338
+09-27 07:52:00.726 D/ITANTRA_BENCH(26981): bench done
+09-27 07:52:08.304 D/ITANTRA_BENCH(26981): bench gen tag=mms-t4-dbb cp=43 samples=50333 rate=16000 ms=7208
+09-27 07:52:08.304 D/ITANTRA_BENCH(26981): bench done
+09-27 07:52:16.974 D/ITANTRA_BENCH(26981): bench gen tag=mms-t4-dbb cp=51 samples=57171 rate=16000 ms=8251
+09-27 07:52:16.974 D/ITANTRA_BENCH(26981): bench done
+09-27 07:52:26.632 D/ITANTRA_BENCH(26981): bench gen tag=mms-t4-dbb cp=45 samples=60151 rate=16000 ms=9273
+09-27 07:52:26.632 D/ITANTRA_BENCH(26981): bench done
+09-27 07:52:32.862 D/ITANTRA_BENCH(26981): bench gen tag=mms-t4-dbb cp=32 samples=36558 rate=16000 ms=5807
+09-27 07:52:32.862 D/ITANTRA_BENCH(26981): bench done
+09-27 07:52:39.388 D/ITANTRA_BENCH(26981): bench gen tag=mms-t4-dbb cp=27 samples=32203 rate=16000 ms=6189
+09-27 07:52:39.389 D/ITANTRA_BENCH(26981): bench done
+09-27 07:52:45.575 D/ITANTRA_BENCH(26981): bench gen tag=mms-t4-dbb cp=34 samples=38643 rate=16000 ms=5797
+09-27 07:52:45.576 D/ITANTRA_BENCH(26981): bench done
+09-27 07:52:52.953 D/ITANTRA_BENCH(26981): bench gen tag=mms-t4-dbb cp=44 samples=49390 rate=16000 ms=6966
+09-27 07:52:52.953 D/ITANTRA_BENCH(26981): bench done
+09-27 07:52:53.270 D/ITANTRA_BENCH(26981): bench done

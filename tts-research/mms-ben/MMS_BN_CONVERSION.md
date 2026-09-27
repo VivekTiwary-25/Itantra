@@ -19,7 +19,8 @@ Date 2026-09-26. **QUALITY UNVERIFIED — no listener. Not GREEN.**
 | model.onnx (fp32, converted) | 114,065,046 | f8f7bf4f0b703f706e0531ff2b364bf9a3ebb8bed69262258f543e0212094e71 |
 | tokens.txt (generated, then normalized to LF) | 480 | a74190ec42b8f0afb349276430c716f1b585090d8fe6d3c1d6d5fe510798a387 |
 
-**tokens.txt hazard:** `vits-mms.py` writes tokens.txt with Python text mode, i.e. CRLF on Windows (554 B, sha dccea18a...). A CRLF tokens.txt aborts the process in sherpa-onnx on Android (see TtsHelper), so it was converted to LF (`tr -d ""`) before use; desktop results below were regenerated with the LF file.
+**tokens.txt hazard:** `vits-mms.py` writes tokens.txt with Python text mode, i.e. CRLF on Windows (554 B, sha dccea18a...). A CRLF tokens.txt aborts the process in sherpa-onnx on Android (see TtsHelper), so it was converted to LF (`tr -d "
+"`) before use; desktop results below were regenerated with the LF file.
 
 Large files stay outside Git (`D:\iTantra-tts-models\mms-ben`). Not quantized. Exported ONNX bytes may differ across torch versions; pin the hash of what was validated.
 
@@ -47,3 +48,8 @@ The stub is safe: `maximum_path` is only used in training; the export path never
   line 9 lost `১২` (message meaning changes; audio 2.35 s). ASCII digits ARE in the vocab: with `12` line 9 grew to 2.81 s.
   Whether ASCII digits are pronounced correctly needs a Bengali listener. No text normalization has been added; decide with a listener.
 - Evidence: `evidence/raw/*.wav` (+`_r2`), `evidence/ascii-digits/*.wav`, `timings.json` in each, `bn_input*.txt`.
+
+## Shipped derivative (2026-09-27)
+The app asset is no longer this fp32 file: `speed/mms_decoder_fp16.py` converts the decoder to fp16
+(85,415,964 B, sha256 8a819bba1b0c424842b71f89d36987e278dde7e4e564e94af0b90a782a2fb90e). Digits and precomposed
+nukta letters are now normalised in the app (`BengaliTextNormalizer`); the danda is still dropped. See `speed/SPEED_REPORT.md`.

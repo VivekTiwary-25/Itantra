@@ -1,0 +1,25 @@
+--------- beginning of main
+09-27 07:45:33.591 D/ITANTRA_BENCH(26981): bench init tag=coqui threads=4 provider=cpu ms=5892
+09-27 07:45:44.120 D/ITANTRA_BENCH(26981): bench gen tag=coqui cp=44 samples=76520 rate=22050 ms=10529
+09-27 07:45:44.120 D/ITANTRA_BENCH(26981): bench done
+09-27 07:45:55.769 D/ITANTRA_BENCH(26981): bench gen tag=coqui cp=44 samples=79351 rate=22050 ms=11131
+09-27 07:45:55.774 D/ITANTRA_BENCH(26981): bench done
+09-27 07:46:04.000 D/ITANTRA_BENCH(26981): bench gen tag=coqui cp=37 samples=58539 rate=22050 ms=7824
+09-27 07:46:04.004 D/ITANTRA_BENCH(26981): bench done
+09-27 07:46:10.622 D/ITANTRA_BENCH(26981): bench gen tag=coqui cp=28 samples=44848 rate=22050 ms=6177
+09-27 07:46:10.626 D/ITANTRA_BENCH(26981): bench done
+09-27 07:46:19.285 D/ITANTRA_BENCH(26981): bench gen tag=coqui cp=43 samples=65127 rate=22050 ms=8231
+09-27 07:46:19.290 D/ITANTRA_BENCH(26981): bench done
+09-27 07:46:28.686 D/ITANTRA_BENCH(26981): bench gen tag=coqui cp=51 samples=74435 rate=22050 ms=8963
+09-27 07:46:28.691 D/ITANTRA_BENCH(26981): bench done
+09-27 07:46:38.480 D/ITANTRA_BENCH(26981): bench gen tag=coqui cp=45 samples=78055 rate=22050 ms=9320
+09-27 07:46:38.485 D/ITANTRA_BENCH(26981): bench done
+09-27 07:46:45.642 D/ITANTRA_BENCH(26981): bench gen tag=coqui cp=32 samples=49424 rate=22050 ms=6729
+09-27 07:46:45.646 D/ITANTRA_BENCH(26981): bench done
+09-27 07:46:52.433 D/ITANTRA_BENCH(26981): bench gen tag=coqui cp=27 samples=42550 rate=22050 ms=6338
+09-27 07:46:52.437 D/ITANTRA_BENCH(26981): bench done
+09-27 07:46:59.527 D/ITANTRA_BENCH(26981): bench gen tag=coqui cp=34 samples=55443 rate=22050 ms=6670
+09-27 07:46:59.531 D/ITANTRA_BENCH(26981): bench done
+09-27 07:47:07.718 D/ITANTRA_BENCH(26981): bench gen tag=coqui cp=44 samples=64549 rate=22050 ms=7795
+09-27 07:47:07.722 D/ITANTRA_BENCH(26981): bench done
+09-27 07:47:07.992 D/ITANTRA_BENCH(26981): bench done

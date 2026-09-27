@@ -1,0 +1,25 @@
+--------- beginning of main
+09-27 08:25:34.353 D/ITANTRA_BENCH( 7954): bench init tag=det-fp32 threads=4 provider=cpu ms=1355
+09-27 08:25:37.602 D/ITANTRA_BENCH( 7954): bench gen tag=det-fp32 cp=44 samples=58368 rate=16000 ms=3249
+09-27 08:25:37.602 D/ITANTRA_BENCH( 7954): bench done
+09-27 08:25:41.479 D/ITANTRA_BENCH( 7954): bench gen tag=det-fp32 cp=44 samples=58368 rate=16000 ms=3439
+09-27 08:25:41.514 D/ITANTRA_BENCH( 7954): bench done
+09-27 08:25:45.329 D/ITANTRA_BENCH( 7954): bench gen tag=det-fp32 cp=37 samples=66048 rate=16000 ms=3482
+09-27 08:25:45.367 D/ITANTRA_BENCH( 7954): bench done
+09-27 08:25:47.880 D/ITANTRA_BENCH( 7954): bench gen tag=det-fp32 cp=28 samples=37376 rate=16000 ms=2181
+09-27 08:25:47.882 D/ITANTRA_BENCH( 7954): bench done
+09-27 08:25:51.465 D/ITANTRA_BENCH( 7954): bench gen tag=det-fp32 cp=43 samples=61440 rate=16000 ms=3242
+09-27 08:25:51.466 D/ITANTRA_BENCH( 7954): bench done
+09-27 08:25:55.445 D/ITANTRA_BENCH( 7954): bench gen tag=det-fp32 cp=51 samples=68352 rate=16000 ms=3643
+09-27 08:25:55.450 D/ITANTRA_BENCH( 7954): bench done
+09-27 08:25:59.942 D/ITANTRA_BENCH( 7954): bench gen tag=det-fp32 cp=45 samples=77824 rate=16000 ms=4156
+09-27 08:25:59.946 D/ITANTRA_BENCH( 7954): bench done
+09-27 08:26:02.979 D/ITANTRA_BENCH( 7954): bench gen tag=det-fp32 cp=32 samples=49664 rate=16000 ms=2660
+09-27 08:26:02.979 D/ITANTRA_BENCH( 7954): bench done
+09-27 08:26:05.890 D/ITANTRA_BENCH( 7954): bench gen tag=det-fp32 cp=27 samples=48128 rate=16000 ms=2594
+09-27 08:26:05.891 D/ITANTRA_BENCH( 7954): bench done
+09-27 08:26:08.967 D/ITANTRA_BENCH( 7954): bench gen tag=det-fp32 cp=34 samples=49152 rate=16000 ms=2749
+09-27 08:26:08.968 D/ITANTRA_BENCH( 7954): bench done
+09-27 08:26:12.586 D/ITANTRA_BENCH( 7954): bench gen tag=det-fp32 cp=44 samples=61440 rate=16000 ms=3284
+09-27 08:26:12.587 D/ITANTRA_BENCH( 7954): bench done
+09-27 08:26:12.825 D/ITANTRA_BENCH( 7954): bench done

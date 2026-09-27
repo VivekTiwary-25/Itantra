@@ -1,0 +1,25 @@
+--------- beginning of main
+09-27 07:53:01.086 D/ITANTRA_BENCH(26981): bench init tag=mms-t8-dbb threads=8 provider=cpu:/data/user/0/com.chmod777.itantra/files/bench/cfg/dbb4.cfg ms=3831
+09-27 07:53:10.976 D/ITANTRA_BENCH(26981): bench gen tag=mms-t8-dbb cp=44 samples=51533 rate=16000 ms=9889
+09-27 07:53:10.976 D/ITANTRA_BENCH(26981): bench done
+09-27 07:53:21.617 D/ITANTRA_BENCH(26981): bench gen tag=mms-t8-dbb cp=44 samples=52892 rate=16000 ms=10150
+09-27 07:53:21.617 D/ITANTRA_BENCH(26981): bench done
+09-27 07:53:31.618 D/ITANTRA_BENCH(26981): bench gen tag=mms-t8-dbb cp=37 samples=46855 rate=16000 ms=9746
+09-27 07:53:31.618 D/ITANTRA_BENCH(26981): bench done
+09-27 07:53:38.007 D/ITANTRA_BENCH(26981): bench gen tag=mms-t8-dbb cp=28 samples=32667 rate=16000 ms=6094
+09-27 07:53:38.007 D/ITANTRA_BENCH(26981): bench done
+09-27 07:53:48.294 D/ITANTRA_BENCH(26981): bench gen tag=mms-t8-dbb cp=43 samples=50333 rate=16000 ms=9889
+09-27 07:53:48.294 D/ITANTRA_BENCH(26981): bench done
+09-27 07:53:59.235 D/ITANTRA_BENCH(26981): bench gen tag=mms-t8-dbb cp=51 samples=57171 rate=16000 ms=10520
+09-27 07:53:59.236 D/ITANTRA_BENCH(26981): bench done
+09-27 07:54:10.929 D/ITANTRA_BENCH(26981): bench gen tag=mms-t8-dbb cp=45 samples=60151 rate=16000 ms=11319
+09-27 07:54:10.929 D/ITANTRA_BENCH(26981): bench done
+09-27 07:54:18.980 D/ITANTRA_BENCH(26981): bench gen tag=mms-t8-dbb cp=32 samples=36558 rate=16000 ms=7625
+09-27 07:54:18.980 D/ITANTRA_BENCH(26981): bench done
+09-27 07:54:26.675 D/ITANTRA_BENCH(26981): bench gen tag=mms-t8-dbb cp=27 samples=32203 rate=16000 ms=7296
+09-27 07:54:26.675 D/ITANTRA_BENCH(26981): bench done
+09-27 07:54:34.869 D/ITANTRA_BENCH(26981): bench gen tag=mms-t8-dbb cp=34 samples=38643 rate=16000 ms=7782
+09-27 07:54:34.869 D/ITANTRA_BENCH(26981): bench done
+09-27 07:54:44.781 D/ITANTRA_BENCH(26981): bench gen tag=mms-t8-dbb cp=44 samples=49390 rate=16000 ms=9536
+09-27 07:54:44.781 D/ITANTRA_BENCH(26981): bench done
+09-27 07:54:45.062 D/ITANTRA_BENCH(26981): bench done

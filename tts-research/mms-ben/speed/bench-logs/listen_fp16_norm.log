@@ -1,0 +1,36 @@
+--------- beginning of main
+09-27 09:03:50.589 D/ITANTRA_BENCH(15826): bench init tag=listen-fp16 threads=4 provider=cpu ms=1169
+09-27 09:03:52.767 D/ITANTRA_BENCH(15826): bench gen tag=listen-fp16 cp=44 samples=48655 rate=16000 ms=2177
+09-27 09:03:52.767 D/ITANTRA_BENCH(15826): bench done
+09-27 09:03:55.385 D/ITANTRA_BENCH(15826): bench gen tag=listen-fp16 cp=44 samples=49198 rate=16000 ms=2135
+09-27 09:03:55.417 D/ITANTRA_BENCH(15826): bench done
+09-27 09:03:58.427 D/ITANTRA_BENCH(15826): bench gen tag=listen-fp16 cp=37 samples=47457 rate=16000 ms=2580
+09-27 09:03:58.444 D/ITANTRA_BENCH(15826): bench done
+09-27 09:04:00.064 D/ITANTRA_BENCH(15826): bench gen tag=listen-fp16 cp=28 samples=29644 rate=16000 ms=1204
+09-27 09:04:00.066 D/ITANTRA_BENCH(15826): bench done
+09-27 09:04:02.939 D/ITANTRA_BENCH(15826): bench gen tag=listen-fp16 cp=43 samples=49200 rate=16000 ms=2367
+09-27 09:04:02.942 D/ITANTRA_BENCH(15826): bench done
+09-27 09:04:05.856 D/ITANTRA_BENCH(15826): bench gen tag=listen-fp16 cp=51 samples=56370 rate=16000 ms=2568
+09-27 09:04:05.860 D/ITANTRA_BENCH(15826): bench done
+09-27 09:04:09.185 D/ITANTRA_BENCH(15826): bench gen tag=listen-fp16 cp=45 samples=57216 rate=16000 ms=2975
+09-27 09:04:09.189 D/ITANTRA_BENCH(15826): bench done
+09-27 09:04:11.532 D/ITANTRA_BENCH(15826): bench gen tag=listen-fp16 cp=32 samples=37016 rate=16000 ms=1955
+09-27 09:04:11.535 D/ITANTRA_BENCH(15826): bench done
+09-27 09:04:13.651 D/ITANTRA_BENCH(15826): bench gen tag=listen-fp16 cp=27 samples=33373 rate=16000 ms=1783
+09-27 09:04:13.653 D/ITANTRA_BENCH(15826): bench done
+09-27 09:04:16.335 D/ITANTRA_BENCH(15826): bench gen tag=listen-fp16 cp=36 samples=48263 rate=16000 ms=2346
+09-27 09:04:16.338 D/ITANTRA_BENCH(15826): bench done
+09-27 09:04:19.209 D/ITANTRA_BENCH(15826): bench gen tag=listen-fp16 cp=44 samples=51430 rate=16000 ms=2501
+09-27 09:04:19.213 D/ITANTRA_BENCH(15826): bench done
+09-27 09:04:20.712 D/ITANTRA_BENCH(15826): bench gen tag=listen-fp16 cp=12 samples=18126 rate=16000 ms=1047
+09-27 09:04:20.714 D/ITANTRA_BENCH(15826): bench done
+09-27 09:04:23.365 D/ITANTRA_BENCH(15826): bench gen tag=listen-fp16 cp=28 samples=41468 rate=16000 ms=2260
+09-27 09:04:23.366 D/ITANTRA_BENCH(15826): bench done
+09-27 09:04:24.986 D/ITANTRA_BENCH(15826): bench gen tag=listen-fp16 cp=18 samples=23918 rate=16000 ms=1235
+09-27 09:04:24.988 D/ITANTRA_BENCH(15826): bench done
+09-27 09:04:26.886 D/ITANTRA_BENCH(15826): bench gen tag=listen-fp16 cp=24 samples=30026 rate=16000 ms=1451
+09-27 09:04:26.886 D/ITANTRA_BENCH(15826): bench done
+09-27 09:04:28.933 D/ITANTRA_BENCH(15826): bench gen tag=listen-fp16 cp=27 samples=33253 rate=16000 ms=1575
+09-27 09:04:28.936 D/ITANTRA_BENCH(15826): bench done
+09-27 09:04:29.228 D/ITANTRA_BENCH(15826): bench done
+cond start=top-app end=top-app

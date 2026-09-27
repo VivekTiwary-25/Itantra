@@ -29,3 +29,9 @@ converted model (no official prebuilt exists; without it the step warns and Beng
 3. Not exercised: real two-phone receive path, offline test, 20 repeats through Transport, blind-listener gates.
 4. Memory: all four voices resident is ~728 MB PSS; consider unloading/lazy policy before shipping.
 5. APK is now ~608 MB (debug build); storage budget not set.
+
+## Later finding (2026-09-27, `speed/SPEED_REPORT.md`)
+These timings were measured with the app not visible: its process was in the `background` cpuset (cpu0-3, the four
+Cortex-A55 cores). The numbers above are kept as recorded. With the app visible the same fp32 model runs at RTF ~1.05;
+the shipped model (decoder in fp16) runs at RTF 0.77 in the app. After the INT8 experiment the phone was in fact still
+running the INT8 file: `TtsHelper` reused the old on-device copy because its install marker ignored APK updates (fixed).
