@@ -53,6 +53,12 @@ class TtsHelper(private val context: Context) {
         "gu" to Voice(
             "vits-mms-guj", "model.onnx", usesEspeak = false, numThreads = 4,
             normalize = GujaratiTextNormalizer::normalize
+        ),
+        // model.onnx is the MMS export with its HiFi-GAN decoder in fp16 (tts-research/mms-mr/speed),
+        // following the same decoder-fp16 recipe as Bengali; thread count is not yet phone-profiled.
+        "mr" to Voice(
+            "vits-mms-mar", "model.onnx", usesEspeak = false, numThreads = 4,
+            normalize = MarathiTextNormalizer::normalize
         )
     )
 
