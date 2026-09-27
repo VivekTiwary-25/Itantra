@@ -1,6 +1,6 @@
 # TASK.md — Current Codex Task
 
-## Active task (branch `feature/itantra-v1-networking`)
+## Active task (branch `Complete-App-V1`, integrating `feature/itantra-v1-networking` + TTS research lines)
 
 **iTantra v1 networking: BLE/GATT + PeerLink + Noise XX + secure DTN, then product integration**
 
@@ -34,7 +34,26 @@ The previous task text is preserved below unchanged.
 
 ---
 
-## Previous active task
+## Integration note (Complete-App-V1)
+
+This branch merges `feature/itantra-v1-networking` (BLE/Noise networking + Dolphin STT +
+baseline app) with the TTS research lines (`research/bn-tts-speed` and the six `tts/*/mms`
+worker branches) to add Bengali, Odia, Gujarati, Marathi, Telugu, Kannada and Tamil TTS on
+top of the existing English/Hindi/Malayalam Piper TTS. See `STATUS.md` for per-language
+status. The UI remains the existing functional scaffolding; no UI/UX redesign work was
+pulled in as part of this integration.
+
+## Previous active task (from `feature/itantra-v1-networking`)
+
+(see above)
+
+## Previous active task (from `codex/tts-research-handoff` / `research/bn-tts-speed`)
+
+### TTS transfer checkpoint
+
+On `codex/tts-research-handoff`, the current task was to preserve and transfer
+existing offline TTS desktop research, latest frontend repair work, and evidence.
+Read `tts-research/HANDOFF.md`, scoped instructions, and the original TTS handoff.
 
 **Integrated source prepared for Dolphin conditioning research**
 

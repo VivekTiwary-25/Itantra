@@ -1,0 +1,96 @@
+{
+  "model_dir": "/mnt/d/iTantra-tts-models/gu",
+  "load_seconds": 10.501,
+  "records": [
+    {
+      "number": 1,
+      "language_code": "gu",
+      "text": "નદીનું પાણી ઝડપથી વધી રહ્યું છે. સુરક્ષિત સ્થળે જાઓ.",
+      "wav": "/mnt/d/iTantra-tts-gu-indic/local-recordings/gu-indic/01.wav",
+      "generation_seconds": 2.654,
+      "audio_seconds": 8.593,
+      "sample_rate": 22050
+    },
+    {
+      "number": 2,
+      "language_code": "gu",
+      "text": "શાળાની પાસે આગ લાગી છે. ત્યાંથી દૂર રહો.",
+      "wav": "/mnt/d/iTantra-tts-gu-indic/local-recordings/gu-indic/02.wav",
+      "generation_seconds": 2.26,
+      "audio_seconds": 7.548,
+      "sample_rate": 22050
+    },
+    {
+      "number": 3,
+      "language_code": "gu",
+      "text": "બજાર પછી ડાબી તરફ વળો.",
+      "wav": "/mnt/d/iTantra-tts-gu-indic/local-recordings/gu-indic/03.wav",
+      "generation_seconds": 1.29,
+      "audio_seconds": 4.145,
+      "sample_rate": 22050
+    },
+    {
+      "number": 4,
+      "language_code": "gu",
+      "text": "જૂનો પુલ પાર કરીને હોસ્પિટલ સામે ઊભા રહો.",
+      "wav": "/mnt/d/iTantra-tts-gu-indic/local-recordings/gu-indic/04.wav",
+      "generation_seconds": 1.892,
+      "audio_seconds": 5.887,
+      "sample_rate": 22050
+    },
+    {
+      "number": 5,
+      "language_code": "gu",
+      "text": "કૃપા કરીને ગામના ઉત્તર ભાગમાં એક ડૉક્ટર મોકલો.",
+      "wav": "/mnt/d/iTantra-tts-gu-indic/local-recordings/gu-indic/05.wav",
+      "generation_seconds": 2.449,
+      "audio_seconds": 7.269,
+      "sample_rate": 22050
+    },
+    {
+      "number": 6,
+      "language_code": "gu",
+      "text": "ત્રણ બાળકો મંદિરમાં ફસાયા છે. મદદ કરો.",
+      "wav": "/mnt/d/iTantra-tts-gu-indic/local-recordings/gu-indic/06.wav",
+      "generation_seconds": 1.852,
+      "audio_seconds": 5.795,
+      "sample_rate": 22050
+    },
+    {
+      "number": 7,
+      "language_code": "gu",
+      "text": "આજે સાંજે આપણે ઘરે મળીશું.",
+      "wav": "/mnt/d/iTantra-tts-gu-indic/local-recordings/gu-indic/07.wav",
+      "generation_seconds": 1.637,
+      "audio_seconds": 4.935,
+      "sample_rate": 22050
+    },
+    {
+      "number": 8,
+      "language_code": "gu",
+      "text": "મારો ભાઈ સવારે દુકાને જશે.",
+      "wav": "/mnt/d/iTantra-tts-gu-indic/local-recordings/gu-indic/08.wav",
+      "generation_seconds": 1.518,
+      "audio_seconds": 4.633,
+      "sample_rate": 22050
+    },
+    {
+      "number": 9,
+      "language_code": "gu",
+      "text": "દવાઓ માટે ૧૨ બોક્સ લઈને આવો.",
+      "wav": "/mnt/d/iTantra-tts-gu-indic/local-recordings/gu-indic/09.wav",
+      "generation_seconds": 1.576,
+      "audio_seconds": 4.865,
+      "sample_rate": 22050
+    },
+    {
+      "number": 10,
+      "language_code": "gu",
+      "text": "અમદાવાદના સરદાર માર્ગ પર મને મળો.",
+      "wav": "/mnt/d/iTantra-tts-gu-indic/local-recordings/gu-indic/10.wav",
+      "generation_seconds": 1.601,
+      "audio_seconds": 4.9,
+      "sample_rate": 22050
+    }
+  ]
+}

@@ -1,5 +1,14 @@
 # iTantra
 
+## TTS research transfer
+
+On `codex/tts-research-handoff`, start at
+[tts-research/README.md](tts-research/README.md) and
+[tts-research/HANDOFF.md](tts-research/HANDOFF.md). This branch contains the
+known app baseline plus desktop experiments, latest frontend repairs, logs,
+112 retained WAVs, and model-restore instructions. Candidate phone acceptance
+is pending; cloning the branch does not restore large external weights.
+
 iTantra is our Smart India Hackathon prototype for offline multilingual speech communication over low-bandwidth local links.
 
 The core flow is:

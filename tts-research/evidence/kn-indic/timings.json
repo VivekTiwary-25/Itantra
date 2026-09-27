@@ -1,0 +1,96 @@
+{
+  "model_dir": "/mnt/d/iTantra-tts-models/kn",
+  "load_seconds": 13.091,
+  "records": [
+    {
+      "number": 1,
+      "language_code": "kn",
+      "text": "ನದಿಯ ನೀರು ವೇಗವಾಗಿ ಏರುತ್ತಿದೆ. ಸುರಕ್ಷಿತ ಸ್ಥಳಕ್ಕೆ ಹೋಗಿ.",
+      "wav": "/mnt/d/iTantra-tts-kn-indic/local-recordings/kn-indic/01.wav",
+      "generation_seconds": 2.047,
+      "audio_seconds": 5.934,
+      "sample_rate": 22050
+    },
+    {
+      "number": 2,
+      "language_code": "kn",
+      "text": "ಶಾಲೆಯ ಬಳಿ ಬೆಂಕಿ ಕಾಣಿಸಿಕೊಂಡಿದೆ. ದೂರವಿರಿ.",
+      "wav": "/mnt/d/iTantra-tts-kn-indic/local-recordings/kn-indic/02.wav",
+      "generation_seconds": 1.687,
+      "audio_seconds": 4.971,
+      "sample_rate": 22050
+    },
+    {
+      "number": 3,
+      "language_code": "kn",
+      "text": "ಮಾರುಕಟ್ಟೆಯ ನಂತರ ಎಡಕ್ಕೆ ತಿರುಗಿ.",
+      "wav": "/mnt/d/iTantra-tts-kn-indic/local-recordings/kn-indic/03.wav",
+      "generation_seconds": 1.19,
+      "audio_seconds": 3.53,
+      "sample_rate": 22050
+    },
+    {
+      "number": 4,
+      "language_code": "kn",
+      "text": "ಹಳೆಯ ಸೇತುವೆ ದಾಟಿ ಆಸ್ಪತ್ರೆಯ ಮುಂದೆ ನಿಲ್ಲಿ.",
+      "wav": "/mnt/d/iTantra-tts-kn-indic/local-recordings/kn-indic/04.wav",
+      "generation_seconds": 1.53,
+      "audio_seconds": 4.354,
+      "sample_rate": 22050
+    },
+    {
+      "number": 5,
+      "language_code": "kn",
+      "text": "ದಯವಿಟ್ಟು ಗ್ರಾಮದ ಉತ್ತರ ಭಾಗಕ್ಕೆ ವೈದ್ಯರನ್ನು ಕಳುಹಿಸಿ.",
+      "wav": "/mnt/d/iTantra-tts-kn-indic/local-recordings/kn-indic/05.wav",
+      "generation_seconds": 1.891,
+      "audio_seconds": 5.156,
+      "sample_rate": 22050
+    },
+    {
+      "number": 6,
+      "language_code": "kn",
+      "text": "ಮೂರು ಮಕ್ಕಳು ದೇವಾಲಯದಲ್ಲಿ ಸಿಲುಕಿದ್ದಾರೆ. ಸಹಾಯ ಮಾಡಿ.",
+      "wav": "/mnt/d/iTantra-tts-kn-indic/local-recordings/kn-indic/06.wav",
+      "generation_seconds": 1.822,
+      "audio_seconds": 5.737,
+      "sample_rate": 22050
+    },
+    {
+      "number": 7,
+      "language_code": "kn",
+      "text": "ಇಂದು ಸಂಜೆ ನಾವು ಮನೆಯಲ್ಲಿ ಭೇಟಿಯಾಗೋಣ.",
+      "wav": "/mnt/d/iTantra-tts-kn-indic/local-recordings/kn-indic/07.wav",
+      "generation_seconds": 1.405,
+      "audio_seconds": 4.157,
+      "sample_rate": 22050
+    },
+    {
+      "number": 8,
+      "language_code": "kn",
+      "text": "ನನ್ನ ಸಹೋದರ ಬೆಳಿಗ್ಗೆ ಅಂಗಡಿಗೆ ಹೋಗುತ್ತಾನೆ.",
+      "wav": "/mnt/d/iTantra-tts-kn-indic/local-recordings/kn-indic/08.wav",
+      "generation_seconds": 1.383,
+      "audio_seconds": 4.169,
+      "sample_rate": 22050
+    },
+    {
+      "number": 9,
+      "language_code": "kn",
+      "text": "ಔಷಧಿಗಾಗಿ ೧೨ ಪೆಟ್ಟಿಗೆಗಳನ್ನು ತಂದುಕೊಡಿ.",
+      "wav": "/mnt/d/iTantra-tts-kn-indic/local-recordings/kn-indic/09.wav",
+      "generation_seconds": 1.249,
+      "audio_seconds": 3.902,
+      "sample_rate": 22050
+    },
+    {
+      "number": 10,
+      "language_code": "kn",
+      "text": "ಬೆಂಗಳೂರಿನ ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆಯಲ್ಲಿ ನನ್ನನ್ನು ಭೇಟಿ ಮಾಡಿ.",
+      "wav": "/mnt/d/iTantra-tts-kn-indic/local-recordings/kn-indic/10.wav",
+      "generation_seconds": 1.831,
+      "audio_seconds": 5.388,
+      "sample_rate": 22050
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+== model.onnx opset [('', 13)] params 28.28M
+ inputs [('x', ['N', 'L']), ('x_length', ['N']), ('noise_scale', [1]), ('length_scale', [1]), ('noise_scale_w', [1])]
+ meta {'model_type': 'vits', 'comment': 'mms', 'url': 'https://huggingface.co/facebook/mms-tts/tree/main', 'add_blank': '1', 'language': 'Bengali', 'frontend': 'characters', 'n_speakers': '0', 'sample_rate': '16000'}
+ ops {'Constant': 2538, 'Unsqueeze': 357, 'Shape': 333, 'Mul': 322, 'Add': 299, 'Slice': 255, 'Reshape': 235, 'Concat': 227, 'Gather': 196, 'Transpose': 184, 'Conv': 183, 'ConstantOfShape': 164, 'Cast': 144, 'Sub': 132, 'Expand': 90, 'Div': 82, 'ReduceMean': 72, 'LeakyRelu': 69, 'Where': 66, 'Equal': 61, 'Pad': 58, 'Pow': 45, 'Range': 39, 'Sqrt': 39, 'ScatterND': 30}
+    ('Conv', 384, 192, 5) x 16
+    ('Conv', 256, 256, 11) x 6
+    ('Conv', 256, 256, 7) x 6
+    ('Conv', 768, 192, 3) x 6
+    ('Conv', 192, 768, 3) x 6
+    ('ConvTranspose', 512, 256, 16) x 1
+    ('Conv', 192, 192, 1) x 42
+    ('Conv', 256, 256, 3) x 6
+    ('Conv', 128, 128, 11) x 6
+    ('Conv', 384, 192, 1) x 13
+    ('Conv', 512, 192, 7) x 1
+    ('Conv', 128, 128, 7) x 6
+== en_US-ryan-medium.onnx opset [('', 17), ('com.microsoft', 1)] params 15.65M
+ inputs [('input', ['batch_size', 'phonemes']), ('input_lengths', ['batch_size']), ('scales', [3])]
+ meta {'model_type': 'vits', 'comment': 'piper', 'language': 'English', 'voice': 'en-us', 'has_espeak': '1', 'n_speakers': '1', 'sample_rate': '22050'}
+ ops {'Unsqueeze': 230, 'Mul': 183, 'Add': 174, 'Gather': 162, 'Reshape': 161, 'Slice': 155, 'Shape': 144, 'Transpose': 141, 'Conv': 129, 'Concat': 114, 'Expand': 90, 'Sub': 78, 'Pad': 46, 'ConstantOfShape': 46, 'Range': 39, 'LayerNormalization': 36, 'Where': 30, 'ScatterND': 30, 'MatMul': 26, 'Equal': 25, 'Gelu': 24, 'Div': 21, 'GatherElements': 21, 'Tanh': 17, 'Sigmoid': 16}
+    ('Conv', 384, 192, 5) x 16
+    ('Conv', 768, 192, 3) x 6
+    ('Conv', 192, 768, 3) x 6
+    ('Conv', 192, 192, 1) x 42
+    ('Conv', 384, 192, 1) x 13
+    ('ConvTranspose', 256, 128, 16) x 1
+    ('Conv', 256, 192, 7) x 1
+    ('Conv', 128, 128, 7) x 2
+    ('Conv', 128, 128, 5) x 2
+    ('ConvTranspose', 128, 64, 16) x 1
+    ('Conv', 128, 128, 3) x 2
+    ('Conv', 192, 96, 1) x 4
+== bn-multi_low.onnx opset [('', 13)] params 19.00M
+ inputs [('input', ['batch_size', 'phonemes']), ('input_lengths', ['batch_size']), ('scales', [3]), ('sid', [1])]
+ meta {'model_type': 'vits', 'comment': 'piper', 'language': 'Bengali', 'voice': 'bn', 'has_espeak': '1', 'n_speakers': '16', 'sample_rate': '22050'}
+ ops {'Constant': 2122, 'Unsqueeze': 374, 'Mul': 349, 'Shape': 331, 'Add': 296, 'Reshape': 235, 'Slice': 235, 'Concat': 227, 'Gather': 202, 'Transpose': 184, 'Sub': 180, 'Cast': 155, 'ConstantOfShape': 148, 'Conv': 135, 'Expand': 90, 'Div': 87, 'ReduceMean': 72, 'Equal': 68, 'Where': 66, 'Pad': 58, 'Range': 39, 'Pow': 39, 'Sqrt': 39, 'ScatterND': 30, 'MatMul': 26}
+    ('Conv', 384, 192, 5) x 16
+    ('Conv', 1536, 512, 1) x 4
+    ('Conv', 768, 192, 3) x 6
+    ('Conv', 192, 768, 3) x 6
+    ('Conv', 192, 192, 1) x 42
+    ('Conv', 384, 192, 1) x 13
+    ('ConvTranspose', 256, 128, 16) x 1
+    ('Conv', 256, 192, 7) x 1
+    ('Conv', 128, 128, 7) x 2
+    ('Conv', 128, 128, 5) x 2
+    ('Conv', 256, 512, 1) x 1
+    ('ConvTranspose', 128, 64, 16) x 1
+== model.onnx opset [('', 15)] params 28.28M
+ inputs [('input', ['batch_size', 'phonemes']), ('input_lengths', ['batch_size']), ('scales', [3])]
+ meta {'model_type': 'vits', 'comment': 'coqui', 'language': 'Bangla', 'frontend': 'characters', 'add_blank': '1', 'blank_id': '3', 'n_speakers': '0', 'use_eos_bos': '0', 'bos_id': '2', 'eos_id': '1', 'pad_id': '0', 'sample_rate': '22050'}
+ ops {'Constant': 2548, 'Unsqueeze': 355, 'Shape': 335, 'Mul': 327, 'Add': 299, 'Slice': 255, 'Reshape': 235, 'Concat': 227, 'Gather': 199, 'Transpose': 186, 'Conv': 183, 'ConstantOfShape': 164, 'Cast': 144, 'Sub': 132, 'Expand': 90, 'Div': 88, 'ReduceMean': 72, 'LeakyRelu': 69, 'Where': 66, 'Equal': 63, 'Pad': 58, 'Pow': 45, 'Range': 39, 'Sqrt': 39, 'ScatterND': 30}
+    ('Conv', 384, 192, 5) x 16
+    ('Conv', 256, 256, 11) x 6
+    ('Conv', 256, 256, 7) x 6
+    ('Conv', 768, 192, 3) x 6
+    ('Conv', 192, 768, 3) x 6
+    ('ConvTranspose', 512, 256, 16) x 1
+    ('Conv', 192, 192, 1) x 42
+    ('Conv', 256, 256, 3) x 6
+    ('Conv', 128, 128, 11) x 6
+    ('Conv', 384, 192, 1) x 13
+    ('Conv', 512, 192, 7) x 1
+    ('Conv', 128, 128, 7) x 6

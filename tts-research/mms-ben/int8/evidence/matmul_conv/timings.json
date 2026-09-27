@@ -1,0 +1,331 @@
+{
+  "model": "D:\\iTantra-tts-models\\mms-ben\\model.int8.matmul_conv.onnx",
+  "sherpa_onnx": "1.13.7",
+  "load_seconds": 1.201,
+  "records": [
+    {
+      "number": 1,
+      "repeat": 1,
+      "language_code": "bn",
+      "text": "নদীর পানি দ্রুত বাড়ছে। নিরাপদ জায়গায় যান।",
+      "codepoints": 44,
+      "oov_codepoints": [
+        "U+0964"
+      ],
+      "wav": "01.wav",
+      "generation_seconds": 9.982,
+      "audio_seconds": 3.43,
+      "rtf": 2.91,
+      "sample_rate": 16000,
+      "samples": 54876
+    },
+    {
+      "number": 2,
+      "repeat": 1,
+      "language_code": "bn",
+      "text": "স্কুলের কাছে আগুন লেগেছে। দূরে থাকুন।",
+      "codepoints": 37,
+      "oov_codepoints": [
+        "U+0964"
+      ],
+      "wav": "02.wav",
+      "generation_seconds": 12.466,
+      "audio_seconds": 2.92,
+      "rtf": 4.269,
+      "sample_rate": 16000,
+      "samples": 46721
+    },
+    {
+      "number": 3,
+      "repeat": 1,
+      "language_code": "bn",
+      "text": "বাজারের পরের বাঁ দিকে ঘুরুন।",
+      "codepoints": 28,
+      "oov_codepoints": [
+        "U+0964"
+      ],
+      "wav": "03.wav",
+      "generation_seconds": 7.425,
+      "audio_seconds": 1.949,
+      "rtf": 3.81,
+      "sample_rate": 16000,
+      "samples": 31178
+    },
+    {
+      "number": 4,
+      "repeat": 1,
+      "language_code": "bn",
+      "text": "পুরোনো সেতু পেরিয়ে হাসপাতালের সামনে থামুন।",
+      "codepoints": 43,
+      "oov_codepoints": [
+        "U+0964"
+      ],
+      "wav": "04.wav",
+      "generation_seconds": 12.022,
+      "audio_seconds": 3.089,
+      "rtf": 3.892,
+      "sample_rate": 16000,
+      "samples": 49422
+    },
+    {
+      "number": 5,
+      "repeat": 1,
+      "language_code": "bn",
+      "text": "দয়া করে গ্রামের উত্তর দিক থেকে একজন চিকিৎসক পাঠান।",
+      "codepoints": 51,
+      "oov_codepoints": [
+        "U+0964"
+      ],
+      "wav": "05.wav",
+      "generation_seconds": 13.195,
+      "audio_seconds": 3.682,
+      "rtf": 3.584,
+      "sample_rate": 16000,
+      "samples": 58910
+    },
+    {
+      "number": 6,
+      "repeat": 1,
+      "language_code": "bn",
+      "text": "তিনজন শিশু মন্দিরে আটকা পড়েছে। সাহায্য করুন।",
+      "codepoints": 45,
+      "oov_codepoints": [
+        "U+0964"
+      ],
+      "wav": "06.wav",
+      "generation_seconds": 14.824,
+      "audio_seconds": 3.78,
+      "rtf": 3.922,
+      "sample_rate": 16000,
+      "samples": 60479
+    },
+    {
+      "number": 7,
+      "repeat": 1,
+      "language_code": "bn",
+      "text": "আজ বিকেলে আমরা বাড়িতে দেখা করব।",
+      "codepoints": 32,
+      "oov_codepoints": [
+        "U+0964"
+      ],
+      "wav": "07.wav",
+      "generation_seconds": 9.171,
+      "audio_seconds": 2.223,
+      "rtf": 4.125,
+      "sample_rate": 16000,
+      "samples": 35574
+    },
+    {
+      "number": 8,
+      "repeat": 1,
+      "language_code": "bn",
+      "text": "আমার ভাই সকালে দোকানে যাবে।",
+      "codepoints": 27,
+      "oov_codepoints": [
+        "U+0964"
+      ],
+      "wav": "08.wav",
+      "generation_seconds": 8.997,
+      "audio_seconds": 2.114,
+      "rtf": 4.256,
+      "sample_rate": 16000,
+      "samples": 33824
+    },
+    {
+      "number": 9,
+      "repeat": 1,
+      "language_code": "bn",
+      "text": "ওষুধের জন্য ১২টি বাক্স নিয়ে আসুন।",
+      "codepoints": 34,
+      "oov_codepoints": [
+        "U+0964",
+        "U+09E7",
+        "U+09E8"
+      ],
+      "wav": "09.wav",
+      "generation_seconds": 9.372,
+      "audio_seconds": 2.477,
+      "rtf": 3.784,
+      "sample_rate": 16000,
+      "samples": 39629
+    },
+    {
+      "number": 10,
+      "repeat": 1,
+      "language_code": "bn",
+      "text": "কলকাতার রবীন্দ্র সড়কে আমার সঙ্গে দেখা করুন।",
+      "codepoints": 44,
+      "oov_codepoints": [
+        "U+0964"
+      ],
+      "wav": "10.wav",
+      "generation_seconds": 11.52,
+      "audio_seconds": 3.071,
+      "rtf": 3.751,
+      "sample_rate": 16000,
+      "samples": 49140
+    },
+    {
+      "number": 1,
+      "repeat": 2,
+      "language_code": "bn",
+      "text": "নদীর পানি দ্রুত বাড়ছে। নিরাপদ জায়গায় যান।",
+      "codepoints": 44,
+      "oov_codepoints": [
+        "U+0964"
+      ],
+      "wav": "01_r2.wav",
+      "generation_seconds": 11.582,
+      "audio_seconds": 3.21,
+      "rtf": 3.608,
+      "sample_rate": 16000,
+      "samples": 51364
+    },
+    {
+      "number": 2,
+      "repeat": 2,
+      "language_code": "bn",
+      "text": "স্কুলের কাছে আগুন লেগেছে। দূরে থাকুন।",
+      "codepoints": 37,
+      "oov_codepoints": [
+        "U+0964"
+      ],
+      "wav": "02_r2.wav",
+      "generation_seconds": 12.516,
+      "audio_seconds": 3.146,
+      "rtf": 3.979,
+      "sample_rate": 16000,
+      "samples": 50330
+    },
+    {
+      "number": 3,
+      "repeat": 2,
+      "language_code": "bn",
+      "text": "বাজারের পরের বাঁ দিকে ঘুরুন।",
+      "codepoints": 28,
+      "oov_codepoints": [
+        "U+0964"
+      ],
+      "wav": "03_r2.wav",
+      "generation_seconds": 6.415,
+      "audio_seconds": 1.876,
+      "rtf": 3.42,
+      "sample_rate": 16000,
+      "samples": 30011
+    },
+    {
+      "number": 4,
+      "repeat": 2,
+      "language_code": "bn",
+      "text": "পুরোনো সেতু পেরিয়ে হাসপাতালের সামনে থামুন।",
+      "codepoints": 43,
+      "oov_codepoints": [
+        "U+0964"
+      ],
+      "wav": "04_r2.wav",
+      "generation_seconds": 12.264,
+      "audio_seconds": 3.22,
+      "rtf": 3.808,
+      "sample_rate": 16000,
+      "samples": 51527
+    },
+    {
+      "number": 5,
+      "repeat": 2,
+      "language_code": "bn",
+      "text": "দয়া করে গ্রামের উত্তর দিক থেকে একজন চিকিৎসক পাঠান।",
+      "codepoints": 51,
+      "oov_codepoints": [
+        "U+0964"
+      ],
+      "wav": "05_r2.wav",
+      "generation_seconds": 12.344,
+      "audio_seconds": 3.451,
+      "rtf": 3.577,
+      "sample_rate": 16000,
+      "samples": 55212
+    },
+    {
+      "number": 6,
+      "repeat": 2,
+      "language_code": "bn",
+      "text": "তিনজন শিশু মন্দিরে আটকা পড়েছে। সাহায্য করুন।",
+      "codepoints": 45,
+      "oov_codepoints": [
+        "U+0964"
+      ],
+      "wav": "06_r2.wav",
+      "generation_seconds": 15.121,
+      "audio_seconds": 3.801,
+      "rtf": 3.979,
+      "sample_rate": 16000,
+      "samples": 60811
+    },
+    {
+      "number": 7,
+      "repeat": 2,
+      "language_code": "bn",
+      "text": "আজ বিকেলে আমরা বাড়িতে দেখা করব।",
+      "codepoints": 32,
+      "oov_codepoints": [
+        "U+0964"
+      ],
+      "wav": "07_r2.wav",
+      "generation_seconds": 9.468,
+      "audio_seconds": 2.356,
+      "rtf": 4.019,
+      "sample_rate": 16000,
+      "samples": 37690
+    },
+    {
+      "number": 8,
+      "repeat": 2,
+      "language_code": "bn",
+      "text": "আমার ভাই সকালে দোকানে যাবে।",
+      "codepoints": 27,
+      "oov_codepoints": [
+        "U+0964"
+      ],
+      "wav": "08_r2.wav",
+      "generation_seconds": 9.644,
+      "audio_seconds": 2.165,
+      "rtf": 4.454,
+      "sample_rate": 16000,
+      "samples": 34640
+    },
+    {
+      "number": 9,
+      "repeat": 2,
+      "language_code": "bn",
+      "text": "ওষুধের জন্য ১২টি বাক্স নিয়ে আসুন।",
+      "codepoints": 34,
+      "oov_codepoints": [
+        "U+0964",
+        "U+09E7",
+        "U+09E8"
+      ],
+      "wav": "09_r2.wav",
+      "generation_seconds": 9.212,
+      "audio_seconds": 2.37,
+      "rtf": 3.887,
+      "sample_rate": 16000,
+      "samples": 37919
+    },
+    {
+      "number": 10,
+      "repeat": 2,
+      "language_code": "bn",
+      "text": "কলকাতার রবীন্দ্র সড়কে আমার সঙ্গে দেখা করুন।",
+      "codepoints": 44,
+      "oov_codepoints": [
+        "U+0964"
+      ],
+      "wav": "10_r2.wav",
+      "generation_seconds": 11.335,
+      "audio_seconds": 3.035,
+      "rtf": 3.735,
+      "sample_rate": 16000,
+      "samples": 48554
+    }
+  ]
+}

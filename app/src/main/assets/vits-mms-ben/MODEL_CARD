@@ -1,0 +1,10 @@
+# Model card for mms-tts-ben (Bengali)
+
+* Source: https://huggingface.co/facebook/mms-tts (models/ben), Meta Massively Multilingual Speech (MMS)
+* License: CC BY-NC 4.0 (non-commercial) - https://creativecommons.org/licenses/by-nc/4.0/
+* Attribution: Meta MMS-TTS (facebook/mms-tts, ben), converted to ONNX for sherpa-onnx (character frontend, no espeak).
+* Language: ben (Bengali), 1 speaker, sample rate 16,000 Hz
+* Converted with sherpa-onnx's documented vits-mms.py; the HiFi-GAN decoder was then converted to fp16
+  (tts-research/mms-ben/speed/mms_decoder_fp16.py; encoder, duration predictor and flow stay fp32). Quality UNVERIFIED.
+* Text normalisation in the app (BengaliTextNormalizer): digits -> Bengali number words (AI4Bharat
+  indic-numtowords 1.1.0 data, MIT), Unicode NFC. The danda is not in the vocabulary and is dropped.

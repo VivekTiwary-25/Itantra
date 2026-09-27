@@ -1,5 +1,12 @@
 # SESSION_HANDOFF.md — iTantra integrated TTS recovery
 
+## TTS desktop research transfer
+
+For `codex/tts-research-handoff`, resume from `tts-research/HANDOFF.md` and
+its scoped `AGENTS.md`. That snapshot includes RUN 1 and the later ta/te/or
+frontend repairs. The engineering history below remains baseline context.
+No new-language phone acceptance is established by desktop research files.
+
 Updated on 2026-09-11 after refreshing `origin` and confirming the integrated source line. This is a resume snapshot, not a replacement for the domain-specific sources listed below.
 
 ## Source precedence

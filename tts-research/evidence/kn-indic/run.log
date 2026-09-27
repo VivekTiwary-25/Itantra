@@ -1,0 +1,124 @@
+ > Using model: fast_pitch
+ > Setting up Audio Processor...
+ | > sample_rate:22050
+ | > resample:False
+ | > num_mels:80
+ | > log_func:np.log
+ | > min_level_db:-100
+ | > frame_shift_ms:None
+ | > frame_length_ms:None
+ | > ref_level_db:20
+ | > fft_size:1024
+ | > power:1.5
+ | > preemphasis:0.0
+ | > griffin_lim_iters:60
+ | > signal_norm:False
+ | > symmetric_norm:True
+ | > mel_fmin:0
+ | > mel_fmax:8000.0
+ | > pitch_fmin:0.0
+ | > pitch_fmax:640.0
+ | > spec_gain:1.0
+ | > stft_pad_mode:reflect
+ | > max_norm:4.0
+ | > clip_norm:True
+ | > do_trim_silence:True
+ | > trim_db:60
+ | > do_sound_norm:False
+ | > do_amp_to_db_linear:True
+ | > do_amp_to_db_mel:True
+ | > do_rms_norm:False
+ | > db_level:None
+ | > stats_path:None
+ | > base:2.718281828459045
+ | > hop_length:256
+ | > win_length:1024
+ > Init speaker_embedding layer.
+ > Vocoder Model: hifigan
+ > Setting up Audio Processor...
+ | > sample_rate:22050
+ | > resample:False
+ | > num_mels:80
+ | > log_func:np.log
+ | > min_level_db:-100
+ | > frame_shift_ms:None
+ | > frame_length_ms:None
+ | > ref_level_db:20
+ | > fft_size:1024
+ | > power:1.5
+ | > preemphasis:0.0
+ | > griffin_lim_iters:60
+ | > signal_norm:False
+ | > symmetric_norm:True
+ | > mel_fmin:0
+ | > mel_fmax:8000.0
+ | > pitch_fmin:0.0
+ | > pitch_fmax:640.0
+ | > spec_gain:1.0
+ | > stft_pad_mode:reflect
+ | > max_norm:4.0
+ | > clip_norm:True
+ | > do_trim_silence:True
+ | > trim_db:60
+ | > do_sound_norm:False
+ | > do_amp_to_db_linear:True
+ | > do_amp_to_db_mel:True
+ | > do_rms_norm:False
+ | > db_level:None
+ | > stats_path:None
+ | > base:2.718281828459045
+ | > hop_length:256
+ | > win_length:1024
+ > Generator Model: hifigan_generator
+ > Discriminator Model: hifigan_discriminator
+Removing weight norm...
+ > Text splitted to sentences.
+['ನದಿಯ ನೀರು ವೇಗವಾಗಿ ಏರುತ್ತಿದೆ.', 'ಸುರಕ್ಷಿತ ಸ್ಥಳಕ್ಕೆ ಹೋಗಿ.']
+ > Processing time: 2.0468146800994873
+ > Real-time factor: 0.34492131095770434
+{"number": 1, "language_code": "kn", "text": "ನದಿಯ ನೀರು ವೇಗವಾಗಿ ಏರುತ್ತಿದೆ. ಸುರಕ್ಷಿತ ಸ್ಥಳಕ್ಕೆ ಹೋಗಿ.", "wav": "/mnt/d/iTantra-tts-kn-indic/local-recordings/kn-indic/01.wav", "generation_seconds": 2.047, "audio_seconds": 5.934, "sample_rate": 22050}
+ > Text splitted to sentences.
+['ಶಾಲೆಯ ಬಳಿ ಬೆಂಕಿ ಕಾಣಿಸಿಕೊಂಡಿದೆ.', 'ದೂರವಿರಿ.']
+ > Processing time: 1.6857328414916992
+ > Real-time factor: 0.33914606893149607
+{"number": 2, "language_code": "kn", "text": "ಶಾಲೆಯ ಬಳಿ ಬೆಂಕಿ ಕಾಣಿಸಿಕೊಂಡಿದೆ. ದೂರವಿರಿ.", "wav": "/mnt/d/iTantra-tts-kn-indic/local-recordings/kn-indic/02.wav", "generation_seconds": 1.687, "audio_seconds": 4.971, "sample_rate": 22050}
+ > Text splitted to sentences.
+['ಮಾರುಕಟ್ಟೆಯ ನಂತರ ಎಡಕ್ಕೆ ತಿರುಗಿ.']
+ > Processing time: 1.18886137008667
+ > Real-time factor: 0.3367727801954146
+{"number": 3, "language_code": "kn", "text": "ಮಾರುಕಟ್ಟೆಯ ನಂತರ ಎಡಕ್ಕೆ ತಿರುಗಿ.", "wav": "/mnt/d/iTantra-tts-kn-indic/local-recordings/kn-indic/03.wav", "generation_seconds": 1.19, "audio_seconds": 3.53, "sample_rate": 22050}
+ > Text splitted to sentences.
+['ಹಳೆಯ ಸೇತುವೆ ದಾಟಿ ಆಸ್ಪತ್ರೆಯ ಮುಂದೆ ನಿಲ್ಲಿ.']
+ > Processing time: 1.5285615921020508
+ > Real-time factor: 0.3510329851884084
+{"number": 4, "language_code": "kn", "text": "ಹಳೆಯ ಸೇತುವೆ ದಾಟಿ ಆಸ್ಪತ್ರೆಯ ಮುಂದೆ ನಿಲ್ಲಿ.", "wav": "/mnt/d/iTantra-tts-kn-indic/local-recordings/kn-indic/04.wav", "generation_seconds": 1.53, "audio_seconds": 4.354, "sample_rate": 22050}
+ > Text splitted to sentences.
+['ದಯವಿಟ್ಟು ಗ್ರಾಮದ ಉತ್ತರ ಭಾಗಕ್ಕೆ ವೈದ್ಯರನ್ನು ಕಳುಹಿಸಿ.']
+ > Processing time: 1.8889005184173584
+ > Real-time factor: 0.3663815660723324
+{"number": 5, "language_code": "kn", "text": "ದಯವಿಟ್ಟು ಗ್ರಾಮದ ಉತ್ತರ ಭಾಗಕ್ಕೆ ವೈದ್ಯರನ್ನು ಕಳುಹಿಸಿ.", "wav": "/mnt/d/iTantra-tts-kn-indic/local-recordings/kn-indic/05.wav", "generation_seconds": 1.891, "audio_seconds": 5.156, "sample_rate": 22050}
+ > Text splitted to sentences.
+['ಮೂರು ಮಕ್ಕಳು ದೇವಾಲಯದಲ್ಲಿ ಸಿಲುಕಿದ್ದಾರೆ.', 'ಸಹಾಯ ಮಾಡಿ.']
+ > Processing time: 1.821676254272461
+ > Real-time factor: 0.3175433326485246
+{"number": 6, "language_code": "kn", "text": "ಮೂರು ಮಕ್ಕಳು ದೇವಾಲಯದಲ್ಲಿ ಸಿಲುಕಿದ್ದಾರೆ. ಸಹಾಯ ಮಾಡಿ.", "wav": "/mnt/d/iTantra-tts-kn-indic/local-recordings/kn-indic/06.wav", "generation_seconds": 1.822, "audio_seconds": 5.737, "sample_rate": 22050}
+ > Text splitted to sentences.
+['ಇಂದು ಸಂಜೆ ನಾವು ಮನೆಯಲ್ಲಿ ಭೇಟಿಯಾಗೋಣ.']
+ > Processing time: 1.4045805931091309
+ > Real-time factor: 0.3378753063149801
+{"number": 7, "language_code": "kn", "text": "ಇಂದು ಸಂಜೆ ನಾವು ಮನೆಯಲ್ಲಿ ಭೇಟಿಯಾಗೋಣ.", "wav": "/mnt/d/iTantra-tts-kn-indic/local-recordings/kn-indic/07.wav", "generation_seconds": 1.405, "audio_seconds": 4.157, "sample_rate": 22050}
+ > Text splitted to sentences.
+['ನನ್ನ ಸಹೋದರ ಬೆಳಿಗ್ಗೆ ಅಂಗಡಿಗೆ ಹೋಗುತ್ತಾನೆ.']
+ > Processing time: 1.3823375701904297
+ > Real-time factor: 0.33159860120429696
+{"number": 8, "language_code": "kn", "text": "ನನ್ನ ಸಹೋದರ ಬೆಳಿಗ್ಗೆ ಅಂಗಡಿಗೆ ಹೋಗುತ್ತಾನೆ.", "wav": "/mnt/d/iTantra-tts-kn-indic/local-recordings/kn-indic/08.wav", "generation_seconds": 1.383, "audio_seconds": 4.169, "sample_rate": 22050}
+ > Text splitted to sentences.
+['ಔಷಧಿಗಾಗಿ ೧೨ ಪೆಟ್ಟಿಗೆಗಳನ್ನು ತಂದುಕೊಡಿ.']
+ > Processing time: 1.2488808631896973
+ > Real-time factor: 0.32008814200916896
+{"number": 9, "language_code": "kn", "text": "ಔಷಧಿಗಾಗಿ ೧೨ ಪೆಟ್ಟಿಗೆಗಳನ್ನು ತಂದುಕೊಡಿ.", "wav": "/mnt/d/iTantra-tts-kn-indic/local-recordings/kn-indic/09.wav", "generation_seconds": 1.249, "audio_seconds": 3.902, "sample_rate": 22050}
+ > Text splitted to sentences.
+['ಬೆಂಗಳೂರಿನ ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆಯಲ್ಲಿ ನನ್ನನ್ನು ಭೇಟಿ ಮಾಡಿ.']
+ > Processing time: 1.830549955368042
+ > Real-time factor: 0.33976116595846234
+{"number": 10, "language_code": "kn", "text": "ಬೆಂಗಳೂರಿನ ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆಯಲ್ಲಿ ನನ್ನನ್ನು ಭೇಟಿ ಮಾಡಿ.", "wav": "/mnt/d/iTantra-tts-kn-indic/local-recordings/kn-indic/10.wav", "generation_seconds": 1.831, "audio_seconds": 5.388, "sample_rate": 22050}

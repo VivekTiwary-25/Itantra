@@ -1,6 +1,10 @@
 ﻿param(
     [string]$RepoRoot = (Get-Location).Path,
-    [switch]$Force
+    [switch]$Force,
+    # Bengali (Meta MMS-TTS, CC BY-NC 4.0) has no official prebuilt sherpa-onnx package. Point this at the
+    # locally converted model with its decoder in fp16 (tts-research/mms-ben/MMS_BN_CONVERSION.md, then
+    # tts-research/mms-ben/speed/SPEED_REPORT.md); it is hash-checked.
+    [string]$MmsBengaliModel = ""
 )
 
 Set-StrictMode -Version Latest
@@ -275,10 +279,12 @@ Run this script from the ROOT of the iTantra repository, or pass:
 
     $RyanDir = Join-Path $Assets "vits-piper-en_US-ryan-medium"
     $PrathamDir = Join-Path $Assets "vits-piper-hi_IN-pratham-medium"
+    $ArjunDir = Join-Path $Assets "vits-piper-ml_IN-arjun-medium"
 
     Assert-TtsSupport $RyanDir "en_US-ryan-medium"
     Assert-TtsSupport $PrathamDir "hi_IN-pratham-medium"
-    Write-Ok "Existing Ryan + Pratham TTS support files found."
+    Assert-TtsSupport $ArjunDir "ml_IN-arjun-medium"
+    Write-Ok "Existing Ryan + Pratham + Arjun TTS support files found."
 
     # TLS 1.2 helps older Windows PowerShell installations.
     try {
@@ -327,7 +333,7 @@ Run this script from the ROOT of the iTantra repository, or pass:
             -Sha256 $m.Sha
     }
 
-    Write-Step "Downloading + extracting Dolphin STT and 2 Piper TTS models"
+    Write-Step "Downloading + extracting Dolphin STT and 3 Piper TTS models"
 
     $tempRoot = Join-Path ([IO.Path]::GetTempPath()) ("itantra-models-" + [Guid]::NewGuid().ToString("N"))
     New-Item -ItemType Directory -Force -Path $tempRoot | Out-Null
@@ -361,12 +367,42 @@ Run this script from the ROOT of the iTantra repository, or pass:
             -DestinationDir $PrathamDir `
             -Label "Piper Hindi Pratham medium" `
             -TempRoot $tempRoot
+
+        Install-ModelFromArchive `
+            -Url "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-piper-ml_IN-arjun-medium.tar.bz2" `
+            -ArchiveName "vits-piper-ml_IN-arjun-medium.tar.bz2" `
+            -ExpectedFolder "vits-piper-ml_IN-arjun-medium" `
+            -OnnxName "ml_IN-arjun-medium.onnx" `
+            -DestinationDir $ArjunDir `
+            -Label "Piper Malayalam Arjun medium" `
+            -TempRoot $tempRoot `
+            -ArchiveSha256 "3058d098e8b1ffcdd6069e96b1d492f319333235912a627c309c7c54cea59acf" `
+            -OnnxSha256 "33c97f81a1d326e0c524e321940dacf3ac1b48b6b5c486a6afa8bff245695cf7"
     }
     finally {
         if (Test-Path -LiteralPath $tempRoot) {
             Write-Host "[CLEAN] Removing temporary archives/extraction files..."
             Remove-Item -LiteralPath $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
         }
+    }
+
+    Write-Step "Bengali MMS TTS (optional)"
+    $MmsBnDir = Join-Path $Assets "vits-mms-ben"
+    $MmsBnDest = Join-Path $MmsBnDir "model.onnx"
+    # fp16-decoder model derived from the fp32 export f8f7bf4f...4e71 by speed/mms_decoder_fp16.py.
+    $MmsBnSha = "8a819bba1b0c424842b71f89d36987e278dde7e4e564e94af0b90a782a2fb90e"
+    if (-not (Test-Path -LiteralPath $MmsBnDest -PathType Leaf) -or $Force) {
+        if ($MmsBengaliModel -and (Test-Path -LiteralPath $MmsBengaliModel -PathType Leaf)) {
+            Assert-Sha256 $MmsBengaliModel $MmsBnSha "Bengali MMS model.onnx"
+            Copy-Item -LiteralPath $MmsBengaliModel -Destination $MmsBnDest -Force
+        }
+        else {
+            Write-Warn "Bengali MMS model.onnx not installed. Convert it (tts-research/mms-ben/MMS_BN_CONVERSION.md), derive the fp16-decoder model (tts-research/mms-ben/speed/SPEED_REPORT.md) and rerun with -MmsBengaliModel <path>. Bengali TTS is skipped until then."
+        }
+    }
+    if (Test-Path -LiteralPath $MmsBnDest -PathType Leaf) {
+        Assert-Sha256 $MmsBnDest $MmsBnSha "Bengali MMS model.onnx"
+        Write-Ok "Bengali MMS TTS present and verified."
     }
 
     Write-Step "Final verification"
@@ -378,7 +414,8 @@ Run this script from the ROOT of the iTantra repository, or pass:
         @{ Label = "base decoder";    Path = (Join-Path $Assets "base-decoder.int8.onnx");    Min = 120MB; Sha = "9759d217388a01b3a4c7c15533201067b48ae819c4daafc8624e64b9409dc02d" },
         @{ Label = "Dolphin STT";      Path = (Join-Path $DolphinDir "model.int8.onnx");       Min = 50MB; Sha = "a3aa46c97f3f60f135ff949793cb05fabe7a0b3c484dc2e3cc699d354ee11b76" },
         @{ Label = "Ryan TTS";        Path = (Join-Path $RyanDir "en_US-ryan-medium.onnx");   Min = 50MB; Sha = "" },
-        @{ Label = "Pratham TTS";     Path = (Join-Path $PrathamDir "hi_IN-pratham-medium.onnx"); Min = 50MB; Sha = "" }
+        @{ Label = "Pratham TTS";     Path = (Join-Path $PrathamDir "hi_IN-pratham-medium.onnx"); Min = 50MB; Sha = "" },
+        @{ Label = "Arjun TTS (ml)";  Path = (Join-Path $ArjunDir "ml_IN-arjun-medium.onnx"); Min = 50MB; Sha = "33c97f81a1d326e0c524e321940dacf3ac1b48b6b5c486a6afa8bff245695cf7" }
     )
 
     foreach ($m in $final) {
@@ -391,7 +428,7 @@ Run this script from the ROOT of the iTantra repository, or pass:
 
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Green
-    Write-Host " ALL 7 MODEL FILES ARE READY" -ForegroundColor Green
+    Write-Host " ALL 8 MODEL FILES ARE READY" -ForegroundColor Green
     Write-Host "============================================================" -ForegroundColor Green
     Write-Host ""
     Write-Host "STT:"
@@ -404,6 +441,7 @@ Run this script from the ROOT of the iTantra repository, or pass:
     Write-Host "TTS:"
     Write-Host "  app/src/main/assets/vits-piper-en_US-ryan-medium/en_US-ryan-medium.onnx"
     Write-Host "  app/src/main/assets/vits-piper-hi_IN-pratham-medium/hi_IN-pratham-medium.onnx"
+    Write-Host "  app/src/main/assets/vits-piper-ml_IN-arjun-medium/ml_IN-arjun-medium.onnx"
     Write-Host ""
     Write-Host "Model setup complete."
 }

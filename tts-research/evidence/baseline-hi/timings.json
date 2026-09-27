@@ -1,0 +1,16 @@
+{
+  "model": "D:\\iTantra-tts-ml\\app\\src\\main\\assets\\vits-piper-hi_IN-pratham-medium\\hi_IN-pratham-medium.onnx",
+  "load_seconds": 1.205,
+  "records": [
+    {
+      "number": 1,
+      "language_code": "hi",
+      "text": "यह एक परीक्षण संदेश है।",
+      "wav": "D:\\iTantra-tts-ml\\local-recordings\\baseline-hi\\01.wav",
+      "generation_seconds": 0.178,
+      "audio_seconds": 1.905,
+      "sample_rate": 22050,
+      "samples": 41998
+    }
+  ]
+}

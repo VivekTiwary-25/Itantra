@@ -1,5 +1,13 @@
 # AGENTS.md — iTantra
 
+## TTS research transfer branch
+
+On `codex/tts-research-handoff`, read `tts-research/AGENTS.md` and
+`tts-research/HANDOFF.md` first. They route the existing desktop TTS experiments,
+latest frontend repairs, evidence, and cross-device setup. Root TASK's Dolphin
+resume point below is separate STT work. This branch preserves the unchanged
+English/Hindi app baseline; it does not claim new language phone acceptance.
+
 Before starting any work in this repo, read `docs/SESSION_HANDOFF.md` in full for project context and current state.
 
 ## Purpose

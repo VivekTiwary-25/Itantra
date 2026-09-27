@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Debug builds only: a launcher entry for the Batch-1 networking diagnostic screen. -->
+<!-- Debug builds only: a launcher entry for the Batch-1 networking diagnostic screen,
+     plus TTS debug receivers for adb-driven synthesis testing. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <application>
@@ -18,5 +19,14 @@
             android:name=".debug.ValidationReceiver"
             android:exported="true"
             android:permission="android.permission.DUMP" />
+
+        <!-- Debug-only: lets adb drive TtsHelper with UTF-8 text (adb cannot type Malayalam). -->
+        <receiver
+            android:name="com.chmod777.itantra.DebugTtsReceiver"
+            android:exported="true" />
+        <!-- Debug-only: times sherpa-onnx generate() on pushed candidate models (no playback). -->
+        <receiver
+            android:name="com.chmod777.itantra.DebugTtsBenchReceiver"
+            android:exported="true" />
     </application>
 </manifest>

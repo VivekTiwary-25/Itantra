@@ -21,3 +21,9 @@ local.properties
 *.bin
 app/src/main/assets/models/
 local-recordings/
+
+# TTS desktop tooling and environments
+__pycache__/
+*.py[cod]
+.venv*/
+tts-research/new-runs/

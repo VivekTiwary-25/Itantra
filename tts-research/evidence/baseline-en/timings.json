@@ -1,0 +1,16 @@
+{
+  "model": "D:\\iTantra-tts-ml\\app\\src\\main\\assets\\vits-piper-en_US-ryan-medium\\en_US-ryan-medium.onnx",
+  "load_seconds": 1.174,
+  "records": [
+    {
+      "number": 1,
+      "language_code": "en",
+      "text": "This is a baseline voice check.",
+      "wav": "D:\\iTantra-tts-ml\\local-recordings\\baseline-en\\01.wav",
+      "generation_seconds": 0.165,
+      "audio_seconds": 1.672,
+      "sample_rate": 22050,
+      "samples": 36864
+    }
+  ]
+}
