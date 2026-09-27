@@ -40,6 +40,12 @@ class TtsHelper(private val context: Context) {
         "bn" to Voice(
             "vits-mms-ben", "model.onnx", usesEspeak = false, numThreads = 4,
             normalize = BengaliTextNormalizer::normalize
+        ),
+        // model.onnx is the MMS guj export with its HiFi-GAN decoder in fp16, same recipe as bn
+        // (tts-research/mms-guj); length parity vs fp32 verified on 10 deterministic sentences.
+        "gu" to Voice(
+            "vits-mms-guj", "model.onnx", usesEspeak = false, numThreads = 4,
+            normalize = GujaratiTextNormalizer::normalize
         )
     )
 
