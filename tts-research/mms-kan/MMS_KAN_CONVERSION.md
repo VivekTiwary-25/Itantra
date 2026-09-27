@@ -105,6 +105,15 @@ sentences as the fp32 probe, `tools/compare_fp32_fp16.py`, results in `speed/fp3
 this was verified independently for Kannada, not assumed from the Bengali result. The fp16-decoder model is
 shipped as the app asset (`app/src/main/assets/vits-mms-kan/model.onnx`, same file name convention as Bengali).
 
+This draft input file (`evidence/kn_input.txt`) was written before this worktree noticed the batch's own shared
+benchmark file at `tts-research/inputs/kn.txt` (10 sentences, same flood/fire/hospital/village-doctor theme,
+independently drafted but thematically convergent -- reassuring cross-check). All checks were re-run against
+that canonical file too, since it is what the foreman's phone benchmark will actually speak:
+`evidence/kn_canonical_input.txt` (LF-normalized copy), `evidence/kn_canonical_input_normalized.txt` (after
+`KannadaTextNormalizer`, e.g. line 9's "೧೨" -> "ಹನ್ನೆರಡು"), `speed/fp32_vs_fp16_canonical_det.json`
+(**10/10 length-matched, SNR 66.4-70.0 dB, PASS**), and `evidence/shipped_fp16_canonical_normalized/` (the
+listening pack against the canonical text, all 10 sentences non-silent, 3.4-5.7 s, only `.` dropped).
+
 ## Shipped derivative (2026-09-27)
 The app asset is the fp16-decoder model, not the fp32 export. Digits (native and ASCII) are normalised in the
 app (`KannadaTextNormalizer`); punctuation (all of it, not just the danda) is still dropped -- no listener
