@@ -1,0 +1,18 @@
+fp32 vs decoder-fp16 length parity, deterministic (noise_scale=0, noise_scale_w=0, length_scale=1, silence_scale=1),
+sherpa-onnx 1.13.7, D:/iTantra-tts-models/mms-ory/compare_fp32_fp16.py, evidence/or_input.txt (10 draft sentences).
+
+#     len32   len16  match    rms32    rms16
+1     56276   56276   True   0.1377   0.1377
+2     43420   43420   True   0.1910   0.1910
+3     34349   34349   True   0.1520   0.1520
+4     59940   59940   True   0.1292   0.1292
+5     52257   52257   True   0.1581   0.1582
+6     54318   54318   True   0.1864   0.1864
+7     30988   30988   True   0.1474   0.1474
+8     29544   29544   True   0.1328   0.1328
+9     24330   24330   True   0.1717   0.1717
+10    45224   45224   True   0.1535   0.1535
+ALL LENGTHS MATCH
+
+10/10 sample counts identical; RMS differs only in the 4th decimal on one line (line 5: 0.1581 vs 0.1582).
+Decision: decoder-only fp16 accepted as an Odia candidate (mirrors the Bengali outcome; not assumed).
