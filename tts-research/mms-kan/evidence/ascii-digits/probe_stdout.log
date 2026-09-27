@@ -1,0 +1,2 @@
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+[01] dur=3.33s synth=6.66s missing=['.']

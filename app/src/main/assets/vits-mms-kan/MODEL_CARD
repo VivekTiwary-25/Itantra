@@ -1,0 +1,13 @@
+# Model card for mms-tts-kan (Kannada)
+
+* Source: https://huggingface.co/facebook/mms-tts (models/kan), Meta Massively Multilingual Speech (MMS)
+* License: CC BY-NC 4.0 (non-commercial) - https://creativecommons.org/licenses/by-nc/4.0/
+* Attribution: Meta MMS-TTS (facebook/mms-tts, kan), converted to ONNX for sherpa-onnx (character frontend, no espeak).
+* Language: kan (Kannada), 1 speaker, sample rate 16,000 Hz
+* Converted with sherpa-onnx's documented vits-mms.py; the HiFi-GAN decoder was then converted to fp16
+  (tts-research/mms-kan/MMS_KAN_CONVERSION.md; deterministic fp32-vs-fp16 comparison: 10/10 sentences
+  length-matched, SNR 63.0-69.8 dB). Quality UNVERIFIED by a listener.
+* Text normalisation in the app (KannadaTextNormalizer): digits -> Kannada number words (AI4Bharat
+  indic-numtowords 1.1.0 data for 0-99 and standalone hundreds, MIT; NOT the package's hundred+ten fusion,
+  which is measurably broken for 7 of 9 tens values per hundred -- see tts-research/mms-kan/MMS_KAN_CONVERSION.md),
+  then Unicode NFC. The vocabulary has no punctuation at all (not even a period), which is dropped.

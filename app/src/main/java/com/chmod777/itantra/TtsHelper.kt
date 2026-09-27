@@ -66,6 +66,14 @@ class TtsHelper(private val context: Context) {
         "te" to Voice(
             "vits-mms-tel", "model.onnx", usesEspeak = false, numThreads = 4,
             normalize = TeluguTextNormalizer::normalize
+        ),
+        // model.onnx is the MMS export with its HiFi-GAN decoder in fp16 (tts-research/mms-kan/speed);
+        // length parity vs fp32 verified on 10 deterministic sentences before shipping (see report).
+        // Shipped candidate is the canonical-normalized variant (tested against the shared cross-worker
+        // benchmark tts-research/inputs/kn.txt) per MMS_KAN_CONVERSION.md "Shipped derivative".
+        "kn" to Voice(
+            "vits-mms-kan", "model.onnx", usesEspeak = false, numThreads = 4,
+            normalize = KannadaTextNormalizer::normalize
         )
     )
 
