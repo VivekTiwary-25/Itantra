@@ -1,0 +1,25 @@
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+[01] dur=5.22s synth=6.81s missing=['.', '.']
+[02] dur=4.55s synth=7.57s missing=['.', '.']
+[03] dur=3.54s synth=4.46s missing=['.']
+[04] dur=4.42s synth=6.64s missing=['.']
+[05] dur=5.72s synth=6.61s missing=['.']
+[06] dur=5.59s synth=7.32s missing=['.', '.']
+[07] dur=3.73s synth=5.09s missing=['.']
+[08] dur=3.54s synth=4.88s missing=['.']
+[09] dur=4.27s synth=5.41s missing=['.']
+[10] dur=4.73s synth=6.93s missing=['.', '.', '.']

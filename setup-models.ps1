@@ -4,7 +4,9 @@
     # Bengali (Meta MMS-TTS, CC BY-NC 4.0) has no official prebuilt sherpa-onnx package. Point this at the
     # locally converted model with its decoder in fp16 (tts-research/mms-ben/MMS_BN_CONVERSION.md, then
     # tts-research/mms-ben/speed/SPEED_REPORT.md); it is hash-checked.
-    [string]$MmsBengaliModel = ""
+    [string]$MmsBengaliModel = "",
+    # Kannada (Meta MMS-TTS, CC BY-NC 4.0), same situation as Bengali. See tts-research/mms-kan/.
+    [string]$MmsKannadaModel = ""
 )
 
 Set-StrictMode -Version Latest
@@ -403,6 +405,25 @@ Run this script from the ROOT of the iTantra repository, or pass:
     if (Test-Path -LiteralPath $MmsBnDest -PathType Leaf) {
         Assert-Sha256 $MmsBnDest $MmsBnSha "Bengali MMS model.onnx"
         Write-Ok "Bengali MMS TTS present and verified."
+    }
+
+    Write-Step "Kannada MMS TTS (optional)"
+    $MmsKnDir = Join-Path $Assets "vits-mms-kan"
+    $MmsKnDest = Join-Path $MmsKnDir "model.onnx"
+    # fp16-decoder model derived from the fp32 export e299a92e...4f by mms_decoder_fp16.py (tts-research/mms-kan).
+    $MmsKnSha = "e38700a8ff860fc1371526d555dbdd06ab7d91c4e4cfa297dfb96cdfcb4cd492"
+    if (-not (Test-Path -LiteralPath $MmsKnDest -PathType Leaf) -or $Force) {
+        if ($MmsKannadaModel -and (Test-Path -LiteralPath $MmsKannadaModel -PathType Leaf)) {
+            Assert-Sha256 $MmsKannadaModel $MmsKnSha "Kannada MMS model.onnx"
+            Copy-Item -LiteralPath $MmsKannadaModel -Destination $MmsKnDest -Force
+        }
+        else {
+            Write-Warn "Kannada MMS model.onnx not installed. Convert it (tts-research/mms-kan/MMS_KAN_CONVERSION.md), derive the fp16-decoder model and rerun with -MmsKannadaModel <path>. Kannada TTS is skipped until then."
+        }
+    }
+    if (Test-Path -LiteralPath $MmsKnDest -PathType Leaf) {
+        Assert-Sha256 $MmsKnDest $MmsKnSha "Kannada MMS model.onnx"
+        Write-Ok "Kannada MMS TTS present and verified."
     }
 
     Write-Step "Final verification"
