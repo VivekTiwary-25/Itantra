@@ -1,0 +1,12 @@
+# Model card for mms-tts-tel (Telugu)
+
+* Source: https://huggingface.co/facebook/mms-tts (models/tel), Meta Massively Multilingual Speech (MMS), repo sha `44cc7fb408064ef9ea6e7c59130d88cac1274671` (same commit used for the Bengali voice).
+* License: CC BY-NC 4.0 (non-commercial) - https://creativecommons.org/licenses/by-nc/4.0/
+* Attribution: Meta MMS-TTS (facebook/mms-tts, tel), converted to ONNX for sherpa-onnx (character frontend, no espeak).
+* Language: tel (Telugu), 1 speaker, sample rate 16,000 Hz.
+* Converted with sherpa-onnx's documented vits-mms.py (tts-research/mms-tel/MMS_TEL_CONVERSION.md); the HiFi-GAN
+  decoder was then converted to fp16 with the same script used for Bengali
+  (tts-research/mms-ben/speed/mms_decoder_fp16.py; encoder, duration predictor and flow stay fp32). Quality UNVERIFIED.
+* Text normalisation in the app (TeluguTextNormalizer): digits (Telugu ౦-౯ and ASCII) -> Telugu number words
+  (AI4Bharat indic-numtowords 1.1.0 data, MIT, tel/cardinal.py ported to Kotlin). Unicode NFC. The ASCII period and
+  ZWNJ (U+200C) are not in the vocabulary and are dropped, unchanged from the model's own behaviour.
