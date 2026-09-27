@@ -19,7 +19,10 @@
     # its decoder in fp16 (tts-research/mms-tel/MMS_TEL_CONVERSION.md); it is hash-checked.
     [string]$MmsTeluguModel = "",
     # Kannada (Meta MMS-TTS, CC BY-NC 4.0), same situation as Bengali. See tts-research/mms-kan/.
-    [string]$MmsKannadaModel = ""
+    [string]$MmsKannadaModel = "",
+    # Tamil (Meta MMS-TTS, CC BY-NC 4.0), same situation as Bengali: locally converted, decoder in fp16
+    # (tts-research/mms-tam/MMS_TAM_CONVERSION.md); hash-checked.
+    [string]$MmsTamilModel = ""
 )
 
 Set-StrictMode -Version Latest
@@ -515,6 +518,25 @@ Run this script from the ROOT of the iTantra repository, or pass:
     if (Test-Path -LiteralPath $MmsKnDest -PathType Leaf) {
         Assert-Sha256 $MmsKnDest $MmsKnSha "Kannada MMS model.onnx"
         Write-Ok "Kannada MMS TTS present and verified."
+    }
+
+    Write-Step "Tamil MMS TTS (optional)"
+    $MmsTaDir = Join-Path $Assets "vits-mms-tam"
+    $MmsTaDest = Join-Path $MmsTaDir "model.onnx"
+    # fp16-decoder model derived from the fp32 export 73ea559c...4c70 by mms_decoder_fp16.py (same tool as Bengali).
+    $MmsTaSha = "f6c0a040c6332537b55f0622a3c24d417892fda139ec45bdd73e822ba0cb21c3"
+    if (-not (Test-Path -LiteralPath $MmsTaDest -PathType Leaf) -or $Force) {
+        if ($MmsTamilModel -and (Test-Path -LiteralPath $MmsTamilModel -PathType Leaf)) {
+            Assert-Sha256 $MmsTamilModel $MmsTaSha "Tamil MMS model.onnx"
+            Copy-Item -LiteralPath $MmsTamilModel -Destination $MmsTaDest -Force
+        }
+        else {
+            Write-Warn "Tamil MMS model.onnx not installed. Convert it (tts-research/mms-tam/MMS_TAM_CONVERSION.md) and rerun with -MmsTamilModel <path>. Tamil TTS is skipped until then."
+        }
+    }
+    if (Test-Path -LiteralPath $MmsTaDest -PathType Leaf) {
+        Assert-Sha256 $MmsTaDest $MmsTaSha "Tamil MMS model.onnx"
+        Write-Ok "Tamil MMS TTS present and verified."
     }
 
     Write-Step "Final verification"

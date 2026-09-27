@@ -1,0 +1,13 @@
+01 fp32_len=61952 fp16_len=61952 same=True snr_db=68.4
+02 fp32_len=53154 fp16_len=53154 same=True snr_db=67.7
+03 fp32_len=34715 fp16_len=34715 same=True snr_db=69.7
+04 fp32_len=52900 fp16_len=52900 same=True snr_db=68.8
+05 fp32_len=69456 fp16_len=69456 same=True snr_db=66.7
+06 fp32_len=65534 fp16_len=65534 same=True snr_db=70.8
+07 fp32_len=37740 fp16_len=37740 same=True snr_db=68.0
+08 fp32_len=34462 fp16_len=34462 same=True snr_db=69.4
+09 fp32_len=45294 fp16_len=45294 same=True snr_db=65.2
+10 fp32_len=37623 fp16_len=37623 same=True snr_db=67.9
+same length 10/10, median SNR 68.2 dB, min 65.2 dB
+
+[exited with code 0]

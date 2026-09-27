@@ -79,6 +79,7 @@ The confirmed integrated baseline is `origin/typed-text-integration@21e28fd`:
 | Hindi Dolphin STT accuracy | YELLOW — working but unreliable; badly incorrect text or the wrong script can occur |
 | Malayalam TTS (Piper Arjun) on RMX3392 via `TtsHelper` | YELLOW — loads, synthesizes and plays locally, 20/20 runs, no crashes; QUALITY UNVERIFIED (no listener), real receive path not exercised; see `tts-research/ml-android/ML_ARJUN_ANDROID_REPORT.md` |
 | Bengali TTS (Meta MMS-TTS ben, CC BY-NC 4.0) on RMX3392 via `TtsHelper` | YELLOW — decoder in fp16 + number/Unicode normaliser; with the app visible warm median RTF 0.77, median text-to-audible-start 2.42 s (max 2.98 s), 22 runs 0 errors; with the app not visible RTF 1.37 / start 4.4 s (fails speed gates); QUALITY UNVERIFIED (no listener); see `tts-research/mms-ben/speed/SPEED_REPORT.md` |
+| Tamil TTS (Meta MMS-TTS tam, CC BY-NC 4.0) via `TtsHelper` | RED — desktop-only (branch `tts/ta/mms`, no phone access for this worker): converted, fp32 sane on desktop, decoder-fp16 candidate passes its own desktop length/SNR check (10/10 length parity, median SNR 68.2 dB) and is the shipped asset, digit/aytham/full-stop frontend gaps found and the digit gap fixed with `TamilTextNormalizer`; no phone install, no RTF/start-time measurement, no listener pass; see `tts-research/mms-tam/MMS_TAM_CONVERSION.md` |
 | Other-language end-to-end paths | RED — not demonstrated by this evidence |
 
 Integrated recovery-line changes:
