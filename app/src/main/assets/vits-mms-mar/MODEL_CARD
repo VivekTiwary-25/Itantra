@@ -1,0 +1,11 @@
+# Model card for mms-tts-mar (Marathi)
+
+* Source: https://huggingface.co/facebook/mms-tts (models/mar), Meta Massively Multilingual Speech (MMS)
+* License: CC BY-NC 4.0 (non-commercial) - https://creativecommons.org/licenses/by-nc/4.0/
+* Attribution: Meta MMS-TTS (facebook/mms-tts, mar), converted to ONNX for sherpa-onnx (character frontend, no espeak).
+* Language: mar (Marathi), 1 speaker, sample rate 16,000 Hz
+* Converted with sherpa-onnx's documented vits-mms.py; the HiFi-GAN decoder was then converted to fp16
+  (tts-research/mms-mr/speed/mms_decoder_fp16.py; encoder, duration predictor and flow stay fp32). Quality UNVERIFIED.
+* Text normalisation in the app (MarathiTextNormalizer): digits (Devanagari or ASCII) -> Marathi number
+  words (AI4Bharat indic-numtowords 1.1.0 data, MIT). Punctuation (.,?!) and a few loanword letters
+  (ऑ, nukta consonants ड़/ढ़/फ़/ज़) are not in the vocabulary and are dropped.
