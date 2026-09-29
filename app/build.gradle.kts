@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+val demoFlavors = listOf("demoVachana", "demoYash", "demoVivek")
+
 android {
     namespace = "com.chmod777.itantra"
     compileSdk {
@@ -21,6 +23,49 @@ android {
         ndk {
             abiFilters += "arm64-v8a"
         }
+
+        buildConfigField("String", "DEMO_ACTOR", "\"NONE\"")
+    }
+
+    // `full` is the real iTantra app, unchanged. The three `demo*` flavors are
+    // film-demo builds: one per actor, each installable side by side, sharing
+    // the demo-only source set in src/demo (no real STT/TTS/Bluetooth in the
+    // filmed path).
+    flavorDimensions += "demoActor"
+    productFlavors {
+        create("full") {
+            dimension = "demoActor"
+        }
+        for (flavor in demoFlavors) {
+            val actor = flavor.removePrefix("demo").lowercase()
+            create(flavor) {
+                dimension = "demoActor"
+                applicationIdSuffix = ".demo.$actor"
+                versionNameSuffix = "-demo-$actor"
+                buildConfigField("String", "DEMO_ACTOR", "\"${actor.uppercase()}\"")
+                // Sideloaded film builds: the release variant (non-debuggable, so
+                // Compose animates smoothly) is signed with the local debug key.
+                signingConfig = signingConfigs.getByName("debug")
+            }
+        }
+    }
+
+    sourceSets {
+        for (actor in demoFlavors) {
+            getByName(actor) {
+                kotlin.directories.add("src/demo/java")
+                res.directories.add("src/demo/res")
+                manifest.srcFile("src/demo/AndroidManifest.xml")
+            }
+            // Variant-level manifest: the only level allowed to strip the
+            // debug build type's launcher/receivers from the demo builds.
+            maybeCreate("${actor}Debug").apply {
+                manifest.srcFile("src/demoDebug/AndroidManifest.xml")
+            }
+            maybeCreate("test${actor.replaceFirstChar { it.uppercase() }}").apply {
+                kotlin.directories.add("src/demoTest/java")
+            }
+        }
     }
 
     buildTypes {
@@ -36,6 +81,21 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
+    }
+}
+
+// The demo builds never load the speech runtime or its models, so keep them
+// out of the demo APKs (the shared main code still compiles against them).
+androidComponents {
+    onVariants { variant ->
+        if (variant.productFlavors.any { it.second in demoFlavors }) {
+            variant.packaging.jniLibs.excludes.addAll(
+                "**/libonnxruntime.so",
+                "**/libsherpa-onnx-*.so"
+            )
+            variant.androidResources.ignoreAssetsPatterns.add("!*")
+        }
     }
 }
 

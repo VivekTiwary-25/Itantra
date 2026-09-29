@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Film-demo debug builds only: drop the debug build type's Net Lab launcher
+     and adb receivers so the demo phone shows exactly one iTantra icon. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <application>
+        <activity
+            android:name="com.chmod777.itantra.ui.lab.NetworkLabActivity"
+            tools:node="remove" />
+        <receiver
+            android:name="com.chmod777.itantra.debug.ValidationReceiver"
+            tools:node="remove" />
+        <receiver
+            android:name="com.chmod777.itantra.DebugTtsReceiver"
+            tools:node="remove" />
+        <receiver
+            android:name="com.chmod777.itantra.DebugTtsBenchReceiver"
+            tools:node="remove" />
+    </application>
+</manifest>
