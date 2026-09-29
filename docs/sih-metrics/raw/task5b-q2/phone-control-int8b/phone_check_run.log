@@ -1,0 +1,26 @@
+﻿device RMX3392 arm64-v8a
+Filesystem       Size Used Avail Use% Mounted on
+/dev/block/dm-74 226G 161G   64G  72% /data/user/0
+  push retry 1 for files/pkgs/int8bctl/shared/encoder.weights.bin
+  push retry 2 for files/pkgs/int8bctl/shared/encoder.weights.bin
+  push retry 3 for files/pkgs/int8bctl/shared/encoder.weights.bin
+  push retry 1 for files/pkgs/int8bctl/hi.onnx
+  push retry 2 for files/pkgs/int8bctl/hi.onnx
+  push retry 3 for files/pkgs/int8bctl/hi.onnx
+  push retry 4 for files/pkgs/int8bctl/hi.onnx
+.\.venv-sih-metrics\Scripts\python.exe : Traceback (most recent call last):
+At line:8 char:1
++ .\.venv-sih-metrics\Scripts\python.exe D:\projects\SIH\iTantra-quant\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "D:\projects\SIH\iTantra-quant\docs\sih-metrics\tools\quant\phone_check.py", line 143, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "D:\projects\SIH\iTantra-quant\docs\sih-metrics\tools\quant\phone_check.py", line 93, in main
+    push(a.serial, a.pkg / f"{lang}.onnx", f"{base}/{lang}.onnx")
+  File "D:\projects\SIH\iTantra-quant\docs\sih-metrics\tools\quant\phone_check.py", line 68, in push
+    raise RuntimeError(f"could not push {remote} intact after {attempts} attempts")
+RuntimeError: could not push files/pkgs/int8bctl/hi.onnx intact after 4 attempts
+exit: 1

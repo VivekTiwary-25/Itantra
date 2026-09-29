@@ -81,3 +81,30 @@ No crash, no out-of-memory, no language switch over 6 s. Decision: proceed to pu
 phone WER 0.2535 = desktop 0.2535. Peak PSS kn 848 MB / ml 912 MB, no crash. Switch into ml 4.0 s; switch into kn 3.4 s on the re-run but **7.2 s on the first run after reinstalling the app**
 (cold file cache), which is over the 6 s limit: recorded as a known issue for the first switch after a fresh install; not reproducible on the re-run. Both are within the accepted parity category (D10).
 Final debug APK with the picker change: 323,609,847 B (308.62 MiB).
+
+## D12. Q2 (4-bit, block 32, 454 MB) is NOT adopted: it is too slow on the phone; the app stays on INT8-B (2026-09-29)
+
+Vivek asked for the app to switch to Q2 (`quant-ladder\q2-nbits-b32-noq1`, MatMulNBits 4-bit, block 32, 454,123,782 B, from branch `stt/ic-quant`), on these terms: switch only if the phone check shows no crash, no out-of-memory,
+no unsupported-operator error, and warm RTF no more than 20% slower than INT8-B (0.130, so at most 0.156).
+
+Accuracy (desktop, the 50 FLEURS test clips per language, same normalisation, same clips as Task 5; `raw/task5b-q2/`): mean WER 20.69% vs 20.56% for INT8-B (+0.14 points), wrong-script 0 everywhere.
+Per language Q2 vs INT8-B: hi 11.63/11.63, gu 20.22/20.22, mr 20.29/20.29, ta 30.74/31.58, te 22.90/21.03, or 25.39/25.08, bn 15.24/15.04, kn 16.99/16.42, ml 22.85/23.74. Accuracy was never the problem.
+
+Phone (realme RMX3392, Android 14, arm64, the quant harness `tools/quant/phone_check.py` from `stt/ic-quant`, 5 check-set clips per language, 9 languages loaded in turn, 2 threads):
+
+| | Q2 (4-bit) | INT8-B (recorded by the quant agent, 15:17) | INT8-B (my control, same harness, 17:26) |
+|---|---|---|---|
+| crash / OOM / unsupported operator | none | none | none |
+| **warm RTF overall** | **0.207** (per language 0.18 to 0.20; mr 0.305) | 0.130 | **0.128** (per language 0.116 to 0.149) |
+| peak RSS / PSS | 758 MB / 681 MB | 972.5 MB / 873.6 MB | 870 MB / 843 MB |
+| load per language | 3.5 to 5.3 s | 3.3 to 3.9 s | 3.1 to 4.0 s |
+| clips differing from desktop (of 45) | 18 | 8 | 8 |
+
+The control run exists to rule out the phone simply being slower in the afternoon than when 0.130 was recorded: INT8-B read 0.128 today, so it was not. Q2 is about 59% slower than 0.130 (61% slower than the control), far outside the 20% allowance
+(limit 0.156 against the recorded reference, 0.154 against the control). **Step 3 fails, so the app stays on INT8-B and the model-switch step (path constant, `setup-models.ps1` hashes, phone push, rebuild, smoke test) was not done.**
+Q2 is smaller (454 MB vs 697 MB, saves 243 MB of storage) and lighter on RAM (about 190 MB less peak RSS), and its accuracy cost is small, but on this CPU the 4-bit path is slower than the INT8 path.
+Likely cause (not investigated): the 4-bit MatMulNBits kernel with int8-activation compute is slower than INT8 MatMulInteger on the Dimensity 900 for these shapes. Q2 also changed 18 of 45 phone transcripts versus desktop (INT8-B: 8), on top of arm64 rounding differences (D10).
+If storage or RAM ever matters more than speed, Q2 is a candidate for a different trade-off; the package files stay in `quant-ladder\`.
+
+Two operational notes: the first Q2 phone run stalled silently for about 30 minutes (logcat had rotated, cause not identified) and was repeated with logcat streamed to a file (`raw/task5b-q2/phone/logcat_q2b32_stream.txt`);
+`adb exec-in` pushes needed retries (files are SHA-256 verified on the device, and the control run needed one resume after a failed `hi.onnx` verification).

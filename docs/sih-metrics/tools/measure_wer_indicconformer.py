@@ -63,6 +63,11 @@ def main() -> int:
     parser.add_argument("--count", type=int, default=50)
     parser.add_argument("--languages", nargs="+", default=DEFAULT_LANGS)
     parser.add_argument("--out", type=Path, default=None)
+    parser.add_argument(
+        "--model-label",
+        default="IndicConformer-600M multilingual-adapters (shared INT8-B encoder + per-language wrapper)",
+        help="text recorded in environment.json",
+    )
     args = parser.parse_args()
 
     repo = args.repo.resolve()
@@ -72,7 +77,7 @@ def main() -> int:
     (out_root / "environment.json").write_text(
         json.dumps(
             {
-                "model": "IndicConformer-600M multilingual-adapters (shared INT8-B encoder + per-language wrapper)",
+                "model": args.model_label,
                 "model_dir": str(args.model_dir),
                 "sherpa_onnx": getattr(sherpa_onnx, "__version__", "?"),
                 "jiwer": getattr(jiwer, "__version__", "?"),

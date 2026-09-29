@@ -1,0 +1,11 @@
+﻿device RMX3392 arm64-v8a
+Filesystem       Size Used Avail Use% Mounted on
+/dev/block/dm-74 226G 161G   65G  72% /data/user/0
+  push retry 1 for files/pkgs/q2b32/hi.onnx
+  push retry 1 for files/pkgs/q2b32/te.onnx
+  push retry 2 for files/pkgs/q2b32/te.onnx
+  push retry 3 for files/pkgs/q2b32/te.onnx
+  push retry 1 for files/clips/gu/003-1630.wav
+  push retry 1 for files/clips/mr/001-1558.wav
+  push retry 1 for files/clips/mr/005-1538.wav
+pushed

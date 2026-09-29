@@ -99,3 +99,37 @@ Method note: the app UI was not driven; the clips go through the app's own speec
 so the slow case was a cold file cache after reinstall, not steady behaviour. First-run log: `raw/task5b-indicconformer/phone/kn-prime-hi-run1-coldcache-logcat.txt`. The kn/ml phone check was run on the build that has them in the picker;
 the picker UI itself was not exercised by hand (no UI driving), only the speech layer with `-e lang kn|ml`.
 **Parity note (accepted by Vivek):** phone output differs from desktop by single characters on some clips; phone WER on the 5-clip spot check is within a few points of desktop, in both directions.
+
+### Q2 (4-bit, block 32) evaluated, not shipped
+
+Requested by Vivek: switch to Q2 (`stt/ic-quant` package `q2-nbits-b32-noq1`, 454,123,782 B) if the phone shows no crash/OOM/unsupported operator and warm RTF is at most 20% slower than INT8-B (0.130). **Result: the app stays on INT8-B (697.42 MB).**
+Reason: Q2's warm RTF is 0.207 (limit 0.156). Full reasoning: `docs/sih-metrics/STT_DECISIONS.md` D12.
+
+Desktop WER on the 50 FLEURS test clips per language (same clips and normalisation as above; Q2 raw: `raw/task5b-q2/<lang>-results.csv`, `summary.json`, `benchmark-run.log`):
+
+| Language | Dolphin WER | INT8-B WER (ships) | Q2 WER | Q2 vs INT8-B | Q2 CER | Q2 wrong-script | Q2 word errors / words |
+|---|---|---|---|---|---|---|---|
+| hi | 0.3790 | 0.1163 | 0.1163 | +0.00 pts | 0.0414 | 0 | 147/1,264 |
+| gu | 0.7835 | 0.2022 | 0.2022 | +0.00 pts | 0.0693 | 0 | 225/1,113 |
+| mr | 0.7072 | 0.2029 | 0.2029 | +0.00 pts | 0.0570 | 0 | 212/1,045 |
+| ta | 0.7285 | 0.3158 | 0.3074 | -0.84 pts | 0.1233 | 0 | 257/836 |
+| te | 0.7033 | 0.2103 | 0.2290 | +1.87 pts | 0.0773 | 0 | 196/856 |
+| or | 0.6788 | 0.2508 | 0.2539 | +0.31 pts | 0.0781 | 0 | 245/965 |
+| bn | 0.4085 | 0.1504 | 0.1524 | +0.20 pts | 0.0445 | 0 | 150/984 |
+| kn | n/a | 0.1642 | 0.1699 | +0.58 pts | 0.0457 | 0 | 147/865 |
+| ml | n/a | 0.2374 | 0.2285 | -0.88 pts | 0.0636 | 0 | 181/792 |
+| mean of 9 | | 0.2056 | 0.2069 | +0.14 pts | | | |
+
+Phone (RMX3392, quant harness, 5 clips per language, 9 languages in turn, 2 threads; raw `raw/task5b-q2/phone/` and `raw/task5b-q2/phone-control-int8b/`):
+
+| | Q2 | INT8-B control (same harness, same afternoon) | INT8-B recorded by the quant agent |
+|---|---|---|---|
+| model size | 454.12 MB | 697.42 MB | 697.42 MB |
+| warm RTF (overall) | **0.207** | **0.128** | 0.130 |
+| peak RSS / PSS | 758 / 681 MB | 870 / 843 MB | 972.5 / 873.6 MB |
+| load per language | 3.5 to 5.3 s | 3.1 to 4.0 s | 3.3 to 3.9 s |
+| clips differing from desktop (of 45) | 18 | 8 | 8 |
+| crash / OOM / unsupported operator | none | none | none |
+
+Nothing else changed in the app for this task: the shipped IC model, the model-path constant, `setup-models.ps1` hashes, the pushed phone files and the APK size (323,609,847 B) are as recorded above.
+PENDING: Vivek decides whether to revisit Q2 (for example if a faster 4-bit kernel or a different block size is worth trying); GREEN status (only Vivek); merge of `stt/indicconformer`.
