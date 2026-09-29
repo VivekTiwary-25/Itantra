@@ -1,0 +1,20 @@
+Task 2 build record
+Commit: ad120d32575aff00bd09d412150b3a1eec3ba615
+Branch: Complete-App-V1
+
+Command:
+  .\gradlew.bat assembleDebug assembleRelease
+
+Result:
+  FAILURE: Build failed with an exception.
+  java.io.IOException: Unable to establish loopback connection
+
+Retry command:
+  .\gradlew.bat --no-daemon assembleDebug assembleRelease
+
+Retry result:
+  To honour the JVM settings for this build a single-use Daemon process will be forked.
+  FAILURE: Build failed with an exception.
+  java.io.IOException: Unable to establish loopback connection
+
+No APK output existed after either attempt.

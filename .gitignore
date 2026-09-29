@@ -27,3 +27,8 @@ __pycache__/
 *.py[cod]
 .venv*/
 tts-research/new-runs/
+
+# Reproducible source audio/parquet for SIH metric runs; retain the compact
+# manifests, raw transcripts, and summary tables under docs/sih-metrics/raw/.
+/docs/sih-metrics/raw/task5-wer/dataset/
+/docs/sih-metrics/raw/task5-wer/source-parquet/
