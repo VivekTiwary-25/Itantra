@@ -2,7 +2,8 @@
 # release `demo-latest` (assets are replaced in place). Run from the repo root:
 #   powershell -ExecutionPolicy Bypass -File tools\publish-demo-apks.ps1
 # Nothing is uploaded unless all three APKs build.
-$ErrorActionPreference = 'Stop'
+# Exit codes are checked explicitly: under 'Stop', PowerShell 5.1 turns native stderr into terminating errors.
+$ErrorActionPreference = 'Continue'
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
 $actors = 'Vachana', 'Yash', 'Vivek'
@@ -33,10 +34,11 @@ $lines | Set-Content -Encoding utf8 $manifest
 $assets += $manifest
 $lines | ForEach-Object { Write-Host $_ }
 
+# Title built from a code point: Windows PowerShell 5.1 misreads non-ASCII in BOM-less scripts.
 $tag = 'demo-latest'
 gh release view $tag *> $null
 if ($LASTEXITCODE -ne 0) {
-    gh release create $tag --target $commit --title "iTantra SIH Demo — Latest" `
+    gh release create $tag --target $commit --title "iTantra SIH Demo $([char]0x2014) Latest" `
         --notes "Rolling film-demo builds (one APK per actor). See iTantra-demo-manifest.txt for the commit and SHA-256 of each APK." `
         --prerelease
     if ($LASTEXITCODE -ne 0) { throw "gh release create failed." }
