@@ -1,0 +1,7 @@
+lang,att_payload_bytes,text_utf8_bytes,sealed_bundle_bytes,link_frame_bytes_carrying_bundle,fragments_for_bundle_frame,bytes_per_fragment_incl_11B_header,total_bytes_on_air_for_bundle_frame,other_frames_sent_bytes
+en,20,44,1195,1227,137,20,2734,230
+hi,20,95,1195,1227,137,20,2734,390
+ta,20,153,1195,1227,137,20,2734,390
+en,512,44,1195,1227,3,512,1260,390
+hi,512,95,1195,1227,3,512,1260,390
+ta,512,153,1195,1227,3,512,1260,390

@@ -1,0 +1,62 @@
+Applications Memory Usage (in Kilobytes):
+Uptime: 43874391 Realtime: 44998962
+
+** MEMINFO in pid 19848 [com.chmod777.itantra] **
+                   Pss  Private  Private  SwapPss      Rss     Heap     Heap     Heap
+                 Total    Dirty    Clean    Dirty    Total     Size    Alloc     Free
+                ------   ------   ------   ------   ------   ------   ------   ------
+  Native Heap     8530     8476       20    10038    10220    30720    25266     5453
+  Dalvik Heap     3816     3776        8     1008     5052    11587     5443     6144
+ Dalvik Other    13146     4024      568      188    21956                           
+        Stack      624      612       12      736      632                           
+       Ashmem       16        0        0        0      452                           
+    Other dev       31       16       12        0      644                           
+     .so mmap    10122      208     8396      235    36032                           
+    .jar mmap     2107        0      408        0    39940                           
+    .apk mmap       87        0        4        0     1028                           
+    .ttf mmap      119        0       84        0      196                           
+    .dex mmap     9084     8696      380    56968     9808                           
+    .oat mmap       20        0        0        0     1468                           
+    .art mmap     4046     3156      512     5310    15564                           
+   Other mmap       71       40        8        0      948                           
+    GL mtrack    13980    13980        0        0    13980                           
+      Unknown      416      248      120      536      896                           
+        TOTAL   141234    43232    10532    75019   158816    42307    30709    11597
+ 
+ App Summary
+                       Pss(KB)                        Rss(KB)
+                        ------                         ------
+           Java Heap:     7444                          20616
+         Native Heap:     8476                          10220
+                Code:    18732                         106140
+               Stack:      612                            632
+            Graphics:    13980                          13980
+       Private Other:     4520
+              System:    87470
+             Unknown:                                    7228
+ 
+           TOTAL PSS:   141234            TOTAL RSS:   158816       TOTAL SWAP PSS:    75019
+ 
+ Objects
+               Views:        7         ViewRootImpl:        1
+         AppContexts:        5           Activities:        1
+              Assets:       43        AssetManagers:        0
+       Local Binders:       14        Proxy Binders:       56
+       Parcel memory:        8         Parcel count:       32
+    Death Recipients:        0             WebViews:        0
+ 
+ SQL
+         MEMORY_USED:      191
+  PAGECACHE_OVERFLOW:       59          MALLOC_SIZE:       46
+ 
+ DATABASES
+      pgsz     dbsz   Lookaside(b) cache hits cache misses cache size  Dbname
+PER CONNECTION STATS
+         4       76             90    20    26     5  /data/user/0/com.chmod777.itantra/databases/itantra_net.db
+         4       76             41     1    16     2  /data/user/0/com.chmod777.itantra/databases/itantra_net.db (2)
+POOL STATS
+     cache hits  cache misses    cache size  Dbname
+             21            56            77  /data/user/0/com.chmod777.itantra/databases/itantra_net.db
+
+
+

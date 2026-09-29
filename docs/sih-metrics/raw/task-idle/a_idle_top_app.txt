@@ -1,0 +1,13 @@
+PID CPU% MEM% RES SHR (one line per 5 s sample; 12 samples; app on main screen with no model loaded; from adb shell top -b -d 5 -n 12; the full 1 MB capture was not kept)
+110 2.3 180M 110M
+111 2.3 180M 110M
+121 2.3 175M 109M
+101 2.2 168M 111M
+94.6 2.2 168M 109M
+112 2.0 157M 107M
+103 2.1 162M 109M
+110 2.0 156M 106M
+104 2.0 158M 106M
+107 2.0 153M 106M
+111 2.0 158M 108M
+110 2.0 154M 106M

@@ -1,0 +1,47 @@
+--------- beginning of main
+09-29 17:50:10.969 D/ITANTRA_LATENCY(19848): [TTS] speak start
+09-29 17:50:10.969 D/ITANTRA_TTS(19848): speak lang=ta textLen=20
+09-29 17:50:10.970 D/ITANTRA_TTS(19848): installing assets 'vits-mms-tam' -> /data/user/0/com.chmod777.itantra/files/vits-mms-tam
+09-29 17:50:11.887 D/ITANTRA_TTS(19848): installed 'vits-mms-tam' deltaMs=917
+09-29 17:50:11.887 D/ITANTRA_TTS(19848): initialising 'ta' model=/data/user/0/com.chmod777.itantra/files/vits-mms-tam/model.onnx
+09-29 17:50:13.306 D/ITANTRA_TTS(19848): initialised 'ta' sampleRate=16000
+09-29 17:50:13.307 D/ITANTRA_TTS(19848): synthesis start lang=ta
+09-29 17:50:14.574 D/ITANTRA_TTS(19848): synthesis done lang=ta samples=24041 rate=16000 deltaMs=1268
+09-29 17:50:14.610 D/ITANTRA_TTS(19848): playback start samples=24041 rate=16000
+09-29 17:50:16.207 D/ITANTRA_TTS(19848): playback end
+09-29 17:50:16.221 D/ITANTRA_LATENCY(19848): [TTS] speak end deltaMs=5252
+09-29 17:50:17.912 D/ITANTRA_LATENCY(19848): [TTS] speak start
+09-29 17:50:17.913 D/ITANTRA_TTS(19848): speak lang=ta textLen=20
+09-29 17:50:17.913 D/ITANTRA_TTS(19848): synthesis start lang=ta
+09-29 17:50:19.327 D/ITANTRA_TTS(19848): synthesis done lang=ta samples=24474 rate=16000 deltaMs=1415
+09-29 17:50:19.345 D/ITANTRA_TTS(19848): playback start samples=24474 rate=16000
+09-29 17:50:20.936 D/ITANTRA_TTS(19848): playback end
+09-29 17:50:20.949 D/ITANTRA_LATENCY(19848): [TTS] speak end deltaMs=3036
+09-29 17:50:22.508 D/ITANTRA_LATENCY(19848): [TTS] speak start
+09-29 17:50:22.509 D/ITANTRA_TTS(19848): speak lang=ta textLen=20
+09-29 17:50:22.509 D/ITANTRA_TTS(19848): synthesis start lang=ta
+09-29 17:50:23.828 D/ITANTRA_TTS(19848): synthesis done lang=ta samples=22279 rate=16000 deltaMs=1318
+09-29 17:50:23.845 D/ITANTRA_TTS(19848): playback start samples=22279 rate=16000
+09-29 17:50:25.307 D/ITANTRA_TTS(19848): playback end
+09-29 17:50:25.329 D/ITANTRA_LATENCY(19848): [TTS] speak end deltaMs=2820
+09-29 17:50:27.075 D/ITANTRA_LATENCY(19848): [TTS] speak start
+09-29 17:50:27.076 D/ITANTRA_TTS(19848): speak lang=ta textLen=20
+09-29 17:50:27.076 D/ITANTRA_TTS(19848): synthesis start lang=ta
+09-29 17:50:28.427 D/ITANTRA_TTS(19848): synthesis done lang=ta samples=23602 rate=16000 deltaMs=1351
+09-29 17:50:28.443 D/ITANTRA_TTS(19848): playback start samples=23602 rate=16000
+09-29 17:50:30.025 D/ITANTRA_TTS(19848): playback end
+09-29 17:50:30.036 D/ITANTRA_LATENCY(19848): [TTS] speak end deltaMs=2961
+09-29 17:50:31.717 D/ITANTRA_LATENCY(19848): [TTS] speak start
+09-29 17:50:31.718 D/ITANTRA_TTS(19848): speak lang=ta textLen=20
+09-29 17:50:31.718 D/ITANTRA_TTS(19848): synthesis start lang=ta
+09-29 17:50:33.056 D/ITANTRA_TTS(19848): synthesis done lang=ta samples=23512 rate=16000 deltaMs=1337
+09-29 17:50:33.074 D/ITANTRA_TTS(19848): playback start samples=23512 rate=16000
+09-29 17:50:34.623 D/ITANTRA_TTS(19848): playback end
+09-29 17:50:34.639 D/ITANTRA_LATENCY(19848): [TTS] speak end deltaMs=2922
+09-29 17:50:36.336 D/ITANTRA_LATENCY(19848): [TTS] speak start
+09-29 17:50:36.336 D/ITANTRA_TTS(19848): speak lang=ta textLen=20
+09-29 17:50:36.337 D/ITANTRA_TTS(19848): synthesis start lang=ta
+09-29 17:50:37.683 D/ITANTRA_TTS(19848): synthesis done lang=ta samples=23203 rate=16000 deltaMs=1346
+09-29 17:50:37.702 D/ITANTRA_TTS(19848): playback start samples=23203 rate=16000
+09-29 17:50:39.234 D/ITANTRA_TTS(19848): playback end
+09-29 17:50:39.250 D/ITANTRA_LATENCY(19848): [TTS] speak end deltaMs=2913

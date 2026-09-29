@@ -133,3 +133,74 @@ Phone (RMX3392, quant harness, 5 clips per language, 9 languages in turn, 2 thre
 
 Nothing else changed in the app for this task: the shipped IC model, the model-path constant, `setup-models.ps1` hashes, the pushed phone files and the APK size (323,609,847 B) are as recorded above.
 PENDING: Vivek decides whether to revisit Q2 (for example if a faster 4-bit kernel or a different block size is worth trying); GREEN status (only Vivek); merge of `stt/indicconformer`.
+
+## Task 5b add-on: idle resources, real message size, TTS speed (2026-09-29)
+
+Phone for all phone numbers: realme RMX3392, Android 14, arm64-v8a, 7.7 GB RAM (`EILZRCFQLZIZ6H6P`). Build: `stt/indicconformer` at `547186e` plus the seven MMS voices copied into the local (git-ignored) assets folder for the TTS runs
+(that measurement APK was 874,855,207 B; the APK size recorded above, 323,609,847 B, is the build without the MMS voices). Model: IndicConformer INT8-B (Hindi for the transcription step).
+
+### 1. Idle CPU and memory (app on the main screen)
+
+Driven through the real UI (`adb shell input`): hold-to-talk for 3 s with language Hindi, then the temporary Test TTS control. CPU from `adb shell top -b -d 5 -n 12` (60 s); memory from `dumpsys meminfo com.chmod777.itantra` (kB).
+CPU is in top's units: 100% = one core, 800% = the whole phone.
+
+| State | Avg CPU (12 x 5 s) | TOTAL PSS | TOTAL RSS | SWAP PSS | How reached |
+|---|---|---|---|---|---|
+| (a) idle, no models loaded | **107.9%** (median 110, range 94.6 to 121) = about 13.5% of the whole phone | 141,234 kB (138 MB) | 158,816 kB (155 MB) | 75,019 kB | fresh start, main screen, no `model load` line in logcat |
+| (b) after one transcription | not sampled | **812,715 kB (794 MB)** | **832,540 kB (813 MB)** | 72,287 kB | after one 3 s hold-to-talk in Hindi: IC Hindi loaded in 4,107 ms, decode 360 ms for 2.72 s of audio (RTF 0.132); the audio was silence, so the text was empty |
+| (c) after one message spoken | not sampled | 920,732 kB (899 MB) | 447,384 kB (437 MB) | 567,016 kB | after (b), one English Piper sentence (Ryan) spoken; same process, so it includes (b)'s IC model |
+
+Notes:
+- The 108% idle CPU is UI work, not model work. A per-thread `top -H` sample on a fresh start shows the main thread at about 60 to 64%, `RenderThread` at 25 to 50% and the GPU backend thread (`mali-cmar-backe`) at about 18 to 20%
+  (`raw/task-idle/a2_idle_threads_top.txt`): continuous Compose animation (the Hands-free waveform) on the main screen. The first sample in the series is no lower than the rest.
+- (c) is not a clean number. The phone was swapping (SWAP PSS jumped from 72 MB to 567 MB and RSS fell from 833 MB to 447 MB while PSS rose), so model pages were moved to zram between (b) and (c).
+  Read (c) as "about 0.9 GB PSS with IC and one TTS voice loaded", not as an exact figure.
+- One run each, not repeated. Raw: `raw/task-idle/`.
+
+### 2. Real message size (JVM test, no phone)
+
+`MessageSizeMeasurementTest` builds a real outgoing private message on the default BLE path: real Noise XX link, real end-to-end sealing and signing, real DTN bundle, real fragmentation (test-double links, no radio).
+Result file: `raw/task-msgsize/message-size.txt`. Sentences: en "Meet me at the shelter, the water is rising.", hi "आश्रय स्थल पर मिलिए, पानी बढ़ रहा है।", ta "தண்ணீர் உயர்கிறது, தங்குமிடத்தில் என்னைச் சந்திக்கவும்.".
+
+| Language | Text (UTF-8) | Sealed bundle | Link frame carrying it (after Noise) | GATT fragments at MTU 517 (512 B each) | GATT fragments at MTU 23 (20 B each) |
+|---|---|---|---|---|---|
+| en | 44 B | 1,195 B | 1,227 B | 3 (512 + 512 + 236), 1,260 B on air | 137 (last one shorter), 2,734 B on air |
+| hi | 95 B | 1,195 B | 1,227 B | 3, 1,260 B on air | 137, 2,734 B on air |
+| ta | 153 B | 1,195 B | 1,227 B | 3, 1,260 B on air | 137, 2,734 B on air |
+
+- The sealed size does not depend on the text. Messages are padded to a fixed bucket (256 / 1,024 / 4,096 B and so on) to hide length. The signed message with its keys and signature already exceeds 256 B, so every short sentence lands in the 1,024 B bucket, and envelope overhead brings it to 1,195 B.
+  A text of a few dozen to about 150 bytes costs the same number of bytes on air.
+- Each GATT fragment has an 11-byte header (version 1, session id 4, frame id 2, index 2, count 2). The app requests ATT MTU 517, which Android caps at 512-byte attribute values, so 501 payload bytes per fragment; if MTU negotiation fails it falls back to 20-byte fragments (9 payload bytes).
+- Other link frames the sender emits around the message (capability and inventory exchanges) add 230 to 390 B and are not part of the message.
+
+Compared with the same sentence spoken. PCM = 16,000 Hz x 2 bytes x duration, where the duration is the phone's own TTS speaking exactly these sentences (warm second run; `raw/task-msgsize/tts_duration_logcat.txt`):
+
+| Language | Spoken duration (TTS) | PCM size | PCM : text | PCM : sealed bundle | PCM : bundle frame (MTU 517) | PCM : bytes on air at MTU 23 |
+|---|---|---|---|---|---|---|
+| en | 2.380 s (Piper Ryan) | 76,161 B | 1,731 : 1 | 63.7 : 1 | 62.1 : 1 | 27.9 : 1 |
+| hi | 2.290 s (Piper Pratham) | 73,288 B | 771 : 1 | 61.3 : 1 | 59.7 : 1 | 26.8 : 1 |
+| ta | 3.426 s (MMS Tamil) | 109,632 B | 717 : 1 | 91.7 : 1 | 89.3 : 1 | 40.1 : 1 |
+
+The text-versus-voice ratio (hundreds to one) holds for raw text. Once the message is padded, signed and encrypted for the secure path, its on-air size is about 60 to 90 times smaller than raw PCM speech, not 700 to 1,700 times.
+Limitations: the duration is the TTS's, not a human speaker's, so real speech would differ by a modest factor; one run each.
+
+### 3. TTS speed on the phone (app visible, Test TTS control, warm)
+
+The six MMS voice files existed locally (the converted fp16-decoder models in the `itantra-complete-v1` worktree, SHA-256 verified by `setup-models.ps1`), so the runs were done. Each language: one cold speak (model init), then 5 warm speaks of the app's own sample sentence, 4 threads, app in the foreground.
+RTF = synthesis time / audio duration. Text-to-audible-start = time from `speak lang=` to `playback start` in the log (synthesis plus queueing; playback then takes the audio duration). Raw logs: `raw/task-tts/<lang>_logcat.txt`; statistics: `raw/task-tts/summary.txt`.
+
+| Language | Median RTF | RTF range | Median text-to-audible-start | Range | Median audio length | First speak (cold, includes model load) |
+|---|---|---|---|---|---|---|
+| gu | **0.685** | 0.663 to 0.708 | 1,153 ms | 1,113 to 1,188 | 1.62 s | 3,307 ms |
+| mr | **0.859** | 0.779 to 0.928 | 1,652 ms | 1,579 to 1,858 | 1.98 s | 3,992 ms |
+| ta | **0.925** | 0.910 to 0.947 | 1,366 ms | 1,336 to 1,432 | 1.47 s | 3,641 ms |
+| te | **0.919** | 0.857 to 0.969 | 1,657 ms | 1,492 to 1,744 | 1.75 s | 3,755 ms |
+| or | **0.974** | 0.833 to 1.065 | 1,343 ms | 1,142 to 1,584 | 1.38 s | 3,712 ms |
+| kn | **0.884** | 0.859 to 1.154 | 2,029 ms | 1,924 to 2,679 | 2.28 s | not captured (model was already loaded) |
+
+- All six are close to real time (median RTF 0.69 to 0.97, single runs up to 1.07 and 1.15): synthesis is barely faster than playback for or, ta, te and kn. A first speak after a language switch costs an extra 3.3 to 4.0 s.
+- The sentences are the app's short samples (20 to 23 characters), so start times for longer sentences will be longer.
+- Kannada: the first automated attempt logged nothing and the second stopped after 3 of 6 taps (the phone's log buffer rotates and taps did not always register). The final Kannada run streamed logcat to a file and completed 6 of 6.
+- Not measured: English and Hindi (Piper), Malayalam and Bengali (not requested).
+
+PENDING: a repeat of the idle memory step (c) on a quiet phone.
