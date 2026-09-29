@@ -32,3 +32,9 @@ tts-research/new-runs/
 # manifests, raw transcripts, and summary tables under docs/sih-metrics/raw/.
 /docs/sih-metrics/raw/task5-wer/dataset/
 /docs/sih-metrics/raw/task5-wer/source-parquet/
+
+# IndicConformer files staged for pushing to the phone (setup-models.ps1 -IndicConformerModel)
+/model-staging/
+
+# Local Dolphin baseline copy (no longer an app asset; used by measure_wer.py --dolphin-dir)
+/.dolphin-baseline/

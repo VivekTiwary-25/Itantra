@@ -43,3 +43,51 @@ For Task 5, each FLEURS clip was converted to 16 kHz, mono, 16-bit PCM WAV. The 
 - Ran `setup-models.ps1`, restoring ignored model binaries required for measurement. This did not change tracked source.
 - Created `.venv-sih-metrics` for `sherpa-onnx`, `jiwer`, `datasets`, and `soundfile`. It is already ignored and should remain local.
 - No app behavior was changed.
+
+## Task 5b — IndicConformer
+
+**Summary**
+
+- **Scenario A**: IndicConformer (IC) beats Dolphin in all 7 Indian languages by 25.8 to 58.1 WER points, so IC replaces Dolphin everywhere. English stays on Whisper tiny.en.
+  Dolphin and Whisper base are removed from the app. Full reasoning: `docs/sih-metrics/STT_DECISIONS.md`.
+- **Languages switched to IC**: hi, gu, mr, ta, te, or, bn. kn and ml were measured (IC only) but are not in the picker; Vivek decides.
+- **Final debug APK**: 323,335,841 B (308.36 MiB) from a clean `gradlew clean assembleDebug`. IC itself (about 697 MB) is not in the APK; it is pushed to the phone's private files folder (`docs/STT_INDICCONFORMER.md`).
+- **Phone**: realme RMX3392, Android 14, arm64-v8a, MediaTek mt6877, 7.7 GB RAM (`EILZRCFQLZIZ6H6P`).
+- **Phone result: NOT PASSED under the stop rule.** Transcripts differ from desktop in more than 1 of 5 clips for gu (2), mr (2) and ta (2); hi and te 0, or 1, bn 1.
+  The differences are single-character or matra flips (INT8 kernels on arm64 differ slightly from x86, as the earlier prototype also saw). On these 5 clips the phone WER is within about 5 points of desktop and sometimes better.
+  No crash, no out-of-memory, no language switch over 6 s. **Per the rule the branch was NOT pushed** and `PART1_DONE` was not written; Vivek to decide whether the differences are acceptable.
+- **PENDING**: Vivek's decision on the parity finding; push of `stt/indicconformer`; kn/ml picker decision; GREEN status (only Vivek).
+
+### Dolphin vs IndicConformer (desktop, 50 FLEURS test clips per language, sherpa-onnx 1.13.7, CPU, 2 threads, greedy)
+
+| Language | Dolphin WER | IC WER | Dolphin CER | IC CER | Wrong-script (Dolphin / IC) | IC word errors / words | Winner |
+|---|---|---|---|---|---|---|---|
+| hi | 0.3790 | 0.1163 | 0.2066 | 0.0408 | 0 / 0 | 147/1,264 | IC |
+| gu | 0.7835 | 0.2022 | 0.5625 | 0.0687 | 11 / 0 | 225/1,113 | IC |
+| mr | 0.7072 | 0.2029 | 0.2369 | 0.0623 | 0 / 0 | 212/1,045 | IC |
+| ta | 0.7285 | 0.3158 | 0.2721 | 0.1267 | 0 / 0 | 264/836 | IC |
+| te | 0.7033 | 0.2103 | 0.2759 | 0.0749 | 0 / 0 | 180/856 | IC |
+| or | 0.6788 | 0.2508 | 0.2633 | 0.0734 | 2 / 0 | 242/965 | IC |
+| bn | 0.4085 | 0.1504 | 0.1387 | 0.0445 | 0 / 0 | 148/984 | IC |
+| kn | n/a | 0.1642 | n/a | 0.0434 | n/a / 0 | 142/865 | report only |
+| ml | n/a | 0.2374 | n/a | 0.0656 | n/a / 0 | 188/792 | report only |
+
+Raw: `docs/sih-metrics/raw/task5b-indicconformer/<lang>-results.csv`, `summary.json`, `benchmark-run.log`, `model-files-sha256.csv`; Dolphin: `raw/task5-wer/`.
+The 50 clips per language are the same as Task 5 (the scorer refuses to run unless ids and references match). kn_in and ml_in are FLEURS test rows 1 to 50 as well.
+Desktop timings were not recorded as results (CPU shared with another agent).
+
+### Phone parity and performance (RMX3392, app's `SpeechEngine.transcribe()` via `am instrument`, 5 clips per language)
+
+| Language | Identical to desktop | Phone WER vs desktop WER (5 clips) | Switch into language | Warm RTF | Peak PSS | Peak VmHWM |
+|---|---|---|---|---|---|---|
+| hi | 5/5 (4 runs) | 0.0650 / 0.0650 | en to hi 4.3 to 5.3 s; cold load 4.4 s | 0.16 to 0.25 | 862 to 905 MB | 947 to 988 MB |
+| gu | 3/5 | 0.1852 / 0.1944 | hi to gu 3.8 s | 0.147 to 0.160 | 895 MB | 979 MB |
+| mr | 3/5 | 0.1750 / 0.1625 | hi to mr 3.9 s | 0.146 to 0.155 | 870 MB | 953 MB |
+| ta | 3/5 | 0.4677 / 0.5161 | hi to ta 3.9 s | 0.149 to 0.172 | 909 MB | 992 MB |
+| te | 5/5 | 0.0870 / 0.0870 | hi to te 3.9 s | 0.148 to 0.154 | 851 MB | 934 MB |
+| or | 4/5 | 0.2326 / 0.2326 | hi to or 4.0 s | 0.148 to 0.160 | 859 MB | 943 MB |
+| bn | 4/5 | 0.1053 / 0.0947 | hi to bn 3.9 s | 0.148 to 0.163 | 868 MB | 959 MB |
+
+Switch = release the loaded recognizer, then build the next one from `<lang>.onnx` (logcat tag `ITANTRA_PERF_STT`, `loadMs` of the first decode). Peak PSS from `dumpsys meminfo` sampled every second; VmHWM from `/proc/self/status`.
+There was no 2x memory transient across switches. Raw: `raw/task5b-indicconformer/phone/` (`<lang>-prime-hi-logcat.txt`, `-meminfo-samples.txt`, `<lang>-results.json`; Hindi in `hi-*`). Phone WER/CER columns are on 5 clips only, a sanity check and not a quality measure.
+Method note: the app UI was not driven; the clips go through the app's own speech layer by instrumentation, and the model is read from `files/indicconformer` by path.

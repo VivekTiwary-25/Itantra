@@ -1,0 +1,8 @@
+
+com.chmod777.itantra.SttParityInstrumentedTest:.
+
+Time: 17.377
+
+OK (1 test)
+
+

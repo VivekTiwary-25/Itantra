@@ -52,7 +52,7 @@ lane/transport
 ### Speech — Trisha + Vaishnavi + Vachana
 
 * sherpa-onnx Android runtime
-* Whisper int8 ASR
+* Whisper tiny.en int8 ASR (English) and IndicConformer-600M ASR (Indian languages)
 * WAV → text
 * English/Hindi TTS
 * Text → spoken audio
@@ -135,10 +135,11 @@ Restore the pinned local model binaries from the repository root with:
 powershell -NoProfile -ExecutionPolicy Bypass -File .\setup-models.ps1
 ```
 
-The script verifies the Whisper files, the dated sherpa-onnx Dolphin base
-multilingual INT8 package, and the English/Hindi Piper files. Dolphin's tracked
-`tokens.txt` and ignored `model.int8.onnx` are placed under
-`app/src/main/assets/dolphin-base-ctc-multi-lang-int8`.
+The script verifies the Whisper tiny.en files and the Piper files. Indian-language
+speech recognition uses IndicConformer-600M, which is about 700 MB and is not part
+of the APK: stage it with `-IndicConformerModel <package dir>` and push it to the
+phone as described in `docs/STT_INDICCONFORMER.md`. Dolphin and Whisper base are no
+longer used by the app (see `docs/sih-metrics/STT_DECISIONS.md`).
 
 ## Prototype Target
 

@@ -122,7 +122,8 @@ def ensure_fleurs(language: str, root: Path, count: int) -> list[dict[str, str]]
     return rows
 
 
-def make_recognizers(assets: Path) -> tuple[object, object]:
+def make_recognizers(assets: Path, dolphin_dir: Path | None = None) -> tuple[object, object]:
+    dolphin_dir = dolphin_dir or assets / "dolphin-base-ctc-multi-lang-int8"
     whisper = sherpa_onnx.OfflineRecognizer.from_whisper(
         encoder=str(assets / "tiny.en-encoder.int8.onnx"),
         decoder=str(assets / "tiny.en-decoder.int8.onnx"),
@@ -134,8 +135,8 @@ def make_recognizers(assets: Path) -> tuple[object, object]:
         provider="cpu",
     )
     dolphin = sherpa_onnx.OfflineRecognizer.from_dolphin_ctc(
-        model=str(assets / "dolphin-base-ctc-multi-lang-int8" / "model.int8.onnx"),
-        tokens=str(assets / "dolphin-base-ctc-multi-lang-int8" / "tokens.txt"),
+        model=str(dolphin_dir / "model.int8.onnx"),
+        tokens=str(dolphin_dir / "tokens.txt"),
         num_threads=2,
         sample_rate=16000,
         decoding_method="greedy_search",
@@ -161,6 +162,8 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", type=Path, default=Path(__file__).resolve().parents[3])
     parser.add_argument("--count", type=int, default=50)
+    # Dolphin is no longer an app asset (Task 5b); the baseline copy lives in .dolphin-baseline/.
+    parser.add_argument("--dolphin-dir", type=Path, default=None, help="folder with model.int8.onnx and tokens.txt")
     parser.add_argument("--languages", nargs="+", default=list(LANGUAGES))
     args = parser.parse_args()
 
@@ -186,7 +189,7 @@ def main() -> int:
     (raw_root / "environment.json").write_text(json.dumps(metadata, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     manifests = {lang: ensure_fleurs(lang, raw_root, args.count) for lang in args.languages}
-    whisper, dolphin = make_recognizers(assets)
+    whisper, dolphin = make_recognizers(assets, args.dolphin_dir)
     summaries = []
     for language in args.languages:
         recognizer = whisper if language == "en" else dolphin

@@ -1,0 +1,507 @@
+﻿hi: clips identical to Task 5 set: True
+hi 01/50
+hi 02/50
+hi 03/50
+hi 04/50
+hi 05/50
+hi 06/50
+hi 07/50
+hi 08/50
+hi 09/50
+hi 10/50
+hi 11/50
+hi 12/50
+hi 13/50
+hi 14/50
+hi 15/50
+hi 16/50
+hi 17/50
+hi 18/50
+hi 19/50
+hi 20/50
+hi 21/50
+hi 22/50
+hi 23/50
+hi 24/50
+hi 25/50
+hi 26/50
+hi 27/50
+hi 28/50
+hi 29/50
+hi 30/50
+hi 31/50
+hi 32/50
+hi 33/50
+hi 34/50
+hi 35/50
+hi 36/50
+hi 37/50
+hi 38/50
+hi 39/50
+hi 40/50
+hi 41/50
+hi 42/50
+hi 43/50
+hi 44/50
+hi 45/50
+hi 46/50
+hi 47/50
+hi 48/50
+hi 49/50
+hi 50/50
+== hi: WER 0.1163 (147/1264) CER 0.0408 wrong-script 0
+.\.venv-sih-metrics\Scripts\python.exe : 
+At line:4 char:1
++ .\.venv-sih-metrics\Scripts\python.exe docs\sih-metrics\tools\measure ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Generating train split: 0 examples [00:00, ? examples/s]
+Generating train split: 50 examples [00:00, 301.91 examples/s]
+Generating train split: 50 examples [00:00, 292.11 examples/s]
+gu: clips identical to Task 5 set: True
+gu 01/50
+gu 02/50
+gu 03/50
+gu 04/50
+gu 05/50
+gu 06/50
+gu 07/50
+gu 08/50
+gu 09/50
+gu 10/50
+gu 11/50
+gu 12/50
+gu 13/50
+gu 14/50
+gu 15/50
+gu 16/50
+gu 17/50
+gu 18/50
+gu 19/50
+gu 20/50
+gu 21/50
+gu 22/50
+gu 23/50
+gu 24/50
+gu 25/50
+gu 26/50
+gu 27/50
+gu 28/50
+gu 29/50
+gu 30/50
+gu 31/50
+gu 32/50
+gu 33/50
+gu 34/50
+gu 35/50
+gu 36/50
+gu 37/50
+gu 38/50
+gu 39/50
+gu 40/50
+gu 41/50
+gu 42/50
+gu 43/50
+gu 44/50
+gu 45/50
+gu 46/50
+gu 47/50
+gu 48/50
+gu 49/50
+gu 50/50
+== gu: WER 0.2022 (225/1113) CER 0.0687 wrong-script 0
+
+Generating train split: 0 examples [00:00, ? examples/s]
+Generating train split: 50 examples [00:00, 296.67 examples/s]
+Generating train split: 50 examples [00:00, 288.12 examples/s]
+mr: clips identical to Task 5 set: True
+mr 01/50
+mr 02/50
+mr 03/50
+mr 04/50
+mr 05/50
+mr 06/50
+mr 07/50
+mr 08/50
+mr 09/50
+mr 10/50
+mr 11/50
+mr 12/50
+mr 13/50
+mr 14/50
+mr 15/50
+mr 16/50
+mr 17/50
+mr 18/50
+mr 19/50
+mr 20/50
+mr 21/50
+mr 22/50
+mr 23/50
+mr 24/50
+mr 25/50
+mr 26/50
+mr 27/50
+mr 28/50
+mr 29/50
+mr 30/50
+mr 31/50
+mr 32/50
+mr 33/50
+mr 34/50
+mr 35/50
+mr 36/50
+mr 37/50
+mr 38/50
+mr 39/50
+mr 40/50
+mr 41/50
+mr 42/50
+mr 43/50
+mr 44/50
+mr 45/50
+mr 46/50
+mr 47/50
+mr 48/50
+mr 49/50
+mr 50/50
+== mr: WER 0.2029 (212/1045) CER 0.0623 wrong-script 0
+
+Generating train split: 0 examples [00:00, ? examples/s]
+Generating train split: 50 examples [00:00, 253.28 examples/s]
+Generating train split: 50 examples [00:00, 247.03 examples/s]
+ta: clips identical to Task 5 set: True
+ta 01/50
+ta 02/50
+ta 03/50
+ta 04/50
+ta 05/50
+ta 06/50
+ta 07/50
+ta 08/50
+ta 09/50
+ta 10/50
+ta 11/50
+ta 12/50
+ta 13/50
+ta 14/50
+ta 15/50
+ta 16/50
+ta 17/50
+ta 18/50
+ta 19/50
+ta 20/50
+ta 21/50
+ta 22/50
+ta 23/50
+ta 24/50
+ta 25/50
+ta 26/50
+ta 27/50
+ta 28/50
+ta 29/50
+ta 30/50
+ta 31/50
+ta 32/50
+ta 33/50
+ta 34/50
+ta 35/50
+ta 36/50
+ta 37/50
+ta 38/50
+ta 39/50
+ta 40/50
+ta 41/50
+ta 42/50
+ta 43/50
+ta 44/50
+ta 45/50
+ta 46/50
+ta 47/50
+ta 48/50
+ta 49/50
+ta 50/50
+== ta: WER 0.3158 (264/836) CER 0.1267 wrong-script 0
+
+Generating train split: 0 examples [00:00, ? examples/s]
+Generating train split: 50 examples [00:00, 282.40 examples/s]
+Generating train split: 50 examples [00:00, 274.76 examples/s]
+te: clips identical to Task 5 set: True
+te 01/50
+te 02/50
+te 03/50
+te 04/50
+te 05/50
+te 06/50
+te 07/50
+te 08/50
+te 09/50
+te 10/50
+te 11/50
+te 12/50
+te 13/50
+te 14/50
+te 15/50
+te 16/50
+te 17/50
+te 18/50
+te 19/50
+te 20/50
+te 21/50
+te 22/50
+te 23/50
+te 24/50
+te 25/50
+te 26/50
+te 27/50
+te 28/50
+te 29/50
+te 30/50
+te 31/50
+te 32/50
+te 33/50
+te 34/50
+te 35/50
+te 36/50
+te 37/50
+te 38/50
+te 39/50
+te 40/50
+te 41/50
+te 42/50
+te 43/50
+te 44/50
+te 45/50
+te 46/50
+te 47/50
+te 48/50
+te 49/50
+te 50/50
+== te: WER 0.2103 (180/856) CER 0.0749 wrong-script 0
+
+Generating train split: 0 examples [00:00, ? examples/s]
+Generating train split: 50 examples [00:00, 293.44 examples/s]
+Generating train split: 50 examples [00:00, 286.74 examples/s]
+or: clips identical to Task 5 set: True
+or 01/50
+or 02/50
+or 03/50
+or 04/50
+or 05/50
+or 06/50
+or 07/50
+or 08/50
+or 09/50
+or 10/50
+or 11/50
+or 12/50
+or 13/50
+or 14/50
+or 15/50
+or 16/50
+or 17/50
+or 18/50
+or 19/50
+or 20/50
+or 21/50
+or 22/50
+or 23/50
+or 24/50
+or 25/50
+or 26/50
+or 27/50
+or 28/50
+or 29/50
+or 30/50
+or 31/50
+or 32/50
+or 33/50
+or 34/50
+or 35/50
+or 36/50
+or 37/50
+or 38/50
+or 39/50
+or 40/50
+or 41/50
+or 42/50
+or 43/50
+or 44/50
+or 45/50
+or 46/50
+or 47/50
+or 48/50
+or 49/50
+or 50/50
+== or: WER 0.2508 (242/965) CER 0.0734 wrong-script 0
+
+Generating train split: 0 examples [00:00, ? examples/s]
+Generating train split: 50 examples [00:00, 315.28 examples/s]
+Generating train split: 50 examples [00:00, 308.50 examples/s]
+bn: clips identical to Task 5 set: True
+bn 01/50
+bn 02/50
+bn 03/50
+bn 04/50
+bn 05/50
+bn 06/50
+bn 07/50
+bn 08/50
+bn 09/50
+bn 10/50
+bn 11/50
+bn 12/50
+bn 13/50
+bn 14/50
+bn 15/50
+bn 16/50
+bn 17/50
+bn 18/50
+bn 19/50
+bn 20/50
+bn 21/50
+bn 22/50
+bn 23/50
+bn 24/50
+bn 25/50
+bn 26/50
+bn 27/50
+bn 28/50
+bn 29/50
+bn 30/50
+bn 31/50
+bn 32/50
+bn 33/50
+bn 34/50
+bn 35/50
+bn 36/50
+bn 37/50
+bn 38/50
+bn 39/50
+bn 40/50
+bn 41/50
+bn 42/50
+bn 43/50
+bn 44/50
+bn 45/50
+bn 46/50
+bn 47/50
+bn 48/50
+bn 49/50
+bn 50/50
+== bn: WER 0.1504 (148/984) CER 0.0445 wrong-script 0
+
+Generating train split: 0 examples [00:00, ? examples/s]
+Generating train split: 50 examples [00:00, 281.82 examples/s]
+Generating train split: 50 examples [00:00, 276.12 examples/s]
+kn: clips identical to Task 5 set: True
+kn 01/50
+kn 02/50
+kn 03/50
+kn 04/50
+kn 05/50
+kn 06/50
+kn 07/50
+kn 08/50
+kn 09/50
+kn 10/50
+kn 11/50
+kn 12/50
+kn 13/50
+kn 14/50
+kn 15/50
+kn 16/50
+kn 17/50
+kn 18/50
+kn 19/50
+kn 20/50
+kn 21/50
+kn 22/50
+kn 23/50
+kn 24/50
+kn 25/50
+kn 26/50
+kn 27/50
+kn 28/50
+kn 29/50
+kn 30/50
+kn 31/50
+kn 32/50
+kn 33/50
+kn 34/50
+kn 35/50
+kn 36/50
+kn 37/50
+kn 38/50
+kn 39/50
+kn 40/50
+kn 41/50
+kn 42/50
+kn 43/50
+kn 44/50
+kn 45/50
+kn 46/50
+kn 47/50
+kn 48/50
+kn 49/50
+kn 50/50
+== kn: WER 0.1642 (142/865) CER 0.0434 wrong-script 0
+
+Generating train split: 0 examples [00:00, ? examples/s]
+Generating train split: 50 examples [00:00, 261.61 examples/s]
+Generating train split: 50 examples [00:00, 254.95 examples/s]
+ml: clips identical to Task 5 set: True
+ml 01/50
+ml 02/50
+ml 03/50
+ml 04/50
+ml 05/50
+ml 06/50
+ml 07/50
+ml 08/50
+ml 09/50
+ml 10/50
+ml 11/50
+ml 12/50
+ml 13/50
+ml 14/50
+ml 15/50
+ml 16/50
+ml 17/50
+ml 18/50
+ml 19/50
+ml 20/50
+ml 21/50
+ml 22/50
+ml 23/50
+ml 24/50
+ml 25/50
+ml 26/50
+ml 27/50
+ml 28/50
+ml 29/50
+ml 30/50
+ml 31/50
+ml 32/50
+ml 33/50
+ml 34/50
+ml 35/50
+ml 36/50
+ml 37/50
+ml 38/50
+ml 39/50
+ml 40/50
+ml 41/50
+ml 42/50
+ml 43/50
+ml 44/50
+ml 45/50
+ml 46/50
+ml 47/50
+ml 48/50
+ml 49/50
+ml 50/50
+== ml: WER 0.2374 (188/792) CER 0.0656 wrong-script 0
+exit: 0

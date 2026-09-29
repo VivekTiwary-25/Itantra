@@ -22,7 +22,15 @@
     [string]$MmsKannadaModel = "",
     # Tamil (Meta MMS-TTS, CC BY-NC 4.0), same situation as Bengali: locally converted, decoder in fp16
     # (tts-research/mms-tam/MMS_TAM_CONVERSION.md); hash-checked.
-    [string]$MmsTamilModel = ""
+    [string]$MmsTamilModel = "",
+    # IndicConformer-600M multilingual-adapters package (STT for the Indian languages). Point this at the
+    # package folder (the one holding shared\, languages\ and hi.onnx, gu.onnx, ...). It is NOT copied into
+    # app assets (652 MB would bloat the APK); it is validated and staged in <RepoRoot>\model-staging\indicconformer
+    # for pushing to the phone's private files folder. See docs/STT_INDICCONFORMER.md. Hash-checked.
+    [string]$IndicConformerModel = "",
+    # Skip the SHA-256 check for the IndicConformer files. Use only when deliberately swapping in a different
+    # (e.g. re-quantised) build of the same package layout; structure and minimum sizes are still checked.
+    [switch]$IndicConformerSkipHash
 )
 
 Set-StrictMode -Version Latest
@@ -277,23 +285,11 @@ Run this script from the ROOT of the iTantra repository, or pass:
 
     # These should already be committed by the Speech team.
     $TinyTokens = Join-Path $Assets "tiny.en-tokens.txt"
-    $BaseTokens = Join-Path $Assets "base-tokens.txt"
 
     if (-not (Test-Path -LiteralPath $TinyTokens -PathType Leaf)) {
         throw "Missing committed STT token file: $TinyTokens"
     }
-    if (-not (Test-Path -LiteralPath $BaseTokens -PathType Leaf)) {
-        throw "Missing committed STT token file: $BaseTokens"
-    }
     Write-Ok "Existing STT token files found."
-
-    $DolphinDir = Join-Path $Assets "dolphin-base-ctc-multi-lang-int8"
-    $DolphinTokens = Join-Path $DolphinDir "tokens.txt"
-    if (-not (Test-Path -LiteralPath $DolphinTokens -PathType Leaf)) {
-        throw "Missing committed Dolphin token file: $DolphinTokens"
-    }
-    Assert-Sha256 $DolphinTokens "c3788261a51df1899ea4b210b552cd42139204de72c0ad60f6cebb199078872e" "Dolphin tokens"
-    Write-Ok "Dolphin token file found and verified."
 
     $RyanDir = Join-Path $Assets "vits-piper-en_US-ryan-medium"
     $PrathamDir = Join-Path $Assets "vits-piper-hi_IN-pratham-medium"
@@ -309,7 +305,7 @@ Run this script from the ROOT of the iTantra repository, or pass:
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     } catch {}
 
-    Write-Step "Downloading 4 Whisper STT models"
+    Write-Step "Downloading 2 Whisper STT models (English tiny.en)"
 
     $sttModels = @(
         @{
@@ -325,20 +321,6 @@ Run this script from the ROOT of the iTantra repository, or pass:
             Dest = (Join-Path $Assets "tiny.en-decoder.int8.onnx")
             Min = 80MB
             Sha = "06c0e6ff6348d427e51839219d1c886c18cfdf411e629e33f5e1679bff9c1527"
-        },
-        @{
-            Label = "Whisper base encoder INT8"
-            Url = "https://huggingface.co/csukuangfj/sherpa-onnx-whisper-base/resolve/main/base-encoder.int8.onnx?download=true"
-            Dest = (Join-Path $Assets "base-encoder.int8.onnx")
-            Min = 25MB
-            Sha = "0b8fb1304b6109976038efff5ace81720e00386f3ff6b54ee8c75291ca0a1e11"
-        },
-        @{
-            Label = "Whisper base decoder INT8"
-            Url = "https://huggingface.co/csukuangfj/sherpa-onnx-whisper-base/resolve/main/base-decoder.int8.onnx?download=true"
-            Dest = (Join-Path $Assets "base-decoder.int8.onnx")
-            Min = 120MB
-            Sha = "9759d217388a01b3a4c7c15533201067b48ae819c4daafc8624e64b9409dc02d"
         }
     )
 
@@ -351,23 +333,12 @@ Run this script from the ROOT of the iTantra repository, or pass:
             -Sha256 $m.Sha
     }
 
-    Write-Step "Downloading + extracting Dolphin STT and 3 Piper TTS models"
+    Write-Step "Downloading + extracting 3 Piper TTS models"
 
     $tempRoot = Join-Path ([IO.Path]::GetTempPath()) ("itantra-models-" + [Guid]::NewGuid().ToString("N"))
     New-Item -ItemType Directory -Force -Path $tempRoot | Out-Null
 
     try {
-        Install-ModelFromArchive `
-            -Url "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-dolphin-base-ctc-multi-lang-int8-2025-04-02.tar.bz2" `
-            -ArchiveName "sherpa-onnx-dolphin-base-ctc-multi-lang-int8-2025-04-02.tar.bz2" `
-            -ExpectedFolder "sherpa-onnx-dolphin-base-ctc-multi-lang-int8-2025-04-02" `
-            -OnnxName "model.int8.onnx" `
-            -DestinationDir $DolphinDir `
-            -Label "Dolphin base multilingual CTC INT8" `
-            -TempRoot $tempRoot `
-            -ArchiveSha256 "6f23da2303c3c2e5fa6445c450fa2a7133cd57e3da070ae5f97ab9e0dfbb4a54" `
-            -OnnxSha256 "a3aa46c97f3f60f135ff949793cb05fabe7a0b3c484dc2e3cc699d354ee11b76"
-
         Install-ModelFromArchive `
             -Url "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-piper-en_US-ryan-medium.tar.bz2" `
             -ArchiveName "vits-piper-en_US-ryan-medium.tar.bz2" `
@@ -539,14 +510,56 @@ Run this script from the ROOT of the iTantra repository, or pass:
         Write-Ok "Tamil MMS TTS present and verified."
     }
 
+    Write-Step "IndicConformer STT package (optional)"
+    $IcStage = Join-Path $RepoRoot "model-staging\indicconformer"
+    # Known-good SHA-256 of the multilingual-adapters package (docs/sih-metrics/raw/task5b-indicconformer/model-files-sha256.csv).
+    $IcSha = @{
+        "shared\encoder.weights.bin" = "083b3ee0b25bde0301f3b43ad2ebe8099a5b6bad0fed063e1a43891dfe444e09"
+        "hi.onnx" = "a2ce91493202e1a18f38a1adc036219d7a9fa5afcfd0579e53c966c68ee52ead"
+        "gu.onnx" = "66b126e4ecaeafad2658923b527a5d7bea70b58256d4fd521b55b7bad991689d"
+        "mr.onnx" = "72917e7f6e05c6ad880e85e52eff90042f4532318c01c1220e49c97f0a5a8fe2"
+        "ta.onnx" = "0c059216567c657b602620ccb437c2d5f3c600ee3ba079a396b55ab16bd66807"
+        "te.onnx" = "055c74ecbd73be9ed1123a4fd259a3421f74cd7e72ade764921e9ca443377a55"
+        "or.onnx" = "490c65ab254c231bbe750c25990ffe5e52b7de1b333189b8fbfcd90afa4f49f3"
+        "bn.onnx" = "3f1a26193c9adb8be39baf57aecfc32963073571c8a6fe7f55fecc9bc39d8cdb"
+        "kn.onnx" = "285e4b1bf463de0e92bd26ae46e846f4a9c14c606a296c2900eb572e15c367e2"
+        "ml.onnx" = "4f91561dae45cdd871aadcd263b1127ab54b8406c537a9fbeec7ac89fc02d929"
+    }
+    $IcRequired = @("hi", "gu", "mr", "ta", "te", "or", "bn")   # languages the app routes to IndicConformer
+    $IcOptional = @("kn", "ml")                                  # copied when present; not in the app picker yet
+    if ($IndicConformerModel) {
+        $IcSrc = (Resolve-Path -LiteralPath $IndicConformerModel).Path
+        $files = @("shared\encoder.weights.bin")
+        foreach ($l in $IcRequired) { $files += "$l.onnx"; $files += "languages\$l\tokens.txt" }
+        foreach ($l in $IcOptional) {
+            if (Test-Path -LiteralPath (Join-Path $IcSrc "$l.onnx")) { $files += "$l.onnx"; $files += "languages\$l\tokens.txt" }
+        }
+        foreach ($rel in $files) {
+            $src = Join-Path $IcSrc $rel
+            $min = if ($rel -like "*encoder.weights.bin") { 100MB } elseif ($rel -like "*.onnx") { 1MB } else { 1KB }
+            [void](Assert-MinSize $src $min "IndicConformer $rel")
+            if ($IcSha.ContainsKey($rel) -and -not $IndicConformerSkipHash) {
+                Assert-Sha256 $src $IcSha[$rel] "IndicConformer $rel"
+            }
+            $dst = Join-Path $IcStage $rel
+            New-Item -ItemType Directory -Force -Path (Split-Path -Parent $dst) | Out-Null
+            if ((Test-Path -LiteralPath $dst -PathType Leaf) -and ((Get-Item -LiteralPath $dst).Length -eq (Get-Item -LiteralPath $src).Length) -and -not $Force) { continue }
+            Copy-Item -LiteralPath $src -Destination $dst -Force
+        }
+        Write-Ok "IndicConformer staged at $IcStage ($($files.Count) files). Push it to the phone: see docs/STT_INDICCONFORMER.md."
+    }
+    elseif (Test-Path -LiteralPath (Join-Path $IcStage "shared\encoder.weights.bin") -PathType Leaf) {
+        Write-Ok "IndicConformer already staged at $IcStage."
+    }
+    else {
+        Write-Warn "IndicConformer package not staged. Rerun with -IndicConformerModel <...\.indicconformer-600m\multilingual-adapters>. Indian-language STT will not work on the phone until the files are pushed (docs/STT_INDICCONFORMER.md)."
+    }
+
     Write-Step "Final verification"
 
     $final = @(
         @{ Label = "tiny.en encoder"; Path = (Join-Path $Assets "tiny.en-encoder.int8.onnx"); Min = 10MB; Sha = "0ce578b827c94a961aacb8fa14b02f096504b337e5c94be37c36238cbe3e8bc6" },
         @{ Label = "tiny.en decoder"; Path = (Join-Path $Assets "tiny.en-decoder.int8.onnx"); Min = 80MB; Sha = "06c0e6ff6348d427e51839219d1c886c18cfdf411e629e33f5e1679bff9c1527" },
-        @{ Label = "base encoder";    Path = (Join-Path $Assets "base-encoder.int8.onnx");    Min = 25MB; Sha = "0b8fb1304b6109976038efff5ace81720e00386f3ff6b54ee8c75291ca0a1e11" },
-        @{ Label = "base decoder";    Path = (Join-Path $Assets "base-decoder.int8.onnx");    Min = 120MB; Sha = "9759d217388a01b3a4c7c15533201067b48ae819c4daafc8624e64b9409dc02d" },
-        @{ Label = "Dolphin STT";      Path = (Join-Path $DolphinDir "model.int8.onnx");       Min = 50MB; Sha = "a3aa46c97f3f60f135ff949793cb05fabe7a0b3c484dc2e3cc699d354ee11b76" },
         @{ Label = "Ryan TTS";        Path = (Join-Path $RyanDir "en_US-ryan-medium.onnx");   Min = 50MB; Sha = "" },
         @{ Label = "Pratham TTS";     Path = (Join-Path $PrathamDir "hi_IN-pratham-medium.onnx"); Min = 50MB; Sha = "" },
         @{ Label = "Arjun TTS (ml)";  Path = (Join-Path $ArjunDir "ml_IN-arjun-medium.onnx"); Min = 50MB; Sha = "33c97f81a1d326e0c524e321940dacf3ac1b48b6b5c486a6afa8bff245695cf7" }
@@ -562,15 +575,13 @@ Run this script from the ROOT of the iTantra repository, or pass:
 
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Green
-    Write-Host " ALL 8 MODEL FILES ARE READY" -ForegroundColor Green
+    Write-Host " ALL 5 APP MODEL FILES ARE READY" -ForegroundColor Green
     Write-Host "============================================================" -ForegroundColor Green
     Write-Host ""
     Write-Host "STT:"
     Write-Host "  app/src/main/assets/tiny.en-encoder.int8.onnx"
     Write-Host "  app/src/main/assets/tiny.en-decoder.int8.onnx"
-    Write-Host "  app/src/main/assets/base-encoder.int8.onnx"
-    Write-Host "  app/src/main/assets/base-decoder.int8.onnx"
-    Write-Host "  app/src/main/assets/dolphin-base-ctc-multi-lang-int8/model.int8.onnx"
+    Write-Host "  (Indian languages: IndicConformer, not in the APK; see -IndicConformerModel and docs/STT_INDICCONFORMER.md)"
     Write-Host ""
     Write-Host "TTS:"
     Write-Host "  app/src/main/assets/vits-piper-en_US-ryan-medium/en_US-ryan-medium.onnx"
