@@ -11,7 +11,7 @@ by absolute path (`SpeechRecognizerManager.INDIC_CONFORMER_DIR_NAME`, currently 
 /data/data/com.chmod777.itantra/files/indicconformer/
   shared/encoder.weights.bin        651,952,128 B, shared by every language
   hi.onnx gu.onnx mr.onnx ta.onnx te.onnx or.onnx bn.onnx   ~5 MB each (encoder graph + head; weights are external)
-  kn.onnx ml.onnx                   optional, not in the language picker yet
+  kn.onnx ml.onnx                   Kannada and Malayalam (in the picker since Task 5b)
   languages/<lang>/tokens.txt       ~3 KB each
 ```
 

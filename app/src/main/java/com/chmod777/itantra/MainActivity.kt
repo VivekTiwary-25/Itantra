@@ -168,7 +168,9 @@ private val SUPPORTED_LANGUAGES = listOf(
     "ta" to "Tamil",
     "te" to "Telugu",
     "or" to "Odia",
-    "bn" to "Bengali"
+    "bn" to "Bengali",
+    "kn" to "Kannada",
+    "ml" to "Malayalam"
 )
 
 // Sample text per language for the temporary Test TTS control. Typing Devanagari
@@ -183,12 +185,12 @@ private val TTS_SAMPLE_TEXT = mapOf(
     "te" to "ఇది ఒక పరీక్ష సందేశం",
     "or" to "ଏହା ଏକ ପରୀକ୍ଷା ବାର୍ତ୍ତା",
     "bn" to "এটি একটি পরীক্ষা বার্তা",
+    "kn" to "ಇದು ಒಂದು ಪರೀಕ್ಷಾ ಸಂದೇಶ",
     "ml" to "നദിയിലെ വെള്ളം വേഗത്തിൽ ഉയരുന്നു. സുരക്ഷിത സ്ഥലത്തേക്ക് പോകുക."
 )
 
-// The temporary Test TTS control also lists Malayalam, which has a voice but no
-// STT/compose support, so it is kept out of SUPPORTED_LANGUAGES.
-private val TTS_TEST_LANGUAGES = SUPPORTED_LANGUAGES + ("ml" to "Malayalam")
+// The temporary Test TTS control lists the same languages as the picker.
+private val TTS_TEST_LANGUAGES = SUPPORTED_LANGUAGES
 
 private val MessageListSaver = Saver<SnapshotStateList<Message>, ArrayList<Bundle>>(
     save = { messages ->

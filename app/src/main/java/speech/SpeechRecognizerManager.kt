@@ -13,7 +13,7 @@ import java.io.File
 class SpeechRecognizerManager(private val context: Context) {
 
     // Languages served by IndicConformer (NeMo CTC). English stays on Whisper tiny.en.
-    private val indicConformerLanguages = setOf("hi", "gu", "mr", "ta", "te", "or", "bn")
+    private val indicConformerLanguages = setOf("hi", "gu", "mr", "ta", "te", "or", "bn", "kn", "ml")
 
     private val indicConformerDir = File(context.filesDir, INDIC_CONFORMER_DIR_NAME)
 

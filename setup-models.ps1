@@ -525,8 +525,8 @@ Run this script from the ROOT of the iTantra repository, or pass:
         "kn.onnx" = "285e4b1bf463de0e92bd26ae46e846f4a9c14c606a296c2900eb572e15c367e2"
         "ml.onnx" = "4f91561dae45cdd871aadcd263b1127ab54b8406c537a9fbeec7ac89fc02d929"
     }
-    $IcRequired = @("hi", "gu", "mr", "ta", "te", "or", "bn")   # languages the app routes to IndicConformer
-    $IcOptional = @("kn", "ml")                                  # copied when present; not in the app picker yet
+    $IcRequired = @("hi", "gu", "mr", "ta", "te", "or", "bn", "kn", "ml")   # languages the app routes to IndicConformer
+    $IcOptional = @()                                                        # (none)
     if ($IndicConformerModel) {
         $IcSrc = (Resolve-Path -LiteralPath $IndicConformerModel).Path
         $files = @("shared\encoder.weights.bin")

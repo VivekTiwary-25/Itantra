@@ -41,8 +41,10 @@ Scenario B/C were not triggered: Dolphin wins 0 of 7 (C needs 4 or more). `PART1
 | kn | 0.1642 | 0.0434 | 0 | 142 / 865 |
 | ml | 0.2374 | 0.0656 | 0 | 188 / 792 |
 
-Not added to the language picker (`SUPPORTED_LANGUAGES` in `MainActivity.kt` is unchanged): Vivek decides. The IC files for both are staged and pushed to the phone by the setup path, and the app code
-would route them once the codes are added to `indicConformerLanguages`. There is no Dolphin baseline for them.
+Initially report-only. **Vivek then decided to add both to the language picker**: `kn` and `ml` are now in `SUPPORTED_LANGUAGES` (`MainActivity.kt`) and in `indicConformerLanguages`
+(`SpeechRecognizerManager.kt`), the setup script treats their IC files as required, and the Test TTS list no longer adds Malayalam separately (it now equals the picker list). There is no Dolphin baseline for them.
+TTS for these two is unchanged: Malayalam uses the bundled Piper Arjun voice; Kannada uses the optional MMS voice, and `canSpeak` reports when it is not installed.
+Their phone checks are in D11.
 
 ## D6. Whisper base removed
 
@@ -65,3 +67,17 @@ Two sessions alive at once would need about 1.3 GB, so release always precedes l
 
 5 of 5 transcripts identical to desktop through the app's `SpeechEngine.transcribe()` (instrumentation), so the "differs in more than 1 of 5" stop rule was not triggered. Switch en to hi 4.3 to 5.3 s (under the 6 s limit),
 peak PSS 862 to 905 MB, no crash. The other six languages' phone results are recorded in `RESULTS.md` (Task 5b section).
+
+## D10. Phone vs desktop parity: accepted by Vivek
+
+The Step 1.5 stop rule (more than 1 of 5 clips differing from desktop) tripped for gu (2 of 5), mr (2 of 5) and ta (2 of 5); hi 0, te 0, or 1, bn 1. Vivek reviewed the transcript diffs and accepted them as
+arm64 vs x86 INT8 rounding: phone output differs from desktop by single characters on some clips; phone WER on the 5-clip spot check is within a few points of desktop, in both directions.
+Numbers behind it (5 clips each, phone WER / desktop WER): hi 0.0650 / 0.0650, gu 0.1852 / 0.1944, mr 0.1750 / 0.1625, ta 0.4677 / 0.5161, te 0.0870 / 0.0870, or 0.2326 / 0.2326, bn 0.1053 / 0.0947.
+No crash, no out-of-memory, no language switch over 6 s. Decision: proceed to push `stt/indicconformer` (not merged into `Complete-App-V1`).
+
+## D11. kn and ml phone checks (RMX3392, new build with both in the picker)
+
+5 clips each, through the app's `SpeechEngine`, `-e prime hi` (IC to IC switch). kn: 5/5 identical to desktop (two runs), phone WER 0.0820 = desktop 0.0820; ml: 4/5 identical (one single-character flip),
+phone WER 0.2535 = desktop 0.2535. Peak PSS kn 848 MB / ml 912 MB, no crash. Switch into ml 4.0 s; switch into kn 3.4 s on the re-run but **7.2 s on the first run after reinstalling the app**
+(cold file cache), which is over the 6 s limit: recorded as a known issue for the first switch after a fresh install; not reproducible on the re-run. Both are within the accepted parity category (D10).
+Final debug APK with the picker change: 323,609,847 B (308.62 MiB).

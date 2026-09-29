@@ -50,13 +50,14 @@ For Task 5, each FLEURS clip was converted to 16 kHz, mono, 16-bit PCM WAV. The 
 
 - **Scenario A**: IndicConformer (IC) beats Dolphin in all 7 Indian languages by 25.8 to 58.1 WER points, so IC replaces Dolphin everywhere. English stays on Whisper tiny.en.
   Dolphin and Whisper base are removed from the app. Full reasoning: `docs/sih-metrics/STT_DECISIONS.md`.
-- **Languages switched to IC**: hi, gu, mr, ta, te, or, bn. kn and ml were measured (IC only) but are not in the picker; Vivek decides.
-- **Final debug APK**: 323,335,841 B (308.36 MiB) from a clean `gradlew clean assembleDebug`. IC itself (about 697 MB) is not in the APK; it is pushed to the phone's private files folder (`docs/STT_INDICCONFORMER.md`).
+- **Languages switched to IC**: hi, gu, mr, ta, te, or, bn, plus kn and ml (no Dolphin baseline; added to the picker at Vivek's request).
+- **Final debug APK**: 323,609,847 B (308.62 MiB) (323,335,841 B before kn/ml were added to the picker), from a clean-built base and `gradlew assembleDebug`. IC itself (about 697 MB) is not in the APK; it is pushed to the phone's private files folder (`docs/STT_INDICCONFORMER.md`).
 - **Phone**: realme RMX3392, Android 14, arm64-v8a, MediaTek mt6877, 7.7 GB RAM (`EILZRCFQLZIZ6H6P`).
 - **Phone result: NOT PASSED under the stop rule.** Transcripts differ from desktop in more than 1 of 5 clips for gu (2), mr (2) and ta (2); hi and te 0, or 1, bn 1.
   The differences are single-character or matra flips (INT8 kernels on arm64 differ slightly from x86, as the earlier prototype also saw). On these 5 clips the phone WER is within about 5 points of desktop and sometimes better.
-  No crash, no out-of-memory, no language switch over 6 s. **Per the rule the branch was NOT pushed** and `PART1_DONE` was not written; Vivek to decide whether the differences are acceptable.
-- **PENDING**: Vivek's decision on the parity finding; push of `stt/indicconformer`; kn/ml picker decision; GREEN status (only Vivek).
+  No crash, no out-of-memory, no language switch over 6 s. **Accepted by Vivek** as arm64 vs x86 rounding: phone output differs from desktop by single characters on some clips; phone WER on the 5-clip spot check is within a few points of desktop, in both directions.
+- **kn and ml added to the language picker** at Vivek's request (see the kn/ml phone checks below).
+- **PENDING**: GREEN status (only Vivek); merge of `stt/indicconformer` (not merged, review first).
 
 ### Dolphin vs IndicConformer (desktop, 50 FLEURS test clips per language, sherpa-onnx 1.13.7, CPU, 2 threads, greedy)
 
@@ -87,7 +88,14 @@ Desktop timings were not recorded as results (CPU shared with another agent).
 | te | 5/5 | 0.0870 / 0.0870 | hi to te 3.9 s | 0.148 to 0.154 | 851 MB | 934 MB |
 | or | 4/5 | 0.2326 / 0.2326 | hi to or 4.0 s | 0.148 to 0.160 | 859 MB | 943 MB |
 | bn | 4/5 | 0.1053 / 0.0947 | hi to bn 3.9 s | 0.148 to 0.163 | 868 MB | 959 MB |
+| kn | 5/5 (2 runs) | 0.0820 / 0.0820 | hi to kn 3.4 s (re-run); 7.2 s on the first run after reinstall, see note | 0.129 to 0.138 (re-run); 0.135 to 0.314 first run | 848 MB | 937 MB |
+| ml | 4/5 | 0.2535 / 0.2535 | hi to ml 4.0 s | 0.160 to 0.238 | 912 MB | 994 MB |
 
 Switch = release the loaded recognizer, then build the next one from `<lang>.onnx` (logcat tag `ITANTRA_PERF_STT`, `loadMs` of the first decode). Peak PSS from `dumpsys meminfo` sampled every second; VmHWM from `/proc/self/status`.
 There was no 2x memory transient across switches. Raw: `raw/task5b-indicconformer/phone/` (`<lang>-prime-hi-logcat.txt`, `-meminfo-samples.txt`, `<lang>-results.json`; Hindi in `hi-*`). Phone WER/CER columns are on 5 clips only, a sanity check and not a quality measure.
 Method note: the app UI was not driven; the clips go through the app's own speech layer by instrumentation, and the model is read from `files/indicconformer` by path.
+
+**kn/ml note.** The first kn run happened right after reinstalling the app and its switch took 7,196 ms, over the 6 s line (known issue candidate); a re-run in the same session took 3,433 ms with warm RTF 0.13,
+so the slow case was a cold file cache after reinstall, not steady behaviour. First-run log: `raw/task5b-indicconformer/phone/kn-prime-hi-run1-coldcache-logcat.txt`. The kn/ml phone check was run on the build that has them in the picker;
+the picker UI itself was not exercised by hand (no UI driving), only the speech layer with `-e lang kn|ml`.
+**Parity note (accepted by Vivek):** phone output differs from desktop by single characters on some clips; phone WER on the 5-clip spot check is within a few points of desktop, in both directions.

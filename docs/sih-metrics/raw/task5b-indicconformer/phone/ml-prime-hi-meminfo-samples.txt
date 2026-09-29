@@ -1,0 +1,23 @@
+﻿15:20:15 
+15:20:16            TOTAL PSS:    64002            TOTAL RSS:   139800       TOTAL SWAP PSS:      192
+15:20:18            TOTAL PSS:   171335            TOTAL RSS:   256796       TOTAL SWAP PSS:       71
+15:20:19            TOTAL PSS:   218857            TOTAL RSS:   306208       TOTAL SWAP PSS:       71
+15:20:20            TOTAL PSS:   216597            TOTAL RSS:   303960       TOTAL SWAP PSS:       71
+15:20:21            TOTAL PSS:   399304            TOTAL RSS:   486520       TOTAL SWAP PSS:       71
+15:20:23            TOTAL PSS:   841864            TOTAL RSS:   928928       TOTAL SWAP PSS:       71
+15:20:24            TOTAL PSS:   843873            TOTAL RSS:   930968       TOTAL SWAP PSS:       71
+15:20:25            TOTAL PSS:   207232            TOTAL RSS:   294316       TOTAL SWAP PSS:       71
+15:20:27            TOTAL PSS:   208559            TOTAL RSS:   295848       TOTAL SWAP PSS:       67
+15:20:28            TOTAL PSS:   607469            TOTAL RSS:   694804       TOTAL SWAP PSS:       67
+15:20:29            TOTAL PSS:   842503            TOTAL RSS:   927568       TOTAL SWAP PSS:       69
+15:20:30            TOTAL PSS:   899204            TOTAL RSS:   984268       TOTAL SWAP PSS:       69
+15:20:32            TOTAL PSS:   896870            TOTAL RSS:   981336       TOTAL SWAP PSS:       69
+15:20:33            TOTAL PSS:   896959            TOTAL RSS:   981428       TOTAL SWAP PSS:       69
+15:20:34            TOTAL PSS:   905971            TOTAL RSS:   990452       TOTAL SWAP PSS:       69
+15:20:36            TOTAL PSS:   912406            TOTAL RSS:   996916       TOTAL SWAP PSS:       68
+15:20:37            TOTAL PSS:   909626            TOTAL RSS:   993976       TOTAL SWAP PSS:       68
+15:20:38            TOTAL PSS:   910122            TOTAL RSS:   994036       TOTAL SWAP PSS:       76
+15:20:40            TOTAL PSS:   911615            TOTAL RSS:   995720       TOTAL SWAP PSS:       72
+15:20:42            TOTAL PSS:   908943            TOTAL RSS:   992688       TOTAL SWAP PSS:       72
+15:20:43            TOTAL PSS:   906606            TOTAL RSS:   990048       TOTAL SWAP PSS:       71
+15:20:45 
