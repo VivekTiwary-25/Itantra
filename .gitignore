@@ -21,3 +21,7 @@ local.properties
 *.bin
 app/src/main/assets/models/
 local-recordings/
+
+# Local upstream Dolphin desktop experiment
+/.venv-dolphin/
+/.dolphin-upstream/
