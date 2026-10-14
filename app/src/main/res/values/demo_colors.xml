@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="demo_night">#FF07111C</color>
+    <color name="demo_gold">#FFF8AD3C</color>
+    <color name="demo_sos">#FFE0604F</color>
+</resources>

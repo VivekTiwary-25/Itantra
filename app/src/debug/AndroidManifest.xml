@@ -4,15 +4,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <application>
+        <!-- Reachable from the app's "Contacts & network" button and from
+             `adb shell am start -n com.chmod777.itantra/.ui.lab.NetworkLabActivity`,
+             but no longer a second home-screen icon next to the real app. -->
         <activity
             android:name=".ui.lab.NetworkLabActivity"
             android:exported="true"
-            tools:replace="android:exported">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            tools:replace="android:exported" />
 
         <!-- Physical-validation control plane. Only holders of DUMP (adb shell) can send to it. -->
         <receiver
