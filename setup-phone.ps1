@@ -99,6 +99,26 @@ function Get-SizeFrom {
     return [int64](-1)
 }
 
+# KB below a megabyte, so a small file does not read as "0 MB".
+function Format-Size {
+    param([int64]$Bytes)
+    if ($Bytes -lt 1MB) { return ('{0:N1} KB' -f ($Bytes / 1KB)) }
+    return ('{0:N1} MB' -f ($Bytes / 1MB))
+}
+
+# Size of the APK the phone already holds for this user, or -1 if it holds none.
+function Get-InstalledApkSize {
+    $r = Invoke-Device @('shell', "pm path $Package")
+    if ($r.ExitCode -ne 0) { return [int64](-1) }
+    $apkPath = ''
+    foreach ($l in ($r.Output -split "`n")) {
+        $t = $l.Trim()
+        if ($t -like 'package:*') { $apkPath = $t.Substring(8); break }
+    }
+    if ($apkPath -eq '') { return [int64](-1) }
+    return Get-SizeFrom (Invoke-Device @('shell', "stat -c %s $apkPath")).Output
+}
+
 function Get-DeviceState {
     $r = Invoke-Adb @('-s', $Serial, 'get-state')
     if ($r.ExitCode -ne 0) { return 'missing' }
@@ -238,23 +258,34 @@ if ($Clean) {
 
 $apkBytes = (Get-Item $Apk).Length
 Write-Host "    $Apk ($apkBytes bytes)"
-$install = Invoke-Device @('install', '-r', $Apk)
-if ($install.ExitCode -ne 0) {
-    Assert-Device -Step 'the install'
-    Write-Host ''
-    Write-Host "The install failed (adb exit $($install.ExitCode)):" -ForegroundColor Red
-    Write-Host $install.Output
-    exit 1
-}
 
-$path = Invoke-Device @('shell', "pm path $Package")
-if ($path.Output -notmatch 'package:') {
-    Write-Host ''
-    Write-Host "adb reported success but pm cannot find $Package for this user." -ForegroundColor Red
-    Write-Host $path.Output
-    exit 1
+# On a re-run the phone usually already holds this exact APK. Re-sending it is
+# the single biggest transfer in the script and the one most likely to be cut in
+# half by a flaky cable, so skip it when the installed APK is the same size.
+# -Clean has just uninstalled, so there it never matches and the install runs.
+Assert-Device -Step 'checking which APK the phone has'
+$installedBytes = Get-InstalledApkSize
+if ($installedBytes -eq $apkBytes) {
+    Write-Host "    the phone already has this APK ($installedBytes bytes), skipping the install." -ForegroundColor Green
+} else {
+    $install = Invoke-Device @('install', '-r', $Apk)
+    if ($install.ExitCode -ne 0) {
+        Assert-Device -Step 'the install'
+        Write-Host ''
+        Write-Host "The install failed (adb exit $($install.ExitCode)):" -ForegroundColor Red
+        Write-Host $install.Output
+        exit 1
+    }
+
+    $path = Invoke-Device @('shell', "pm path $Package")
+    if ($path.Output -notmatch 'package:') {
+        Write-Host ''
+        Write-Host "adb reported success but pm cannot find $Package for this user." -ForegroundColor Red
+        Write-Host $path.Output
+        exit 1
+    }
+    Write-Host '    installed.' -ForegroundColor Green
 }
-Write-Host '    installed.' -ForegroundColor Green
 
 # ---- Step 2: the models ---------------------------------------------------------
 
@@ -307,7 +338,7 @@ if ($script:Pending.Count -eq 0) {
     foreach ($rel in $todo) {
         $item = $local | Where-Object { $_.Rel -eq $rel } | Select-Object -First 1
         $n++
-        Write-Host ("    [{0}/{1}] {2}  ({3} MB)" -f $n, $todo.Count, $rel, [math]::Round($item.Size / 1MB, 1))
+        Write-Host ("    [{0}/{1}] {2}  ({3})" -f $n, $todo.Count, $rel, (Format-Size $item.Size))
 
         $sw = [Diagnostics.Stopwatch]::StartNew()
         $ok = Copy-ModelFile -Rel $rel -LocalPath $item.Path -Size $item.Size
