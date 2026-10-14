@@ -106,17 +106,36 @@ function Format-Size {
     return ('{0:N1} MB' -f ($Bytes / 1MB))
 }
 
-# Size of the APK the phone already holds for this user, or -1 if it holds none.
-function Get-InstalledApkSize {
+# True when the phone already holds this exact APK, so the install can be skipped.
+#
+# Size alone is not enough. This APK is ~875 MB of model files wrapped around a few hundred KB of
+# code, so two different builds land on the same byte count easily - the first version of this
+# check skipped a real code change for exactly that reason, and the phone quietly kept running the
+# old build. Size is kept as a free prefilter; the decision is made on a hash. Both hashes
+# together cost about 4 s against ~45 s for a reinstall that was not needed.
+function Test-ApkAlreadyInstalled {
+    param([Parameter(Mandatory = $true)][string]$LocalApk)
+
     $r = Invoke-Device @('shell', "pm path $Package")
-    if ($r.ExitCode -ne 0) { return [int64](-1) }
+    if ($r.ExitCode -ne 0) { return $false }
     $apkPath = ''
     foreach ($l in ($r.Output -split "`n")) {
         $t = $l.Trim()
         if ($t -like 'package:*') { $apkPath = $t.Substring(8); break }
     }
-    if ($apkPath -eq '') { return [int64](-1) }
-    return Get-SizeFrom (Invoke-Device @('shell', "stat -c %s $apkPath")).Output
+    if ($apkPath -eq '') { return $false }
+
+    $localSize = (Get-Item $LocalApk).Length
+    if ((Get-SizeFrom (Invoke-Device @('shell', "stat -c %s $apkPath")).Output) -ne $localSize) {
+        return $false
+    }
+
+    $deviceLine = Get-LastLine -Text (Invoke-Device @('shell', "md5sum $apkPath")).Output
+    if ($deviceLine -eq '') { return $false }
+    $deviceHash = $deviceLine.Split(' ')[0].Trim().ToLower()
+    $localHash = (Get-FileHash -Path $LocalApk -Algorithm MD5).Hash.ToLower()
+    if ($deviceHash.Length -ne 32) { return $false }
+    return ($deviceHash -eq $localHash)
 }
 
 function Get-DeviceState {
@@ -261,12 +280,11 @@ Write-Host "    $Apk ($apkBytes bytes)"
 
 # On a re-run the phone usually already holds this exact APK. Re-sending it is
 # the single biggest transfer in the script and the one most likely to be cut in
-# half by a flaky cable, so skip it when the installed APK is the same size.
+# half by a flaky cable, so skip it when the installed APK really is the same one.
 # -Clean has just uninstalled, so there it never matches and the install runs.
 Assert-Device -Step 'checking which APK the phone has'
-$installedBytes = Get-InstalledApkSize
-if ($installedBytes -eq $apkBytes) {
-    Write-Host "    the phone already has this APK ($installedBytes bytes), skipping the install." -ForegroundColor Green
+if (Test-ApkAlreadyInstalled -LocalApk $Apk) {
+    Write-Host '    the phone already has this exact APK, skipping the install.' -ForegroundColor Green
 } else {
     $install = Invoke-Device @('install', '-r', $Apk)
     if ($install.ExitCode -ne 0) {
