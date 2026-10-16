@@ -9,11 +9,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.chmod777.itantra.network.ItantraNetwork
+import com.chmod777.itantra.ui.app.Ink
 import com.chmod777.itantra.ui.app.ITantraApp
-import com.chmod777.itantra.ui.theme.SIH_iTantraTheme
+import com.chmod777.itantra.ui.app.ItantraTheme
 
 /**
  * The shell. Everything the app does lives in [ITantraApp] and the state holder behind it
@@ -26,10 +26,10 @@ class MainActivity : ComponentActivity() {
         ItantraNetwork.init(this)
         enableEdgeToEdge()
         setContent {
-            SIH_iTantraTheme {
+            ItantraTheme {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
-                    containerColor = Color(0xFF07111C)
+                    containerColor = Ink.night
                 ) { innerPadding ->
                     ITantraApp(Modifier.padding(innerPadding))
                 }
@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
 @Preview(showBackground = true)
 @Composable
 fun ITantraAppPreview() {
-    SIH_iTantraTheme {
+    ItantraTheme {
         ITantraApp()
     }
 }

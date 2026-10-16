@@ -1,6 +1,7 @@
 package com.chmod777.itantra.ui.app
 
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -31,6 +32,13 @@ sealed interface Route {
     data object NewMessage : Route
     data object Logs : Route
     data class MessageDetail(val index: Int) : Route
+
+    /**
+     * The pre-redesign main screen, kept only behind the debug long-press on the wordmark.
+     * It is the one place the Legacy RFCOMM switch and the "Contacts & network" door into the
+     * Net Lab still live; both get a permanent home before this route is deleted.
+     */
+    data object LegacyMain : Route
 }
 
 @Composable
@@ -42,6 +50,11 @@ fun ITantraApp(modifier: Modifier = Modifier) {
 @Composable
 fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
     val context = LocalContext.current
+    // No BuildConfig: the buildConfig feature is off and app/build.gradle.kts is shared with
+    // the other lanes, so the debuggable flag is read off the running app instead.
+    val isDebugBuild = remember(context) {
+        (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+    }
     val state = rememberAppState()
     val emergencyState = rememberEmergencyState()
 
@@ -53,7 +66,28 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
 
     Box(Modifier.fillMaxSize().background(Color(0xFF07111C))) {
         when (val route = stack.last()) {
-            Route.Main -> MainScreen(
+            Route.Main -> HomeScreen(
+                languageCode = state.selectedLanguageCode,
+                unreadCount = state.unreadCount,
+                isTranscribing = state.isTranscribing,
+                emergencyState = emergencyState,
+                onLanguageSelected = { state.selectedLanguageCode = it },
+                onStartRecording = state::startRecording,
+                onStopRecording = state::stopRecording,
+                onPttReleased = { state.startTranscription("PTT") { push(Route.NewMessage) } },
+                onHandsFree = { push(Route.HandsFree) },
+                onWrite = {
+                    state.beginTypedMessage()
+                    push(Route.NewMessage)
+                },
+                onLogs = { push(Route.Logs) },
+                onStartEmergency = state::startEmergencyMode,
+                onStopEmergency = state::stopEmergencyMode,
+                onDeveloper = if (isDebugBuild) ({ push(Route.LegacyMain) }) else null,
+                modifier = modifier
+            )
+
+            Route.LegacyMain -> MainScreen(
                 unreadCount = state.unreadCount,
                 recordingFile = state.recordingFile,
                 onStartRecording = state::startRecording,
