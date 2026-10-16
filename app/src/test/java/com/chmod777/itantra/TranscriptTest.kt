@@ -24,6 +24,15 @@ class TranscriptTest {
     }
 
     @Test
+    fun `a long silence repeats the token and the last one is cut off`() {
+        // Verbatim shape of what 17 seconds of a quiet room produced on the phone.
+        val repeated = List(34) { "[Music]" }.joinToString(" ") + " [Music"
+        assertTrue(heardNothing(repeated))
+        assertTrue(heardNothing("[Music] [Music] [Mus"))
+        assertTrue(heardNothing("[BLANK_AUDIO] [BLANK"))
+    }
+
+    @Test
     fun `real speech is kept, even next to an annotation`() {
         assertFalse(heardNothing("Bring the medical kit to the south gate."))
         assertFalse(heardNothing("[MUSIC] bring the kit"))
@@ -31,5 +40,7 @@ class TranscriptTest {
         assertFalse(heardNothing("no"))
         // A bracket inside a sentence must not make the whole thing disappear.
         assertFalse(heardNothing("meet me at the gate (the north one)"))
+        assertFalse(heardNothing("[Music] we are at the gate"))
+        assertFalse(heardNothing("[Music] [Music] send help"))
     }
 }

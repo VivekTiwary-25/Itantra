@@ -8,15 +8,22 @@ package com.chmod777.itantra.ui.app
  *
  *  - IndicConformer (hi, gu, mr, kn, ml, ta, te, or, bn) returns an empty string, and so does the
  *    recognizer manager when a language has no model on the phone at all.
- *  - Whisper (en) returns one of its annotation tokens instead: `[BLANK_AUDIO]` on silence, and
- *    `[MUSIC]`, `[SIDE CONVERSATION]` and others on sounds it will not transcribe. All of them
- *    are a bracketed label and nothing else, which is the shape matched here rather than a list
- *    of the particular ones we have happened to see. Real speech never comes back as a single
- *    bracketed token, so the test is safe in the direction that matters: it can only ever
- *    discard a token, never a sentence.
+ *  - Whisper (en) returns one of its annotation tokens instead: `[BLANK_AUDIO]`, `[ Silence ]`,
+ *    `[Music]`, `[SIDE CONVERSATION]` and others, for anything it will not transcribe as speech
+ *    — an empty room, but equally a television playing in the next one. Either way nobody has
+ *    said anything to send, so both belong here. All of them are a bracketed label and nothing
+ *    else, which is the shape matched rather than a list of the particular ones we have happened
+ *    to see; four different ones turned up in a single afternoon of testing. Speech mixed with
+ *    noise still comes back with words in it, so the test is safe in the direction that matters:
+ *    it can only discard labels, never a sentence.
  *
- * Getting this wrong in the other direction is what the user hit: `[BLANK_AUDIO]` was reaching
- * Logs as if it were a message somebody had spoken.
+ * A long take of it repeats the token until the decoder runs out of room, which leaves the last
+ * one unfinished: 17 seconds produced `[Music] [Music] … [Music`, 278 characters of it, and an
+ * earlier version of this function passed that through to the editor because of the one missing
+ * bracket. The final label may therefore be unclosed.
+ *
+ * Getting this wrong in the other direction is what the user hit: `[BLANK_AUDIO]` and
+ * `[ Silence ]` were reaching Logs as if they were messages somebody had spoken.
  */
 internal fun heardNothing(text: String): Boolean {
     val trimmed = text.trim()
@@ -24,5 +31,9 @@ internal fun heardNothing(text: String): Boolean {
     return ANNOTATION_ONLY.matches(trimmed)
 }
 
-/** One or more `[...]` / `(...)` labels, separated by nothing but spaces or punctuation. */
-private val ANNOTATION_ONLY = Regex("""^(?:[\[(][^\[\]()]*[])][\s.,!?;:-]*)+$""")
+/**
+ * Nothing but `[...]` / `(...)` labels, separated by spaces or punctuation, where the last one
+ * may have been cut off before its closing bracket.
+ */
+private val ANNOTATION_ONLY =
+    Regex("""^(?:[\[(][^\[\]()]*[])][\s.,!?;:-]*)*(?:[\[(][^\[\]()]*)?$""")
