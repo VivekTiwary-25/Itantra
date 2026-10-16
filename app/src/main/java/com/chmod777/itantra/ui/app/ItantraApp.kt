@@ -45,6 +45,17 @@ sealed interface Route {
      * It is the one place the Legacy RFCOMM switch and the "Contacts & network" door into the
      * Net Lab still live; both get a permanent home before this route is deleted.
      */
+    data object Settings : Route
+    data object QrScan : Route
+
+    /**
+     * The two steps of adding a contact. Both depend on a scanned capsule that is deliberately
+     * not saved anywhere, so if the activity is recreated here the flow restarts rather than
+     * resuming half-trusted.
+     */
+    data object FingerprintCheck : Route
+    data object AddContactName : Route
+
     data object LegacyMain : Route
 }
 
@@ -62,6 +73,10 @@ private fun encodeRoute(route: Route): String = when (route) {
     Route.NewMessage -> "new"
     Route.Logs -> "logs"
     Route.LegacyMain -> "legacy"
+    Route.Settings -> "settings"
+    Route.QrScan -> "scan"
+    Route.FingerprintCheck -> "fingerprint"
+    Route.AddContactName -> "name"
     is Route.MessageDetail -> "detail:" + route.id
 }
 
@@ -70,6 +85,10 @@ private fun decodeRoute(value: String): Route = when {
     value == "new" -> Route.NewMessage
     value == "logs" -> Route.Logs
     value == "legacy" -> Route.LegacyMain
+    value == "settings" -> Route.Settings
+    value == "scan" -> Route.QrScan
+    value == "fingerprint" -> Route.FingerprintCheck
+    value == "name" -> Route.AddContactName
     value.startsWith("detail:") -> Route.MessageDetail(value.removePrefix("detail:"))
     else -> Route.Main
 }
@@ -102,6 +121,7 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
     val state = rememberAppState()
     val emergencyState = rememberEmergencyState()
     val store = rememberMessageStore()
+    val availableToHelp = rememberAvailableToHelp()
 
     // Urgent is the one thing about a sent message the DTN tables do not keep, so the store is
     // told at the moment of queueing and remembers it beside read/unread.
@@ -138,6 +158,13 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
             state.dismissCaptureError()
             stack.add(Route.NewMessage)
         }
+    }
+
+    // Out of the add-a-contact flow and back to the list, however it ended.
+    fun backToSettings() {
+        while (stack.size > 1 && stack.last() != Route.Settings) stack.removeAt(stack.lastIndex)
+        if (stack.last() != Route.Settings) stack.add(Route.Settings)
+        state.refreshContacts()
     }
 
     fun push(route: Route) {
@@ -179,6 +206,10 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
                 onLogs = { push(Route.Logs) },
                 onStartEmergency = state::startEmergencyMode,
                 onStopEmergency = state::stopEmergencyMode,
+                onSettings = {
+                    state.refreshContacts()
+                    push(Route.Settings)
+                },
                 onDeveloper = if (isDebugBuild) ({ push(Route.LegacyMain) }) else null,
                 captureError = state.captureError,
                 onCaptureErrorAction = ::captureErrorAction,
@@ -213,6 +244,91 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
                 onLegacyTransportChange = { state.useLegacyTransport = it },
                 modifier = legacyInsets
             )
+
+            Route.Settings -> SettingsScreen(
+                selfName = state.selfName,
+                selfFingerprint = state.selfFingerprint,
+                contactCode = state.selfContactCode,
+                contacts = state.contacts,
+                availableToHelp = availableToHelp,
+                onAvailableChange = state::setAvailableToHelp,
+                onRenameSelf = state::renameSelf,
+                onAddContact = {
+                    state.clearPendingContact()
+                    state.contactError = null
+                    push(Route.QrScan)
+                },
+                onRenameContact = state::renameContact,
+                onRemoveContact = state::removeContact,
+                onBack = ::pop,
+                onDeveloper = if (isDebugBuild) ({ push(Route.LegacyMain) }) else null,
+                modifier = modifier
+            )
+
+            Route.QrScan -> QrScanScreen(
+                onBack = {
+                    state.clearPendingContact()
+                    pop()
+                },
+                // The screen hands up the raw payload; whether it is worth anything is decided
+                // in one place, by the state holder.
+                onCode = { payload -> if (state.onContactScanned(payload)) push(Route.FingerprintCheck) },
+                error = state.contactError,
+                modifier = modifier
+            )
+
+            Route.FingerprintCheck -> {
+                val capsule = state.pendingCapsule
+                if (capsule == null) {
+                    LaunchedEffect(Unit) { backToSettings() }
+                } else {
+                    FingerprintCheckScreen(
+                        fingerprint = capsule.fingerprint,
+                        onMatch = {
+                            state.confirmFingerprint()
+                            stack.add(Route.AddContactName)
+                        },
+                        onReject = {
+                            state.clearPendingContact()
+                            state.contactError =
+                                "Nothing was saved. If the codes do not match, the person on the " +
+                                    "other end is not who you think."
+                            backToSettings()
+                        },
+                        onBack = {
+                            state.clearPendingContact()
+                            pop()
+                        },
+                        modifier = modifier
+                    )
+                }
+            }
+
+            Route.AddContactName -> {
+                val capsule = state.pendingCapsule
+                // Reached only through a confirmed comparison. If either half is missing -- a
+                // recreation, or any path that skipped the check -- there is nothing to save.
+                if (capsule == null || !state.fingerprintConfirmed) {
+                    LaunchedEffect(Unit) {
+                        state.clearPendingContact()
+                        backToSettings()
+                    }
+                } else {
+                    AddContactNameScreen(
+                        nameHint = capsule.displayNameHint,
+                        fingerprint = capsule.fingerprint,
+                        onBack = {
+                            state.clearPendingContact()
+                            backToSettings()
+                        },
+                        onSave = { name ->
+                            state.saveTrustedContact(name)
+                            backToSettings()
+                        },
+                        modifier = modifier
+                    )
+                }
+            }
 
             Route.HandsFree -> HandsFreeScreen(
                 onStartRecording = state::startRecording,

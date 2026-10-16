@@ -37,8 +37,14 @@ import com.chmod777.itantra.WAV_HEADER_SIZE
 import com.chmod777.itantra.failureMessage
 import com.chmod777.itantra.legacyAcknowledgedState
 import com.chmod777.itantra.matchesAcknowledgement
+import com.chmod777.itantra.crypto.toHex
+import com.chmod777.itantra.identity.ContactQrCodec
+import com.chmod777.itantra.identity.IdentityCapsuleV1
+import com.chmod777.itantra.identity.LocalIdentity
+import com.chmod777.itantra.identity.TrustedContact
 import com.chmod777.itantra.network.ItantraNetwork
 import com.chmod777.itantra.network.RecipientOption
+import com.chmod777.itantra.service.NetworkingRuntime
 import com.chmod777.itantra.service.EmergencyState
 import com.chmod777.itantra.toMessageDeliveryState
 import com.chmod777.itantra.transport.BluetoothPermissions
@@ -335,11 +341,135 @@ internal class AppState(
         recipients = runCatching { ItantraNetwork.recipients() }.getOrDefault(recipients)
     }
 
+    // ---- trust: adding, naming and removing contacts ---------------------------------
+
+    /**
+     * A scanned code that has verified its own signature but has NOT been trusted.
+     *
+     * It is deliberately not saveable. If the activity is recreated half way through the flow
+     * the capsule is gone and the user starts again, which is the right side to fail on: the
+     * whole point of the fingerprint step is that a person compared two screens, and nothing
+     * carried across a restart can show that they did.
+     */
+    var pendingCapsule by mutableStateOf<IdentityCapsuleV1?>(null)
+        private set
+
+    /** Set only by [confirmFingerprint], which is only called by a tap on THESE MATCH. */
+    var fingerprintConfirmed by mutableStateOf(false)
+        private set
+
+    /** Why the last scan was refused, in the words the user sees. */
+    var contactError by mutableStateOf<String?>(null)
+
+    var contacts by mutableStateOf(emptyList<TrustedContact>())
+        private set
+
+    val selfIdentity: LocalIdentity? get() = NetworkingRuntime.identity.value
+    val selfName: String get() = selfIdentity?.displayNameHint.orEmpty()
+    val selfFingerprint: String get() = selfIdentity?.fingerprint.orEmpty()
+
+    /** The ITANTRA1: code behind this phone's QR, or empty before the identity is loaded. */
+    val selfContactCode: String
+        get() = selfIdentity?.let { runCatching { ContactQrCodec.encode(it.signedCapsule()) }.getOrNull() }.orEmpty()
+
+    fun refreshContacts() {
+        contacts = runCatching { NetworkingRuntime.database.all() }.getOrDefault(contacts)
+        refreshRecipients()
+    }
+
+    fun renameSelf(name: String) {
+        val trimmed = name.trim().take(32)
+        if (trimmed.isEmpty()) return
+        NetworkingRuntime.renameSelf(trimmed)
+    }
+
+    fun setAvailableToHelp(available: Boolean) = NetworkingRuntime.setAvailableToHelp(available)
+
+    /**
+     * Takes the payload of a scanned QR. Verifies the capsule's own signature and refuses this
+     * phone's own code; everything else is left for the person to decide by comparing
+     * fingerprints. Returns true when there is something to compare.
+     */
+    fun onContactScanned(payload: String): Boolean {
+        clearPendingContact()
+        val capsule = try {
+            ContactQrCodec.decodeAndVerify(payload)
+        } catch (e: Throwable) {
+            contactError = "That code could not be read. ${e.message.orEmpty()}".trim()
+            return false
+        }
+        val ownNodeId = selfIdentity?.nodeId
+        if (ownNodeId == null) {
+            // contentEquals(null) is false, so without this an unknown identity would let the
+            // phone trust its own code. Refusing is the only safe reading of "I don't know who
+            // I am yet".
+            contactError = "This phone has no identity yet. Open it again in a moment."
+            return false
+        }
+        if (capsule.nodeId.contentEquals(ownNodeId)) {
+            contactError = "That is this phone's own code."
+            return false
+        }
+        pendingCapsule = capsule
+        return true
+    }
+
+    /** The one place the fingerprint comparison is recorded, and only a real tap calls it. */
+    fun confirmFingerprint() {
+        if (pendingCapsule != null) fingerprintConfirmed = true
+    }
+
+    fun clearPendingContact() {
+        pendingCapsule = null
+        fingerprintConfirmed = false
+    }
+
+    /**
+     * Writes the contact. Refuses unless a capsule is pending *and* its fingerprint was
+     * confirmed, so no path that skips the comparison can reach the database. Returns false
+     * when it refused, which the screen reports rather than pretending to have saved.
+     */
+    fun saveTrustedContact(localName: String): Boolean {
+        val capsule = pendingCapsule
+        if (capsule == null || !fingerprintConfirmed) {
+            contactError = "Nothing was saved: the codes were never compared."
+            clearPendingContact()
+            return false
+        }
+        val saved = runCatching {
+            NetworkingRuntime.database.upsert(
+                TrustedContact.fromVerifiedCapsule(capsule, localName, System.currentTimeMillis())
+            )
+        }.getOrDefault(false)
+        clearPendingContact()
+        if (!saved) {
+            contactError = "That contact could not be saved."
+            return false
+        }
+        refreshContacts()
+        return true
+    }
+
+    fun renameContact(contact: TrustedContact, name: String) {
+        val trimmed = name.trim().take(32)
+        if (trimmed.isEmpty()) return
+        runCatching { NetworkingRuntime.database.rename(contact.nodeId, trimmed) }
+        refreshContacts()
+    }
+
+    fun removeContact(contact: TrustedContact) {
+        runCatching { NetworkingRuntime.database.remove(contact.nodeId) }
+        // A message addressed to someone who has just been removed must not keep their slot.
+        if (selectedRecipientHex == contact.nodeId.toHex()) selectedRecipientHex = null
+        refreshContacts()
+    }
+
     init {
         // A recreated screen starts with an empty contact list, and a remembered recipient that
         // matches nothing in it reads as "Select trusted contact" -- the draft kept its person
-        // but the composer could not show who. Loading them up front is a handful of rows.
-        refreshRecipients()
+        // but the composer could not show who. Both are a handful of rows, read once here, after
+        // every property above exists.
+        refreshContacts()
     }
 
     fun markRead(index: Int) {
@@ -570,3 +700,8 @@ internal fun rememberAppState(): AppState {
 /** Convenience for screens that only need the radio's on/off state. */
 @Composable
 fun rememberEmergencyState(): EmergencyState = ItantraNetwork.emergencyState.collectAsState().value
+
+/** Whether this phone offers itself to strangers' SOS calls. */
+@Composable
+internal fun rememberAvailableToHelp(): Boolean =
+    NetworkingRuntime.availableToHelp.collectAsState().value

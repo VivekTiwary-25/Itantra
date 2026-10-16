@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.automirrored.outlined.Chat
 import androidx.compose.material.icons.outlined.Create
 import androidx.compose.material.icons.outlined.Language
@@ -87,6 +88,7 @@ internal fun HomeScreen(
     onLogs: () -> Unit,
     onStartEmergency: () -> Unit,
     onStopEmergency: () -> Unit,
+    onSettings: () -> Unit,
     /** Long-press on the wordmark. Null in a release build, where there is nothing to open. */
     onDeveloper: (() -> Unit)? = null,
     /** Why the last take produced nothing, or null. */
@@ -120,6 +122,23 @@ internal fun HomeScreen(
         ) {
             BrandTitle(onLongPress = onDeveloper)
             Spacer(Modifier.weight(1f))
+            // Your code, your name and your contacts live behind this; it is the only way in,
+            // now that the long-press belongs to the developer screen.
+            Box(
+                Modifier
+                    .size(44.dp)
+                    .clip(RoundedCornerShape(50))
+                    .clickable(enabled = idle, onClick = onSettings),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Outlined.AccountCircle,
+                    contentDescription = "You and your contacts",
+                    tint = Ink.muted,
+                    modifier = Modifier.size(26.dp)
+                )
+            }
+            Spacer(Modifier.width(6.dp))
             LanguageChip(
                 label = uiLanguage(languageCode).englishName,
                 enabled = idle,
