@@ -29,6 +29,10 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.delay
 
 /**
@@ -60,6 +64,26 @@ internal fun HandsFreeScreen(
     DisposableEffect(Unit) {
         recording = onStartRecording()
         onDispose { onStopRecording() }
+    }
+
+    // Leaving the app is not the screen going away: the composition survives, so the recorder
+    // kept running in the background and `appops ... RECORD_AUDIO` still read (running) with the
+    // phone on the home screen. An app that holds the microphone while nobody is looking at it
+    // is the kind of thing this project exists to be trusted about, so the take ends at ON_STOP.
+    // Compose's own LocalLifecycleOwner is deprecated in favour of a library this project does
+    // not depend on, and lifecycle-runtime-compose is not worth adding to a build file the other
+    // lanes share for one observer. The activity has the lifecycle already.
+    val context = LocalContext.current
+    val lifecycle = remember(context) { (context.findActivity() as? LifecycleOwner)?.lifecycle }
+    DisposableEffect(lifecycle) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP && recording) {
+                onStopRecording()
+                recording = false
+            }
+        }
+        lifecycle?.addObserver(observer)
+        onDispose { lifecycle?.removeObserver(observer) }
     }
 
     LaunchedEffect(recording, isTranscribing) {
@@ -116,32 +140,29 @@ internal fun HandsFreeScreen(
         )
         if (captureError != null) {
             Spacer(Modifier.height(20.dp))
-            // A take that heard nothing leaves the microphone off, so the way out of this screen
-            // would otherwise be Back and in again. The strip carries the retry instead.
-            val listenAgain = captureError == CaptureError.NOTHING_HEARD
             CaptureErrorStrip(
                 error = captureError,
-                actionLabel = if (listenAgain) "LISTEN AGAIN" else captureError.action,
-                onAction = {
-                    if (listenAgain) {
-                        seconds = 0
-                        recording = onStartRecording()
-                    } else {
-                        onCaptureErrorAction()
-                    }
-                },
+                onAction = onCaptureErrorAction,
                 modifier = Modifier.padding(horizontal = 20.dp)
             )
         }
         Spacer(Modifier.weight(1f))
+        // Two ways to end up not listening — a take that heard nothing, and leaving the app and
+        // coming back — so the one button on the screen offers the way back rather than sitting
+        // there greyed out.
         PrimaryPill(
-            label = "Done",
-            enabled = recording && !isTranscribing,
+            label = if (recording || isTranscribing) "Done" else "Listen again",
+            enabled = !isTranscribing,
             onClick = {
                 view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-                onStopRecording()
-                recording = false
-                onDone()
+                if (recording) {
+                    onStopRecording()
+                    recording = false
+                    onDone()
+                } else {
+                    seconds = 0
+                    recording = onStartRecording()
+                }
             },
             modifier = Modifier.padding(horizontal = 20.dp, vertical = 20.dp)
         )
