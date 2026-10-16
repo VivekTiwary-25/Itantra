@@ -44,6 +44,10 @@ import com.chmod777.itantra.identity.LocalIdentity
 import com.chmod777.itantra.identity.TrustedContact
 import com.chmod777.itantra.network.ItantraNetwork
 import com.chmod777.itantra.network.RecipientOption
+import com.chmod777.itantra.protocol.SosCategory
+import com.chmod777.itantra.sos.IncomingSos
+import com.chmod777.itantra.sos.OutgoingSosState
+import com.chmod777.itantra.sos.SosManager
 import com.chmod777.itantra.service.NetworkingRuntime
 import com.chmod777.itantra.service.EmergencyState
 import com.chmod777.itantra.toMessageDeliveryState
@@ -53,6 +57,7 @@ import com.chmod777.itantra.transport.PairedBluetoothDevice
 import com.chmod777.itantra.transport.RfcommConnectionState
 import com.chmod777.itantra.transport.SendMessageResult
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -339,6 +344,68 @@ internal class AppState(
     /** The contact sheet calls this after a contact is added, so the new one shows up at once. */
     fun refreshRecipients() {
         recipients = runCatching { ItantraNetwork.recipients() }.getOrDefault(recipients)
+    }
+
+    // ---- SOS -------------------------------------------------------------------------
+
+    /** What to send as soon as a session exists, when SOS was asked for with the radio off. */
+    var pendingSosCategory by mutableStateOf<SosCategory?>(null)
+        private set
+
+    var sosDraft by mutableStateOf("")
+
+    private val sos: SosManager? get() = NetworkingRuntime.session.value?.sos
+
+    /**
+     * Starts an SOS, switching the radio on first if it is off. Someone asking for help should
+     * not have to find a second switch, so the one button does both; [pendingSosCategory] is
+     * what the navigation watches to finish the job once a session exists.
+     */
+    fun startSos(category: SosCategory) {
+        val manager = sos
+        if (manager == null) {
+            pendingSosCategory = category
+            startEmergencyMode()
+            return
+        }
+        pendingSosCategory = null
+        manager.startSos(category, selectedLanguageCode)
+    }
+
+    /** Called by the navigation when a session appears and an SOS was waiting for one. */
+    fun sendPendingSos() {
+        val category = pendingSosCategory ?: return
+        val manager = sos ?: return
+        pendingSosCategory = null
+        manager.startSos(category, selectedLanguageCode)
+    }
+
+    fun cancelSos() {
+        pendingSosCategory = null
+        sos?.cancelSos()
+    }
+
+    /** Only ever called from a tap on CODES MATCH IN PERSON. */
+    fun markSosVerified(sosIdHex: String) {
+        sos?.markNearbyVerified(sosIdHex)
+    }
+
+    fun sendSosChat(sosIdHex: String) {
+        val text = sosDraft.trim()
+        if (text.isEmpty()) return
+        val manager = sos ?: return
+        sosDraft = ""
+        scope.launch { runCatching { manager.sendChat(sosIdHex, text, selectedLanguageCode) } }
+    }
+
+    fun acceptSos(sosIdHex: String) {
+        val manager = sos ?: return
+        scope.launch { runCatching { manager.accept(sosIdHex) } }
+    }
+
+    fun declineSos(sosIdHex: String) {
+        val manager = sos ?: return
+        scope.launch { runCatching { manager.decline(sosIdHex) } }
     }
 
     // ---- trust: adding, naming and removing contacts ---------------------------------
@@ -705,3 +772,23 @@ fun rememberEmergencyState(): EmergencyState = ItantraNetwork.emergencyState.col
 @Composable
 internal fun rememberAvailableToHelp(): Boolean =
     NetworkingRuntime.availableToHelp.collectAsState().value
+
+/**
+ * The SOS this phone is asking for, or null. The flows live on the session, which comes and
+ * goes with Emergency mode, so an empty stand-in keeps the number of composable calls the same
+ * whether or not the radio is on.
+ */
+@Composable
+internal fun rememberOutgoingSos(): OutgoingSosState? {
+    val session by NetworkingRuntime.session.collectAsState()
+    val flow = remember(session) { session?.sos?.outgoing ?: MutableStateFlow(null) }
+    return flow.collectAsState().value
+}
+
+/** SOS calls from other people that this phone can hear. */
+@Composable
+internal fun rememberIncomingSos(): List<IncomingSos> {
+    val session by NetworkingRuntime.session.collectAsState()
+    val flow = remember(session) { session?.sos?.incomingOffers ?: MutableStateFlow(emptyList()) }
+    return flow.collectAsState().value
+}

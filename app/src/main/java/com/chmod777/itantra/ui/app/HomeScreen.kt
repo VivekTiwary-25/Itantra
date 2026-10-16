@@ -89,6 +89,12 @@ internal fun HomeScreen(
     onStartEmergency: () -> Unit,
     onStopEmergency: () -> Unit,
     onSettings: () -> Unit,
+    onSos: () -> Unit,
+    /** True while this phone has an SOS of its own in the air. */
+    sosInProgress: Boolean = false,
+    /** How many people nearby are asking for help right now. */
+    incomingSosCount: Int = 0,
+    onOpenIncomingSos: () -> Unit = {},
     /** Long-press on the wordmark. Null in a release build, where there is nothing to open. */
     onDeveloper: (() -> Unit)? = null,
     /** Why the last take produced nothing, or null. */
@@ -193,6 +199,10 @@ internal fun HomeScreen(
         }
         Spacer(Modifier.weight(1f))
 
+        if (incomingSosCount > 0) {
+            IncomingSosStrip(count = incomingSosCount, onClick = onOpenIncomingSos)
+            Spacer(Modifier.height(14.dp))
+        }
         EmergencyStrip(
             state = emergencyState,
             onStart = onStartEmergency,
@@ -206,6 +216,10 @@ internal fun HomeScreen(
             BentoTile(Icons.Outlined.Create, "Write message", 0, onClick = { if (idle) onWrite() }, modifier = Modifier.weight(1f))
             BentoTile(Icons.AutoMirrored.Outlined.Chat, "Logs", unreadCount, onClick = { if (idle) onLogs() }, modifier = Modifier.weight(1f))
         }
+        Spacer(Modifier.height(14.dp))
+        // Visible, because someone needing it will not go hunting; safe, because it opens a
+        // category picker and sends nothing until a category is chosen and confirmed.
+        SosButton(inProgress = sosInProgress, onClick = { if (idle) onSos() })
         Spacer(Modifier.height(20.dp))
     }
 
@@ -218,6 +232,65 @@ internal fun HomeScreen(
             },
             onDismiss = { showLanguages = false }
         )
+    }
+}
+
+@Composable
+private fun SosButton(inProgress: Boolean, onClick: () -> Unit) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(22.dp))
+            .background(if (inProgress) Ink.sos else Ink.sosSurface)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 20.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            Modifier
+                .size(10.dp)
+                .clip(RoundedCornerShape(50))
+                .background(if (inProgress) Color.White else Ink.sos)
+        )
+        Spacer(Modifier.width(12.dp))
+        Column {
+            Text(
+                if (inProgress) "SOS sent" else "SOS",
+                color = if (inProgress) Color.White else Ink.sosLight,
+                fontSize = 17.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                if (inProgress) "Tap to see who is coming" else "Ask anyone nearby for help",
+                color = if (inProgress) Color.White.copy(alpha = 0.85f) else Ink.muted,
+                fontSize = 13.sp
+            )
+        }
+    }
+}
+
+@Composable
+private fun IncomingSosStrip(count: Int, onClick: () -> Unit) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(22.dp))
+            .background(Ink.sos)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 20.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(
+                if (count == 1) "Someone nearby needs help" else "$count people nearby need help",
+                color = Color.White,
+                fontSize = 17.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(Modifier.height(2.dp))
+            Text("Tap to see what they are asking for", color = Color.White.copy(alpha = 0.85f), fontSize = 13.sp)
+        }
     }
 }
 

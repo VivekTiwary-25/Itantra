@@ -13,16 +13,21 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.chmod777.itantra.MainScreen
 import com.chmod777.itantra.service.EmergencyState
+import com.chmod777.itantra.sos.IncomingSos.Phase as IncomingSosPhase
+import com.chmod777.itantra.sos.OutgoingSosState.Phase as OutgoingSosPhase
 import com.chmod777.itantra.ui.lab.NetworkLabActivity
 
 /**
@@ -210,6 +215,11 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
                     state.refreshContacts()
                     push(Route.Settings)
                 },
+                // A running SOS is reopened rather than started again.
+                onSos = { push(if (outgoingSos != null) Route.SosActive else Route.SosCategory) },
+                sosInProgress = outgoingSos != null,
+                incomingSosCount = incomingSos.count { it.phase == IncomingSosPhase.OFFERED },
+                onOpenIncomingSos = { push(Route.IncomingSos) },
                 onDeveloper = if (isDebugBuild) ({ push(Route.LegacyMain) }) else null,
                 captureError = state.captureError,
                 onCaptureErrorAction = ::captureErrorAction,
