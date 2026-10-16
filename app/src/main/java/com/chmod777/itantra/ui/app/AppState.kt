@@ -1,7 +1,9 @@
 package com.chmod777.itantra.ui.app
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.pm.PackageManager
 import android.os.SystemClock
 import android.util.Log
@@ -21,6 +23,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.chmod777.itantra.DATE_FORMAT
 import com.chmod777.itantra.LATENCY_TAG
@@ -69,6 +72,7 @@ internal class AppState(
     private val recorder: PcmRecorder,
     val messages: SnapshotStateList<Message>,
     private val requestBluetoothPermissions: () -> Unit,
+    private val requestMicPermission: () -> Unit,
     useLegacyTransportState: MutableState<Boolean>,
     selectedRecipientHexState: MutableState<String?>,
     draftState: MutableState<String>,
@@ -106,22 +110,88 @@ internal class AppState(
     var sentCount by mutableStateOf(0)
         private set
 
+    /** What went wrong with the last capture, or null. Home and Hands-free both read this. */
+    var captureError by mutableStateOf<CaptureError?>(null)
+        private set
+
     /** Set while a permission prompt is open, so a granted result can start what was asked for. */
     private var pendingEmergencyStart = false
+
+    /**
+     * Whether the system has ever been shown the microphone dialog for this install. Android
+     * only reports "denied for good" indirectly: once the permission has been asked and the
+     * system no longer wants a rationale shown, asking again puts no dialog on screen at all —
+     * which is precisely the silent nothing the user was getting.
+     */
+    private val permissionPrefs = context.getSharedPreferences("ui_permissions", Context.MODE_PRIVATE)
+    private var micEverAsked: Boolean
+        get() = runCatching { permissionPrefs.getBoolean(KEY_MIC_ASKED, false) }.getOrDefault(false)
+        set(value) { runCatching { permissionPrefs.edit().putBoolean(KEY_MIC_ASKED, value).apply() } }
+
+    private val canAskForMic: Boolean
+        get() {
+            if (!micEverAsked) return true
+            val activity = context.findActivity() ?: return false
+            return ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.RECORD_AUDIO)
+        }
+
+    fun dismissCaptureError() { captureError = null }
 
     val unreadCount: Int
         get() = messages.count { it.direction == MessageDirection.RECEIVED && !it.isRead }
 
     // ---- microphone ------------------------------------------------------------------
 
-    /** Returns false when the microphone permission is missing; the caller shows the error. */
-    fun startRecording(): Boolean {
-        val granted = ContextCompat.checkSelfPermission(
+    val micGranted: Boolean
+        get() = ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.RECORD_AUDIO
         ) == PackageManager.PERMISSION_GRANTED
-        if (granted) recorder.start()
-        return granted
+
+    /**
+     * Returns false when nothing is being recorded, and the caller must not animate as if it
+     * were. The first refusal asks the system once; after that it sets [CaptureError.MIC_BLOCKED],
+     * because Android stops showing the dialog and only the app's settings page can undo it.
+     *
+     * The WAV is emptied on the way out of the failing path. Without that, the next Done would
+     * transcribe whatever the *last* successful take left on disk and present it as something
+     * just spoken — which is how a denied microphone looked like a working one.
+     */
+    fun startRecording(): Boolean {
+        if (!requestCapture()) {
+            discardRecording()
+            return false
+        }
+        recorder.start()
+        return true
+    }
+
+    /**
+     * Whether a capture may begin at all, asking for the microphone the first time and setting
+     * [CaptureError.MIC_BLOCKED] after that. Hands-free calls this before opening, so it cannot
+     * sit there animating at a microphone it was never given.
+     */
+    fun requestCapture(): Boolean {
+        if (micGranted) {
+            captureError = null
+            return true
+        }
+        if (canAskForMic) {
+            micEverAsked = true
+            requestMicPermission()
+        } else {
+            captureError = CaptureError.MIC_BLOCKED
+        }
+        return false
+    }
+
+    /** Called from the permission result so a refusal is visible rather than silent. */
+    internal fun onMicPermissionResult(granted: Boolean) {
+        captureError = if (granted) null else CaptureError.MIC_BLOCKED
+    }
+
+    private fun discardRecording() {
+        runCatching { if (recordingFile.exists()) recordingFile.outputStream().close() }
     }
 
     fun stopRecording() = recorder.stop()
@@ -131,14 +201,27 @@ internal class AppState(
      * [SpeechEngine.transcribe] off the main thread, then hand the text back through [onReady].
      */
     fun startTranscription(source: String, onReady: () -> Unit) {
-        if (isTranscribing || recordingFile.length() <= WAV_HEADER_SIZE) return
+        if (isTranscribing) return
+        // Nothing was captured at all: no file, or a header with no samples after it.
+        if (recordingFile.length() <= WAV_HEADER_SIZE) {
+            captureError = if (micGranted) CaptureError.NOTHING_HEARD else CaptureError.MIC_BLOCKED
+            return
+        }
+        captureError = null
         isTranscribing = true
         scope.launch {
             val releaseElapsedMs = SystemClock.elapsedRealtime()
             Log.d(LATENCY_TAG, "[$source] release t=$releaseElapsedMs")
             ItantraNetwork.recordProductTiming("product_speech_end", mapOf("source" to source))
-            val text = withContext(Dispatchers.Default) {
-                speech.transcribe(recordingFile.absolutePath, selectedLanguageCode)
+            val text = try {
+                withContext(Dispatchers.Default) {
+                    speech.transcribe(recordingFile.absolutePath, selectedLanguageCode)
+                }
+            } catch (e: Throwable) {
+                Log.e(LATENCY_TAG, "[$source] transcribe failed lang=$selectedLanguageCode", e)
+                captureError = CaptureError.TRANSCRIBE_FAILED
+                isTranscribing = false
+                return@launch
             }
             val readyElapsedMs = SystemClock.elapsedRealtime()
             Log.d(
@@ -147,6 +230,15 @@ internal class AppState(
                     "wavBytes=${recordingFile.length()}"
             )
             ItantraNetwork.recordProductTiming("product_transcript_ready", mapOf("source" to source))
+            // A silence placeholder is not a message. Opening the editor with "[BLANK_AUDIO]" in
+            // it is how one ended up in Logs, so the editor does not open at all here.
+            if (heardNothing(text)) {
+                Log.d(LATENCY_TAG, "[$source] nothing heard, raw=${text.take(32)}")
+                captureError = CaptureError.NOTHING_HEARD
+                isTranscribing = false
+                discardRecording()
+                return@launch
+            }
             draft = text
             draftLanguageCode = selectedLanguageCode
             // Urgent is never inherited by the next take: a sticky flag is how someone sends an
@@ -308,6 +400,17 @@ internal class AppState(
     internal fun refreshPairedDevices() {
         pairedDevices = BluetoothPermissions.pairedDevices(context)
     }
+
+    private companion object {
+        const val KEY_MIC_ASKED = "mic_ever_asked"
+    }
+}
+
+/** LocalContext is usually the Activity, but it arrives wrapped often enough to be worth this. */
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }
 
 /**
@@ -340,6 +443,14 @@ internal fun rememberAppState(): AppState {
     // The state needs the permission launcher and the launcher's result needs the state, so the
     // launcher reads it through a holder that is filled in the moment the state exists.
     val stateHolder = remember { mutableStateOf<AppState?>(null) }
+    // Asked on the first hold of the orb rather than on launch, so the one line explaining why
+    // it is needed is the orb the user has just pressed.
+    val micPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted -> stateHolder.value?.onMicPermissionResult(granted) }
+    val requestMicPermission = remember {
+        { micPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO); Unit }
+    }
     val requestBluetoothPermission = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { stateHolder.value?.onBluetoothPermissionResult() }
@@ -364,6 +475,7 @@ internal fun rememberAppState(): AppState {
             recorder = recorder,
             messages = messages,
             requestBluetoothPermissions = requestBluetoothPermissions,
+            requestMicPermission = requestMicPermission,
             useLegacyTransportState = useLegacyTransport,
             selectedRecipientHexState = selectedRecipientHex,
             draftState = draft,
@@ -377,11 +489,7 @@ internal fun rememberAppState(): AppState {
     DisposableEffect(transport) { onDispose { transport.close() } }
     DisposableEffect(speech) { onDispose { speech.release() } }
 
-    val requestMicPermission = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { }
     LaunchedEffect(Unit) {
-        requestMicPermission.launch(Manifest.permission.RECORD_AUDIO)
         if (!BluetoothPermissions.areGranted(context)) requestBluetoothPermissions()
     }
 

@@ -2,6 +2,8 @@ package com.chmod777.itantra.ui.app
 
 import android.content.Intent
 import android.content.pm.ApplicationInfo
+import android.net.Uri
+import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -71,9 +73,32 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
         }
     }
 
-    fun push(route: Route) = stack.add(route)
+    // MIC_BLOCKED is the only one with somewhere to send the user; the others just clear.
+    fun captureErrorAction() {
+        if (state.captureError == CaptureError.MIC_BLOCKED) {
+            context.startActivity(
+                Intent(
+                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.fromParts("package", context.packageName, null)
+                ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        }
+        state.dismissCaptureError()
+    }
+
+    // Leaving a screen on purpose answers the error that was on it, so it does not sit there
+    // for the rest of the session. A pop does not clear it: that is how Hands-free hands the
+    // "nothing heard" strip back to Home.
+    fun push(route: Route) {
+        state.dismissCaptureError()
+        stack.add(route)
+    }
     fun pop() { if (stack.size > 1) stack.removeAt(stack.lastIndex) }
-    fun resetToMain() { stack.clear(); stack.add(Route.Main) }
+    fun resetToMain() {
+        state.dismissCaptureError()
+        stack.clear()
+        stack.add(Route.Main)
+    }
 
     BackHandler(enabled = stack.size > 1) { pop() }
 
@@ -93,7 +118,9 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
                 onStartRecording = state::startRecording,
                 onStopRecording = state::stopRecording,
                 onPttReleased = { state.startTranscription("PTT") { push(Route.NewMessage) } },
-                onHandsFree = { push(Route.HandsFree) },
+                // Checked here rather than inside the screen: with no microphone there is
+                // nothing for Hands-free to do but pulse at the user.
+                onHandsFree = { if (state.requestCapture()) push(Route.HandsFree) },
                 onWrite = {
                     state.beginTypedMessage()
                     push(Route.NewMessage)
@@ -102,6 +129,8 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
                 onStartEmergency = state::startEmergencyMode,
                 onStopEmergency = state::stopEmergencyMode,
                 onDeveloper = if (isDebugBuild) ({ push(Route.LegacyMain) }) else null,
+                captureError = state.captureError,
+                onCaptureErrorAction = ::captureErrorAction,
                 modifier = modifier
             )
 
@@ -134,14 +163,20 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
                 modifier = legacyInsets
             )
 
-            Route.HandsFree -> HandsFreeScreen(
-                onStartRecording = state::startRecording,
-                onStopRecording = state::stopRecording,
-                onBack = ::pop,
-                onDone = { state.startTranscription("HANDSFREE") { push(Route.NewMessage) } },
-                isTranscribing = state.isTranscribing,
-                modifier = legacyInsets
-            )
+            Route.HandsFree -> {
+                // The old Hands-free screen has nowhere to show an error, so a take that heard
+                // nothing drops back to Home where the strip is. The replacement screen at the
+                // next step says it in place instead.
+                LaunchedEffect(state.captureError) { if (state.captureError != null) pop() }
+                HandsFreeScreen(
+                    onStartRecording = state::startRecording,
+                    onStopRecording = state::stopRecording,
+                    onBack = ::pop,
+                    onDone = { state.startTranscription("HANDSFREE") { push(Route.NewMessage) } },
+                    isTranscribing = state.isTranscribing,
+                    modifier = legacyInsets
+                )
+            }
 
             Route.Logs -> LogsScreen(
                 messages = store.messages,

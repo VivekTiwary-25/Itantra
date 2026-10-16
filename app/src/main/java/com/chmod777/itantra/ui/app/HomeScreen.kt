@@ -72,7 +72,7 @@ import kotlinx.coroutines.withTimeoutOrNull
  * is actually doing, and it takes as long as it takes.
  */
 @Composable
-fun HomeScreen(
+internal fun HomeScreen(
     languageCode: String,
     unreadCount: Int,
     isTranscribing: Boolean,
@@ -89,6 +89,9 @@ fun HomeScreen(
     onStopEmergency: () -> Unit,
     /** Long-press on the wordmark. Null in a release build, where there is nothing to open. */
     onDeveloper: (() -> Unit)? = null,
+    /** Why the last take produced nothing, or null. */
+    captureError: CaptureError? = null,
+    onCaptureErrorAction: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var showLanguages by remember { mutableStateOf(false) }
@@ -165,6 +168,10 @@ fun HomeScreen(
             },
             color = if (orb == OrbState.HELD) Ink.gold else Ink.muted
         )
+        if (captureError != null) {
+            Spacer(Modifier.height(16.dp))
+            CaptureErrorStrip(error = captureError, onAction = onCaptureErrorAction)
+        }
         Spacer(Modifier.weight(1f))
 
         EmergencyStrip(
