@@ -18,7 +18,6 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import com.chmod777.itantra.HandsFreeScreen
 import com.chmod777.itantra.MainScreen
 import com.chmod777.itantra.service.EmergencyState
 import com.chmod777.itantra.ui.lab.NetworkLabActivity
@@ -102,9 +101,9 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
 
     BackHandler(enabled = stack.size > 1) { pop() }
 
-    // The two screens still coming from LegacyScreens.kt never applied window insets of their
-    // own: they leaned on the Scaffold that MainActivity no longer has. The new screens all
-    // handle their own, which is why only these two are wrapped.
+    // The one screen still coming from LegacyScreens.kt never applied window insets of its own:
+    // it leaned on the Scaffold that MainActivity no longer has. Every new screen handles its
+    // own, which is why only this one is wrapped.
     val legacyInsets = modifier.statusBarsPadding().navigationBarsPadding()
 
     Box(Modifier.fillMaxSize().background(Color(0xFF07111C))) {
@@ -163,20 +162,18 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
                 modifier = legacyInsets
             )
 
-            Route.HandsFree -> {
-                // The old Hands-free screen has nowhere to show an error, so a take that heard
-                // nothing drops back to Home where the strip is. The replacement screen at the
-                // next step says it in place instead.
-                LaunchedEffect(state.captureError) { if (state.captureError != null) pop() }
-                HandsFreeScreen(
-                    onStartRecording = state::startRecording,
-                    onStopRecording = state::stopRecording,
-                    onBack = ::pop,
-                    onDone = { state.startTranscription("HANDSFREE") { push(Route.NewMessage) } },
-                    isTranscribing = state.isTranscribing,
-                    modifier = legacyInsets
-                )
-            }
+            Route.HandsFree -> HandsFreeScreen(
+                onStartRecording = state::startRecording,
+                onStopRecording = state::stopRecording,
+                onBack = ::pop,
+                // A take that heard nothing leaves the person here, on the screen they were
+                // using, with the reason under the orb. Nothing navigates on a failure.
+                onDone = { state.startTranscription("HANDSFREE") { push(Route.NewMessage) } },
+                isTranscribing = state.isTranscribing,
+                captureError = state.captureError,
+                onCaptureErrorAction = ::captureErrorAction,
+                modifier = modifier
+            )
 
             Route.Logs -> LogsScreen(
                 messages = store.messages,

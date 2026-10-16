@@ -48,6 +48,8 @@ internal fun CaptureErrorStrip(
     error: CaptureError,
     onAction: () -> Unit,
     modifier: Modifier = Modifier,
+    /** Overrides the error's own action, for a screen that can offer a better one in place. */
+    actionLabel: String? = error.action,
 ) {
     Column(
         modifier
@@ -73,11 +75,11 @@ internal fun CaptureErrorStrip(
                 modifier = Modifier.weight(1f)
             )
         }
-        if (error.action != null) {
+        if (actionLabel != null) {
             Spacer(Modifier.height(6.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 Text(
-                    error.action,
+                    actionLabel,
                     color = Ink.gold,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
