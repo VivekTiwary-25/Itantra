@@ -339,6 +339,8 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
                 selfFingerprint = state.selfFingerprint,
                 contactCode = state.selfContactCode,
                 contacts = state.contacts,
+                contactError = state.contactError,
+                onDismissContactError = { state.contactError = null },
                 availableToHelp = availableToHelp,
                 onAvailableChange = state::setAvailableToHelp,
                 onRenameSelf = state::renameSelf,
@@ -516,13 +518,16 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
                     AddContactNameScreen(
                         nameHint = capsule.displayNameHint,
                         fingerprint = capsule.fingerprint,
+                        error = state.contactError,
                         onBack = {
                             state.clearPendingContact()
                             backToSettings()
                         },
                         onSave = { name ->
-                            state.saveTrustedContact(name)
-                            backToSettings()
+                            // Only a real save goes back to the list. A refusal leaves the
+                            // person here with the reason, rather than returning them to a
+                            // contact list that quietly does not contain their contact.
+                            if (state.saveTrustedContact(name)) backToSettings()
                         },
                         modifier = modifier
                     )

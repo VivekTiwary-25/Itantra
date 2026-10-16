@@ -69,6 +69,8 @@ internal fun SettingsScreen(
     selfFingerprint: String,
     contactCode: String,
     contacts: List<TrustedContact>,
+    contactError: String? = null,
+    onDismissContactError: () -> Unit = {},
     availableToHelp: Boolean,
     onAvailableChange: (Boolean) -> Unit,
     onRenameSelf: (String) -> Unit,
@@ -96,6 +98,16 @@ internal fun SettingsScreen(
             .imePadding()
     ) {
         TopBar(title = "You", onBack = onBack)
+        // Where the add-a-contact flow lands when it refuses. Until this was here, "they don't
+        // match -- nothing was saved" was written to a field no reachable screen displayed.
+        if (contactError != null) {
+            Column(Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
+                WarningStrip(contactError)
+                TextButton(onClick = onDismissContactError) {
+                    Text("DISMISS", color = Ink.gold, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                }
+            }
+        }
         Column(
             Modifier
                 .weight(1f)
@@ -303,9 +315,11 @@ internal fun SettingsScreen(
             title = { Text("Remove ${contact.localName}?", color = Ink.text) },
             text = {
                 Text(
-                    "You will not be able to message them, and messages already queued for them " +
-                        "will never be delivered. Adding them again means meeting in person and " +
-                        "comparing fingerprints a second time.",
+                    "You will not be able to send them anything new, and they disappear from " +
+                        "your contacts. A message you already sent is sealed and on its way: " +
+                        "removing them does not call it back, and they will still receive it. " +
+                        "Adding them again means meeting in person and comparing fingerprints " +
+                        "a second time.",
                     color = Ink.body,
                     fontSize = 15.sp,
                     lineHeight = 21.sp
@@ -365,7 +379,9 @@ private fun ContactRow(contact: TrustedContact, onRename: () -> Unit, onRemove: 
             Text(contact.localName, color = Ink.text, fontSize = 17.sp, fontWeight = FontWeight.Medium)
             Spacer(Modifier.height(2.dp))
             Text(
-                contact.fingerprint.take(9),
+                // Four groups, not two. This list is where someone comes back to re-check who
+                // they trust, and two groups is a thin answer to "is this the same person".
+                contact.fingerprint.take(19),
                 color = Ink.quiet,
                 fontSize = 13.sp,
                 fontFamily = FontFamily.Monospace

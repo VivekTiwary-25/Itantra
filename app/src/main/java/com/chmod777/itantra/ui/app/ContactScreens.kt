@@ -287,9 +287,13 @@ internal fun AddContactNameScreen(
     fingerprint: String,
     onBack: () -> Unit,
     onSave: (String) -> Unit,
+    error: String? = null,
     modifier: Modifier = Modifier,
 ) {
     var name by rememberSaveable(nameHint) { mutableStateOf(nameHint) }
+    // One save per visit: a second tap lands after the capsule has been cleared, which would
+    // report "the codes were never compared" about a contact that was in fact just saved.
+    var saving by remember { mutableStateOf(false) }
     Column(
         modifier
             .fillMaxSize()
@@ -335,10 +339,16 @@ internal fun AddContactNameScreen(
             )
         }
         Spacer(Modifier.weight(1f))
+        if (error != null) {
+            WarningStrip(error, Modifier.padding(horizontal = 20.dp, vertical = 8.dp))
+        }
         PrimaryPill(
             label = "Save contact",
-            enabled = name.isNotBlank(),
-            onClick = { onSave(name.trim()) },
+            enabled = name.isNotBlank() && !saving,
+            onClick = {
+                saving = true
+                onSave(name.trim())
+            },
             modifier = Modifier.padding(horizontal = 20.dp, vertical = 20.dp)
         )
     }

@@ -508,23 +508,23 @@ internal class AppState(
     /**
      * Writes the contact. Refuses unless a capsule is pending *and* its fingerprint was
      * confirmed, so no path that skips the comparison can reach the database. Returns false
-     * when it refused, which the screen reports rather than pretending to have saved.
+     * when it refused; the caller must not navigate as though it had saved.
      */
     fun saveTrustedContact(localName: String): Boolean {
         val capsule = pendingCapsule
-        if (capsule == null || !fingerprintConfirmed) {
+        if (!mayPersistScannedContact(capsule, fingerprintConfirmed) || capsule == null) {
             contactError = "Nothing was saved: the codes were never compared."
             clearPendingContact()
             return false
         }
         val saved = runCatching {
             NetworkingRuntime.database.upsert(
-                TrustedContact.fromVerifiedCapsule(capsule, localName, System.currentTimeMillis())
+                TrustedContact.fromVerifiedCapsule(capsule, safeContactName(localName), System.currentTimeMillis())
             )
         }.getOrDefault(false)
         clearPendingContact()
         if (!saved) {
-            contactError = "That contact could not be saved."
+            contactError = "That contact could not be saved. Nothing was written."
             return false
         }
         refreshContacts()
@@ -532,7 +532,7 @@ internal class AppState(
     }
 
     fun renameContact(contact: TrustedContact, name: String) {
-        val trimmed = name.trim().take(32)
+        val trimmed = safeContactName(name)
         if (trimmed.isEmpty()) return
         runCatching { NetworkingRuntime.database.rename(contact.nodeId, trimmed) }
         refreshContacts()

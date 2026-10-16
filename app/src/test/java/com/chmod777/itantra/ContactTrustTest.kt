@@ -15,6 +15,8 @@ import com.chmod777.itantra.protocol.cbor.MalformedInputException
 import com.chmod777.itantra.testing.FakeClock
 import com.chmod777.itantra.testing.InMemoryDtnStore
 import com.chmod777.itantra.testing.InMemoryTrustedContactStore
+import com.chmod777.itantra.ui.app.mayPersistScannedContact
+import com.chmod777.itantra.ui.app.safeContactName
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -47,7 +49,11 @@ import org.junit.Test
  *
  * and have `saveTrustedContact` call it. That is one function and one call site, changes no
  * behaviour, and would let this file assert the refusal against the real code instead of
- * describing it in a comment. It is deliberately NOT done here.
+ * describing it in a comment.
+ *
+ * The integrator took that up: mayPersistScannedContact exists, saveTrustedContact calls it,
+ * and the last group of tests in this file asserts it. The rest of the caveat still stands --
+ * the navigation and recreation behaviour is Compose-level and is not covered here.
  */
 class ContactTrustTest {
 
@@ -305,5 +311,64 @@ class ContactTrustTest {
         val store = InMemoryTrustedContactStore()
         assertFalse(store.rename(them.nodeId, "Rahul"))
         assertTrue(store.all().isEmpty())
+    }
+
+    // ---- the guard itself, now that it can be reached from a JVM test --------------------
+    //
+    // The audit that produced this file could not test AppState.saveTrustedContact: AppState
+    // wants a Context, a scope and seven Compose states. It proposed pulling the predicate out
+    // instead of restating it in a test, which is what mayPersistScannedContact is. These are
+    // the tests that proposal was for.
+
+    @Test
+    fun `a scanned contact may not be persisted without a confirmed fingerprint`() {
+        val capsule = them.capsule()
+        assertFalse(mayPersistScannedContact(capsule, fingerprintConfirmed = false))
+    }
+
+    @Test
+    fun `a confirmation with no capsule persists nothing`() {
+        assertFalse(mayPersistScannedContact(null, fingerprintConfirmed = true))
+        assertFalse(mayPersistScannedContact(null, fingerprintConfirmed = false))
+    }
+
+    @Test
+    fun `both halves together are the only way through`() {
+        val capsule = them.capsule()
+        assertTrue(mayPersistScannedContact(capsule, fingerprintConfirmed = true))
+    }
+
+    // ---- the name that arrives inside someone else's code --------------------------------
+
+    @Test
+    fun `a scanned name cannot be longer than every other name in the app`() {
+        assertEquals(32, safeContactName("x".repeat(64)).length)
+    }
+
+    @Test
+    fun `a scanned name cannot fake a second line of interface`() {
+        val forged = "Yash\n4f2a 9c71 b0d3 6e88"
+        val cleaned = safeContactName(forged)
+        assertFalse(cleaned.contains("\n"))
+        assertEquals("Yash 4f2a 9c71 b0d3 6e88", cleaned)
+    }
+
+    @Test
+    fun `a scanned name cannot reverse how the row reads`() {
+        // U+202E flips everything after it; the row would read as a different name entirely.
+        val cleaned = safeContactName("Yash\u202Ehsay")
+        assertFalse(cleaned.any { it == '\u202E' })
+        assertEquals("Yashhsay", cleaned)
+    }
+
+    @Test
+    fun `a whitespace-only scanned name does not save an invisible contact`() {
+        assertEquals("", safeContactName("   \u0000 "))
+    }
+
+    @Test
+    fun `an ordinary name survives untouched`() {
+        assertEquals("Trisha", safeContactName("  Trisha  "))
+        assertEquals("\u0935\u093F\u0935\u0947\u0915", safeContactName("\u0935\u093F\u0935\u0947\u0915"))
     }
 }
