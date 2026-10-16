@@ -6,6 +6,8 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
@@ -75,6 +77,11 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
 
     BackHandler(enabled = stack.size > 1) { pop() }
 
+    // The two screens still coming from LegacyScreens.kt never applied window insets of their
+    // own: they leaned on the Scaffold that MainActivity no longer has. The new screens all
+    // handle their own, which is why only these two are wrapped.
+    val legacyInsets = modifier.statusBarsPadding().navigationBarsPadding()
+
     Box(Modifier.fillMaxSize().background(Color(0xFF07111C))) {
         when (val route = stack.last()) {
             Route.Main -> HomeScreen(
@@ -124,7 +131,7 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
                 onOpenNetwork = { context.startActivity(Intent(context, NetworkLabActivity::class.java)) },
                 useLegacyTransport = state.useLegacyTransport,
                 onLegacyTransportChange = { state.useLegacyTransport = it },
-                modifier = modifier
+                modifier = legacyInsets
             )
 
             Route.HandsFree -> HandsFreeScreen(
@@ -133,7 +140,7 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
                 onBack = ::pop,
                 onDone = { state.startTranscription("HANDSFREE") { push(Route.NewMessage) } },
                 isTranscribing = state.isTranscribing,
-                modifier = modifier
+                modifier = legacyInsets
             )
 
             Route.Logs -> LogsScreen(

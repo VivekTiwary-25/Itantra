@@ -4,9 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,12 +26,12 @@ class MainActivity : ComponentActivity() {
         ItantraNetwork.init(this)
         enableEdgeToEdge()
         setContent {
+            // No Scaffold: every screen applies its own status-bar, navigation-bar and IME
+            // padding, and the Scaffold was adding the same insets a second time. With the
+            // keyboard open that left the composer no room for the message being written.
             ItantraTheme {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    containerColor = Ink.night
-                ) { innerPadding ->
-                    ITantraApp(Modifier.padding(innerPadding))
+                Box(Modifier.fillMaxSize().background(Ink.night)) {
+                    ITantraApp()
                 }
             }
         }
