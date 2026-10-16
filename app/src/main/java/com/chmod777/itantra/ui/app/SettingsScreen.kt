@@ -76,6 +76,8 @@ internal fun SettingsScreen(
     onRenameContact: (TrustedContact, String) -> Unit,
     onRemoveContact: (TrustedContact) -> Unit,
     onBack: () -> Unit,
+    onReportProblem: () -> Unit,
+    onShowIntro: () -> Unit,
     /** Null in a release build, where there is nothing to open. */
     onDeveloper: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
@@ -211,8 +213,41 @@ internal fun SettingsScreen(
                 }
             }
 
+            Spacer(Modifier.height(24.dp))
+            Box(Modifier.fillMaxWidth().height(1.dp).background(Ink.line))
+            // The "prove it" card is the demo: a judge should be invited to switch the radios
+            // off and watch it keep working, which means it has to be replayable.
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onShowIntro)
+                    .padding(vertical = 18.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text("How this works", color = Ink.text, fontSize = 16.sp)
+                    Spacer(Modifier.height(2.dp))
+                    Text("The four cards from the first run.", color = Ink.muted, fontSize = 13.sp)
+                }
+                Text("\u2192", color = Ink.quiet, fontSize = 16.sp)
+            }
+            Box(Modifier.fillMaxWidth().height(1.dp).background(Ink.line))
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onReportProblem)
+                    .padding(vertical = 18.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text("Report a problem", color = Ink.text, fontSize = 16.sp)
+                    Spacer(Modifier.height(2.dp))
+                    Text("Or shake the phone. Nothing is sent by the app.", color = Ink.muted, fontSize = 13.sp)
+                }
+                Text("\u2192", color = Ink.quiet, fontSize = 16.sp)
+            }
+
             if (onDeveloper != null) {
-                Spacer(Modifier.height(24.dp))
                 Box(Modifier.fillMaxWidth().height(1.dp).background(Ink.line))
                 Row(
                     Modifier

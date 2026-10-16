@@ -61,7 +61,44 @@ sealed interface Route {
     data object FingerprintCheck : Route
     data object AddContactName : Route
 
+    /** Choosing what kind of help is needed. Nothing is sent from here. */
+    data object SosCategory : Route
+
+    /** The SOS this phone is asking for: searching, then the conversation. */
+    data object SosActive : Route
+
+    /** SOS calls from other people. */
+    data object IncomingSos : Route
+
+    /** The conversation with one person this phone is helping. */
+    data class HelpingSos(val sosIdHex: String) : Route
+
+    data object ReportProblem : Route
+
+    /** The four intro cards: once on a fresh install, and again from Settings on request. */
+    data object Onboarding : Route
+
     data object LegacyMain : Route
+}
+
+/**
+ * Opens the panel that holds Wi-Fi and mobile data, so the fourth intro card can invite someone
+ * to switch them off. It only opens it; the app never changes a radio setting itself.
+ */
+private fun openQuickSettings(context: android.content.Context) {
+    val panel = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+        Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
+    } else {
+        Intent(Settings.ACTION_WIRELESS_SETTINGS)
+    }
+    runCatching { context.startActivity(panel.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+        .onFailure {
+            runCatching {
+                context.startActivity(
+                    Intent(Settings.ACTION_WIRELESS_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
+            }
+        }
 }
 
 /**
@@ -82,6 +119,12 @@ private fun encodeRoute(route: Route): String = when (route) {
     Route.QrScan -> "scan"
     Route.FingerprintCheck -> "fingerprint"
     Route.AddContactName -> "name"
+    Route.SosCategory -> "sos"
+    Route.SosActive -> "sosactive"
+    Route.IncomingSos -> "sosincoming"
+    Route.ReportProblem -> "report"
+    Route.Onboarding -> "intro"
+    is Route.HelpingSos -> "helping:" + route.sosIdHex
     is Route.MessageDetail -> "detail:" + route.id
 }
 
@@ -94,6 +137,12 @@ private fun decodeRoute(value: String): Route = when {
     value == "scan" -> Route.QrScan
     value == "fingerprint" -> Route.FingerprintCheck
     value == "name" -> Route.AddContactName
+    value == "sos" -> Route.SosCategory
+    value == "sosactive" -> Route.SosActive
+    value == "sosincoming" -> Route.IncomingSos
+    value == "report" -> Route.ReportProblem
+    value == "intro" -> Route.Onboarding
+    value.startsWith("helping:") -> Route.HelpingSos(value.removePrefix("helping:"))
     value.startsWith("detail:") -> Route.MessageDetail(value.removePrefix("detail:"))
     else -> Route.Main
 }
@@ -127,6 +176,26 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
     val emergencyState = rememberEmergencyState()
     val store = rememberMessageStore()
     val availableToHelp = rememberAvailableToHelp()
+    val outgoingSos = rememberOutgoingSos()
+    // On a fresh install the intro goes on top of Home rather than replacing it, so finishing
+    // it is one pop and nothing else has to know it happened.
+    LaunchedEffect(Unit) { if (!state.onboardingSeen) stack.add(Route.Onboarding) }
+    val incomingSos = rememberIncomingSos()
+
+    // An SOS asked for with the radio off waits here until the session comes up.
+    LaunchedEffect(emergencyState, state.pendingSosCategory) {
+        if (state.pendingSosCategory != null) state.sendPendingSos()
+    }
+
+    // Shaking is for when something is wrong, not when something is happening: never while a
+    // take is being recorded or decoded, and never during an SOS.
+    val shakeEnabled = !state.isTranscribing &&
+        outgoingSos == null &&
+        incomingSos.none { it.phase == IncomingSosPhase.ACTIVE || it.phase == IncomingSosPhase.ACCEPTED_WAITING } &&
+        stack.last() != Route.ReportProblem
+    ShakeToReport(enabled = shakeEnabled) {
+        if (stack.last() != Route.ReportProblem) stack.add(Route.ReportProblem)
+    }
 
     // Urgent is the one thing about a sent message the DTN tables do not keep, so the store is
     // told at the moment of queueing and remembers it beside read/unread.
@@ -271,9 +340,119 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
                 onRenameContact = state::renameContact,
                 onRemoveContact = state::removeContact,
                 onBack = ::pop,
+                onReportProblem = { push(Route.ReportProblem) },
+                onShowIntro = { push(Route.Onboarding) },
                 onDeveloper = if (isDebugBuild) ({ push(Route.LegacyMain) }) else null,
                 modifier = modifier
             )
+
+            Route.Onboarding -> OnboardingFlow(
+                initialName = state.selfName,
+                onNameChange = { introName = it },
+                onAddContact = {
+                    state.markOnboardingSeen()
+                    introName.takeIf { it.isNotBlank() }?.let(state::renameSelf)
+                    resetToMain()
+                    state.clearPendingContact()
+                    stack.add(Route.Settings)
+                    stack.add(Route.QrScan)
+                },
+                onOpenQuickSettings = { openQuickSettings(context) },
+                onFinish = {
+                    state.markOnboardingSeen()
+                    introName.takeIf { it.isNotBlank() }?.let(state::renameSelf)
+                    pop()
+                },
+                modifier = modifier
+            )
+
+            Route.ReportProblem -> {
+                // Collected fresh each time the screen opens, so what is shown is what is sent.
+                val report = remember { collectProblemReport(context, state.selectedLanguageCode) }
+                ProblemReportScreen(
+                    report = report,
+                    onShare = { description -> shareProblemReport(context, report.asText(description)) },
+                    onBack = ::pop,
+                    modifier = modifier
+                )
+            }
+
+            Route.SosCategory -> SosCategoryScreen(
+                emergencyOn = emergencyState is EmergencyState.On,
+                starting = state.pendingSosCategory != null,
+                onSend = { category ->
+                    state.startSos(category)
+                    stack.removeAt(stack.lastIndex)
+                    stack.add(Route.SosActive)
+                },
+                onBack = ::pop,
+                modifier = modifier
+            )
+
+            Route.SosActive -> {
+                val sos = outgoingSos
+                val starting = state.pendingSosCategory != null
+                if (sos == null && !starting) {
+                    // Cancelled, ended, or never started because the radio could not come up.
+                    LaunchedEffect(Unit) { resetToMain() }
+                } else if (sos != null && sos.phase == OutgoingSosPhase.ENDED) {
+                    LaunchedEffect(sos.phase) { resetToMain() }
+                } else if (sos == null || sos.phase == OutgoingSosPhase.SEARCHING) {
+                    // Also the screen for the seconds before the incident exists: asking for
+                    // help has to look like something immediately, not bounce back Home.
+                    SosSearchScreen(
+                        state = sos,
+                        category = state.pendingSosCategory,
+                        onCancel = {
+                            state.cancelSos()
+                            resetToMain()
+                        },
+                        modifier = modifier
+                    )
+                } else {
+                    SosChatScreen(
+                        title = "Help is here",
+                        trust = sos.trust,
+                        shortAuthString = sos.shortAuthString,
+                        lines = sos.chat,
+                        draft = state.sosDraft,
+                        onDraftChange = { state.sosDraft = it },
+                        onSend = { state.sendSosChat(sos.sosIdHex) },
+                        onMarkVerified = { state.markSosVerified(sos.sosIdHex) },
+                        onBack = ::pop,
+                        modifier = modifier
+                    )
+                }
+            }
+
+            Route.IncomingSos -> IncomingSosScreen(
+                offers = incomingSos,
+                onAccept = { offer -> state.acceptSos(offer.sosIdHex) },
+                onDecline = { offer -> state.declineSos(offer.sosIdHex) },
+                onOpen = { offer -> push(Route.HelpingSos(offer.sosIdHex)) },
+                onBack = ::pop,
+                modifier = modifier
+            )
+
+            is Route.HelpingSos -> {
+                val offer = incomingSos.firstOrNull { it.sosIdHex == route.sosIdHex }
+                if (offer == null) {
+                    LaunchedEffect(route.sosIdHex) { pop() }
+                } else {
+                    SosChatScreen(
+                        title = offer.category.label,
+                        trust = offer.trust,
+                        shortAuthString = offer.shortAuthString,
+                        lines = offer.chat,
+                        draft = state.sosDraft,
+                        onDraftChange = { state.sosDraft = it },
+                        onSend = { state.sendSosChat(offer.sosIdHex) },
+                        onMarkVerified = { state.markSosVerified(offer.sosIdHex) },
+                        onBack = ::pop,
+                        modifier = modifier
+                    )
+                }
+            }
 
             Route.QrScan -> QrScanScreen(
                 onBack = {
