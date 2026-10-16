@@ -155,6 +155,20 @@ internal class AppState(
 
     fun dismissCaptureError() { CaptureSession.captureError = null }
 
+    /**
+     * Whether the four intro cards have been through once. Kept beside the permission flag
+     * rather than in the engine: it is a fact about this screen, not about the mesh.
+     */
+    var onboardingSeen by mutableStateOf(
+        runCatching { permissionPrefs.getBoolean(KEY_ONBOARDED, false) }.getOrDefault(false)
+    )
+        private set
+
+    fun markOnboardingSeen() {
+        onboardingSeen = true
+        runCatching { permissionPrefs.edit().putBoolean(KEY_ONBOARDED, true).apply() }
+    }
+
     val unreadCount: Int
         get() = messages.count { it.direction == MessageDirection.RECEIVED && !it.isRead }
 
@@ -582,8 +596,45 @@ internal class AppState(
 
     private companion object {
         const val KEY_MIC_ASKED = "mic_ever_asked"
+        const val KEY_ONBOARDED = "onboarding_seen"
     }
 }
+
+/**
+ * The one predicate that decides whether a scanned contact may be written, pulled out so it can
+ * be asserted in a unit test. [AppState] itself cannot be built in a JVM test — it wants a
+ * Context, a scope and seven Compose states — so without this the most important rule in the
+ * app was provable only by reading it.
+ */
+internal fun mayPersistScannedContact(capsule: IdentityCapsuleV1?, fingerprintConfirmed: Boolean): Boolean =
+    capsule != null && fingerprintConfirmed
+
+/**
+ * A name from a scanned code is chosen by whoever made that code, and the capsule allows 64
+ * bytes of anything that is valid UTF-8. The rest of the app caps names at 32, so without this
+ * a scanned name was the one way to get a longer one in — along with newlines, which make a
+ * contact row tall enough to forge a second line of interface, and bidirectional overrides,
+ * which reverse how the row reads.
+ *
+ * Control characters and the bidi overrides go, runs of whitespace collapse, and the result is
+ * cut to the same 32 characters as everywhere else.
+ */
+internal fun safeContactName(name: String): String = name
+    .filterNot { it in BIDI_OVERRIDES }
+    // A control character becomes a space rather than disappearing, so a name that tried to
+    // break across two lines reads as the one run of words it really is.
+    .map { if (it.code < 0x20 || it.code == 0x7F) ' ' else it }
+    .joinToString("")
+    .replace(WHITESPACE_RUN, " ")
+    .trim()
+    .take(32)
+
+private val BIDI_OVERRIDES = charArrayOf(
+    '\u200E', '\u200F', '\u202A', '\u202B', '\u202C', '\u202D', '\u202E',
+    '\u2066', '\u2067', '\u2068', '\u2069',
+).toSet()
+
+private val WHITESPACE_RUN = Regex("\\s+")
 
 /** LocalContext is usually the Activity, but it arrives wrapped often enough to be worth this. */
 internal tailrec fun Context.findActivity(): Activity? = when (this) {

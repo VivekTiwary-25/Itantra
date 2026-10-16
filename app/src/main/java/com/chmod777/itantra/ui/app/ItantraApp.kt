@@ -241,11 +241,21 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
         state.refreshContacts()
     }
 
+    // Held here rather than in AppState: a name being typed on a card is not something the
+    // engine should see until the card is finished.
+    var introName by rememberSaveable { mutableStateOf("") }
+
     fun push(route: Route) {
         state.dismissCaptureError()
         stack.add(route)
     }
-    fun pop() { if (stack.size > 1) stack.removeAt(stack.lastIndex) }
+    fun pop() {
+        // Hardware back used to leave a confirmed capsule armed behind it, while every screen's
+        // own back arrow cleared it. Nothing could reach a save in that state today, but the
+        // invariant "confirmed means the user is still in the flow" was only true by accident.
+        state.clearPendingContact()
+        if (stack.size > 1) stack.removeAt(stack.lastIndex)
+    }
     fun resetToMain() {
         state.dismissCaptureError()
         stack.clear()
