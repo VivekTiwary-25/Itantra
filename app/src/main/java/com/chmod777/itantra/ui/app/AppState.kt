@@ -162,16 +162,24 @@ internal class AppState(
         sendError = null
     }
 
+    /**
+     * Told about every message that reached the queue, so whatever is showing Logs can remember
+     * the one thing the engine does not store: that the sender chose Urgent. The DTN `outgoing`
+     * table keeps no priority column, so without this the tag would vanish on a restart.
+     */
+    var onMessageQueued: ((bundleIdHex: String, urgent: Boolean) -> Unit)? = null
+
     /** [onSent] runs only when the message actually left; a failure sets [sendError] instead. */
-    fun sendMessage(text: String, onSent: () -> Unit) {
+    fun sendMessage(text: String, urgent: Boolean = false, onSent: () -> Unit) {
         if (!useLegacyTransport) {
             val recipient = recipients.firstOrNull { it.nodeIdHex == selectedRecipientHex }
             if (recipient == null) {
                 sendError = "Choose a trusted contact. Unknown people cannot be addressed; use SOS instead."
                 return
             }
-            ItantraNetwork.queueTrustedMessage(recipient.nodeIdHex, text, draftLanguageCode)
+            ItantraNetwork.queueTrustedMessage(recipient.nodeIdHex, text, draftLanguageCode, urgent)
                 .onSuccess { bundleIdHex ->
+                    onMessageQueued?.invoke(bundleIdHex, urgent)
                     val now = LocalDateTime.now()
                     messages.add(
                         Message(
@@ -222,6 +230,27 @@ internal class AppState(
             isSending = false
             onSent()
         }
+    }
+
+    /**
+     * Speaks a message again. A received message is text — there is no recording of it, which is
+     * the point of the project — so replay is a fresh TTS pass, not a player. It runs off the main
+     * thread and swallows its own failures: a mute phone must not take the screen down with it.
+     */
+    fun speakAgain(text: String, languageCode: String) {
+        scope.launch(Dispatchers.Default) {
+            try {
+                Log.d(LATENCY_TAG, "[TTS] replay lang=$languageCode")
+                speech.speak(text, languageCode)
+            } catch (e: Throwable) {
+                Log.e(LATENCY_TAG, "[TTS] replay failed lang=$languageCode", e)
+            }
+        }
+    }
+
+    /** The contact sheet calls this after a contact is added, so the new one shows up at once. */
+    fun refreshRecipients() {
+        recipients = ItantraNetwork.recipients()
     }
 
     fun markRead(index: Int) {

@@ -34,6 +34,13 @@ object Ink {
     val unread = Color(0xFF6FD4DF)
 }
 
+/** Normal is gold, Urgent amber, SOS warm red — the one place that mapping is written down. */
+fun MessageMode.accent(): Color = when (this) {
+    MessageMode.NORMAL -> Ink.gold
+    MessageMode.URGENT -> Ink.amber
+    MessageMode.SOS, MessageMode.SOS_REPLY -> Ink.sos
+}
+
 /**
  * Replaces the generated `SIH_iTantraTheme`, which took its colours from the wallpaper through
  * Material You. A rescue tool cannot have its SOS red turn out lilac because of someone's

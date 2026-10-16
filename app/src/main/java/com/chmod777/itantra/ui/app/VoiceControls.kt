@@ -348,36 +348,75 @@ fun HandsFreeTile(onClick: () -> Unit, modifier: Modifier = Modifier) {
 
 /**
  * Message Detail's reply controls: the same orb, Hands-free and typing entry points
- * as Home, in a compact row. [ptt] must be created with [rememberHoldToTalk].
+ * as Home, in a compact row.
+ *
+ * It takes the recorder callbacks rather than a [HoldToTalkState], so the mic rules live in one
+ * place and are the same ones Home uses: a denied microphone leaves the orb idle instead of
+ * animating at nothing, and a release always stops the recorder even when the hold was too short
+ * to count — otherwise a stray tap leaves the mic open.
  */
 @Composable
 fun ReplyControlRow(
-    ptt: HoldToTalkState,
+    isTranscribing: Boolean,
+    onStartRecording: () -> Boolean,
+    onStopRecording: () -> Unit,
+    onPttReleased: () -> Unit,
     onHandsFree: () -> Unit,
     onType: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val view = LocalView.current
+    var held by remember { mutableStateOf(false) }
+    val orb = when {
+        isTranscribing -> OrbState.TRANSCRIBING
+        held -> OrbState.HELD
+        else -> OrbState.IDLE
+    }
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.Top
     ) {
-        ReplyItem(label = if (ptt.orb == OrbState.TRANSCRIBING) "Transcribing…" else "Hold to talk") {
+        ReplyItem(
+            label = when (orb) {
+                OrbState.IDLE -> "Hold to talk"
+                OrbState.HELD, OrbState.LISTENING -> "Listening…"
+                OrbState.TRANSCRIBING -> "Transcribing…"
+            }
+        ) {
             TalkOrb(
-                state = ptt.orb,
+                state = orb,
                 diameter = 66.dp,
-                modifier = Modifier.holdToTalk(ptt, enabled = ptt.orb != OrbState.TRANSCRIBING)
+                modifier = Modifier.holdToTalk(
+                    enabled = !isTranscribing,
+                    onHoldStart = {
+                        if (onStartRecording()) {
+                            held = true
+                            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                        }
+                    },
+                    onHoldEnd = { heldMillis ->
+                        if (held) {
+                            held = false
+                            onStopRecording()
+                            if (heldMillis >= MIN_HOLD_MS) {
+                                view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                                onPttReleased()
+                            }
+                        }
+                    }
+                )
             ) {
                 Icon(Icons.Rounded.Mic, contentDescription = "Hold to talk", tint = Ink.onGold, modifier = Modifier.size(28.dp))
             }
         }
         ReplyItem(label = "Hands-free") {
-            ClayRoundButton(onClick = onHandsFree, enabled = ptt.orb == OrbState.IDLE) {
+            ClayRoundButton(onClick = onHandsFree, enabled = orb == OrbState.IDLE) {
                 Icon(Icons.Rounded.GraphicEq, contentDescription = "Hands-free", tint = Ink.gold, modifier = Modifier.size(28.dp))
             }
         }
         ReplyItem(label = "Type") {
-            ClayRoundButton(onClick = onType, enabled = ptt.orb == OrbState.IDLE) {
+            ClayRoundButton(onClick = onType, enabled = orb == OrbState.IDLE) {
                 Icon(Icons.Outlined.Keyboard, contentDescription = "Type", tint = Ink.text, modifier = Modifier.size(26.dp))
             }
         }
