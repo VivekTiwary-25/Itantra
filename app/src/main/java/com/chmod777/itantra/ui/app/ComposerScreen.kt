@@ -292,9 +292,13 @@ private fun rememberLastNonNull(value: String?): String? {
     return value ?: last
 }
 
+// Urgent is not a label: queueTrustedMessage passes Priority.URGENT, which doubles the spray
+// budget from 4 copies to 8 and cuts the bundle lifetime from 24 hours to 6
+// (ProtocolConfig.kt:41-44). The second half of that is a real cost to the sender, so the
+// caption says it rather than only promising "faster".
 private fun modeCaption(mode: MessageMode) = when (mode) {
     MessageMode.NORMAL -> "Private · only the person you choose can read it"
-    MessageMode.URGENT -> "Private · travels further and faster"
+    MessageMode.URGENT -> "Private · twice as many phones carry it, and it stops trying after 6 hours"
     // Not reachable from here; SOS is category-first from Home.
     MessageMode.SOS, MessageMode.SOS_REPLY -> "Reaches anyone nearby who can help"
 }
