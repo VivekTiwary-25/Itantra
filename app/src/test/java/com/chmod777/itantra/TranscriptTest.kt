@@ -43,4 +43,16 @@ class TranscriptTest {
         assertFalse(heardNothing("[Music] we are at the gate"))
         assertFalse(heardNothing("[Music] [Music] send help"))
     }
+
+    @Test
+    fun `a sentence in brackets is speech, not a label`() {
+        // Whisper brackets speech it is unsure of. Punctuation is not a reason to bin a message.
+        assertFalse(heardNothing("(we are at the north gate, bring water)"))
+        assertFalse(heardNothing("[the bridge is out, go around]"))
+        assertFalse(heardNothing("(send two more people to the school)"))
+        // Still caught: real labels are one or two words.
+        assertTrue(heardNothing("[SIDE CONVERSATION]"))
+        assertTrue(heardNothing("(footsteps)"))
+        assertTrue(heardNothing("[ Silence ]"))
+    }
 }

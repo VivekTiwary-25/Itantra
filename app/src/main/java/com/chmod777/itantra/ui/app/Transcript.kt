@@ -28,8 +28,15 @@ package com.chmod777.itantra.ui.app
 internal fun heardNothing(text: String): Boolean {
     val trimmed = text.trim()
     if (trimmed.isEmpty()) return true
-    return ANNOTATION_ONLY.matches(trimmed)
+    if (!ANNOTATION_ONLY.matches(trimmed)) return false
+    // A label is a label, not a sentence in brackets. Whisper does sometimes put speech it is
+    // unsure of inside parentheses, and "(we are at the north gate, bring water)" must not be
+    // thrown away for its punctuation. Every placeholder seen on the phone is one or two words:
+    // [BLANK_AUDIO], [ Silence ], [Music], [SIDE CONVERSATION], [S], (footsteps).
+    return BRACKETED.findAll(trimmed).all { it.groupValues[1].trim().split(WHITESPACE).size <= MAX_LABEL_WORDS }
 }
+
+private const val MAX_LABEL_WORDS = 3
 
 /**
  * Nothing but `[...]` / `(...)` labels, separated by spaces or punctuation, where the last one
@@ -37,3 +44,8 @@ internal fun heardNothing(text: String): Boolean {
  */
 private val ANNOTATION_ONLY =
     Regex("""^(?:[\[(][^\[\]()]*[])][\s.,!?;:-]*)*(?:[\[(][^\[\]()]*)?$""")
+
+/** The inside of each label, closing bracket optional for the one the decoder cut short. */
+private val BRACKETED = Regex("""[\[(]([^\[\]()]*)[])]?""")
+
+private val WHITESPACE = Regex("""\s+""")
