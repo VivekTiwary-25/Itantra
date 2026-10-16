@@ -29,10 +29,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SIH_iTantra">
+        <!-- Portrait only: every screen is one column built around a 208dp orb, and there is no
+             landscape layout for any of them. The state-saving fix stands on its own, because an
+             activity is still recreated by a call, a dark-mode switch, a font-size change or
+             split screen. The Net Lab below is deliberately left free to rotate: it is a
+             developer screen of long forms, and no judge ever opens it. -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.SIH_iTantra"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>

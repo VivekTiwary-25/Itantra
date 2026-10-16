@@ -66,10 +66,7 @@ import java.time.LocalDateTime
 internal class AppState(
     private val context: Context,
     private val scope: CoroutineScope,
-    val speech: SpeechEngine,
     val transport: BluetoothRfcommTransport,
-    val recordingFile: File,
-    private val recorder: PcmRecorder,
     val messages: SnapshotStateList<Message>,
     private val requestBluetoothPermissions: () -> Unit,
     private val requestMicPermission: () -> Unit,
@@ -91,14 +88,23 @@ internal class AppState(
     var sendError by sendErrorState
     var composerMode by composerModeState
 
+    // Owned by the process, so a recreated screen finds the same engine, the same recorder and
+    // any take still being decoded. See CaptureSession for the crash that forced this.
+    val speech: SpeechEngine get() = CaptureSession.speech
+    val recordingFile: File get() = CaptureSession.recordingFile
+    private val recorder get() = CaptureSession.recorder
+
     var recipients by mutableStateOf(emptyList<RecipientOption>())
         private set
     var transportState by mutableStateOf<RfcommConnectionState>(RfcommConnectionState.Idle)
         private set
     var pairedDevices by mutableStateOf(emptyList<PairedBluetoothDevice>())
         private set
-    var isTranscribing by mutableStateOf(false)
-        private set
+    val isTranscribing: Boolean get() = CaptureSession.isTranscribing
+
+    /** The take just finished, waiting to be applied by whatever screen is on top. */
+    val pendingTranscript: Transcript? get() = CaptureSession.pending
+
     var isSending by mutableStateOf(false)
         private set
 
@@ -111,8 +117,9 @@ internal class AppState(
         private set
 
     /** What went wrong with the last capture, or null. Home and Hands-free both read this. */
-    var captureError by mutableStateOf<CaptureError?>(null)
-        private set
+    var captureError: CaptureError?
+        get() = CaptureSession.captureError
+        private set(value) { CaptureSession.captureError = value }
 
     /** Set while a permission prompt is open, so a granted result can start what was asked for. */
     private var pendingEmergencyStart = false
@@ -135,7 +142,7 @@ internal class AppState(
             return ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.RECORD_AUDIO)
         }
 
-    fun dismissCaptureError() { captureError = null }
+    fun dismissCaptureError() { CaptureSession.captureError = null }
 
     val unreadCount: Int
         get() = messages.count { it.direction == MessageDirection.RECEIVED && !it.isRead }
@@ -190,66 +197,34 @@ internal class AppState(
         captureError = if (granted) null else CaptureError.MIC_BLOCKED
     }
 
-    private fun discardRecording() {
-        runCatching { if (recordingFile.exists()) recordingFile.outputStream().close() }
-    }
+    private fun discardRecording() = CaptureSession.discardRecording()
 
     fun stopRecording() = recorder.stop()
 
     /**
-     * Shared by PTT-release and Hands-free Done: both route the same WAV through
-     * [SpeechEngine.transcribe] off the main thread, then hand the text back through [onReady].
+     * Shared by PTT-release and Hands-free Done. The work runs in the session, outside this
+     * composition, so a rotation cannot cancel it or free the recognizer underneath it. The
+     * result arrives in [pendingTranscript] and is applied by [applyTranscript].
      */
-    fun startTranscription(source: String, onReady: () -> Unit) {
-        if (isTranscribing) return
-        // Nothing was captured at all: no file, or a header with no samples after it.
-        if (recordingFile.length() <= WAV_HEADER_SIZE) {
-            captureError = if (micGranted) CaptureError.NOTHING_HEARD else CaptureError.MIC_BLOCKED
-            return
-        }
-        captureError = null
-        isTranscribing = true
-        scope.launch {
-            val releaseElapsedMs = SystemClock.elapsedRealtime()
-            Log.d(LATENCY_TAG, "[$source] release t=$releaseElapsedMs")
-            ItantraNetwork.recordProductTiming("product_speech_end", mapOf("source" to source))
-            val text = try {
-                withContext(Dispatchers.Default) {
-                    speech.transcribe(recordingFile.absolutePath, selectedLanguageCode)
-                }
-            } catch (e: Throwable) {
-                Log.e(LATENCY_TAG, "[$source] transcribe failed lang=$selectedLanguageCode", e)
-                captureError = CaptureError.TRANSCRIBE_FAILED
-                isTranscribing = false
-                return@launch
-            }
-            val readyElapsedMs = SystemClock.elapsedRealtime()
-            Log.d(
-                LATENCY_TAG,
-                "[$source] transcript ready deltaMs=${readyElapsedMs - releaseElapsedMs} " +
-                    "wavBytes=${recordingFile.length()}"
-            )
-            ItantraNetwork.recordProductTiming("product_transcript_ready", mapOf("source" to source))
-            // A silence placeholder is not a message. Opening the editor with "[BLANK_AUDIO]" in
-            // it is how one ended up in Logs, so the editor does not open at all here.
-            if (heardNothing(text)) {
-                Log.d(LATENCY_TAG, "[$source] nothing heard, raw=${text.take(32)}")
-                captureError = CaptureError.NOTHING_HEARD
-                isTranscribing = false
-                discardRecording()
-                return@launch
-            }
-            draft = text
-            draftLanguageCode = selectedLanguageCode
-            // Urgent is never inherited by the next take: a sticky flag is how someone sends an
-            // ordinary message as Urgent without meaning to.
-            composerMode = MessageMode.NORMAL
-            sendError = null
-            recipients = ItantraNetwork.recipients()
-            isTranscribing = false
-            onReady()
-        }
+    fun startTranscription(source: String) {
+        CaptureSession.transcribe(source = source, languageCode = selectedLanguageCode, micGranted = micGranted)
     }
+
+    /**
+     * Moves a finished take into the draft. Called by the navigation once, whichever screen is
+     * on top by then — which may not be the one the take started on.
+     */
+    fun applyTranscript(transcript: Transcript) {
+        draft = transcript.text
+        draftLanguageCode = transcript.languageCode
+        // Urgent is never inherited by the next take: a sticky flag is how someone sends an
+        // ordinary message as Urgent without meaning to.
+        composerMode = MessageMode.NORMAL
+        sendError = null
+        recipients = ItantraNetwork.recipients()
+    }
+
+    fun takePendingTranscript(): Transcript? = CaptureSession.takePending()
 
     // ---- composing and sending -------------------------------------------------------
 
@@ -357,7 +332,14 @@ internal class AppState(
 
     /** The contact sheet calls this after a contact is added, so the new one shows up at once. */
     fun refreshRecipients() {
-        recipients = ItantraNetwork.recipients()
+        recipients = runCatching { ItantraNetwork.recipients() }.getOrDefault(recipients)
+    }
+
+    init {
+        // A recreated screen starts with an empty contact list, and a remembered recipient that
+        // matches nothing in it reads as "Select trusted contact" -- the draft kept its person
+        // but the composer could not show who. Loading them up front is a handful of rows.
+        refreshRecipients()
     }
 
     fun markRead(index: Int) {
@@ -422,10 +404,8 @@ internal fun rememberAppState(): AppState {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
+    CaptureSession.attach(context)
     val transport = remember { BluetoothRfcommTransport(context) }
-    val speech = remember { SpeechEngine(context) }
-    val recordingFile = remember { File(context.filesDir, "recording.wav") }
-    val recorder = remember { PcmRecorder(recordingFile) }
     // The three placeholder rows are gone: Logs reads the database now, so a fake row would be a
     // lie about what the engine holds. This list survives only for the legacy screen behind the
     // debug long-press, which is deleted at the last step.
@@ -469,10 +449,7 @@ internal fun rememberAppState(): AppState {
         AppState(
             context = context,
             scope = scope,
-            speech = speech,
             transport = transport,
-            recordingFile = recordingFile,
-            recorder = recorder,
             messages = messages,
             requestBluetoothPermissions = requestBluetoothPermissions,
             requestMicPermission = requestMicPermission,
@@ -487,7 +464,8 @@ internal fun rememberAppState(): AppState {
     }
 
     DisposableEffect(transport) { onDispose { transport.close() } }
-    DisposableEffect(speech) { onDispose { speech.release() } }
+    // The recognizer is deliberately not released here. Releasing it from a composition is what
+    // crashed the app: a rotation during a decode freed it while the decoder was inside it.
 
     LaunchedEffect(Unit) {
         if (!BluetoothPermissions.areGranted(context)) requestBluetoothPermissions()
@@ -500,6 +478,7 @@ internal fun rememberAppState(): AppState {
         }
     }
 
+    val speech = CaptureSession.speech
     LaunchedEffect(transport) {
         transport.onMessageReceived { received ->
             val text = received.message.text

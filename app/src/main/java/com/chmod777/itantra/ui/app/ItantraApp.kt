@@ -14,6 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,9 +48,46 @@ sealed interface Route {
     data object LegacyMain : Route
 }
 
+/**
+ * The back stack has to survive the activity being recreated, or a rotation mid-sentence throws
+ * the writer back to Home. Routes are written as short strings rather than made Parcelable: one
+ * of them carries an id and the rest carry nothing, so a saver is less machinery than it looks.
+ *
+ * Anything unreadable restores as Home rather than throwing. A saved stack is not input to
+ * trust anything with.
+ */
+private fun encodeRoute(route: Route): String = when (route) {
+    Route.Main -> "main"
+    Route.HandsFree -> "handsfree"
+    Route.NewMessage -> "new"
+    Route.Logs -> "logs"
+    Route.LegacyMain -> "legacy"
+    is Route.MessageDetail -> "detail:" + route.id
+}
+
+private fun decodeRoute(value: String): Route = when {
+    value == "handsfree" -> Route.HandsFree
+    value == "new" -> Route.NewMessage
+    value == "logs" -> Route.Logs
+    value == "legacy" -> Route.LegacyMain
+    value.startsWith("detail:") -> Route.MessageDetail(value.removePrefix("detail:"))
+    else -> Route.Main
+}
+
+private val RouteStackSaver: Saver<SnapshotStateList<Route>, Any> =
+    listSaver<SnapshotStateList<Route>, String>(
+        save = { stack -> stack.map(::encodeRoute) },
+        restore = { saved ->
+            mutableStateListOf<Route>().apply {
+                addAll(saved.map(::decodeRoute))
+                if (isEmpty()) add(Route.Main)
+            }
+        }
+    )
+
 @Composable
 fun ITantraApp(modifier: Modifier = Modifier) {
-    val stack = remember { mutableStateListOf<Route>(Route.Main) }
+    val stack = rememberSaveable(saver = RouteStackSaver) { mutableStateListOf<Route>(Route.Main) }
     ITantraApp(stack = stack, modifier = modifier)
 }
 
@@ -88,6 +128,18 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
     // Leaving a screen on purpose answers the error that was on it, so it does not sit there
     // for the rest of the session. A pop does not clear it: that is how Hands-free hands the
     // "nothing heard" strip back to Home.
+    // A take that finished while the screen was being recreated is still waiting in the session.
+    // Whichever composition is alive now picks it up, which is why the transcript is not lost
+    // when the phone is rotated at the moment the recognizer returns.
+    LaunchedEffect(state.pendingTranscript) {
+        val transcript = state.takePendingTranscript() ?: return@LaunchedEffect
+        state.applyTranscript(transcript)
+        if (stack.last() != Route.NewMessage) {
+            state.dismissCaptureError()
+            stack.add(Route.NewMessage)
+        }
+    }
+
     fun push(route: Route) {
         state.dismissCaptureError()
         stack.add(route)
@@ -116,7 +168,7 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
                 onLanguageSelected = { state.selectedLanguageCode = it },
                 onStartRecording = state::startRecording,
                 onStopRecording = state::stopRecording,
-                onPttReleased = { state.startTranscription("PTT") { push(Route.NewMessage) } },
+                onPttReleased = { state.startTranscription("PTT") },
                 // Checked here rather than inside the screen: with no microphone there is
                 // nothing for Hands-free to do but pulse at the user.
                 onHandsFree = { if (state.requestCapture()) push(Route.HandsFree) },
@@ -144,7 +196,7 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
                     push(Route.NewMessage)
                 },
                 onOpenLogs = { push(Route.Logs) },
-                onPttReleased = { state.startTranscription("PTT") { push(Route.NewMessage) } },
+                onPttReleased = { state.startTranscription("PTT") },
                 selectedLanguageCode = state.selectedLanguageCode,
                 onLanguageChange = { state.selectedLanguageCode = it },
                 isTranscribing = state.isTranscribing,
@@ -168,7 +220,7 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
                 onBack = ::pop,
                 // A take that heard nothing leaves the person here, on the screen they were
                 // using, with the reason under the orb. Nothing navigates on a failure.
-                onDone = { state.startTranscription("HANDSFREE") { push(Route.NewMessage) } },
+                onDone = { state.startTranscription("HANDSFREE") },
                 isTranscribing = state.isTranscribing,
                 captureError = state.captureError,
                 onCaptureErrorAction = ::captureErrorAction,
@@ -224,7 +276,7 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
                         // the user rather than asked for again.
                         onPttReply = {
                             message.peerNodeIdHex?.let { state.selectedRecipientHex = it }
-                            state.startTranscription("REPLY") { push(Route.NewMessage) }
+                            state.startTranscription("REPLY")
                         },
                         onHandsFreeReply = { push(Route.HandsFree) },
                         onTypeReply = {
