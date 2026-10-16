@@ -32,6 +32,9 @@ object Ink {
     val sosLight = Color(0xFFF08A78)
     val sosSurface = Color(0xFF2A171A)
     val unread = Color(0xFF6FD4DF)
+
+    /** The raised thumb of the Normal/Urgent selector; the demo had it inline in the composer. */
+    val thumb = Color(0xFF223549)
 }
 
 /** Normal is gold, Urgent amber, SOS warm red — the one place that mapping is written down. */

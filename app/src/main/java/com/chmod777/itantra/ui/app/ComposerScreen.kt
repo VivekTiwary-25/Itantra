@@ -308,7 +308,7 @@ private fun ModeSelector(selected: MessageMode, onSelect: (MessageMode) -> Unit,
     val view = LocalView.current
     val index = SELECTABLE_MODES.indexOf(selected).coerceAtLeast(0)
     val thumbColor by animateColorAsState(
-        if (selected == MessageMode.URGENT) Ink.amberSurface else Ink.line,
+        if (selected == MessageMode.URGENT) Ink.amberSurface else Ink.thumb,
         tween(200), label = "thumb"
     )
     BoxWithConstraints(

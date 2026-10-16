@@ -74,8 +74,7 @@ internal class MessageStore(context: Context) {
                 id = id,
                 direction = Direction.OUTGOING,
                 peer = nameOf(out.recipientNodeId),
-                // The integrator adds UiMessage.peerNodeIdHex at merge and uncomments this line.
-                // peerNodeIdHex = out.recipientNodeId.toHex(),
+                peerNodeIdHex = out.recipientNodeId.toHex(),
                 body = out.text,
                 mode = if (id in urgent) MessageMode.URGENT else MessageMode.NORMAL,
                 timestamp = out.createdWallMs,
@@ -90,8 +89,7 @@ internal class MessageStore(context: Context) {
                 id = id,
                 direction = Direction.INCOMING,
                 peer = nameOf(inc.senderNodeId),
-                // The integrator adds UiMessage.peerNodeIdHex at merge and uncomments this line.
-                // peerNodeIdHex = inc.senderNodeId.toHex(),
+                peerNodeIdHex = inc.senderNodeId.toHex(),
                 body = inc.text,
                 mode = MessageMode.NORMAL,
                 timestamp = inc.receivedWallMs,

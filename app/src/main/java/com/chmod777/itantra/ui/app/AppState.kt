@@ -49,7 +49,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import speech.SpeechEngine
 import java.io.File
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 /**
@@ -76,6 +75,7 @@ internal class AppState(
     draftLanguageCodeState: MutableState<String>,
     selectedLanguageCodeState: MutableState<String>,
     sendErrorState: MutableState<String?>,
+    composerModeState: MutableState<MessageMode>,
 ) {
     /** The v1 BLE/DTN stack is the default. Legacy RFCOMM relays in plaintext and its ACK
      *  proves only the next hop, so it stays opt-in. */
@@ -85,6 +85,7 @@ internal class AppState(
     var draftLanguageCode by draftLanguageCodeState
     var selectedLanguageCode by selectedLanguageCodeState
     var sendError by sendErrorState
+    var composerMode by composerModeState
 
     var recipients by mutableStateOf(emptyList<RecipientOption>())
         private set
@@ -95,6 +96,14 @@ internal class AppState(
     var isTranscribing by mutableStateOf(false)
         private set
     var isSending by mutableStateOf(false)
+        private set
+
+    /**
+     * Counts messages that actually reached the queue. The composer watches it rather than being
+     * told "sent": a failure must leave the draft where it is, so nothing but a real queue write
+     * is allowed to trigger the send animation and the trip back Home.
+     */
+    var sentCount by mutableStateOf(0)
         private set
 
     /** Set while a permission prompt is open, so a granted result can start what was asked for. */
@@ -140,6 +149,9 @@ internal class AppState(
             ItantraNetwork.recordProductTiming("product_transcript_ready", mapOf("source" to source))
             draft = text
             draftLanguageCode = selectedLanguageCode
+            // Urgent is never inherited by the next take: a sticky flag is how someone sends an
+            // ordinary message as Urgent without meaning to.
+            composerMode = MessageMode.NORMAL
             sendError = null
             recipients = ItantraNetwork.recipients()
             isTranscribing = false
@@ -153,6 +165,7 @@ internal class AppState(
     fun beginTypedMessage() {
         draft = ""
         draftLanguageCode = "en"
+        composerMode = MessageMode.NORMAL
         sendError = null
         recipients = ItantraNetwork.recipients()
     }
@@ -180,6 +193,7 @@ internal class AppState(
             ItantraNetwork.queueTrustedMessage(recipient.nodeIdHex, text, draftLanguageCode, urgent)
                 .onSuccess { bundleIdHex ->
                     onMessageQueued?.invoke(bundleIdHex, urgent)
+                    sentCount++
                     val now = LocalDateTime.now()
                     messages.add(
                         Message(
@@ -228,6 +242,7 @@ internal class AppState(
             draft = ""
             draftLanguageCode = "en"
             isSending = false
+            sentCount++
             onSent()
         }
     }
@@ -308,16 +323,10 @@ internal fun rememberAppState(): AppState {
     val speech = remember { SpeechEngine(context) }
     val recordingFile = remember { File(context.filesDir, "recording.wav") }
     val recorder = remember { PcmRecorder(recordingFile) }
-    // Still the three placeholder rows from before this refactor. They are deleted with the rest
-    // of the demo leftovers at the last step, not here: step 0a must change nothing visible.
-    val messages = rememberSaveable(saver = MessageListSaver) {
-        val today = LocalDate.now().format(DATE_FORMAT)
-        mutableStateListOf(
-            Message("Water rising near the school", today, "10:42", MessageDirection.RECEIVED, isRead = false, languageCode = "en"),
-            Message("Six people at the temple", today, "10:43", MessageDirection.RECEIVED, isRead = false, languageCode = "en"),
-            Message("Need medical supplies", today, "10:44", MessageDirection.RECEIVED, isRead = false, languageCode = "en")
-        )
-    }
+    // The three placeholder rows are gone: Logs reads the database now, so a fake row would be a
+    // lie about what the engine holds. This list survives only for the legacy screen behind the
+    // debug long-press, which is deleted at the last step.
+    val messages = rememberSaveable(saver = MessageListSaver) { mutableStateListOf<Message>() }
 
     val useLegacyTransport = rememberSaveable { mutableStateOf(false) }
     val selectedRecipientHex = rememberSaveable { mutableStateOf<String?>(null) }
@@ -325,6 +334,8 @@ internal fun rememberAppState(): AppState {
     val draftLanguageCode = rememberSaveable { mutableStateOf("en") }
     val selectedLanguageCode = rememberSaveable { mutableStateOf("en") }
     val sendError = rememberSaveable { mutableStateOf<String?>(null) }
+    // An enum is Serializable, so Urgent survives a rotation the same way the draft text does.
+    val composerMode = rememberSaveable { mutableStateOf(MessageMode.NORMAL) }
 
     // The state needs the permission launcher and the launcher's result needs the state, so the
     // launcher reads it through a holder that is filled in the moment the state exists.
@@ -359,6 +370,7 @@ internal fun rememberAppState(): AppState {
             draftLanguageCodeState = draftLanguageCode,
             selectedLanguageCodeState = selectedLanguageCode,
             sendErrorState = sendError,
+            composerModeState = composerMode,
         ).also { stateHolder.value = it }
     }
 

@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -14,10 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.chmod777.itantra.HandsFreeScreen
-import com.chmod777.itantra.LogsScreen
 import com.chmod777.itantra.MainScreen
-import com.chmod777.itantra.MessageDetailScreen
-import com.chmod777.itantra.NewMessageScreen
+import com.chmod777.itantra.service.EmergencyState
 import com.chmod777.itantra.ui.lab.NetworkLabActivity
 
 /**
@@ -31,7 +30,9 @@ sealed interface Route {
     data object HandsFree : Route
     data object NewMessage : Route
     data object Logs : Route
-    data class MessageDetail(val index: Int) : Route
+
+    /** By id, not by position: Logs is re-read from the database and rows move. */
+    data class MessageDetail(val id: String) : Route
 
     /**
      * The pre-redesign main screen, kept only behind the debug long-press on the wordmark.
@@ -57,6 +58,16 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
     }
     val state = rememberAppState()
     val emergencyState = rememberEmergencyState()
+    val store = rememberMessageStore()
+
+    // Urgent is the one thing about a sent message the DTN tables do not keep, so the store is
+    // told at the moment of queueing and remembers it beside read/unread.
+    LaunchedEffect(state, store) {
+        state.onMessageQueued = { bundleIdHex, urgent ->
+            if (urgent) store.markUrgent(bundleIdHex)
+            store.refresh()
+        }
+    }
 
     fun push(route: Route) = stack.add(route)
     fun pop() { if (stack.size > 1) stack.removeAt(stack.lastIndex) }
@@ -68,7 +79,7 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
         when (val route = stack.last()) {
             Route.Main -> HomeScreen(
                 languageCode = state.selectedLanguageCode,
-                unreadCount = state.unreadCount,
+                unreadCount = store.unreadCount,
                 isTranscribing = state.isTranscribing,
                 emergencyState = emergencyState,
                 onLanguageSelected = { state.selectedLanguageCode = it },
@@ -126,37 +137,66 @@ fun ITantraApp(stack: SnapshotStateList<Route>, modifier: Modifier = Modifier) {
             )
 
             Route.Logs -> LogsScreen(
-                messages = state.messages,
+                messages = store.messages,
                 onBack = ::pop,
-                onOpenMessage = { index ->
-                    state.markRead(index)
-                    push(Route.MessageDetail(index))
-                },
+                onOpen = { message -> push(Route.MessageDetail(message.id)) },
                 modifier = modifier
             )
 
-            Route.NewMessage -> NewMessageScreen(
+            Route.NewMessage -> ComposerScreen(
                 draft = state.draft,
                 onDraftChange = { state.draft = it },
+                mode = state.composerMode,
+                onModeChange = { state.composerMode = it },
+                recipients = state.recipients,
+                selectedRecipientHex = state.selectedRecipientHex,
+                onSelectRecipient = { state.selectedRecipientHex = it },
+                emergencyOn = emergencyState is EmergencyState.On,
+                onStartEmergency = state::startEmergencyMode,
                 isSending = state.isSending,
                 sendError = state.sendError,
+                onDismissError = { state.sendError = null },
+                sentToken = state.sentCount,
+                onSend = { state.sendMessage(state.draft, state.composerMode == MessageMode.URGENT) {} },
+                onSent = { resetToMain() },
                 onBack = {
                     state.discardDraft()
                     resetToMain()
                 },
-                recipients = state.recipients,
-                selectedRecipientHex = state.selectedRecipientHex,
-                onSelectRecipient = { state.selectedRecipientHex = it },
-                useLegacyTransport = state.useLegacyTransport,
-                onSend = { text -> state.sendMessage(text) { resetToMain() } },
                 modifier = modifier
             )
 
-            is Route.MessageDetail -> MessageDetailScreen(
-                message = state.messages[route.index],
-                onBack = ::pop,
-                modifier = modifier
-            )
+            is Route.MessageDetail -> {
+                val message = store.messages.firstOrNull { it.id == route.id }
+                if (message == null) {
+                    // The row went while the screen was open: an empty detail screen would be
+                    // worse than going back to the list it came from.
+                    LaunchedEffect(route.id) { pop() }
+                } else {
+                    MessageDetailScreen(
+                        message = message,
+                        onBack = ::pop,
+                        onOpened = { store.markRead(message.id) },
+                        onReplay = { state.speakAgain(message.body, message.languageCode) },
+                        isTranscribing = state.isTranscribing,
+                        onStartRecording = state::startRecording,
+                        onStopRecording = state::stopRecording,
+                        // A reply goes back to whoever wrote it, so the recipient is chosen for
+                        // the user rather than asked for again.
+                        onPttReply = {
+                            message.peerNodeIdHex?.let { state.selectedRecipientHex = it }
+                            state.startTranscription("REPLY") { push(Route.NewMessage) }
+                        },
+                        onHandsFreeReply = { push(Route.HandsFree) },
+                        onTypeReply = {
+                            state.beginTypedMessage()
+                            message.peerNodeIdHex?.let { state.selectedRecipientHex = it }
+                            push(Route.NewMessage)
+                        },
+                        modifier = modifier
+                    )
+                }
+            }
         }
     }
 }

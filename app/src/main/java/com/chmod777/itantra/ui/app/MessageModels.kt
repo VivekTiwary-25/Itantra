@@ -31,6 +31,8 @@ internal data class UiMessage(
     val direction: Direction,
     /** Incoming: who sent it. Outgoing: who it went to. Null when the node id matches no contact. */
     val peer: String?,
+    /** The other end's node id, so a reply can be addressed to the person who wrote it. */
+    val peerNodeIdHex: String? = null,
     val body: String,
     val mode: MessageMode,
     /** Wall clock, milliseconds: created for a sent message, received for an arriving one. */

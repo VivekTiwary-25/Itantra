@@ -85,8 +85,11 @@ internal fun LogsScreen(
 ) {
     val now = rememberNow()
     val listState = rememberLazyListState()
-    // A new arrival goes to the top: keep it in view.
-    LaunchedEffect(messages.firstOrNull()?.id) { listState.animateScrollToItem(0) }
+    // A new arrival goes to the top: keep it in view. Not while the list is empty, where the
+    // state belongs to no laid-out LazyColumn at all.
+    LaunchedEffect(messages.firstOrNull()?.id) {
+        if (messages.isNotEmpty()) listState.animateScrollToItem(0)
+    }
 
     Column(
         modifier
