@@ -213,46 +213,14 @@ private fun qrBitmap(text: String, size: Int = 600): Bitmap {
 
 @Composable
 private fun ContactsSection(refresh: Int) {
-    var pasted by remember { mutableStateOf("") }
-    var pending by remember { mutableStateOf<IdentityCapsuleV1?>(null) }
-    var localName by remember { mutableStateOf("") }
-    var problem by remember { mutableStateOf("") }
     var contacts by remember { mutableStateOf(emptyList<TrustedContact>()) }
-    LaunchedEffect(refresh, pending) { contacts = NetworkingRuntime.database.all() }
-    fun parse(text: String) {
-        try {
-            val capsule = ContactQrCodec.decodeAndVerify(text)
-            if (capsule.nodeId.contentEquals(NetworkingRuntime.identity.value?.nodeId)) throw IllegalStateException("That is your own code.")
-            pending = capsule
-            localName = capsule.displayNameHint
-            problem = ""
-        } catch (e: MalformedInputException) {
-            problem = "Rejected: ${e.message}"
-        } catch (e: IllegalStateException) {
-            problem = e.message ?: "Rejected"
-        }
-    }
-    val scanner = rememberLauncherForActivityResult(ScanContract()) { result -> result.contents?.let { parse(it) } }
-    Section("Trusted contacts (QR)") {
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(onClick = { scanner.launch(ScanOptions().setDesiredBarcodeFormats(ScanOptions.QR_CODE).setPrompt("Scan an iTantra QR").setBeepEnabled(false)) }) { Text("Scan QR") }
-        }
-        OutlinedTextField(pasted, { pasted = it }, label = { Text("…or paste ITANTRA1: code") }, modifier = Modifier.fillMaxWidth())
-        OutlinedButton(onClick = { parse(pasted) }) { Text("Verify pasted code") }
-        if (problem.isNotEmpty()) Text(problem, color = MaterialTheme.colorScheme.error)
-        pending?.let { capsule ->
-            Text("Signature valid. Compare this fingerprint with the other phone before trusting:")
-            Mono(capsule.fingerprint)
-            OutlinedTextField(localName, { localName = it.take(32) }, label = { Text("Name on this phone") }, singleLine = true)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = {
-                    NetworkingRuntime.database.upsert(TrustedContact.fromVerifiedCapsule(capsule, localName, System.currentTimeMillis()))
-                    pending = null
-                    pasted = ""
-                }) { Text("Fingerprint matches — trust") }
-                OutlinedButton(onClick = { pending = null }) { Text("Cancel") }
-            }
-        }
+    LaunchedEffect(refresh) { contacts = NetworkingRuntime.database.all() }
+    Section("Trusted contacts (read-only)") {
+        // This screen used to scan or paste a code and trust it with one tap. It had no fingerprint
+        // comparison step and no own-code check that held with a null identity, so it was a second,
+        // ungated way into the same contacts table. Contacts are added in Settings, where the
+        // fingerprint has to be compared first. This list stays so the lab can still show who is trusted.
+        Text("Add a contact from Settings, where the fingerprint is checked first.")
         contacts.forEach { Mono("${it.localName}  ${it.fingerprint}") }
     }
 }
