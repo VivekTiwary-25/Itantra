@@ -1,0 +1,1035 @@
+{
+ "method": "Summarise every probe CSV pulled from both phones into fragmentation_results.json.\n\nRTT is measured on the originating phone's own clock (probe sent -> echo decoded).\nWith echo_payload=true the payload crosses the link twice and success requires the\nechoed bytes to be identical. Nothing is excluded; failures are counted per cause.",
+ "aggregate": {
+  "post_fix_non_fault_runs": 37,
+  "attempts": 287,
+  "successes": 284,
+  "failures": 3,
+  "by_payload": {
+   "8": {
+    "attempts": 60,
+    "successes": 60
+   },
+   "200": {
+    "attempts": 142,
+    "successes": 139
+   },
+   "2000": {
+    "attempts": 45,
+    "successes": 45
+   },
+   "16000": {
+    "attempts": 40,
+    "successes": 40
+   }
+  },
+  "pre_fix_multi_fragment": {
+   "attempts": 40,
+   "successes": 0
+  }
+ },
+ "runs": [
+  {
+   "file": "bench_phone_a/bench/probes_1790337681584-f642_1790337718815.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 8,
+   "echo_payload": true,
+   "link_frame_bytes": 46,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 20,
+   "successes": 20,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 74.855,
+    "median": 90.84700000000001,
+    "p95": 118.21,
+    "max": 134.426
+   }
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790337681584-f642_1790337726645.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 20,
+   "successes": 20,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 85.385,
+    "median": 103.975,
+    "p95": 115.034,
+    "max": 116.966
+   }
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790337681584-f642_1790337734497.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 2000,
+   "echo_payload": true,
+   "link_frame_bytes": 2040,
+   "first_hop_fragments_per_frame": "5",
+   "attempts": 20,
+   "successes": 0,
+   "failures": {
+    "send_failed:IllegalArgumentException": 20
+   },
+   "phase": "before 512-byte fragment fix"
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790337681584-f642_1790337740081.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 16000,
+   "echo_payload": true,
+   "link_frame_bytes": 16040,
+   "first_hop_fragments_per_frame": "32",
+   "attempts": 20,
+   "successes": 0,
+   "failures": {
+    "send_failed:IllegalArgumentException": 20
+   },
+   "phase": "before 512-byte fragment fix"
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790338212715-713a_1790338226230.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 8,
+   "echo_payload": true,
+   "link_frame_bytes": 46,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 20,
+   "successes": 20,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 30.293,
+    "median": 38.909,
+    "p95": 51.717,
+    "max": 57.962
+   }
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790338212715-713a_1790338231650.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 20,
+   "successes": 20,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 34.247,
+    "median": 52.8365,
+    "p95": 66.935,
+    "max": 91.45
+   }
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790338212715-713a_1790338237154.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 2000,
+   "echo_payload": true,
+   "link_frame_bytes": 2040,
+   "first_hop_fragments_per_frame": "5",
+   "attempts": 20,
+   "successes": 20,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 300.947,
+    "median": 392.8625,
+    "p95": 515.86,
+    "max": 529.297
+   },
+   "payload_goodput_bytes_per_s_median": 10182
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790338212715-713a_1790338249594.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 16000,
+   "echo_payload": true,
+   "link_frame_bytes": 16040,
+   "first_hop_fragments_per_frame": "33",
+   "attempts": 20,
+   "successes": 20,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 2934.204,
+    "median": 3375.9115,
+    "p95": 3459.454,
+    "max": 3505.188
+   },
+   "payload_goodput_bytes_per_s_median": 9479
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790338212715-713a_1790338460133.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 64,
+   "echo_payload": true,
+   "link_frame_bytes": 103,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 1,
+   "successes": 0,
+   "failures": {
+    "timeout": 1
+   },
+   "phase": "fault-injection trigger (corrupt: no echo expected; replay: echo expected)"
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790338212715-713a_1790338511946.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 5,
+   "successes": 5,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 72.243,
+    "median": 76.861,
+    "p95": 92.924,
+    "max": 92.924
+   }
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790338212715-713a_1790338515249.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 64,
+   "echo_payload": true,
+   "link_frame_bytes": 103,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 1,
+   "successes": 1,
+   "failures": {},
+   "phase": "fault-injection trigger (corrupt: no echo expected; replay: echo expected)",
+   "rtt_ms": {
+    "min": 123.945,
+    "median": 123.945,
+    "p95": 123.945,
+    "max": 123.945
+   }
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790338212715-713a_1790338526365.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 5,
+   "successes": 5,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 60.823,
+    "median": 91.327,
+    "p95": 106.834,
+    "max": 106.834
+   }
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790338931029-7ffa_1790338944785.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 2000,
+   "echo_payload": true,
+   "link_frame_bytes": 2040,
+   "first_hop_fragments_per_frame": "5",
+   "attempts": 5,
+   "successes": 5,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 410.879,
+    "median": 469.748,
+    "p95": 503.723,
+    "max": 503.723
+   },
+   "payload_goodput_bytes_per_s_median": 8515
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790338931029-7ffa_1790338965258.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 64,
+   "echo_payload": true,
+   "link_frame_bytes": 103,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 1,
+   "successes": 0,
+   "failures": {
+    "timeout": 1
+   },
+   "phase": "fault-injection trigger (corrupt: no echo expected; replay: echo expected)"
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790338931029-7ffa_1790338976639.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 3,
+   "successes": 3,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 83.369,
+    "median": 93.452,
+    "p95": 110.061,
+    "max": 110.061
+   }
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790338931029-7ffa_1790339006783.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 64,
+   "echo_payload": true,
+   "link_frame_bytes": 103,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 1,
+   "successes": 0,
+   "failures": {
+    "timeout": 1
+   },
+   "phase": "fault-injection trigger (corrupt: no echo expected; replay: echo expected)"
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790338931029-7ffa_1790339046350.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 3,
+   "successes": 3,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 111.207,
+    "median": 118.052,
+    "p95": 123.285,
+    "max": 123.285
+   }
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790338931029-7ffa_1790339066246.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 64,
+   "echo_payload": true,
+   "link_frame_bytes": 103,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 1,
+   "successes": 0,
+   "failures": {
+    "timeout": 1
+   },
+   "phase": "fault-injection trigger (corrupt: no echo expected; replay: echo expected)"
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790338931029-7ffa_1790339106711.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 3,
+   "successes": 3,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 103.745,
+    "median": 106.972,
+    "p95": 110.262,
+    "max": 110.262
+   }
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790339445126-142f_1790339459842.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 64,
+   "echo_payload": true,
+   "link_frame_bytes": 103,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 1,
+   "successes": 0,
+   "failures": {
+    "timeout": 1
+   },
+   "phase": "fault-injection trigger (corrupt: no echo expected; replay: echo expected)"
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790339445126-142f_1790339470328.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 3,
+   "successes": 3,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 41.379,
+    "median": 52.954,
+    "p95": 65.294,
+    "max": 65.294
+   }
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790339445126-142f_1790339489129.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 64,
+   "echo_payload": true,
+   "link_frame_bytes": 103,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 1,
+   "successes": 0,
+   "failures": {
+    "timeout": 1
+   },
+   "phase": "fault-injection trigger (corrupt: no echo expected; replay: echo expected)"
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790339445126-142f_1790339499766.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 3,
+   "successes": 3,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 99.14,
+    "median": 102.403,
+    "p95": 107.725,
+    "max": 107.725
+   }
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790339445126-142f_1790339518808.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 64,
+   "echo_payload": true,
+   "link_frame_bytes": 103,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 1,
+   "successes": 0,
+   "failures": {
+    "timeout": 1
+   },
+   "phase": "fault-injection trigger (corrupt: no echo expected; replay: echo expected)"
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790339445126-142f_1790339529379.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 3,
+   "successes": 3,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 87.04,
+    "median": 110.921,
+    "p95": 124.287,
+    "max": 124.287
+   }
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790340976739-3a58_1790341553814.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 3,
+   "successes": 3,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 72.058,
+    "median": 72.085,
+    "p95": 85.195,
+    "max": 85.195
+   }
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790341610798-739f_1790341621274.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 3,
+   "successes": 3,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 51.208,
+    "median": 101.694,
+    "p95": 112.817,
+    "max": 112.817
+   }
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790341811443-c6d1_1790341843325.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 3,
+   "successes": 0,
+   "failures": {
+    "timeout": 2,
+    "send_failed:LinkClosedException": 1
+   },
+   "phase": "after fix"
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790341811443-c6d1_1790341897446.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 3,
+   "successes": 3,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 83.208,
+    "median": 112.536,
+    "p95": 116.511,
+    "max": 116.511
+   }
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790341811443-c6d1_1790341924194.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 3,
+   "successes": 3,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 105.935,
+    "median": 113.442,
+    "p95": 116.912,
+    "max": 116.912
+   }
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790342097487-ef83_1790342136428.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 3,
+   "successes": 3,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 79.73,
+    "median": 96.207,
+    "p95": 98.497,
+    "max": 98.497
+   }
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790342097487-ef83_1790342158789.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 3,
+   "successes": 3,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 73.95,
+    "median": 104.194,
+    "p95": 109.251,
+    "max": 109.251
+   }
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790342097487-ef83_1790342184977.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 3,
+   "successes": 3,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 87.241,
+    "median": 107.443,
+    "p95": 109.904,
+    "max": 109.904
+   }
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790342210401-2861_1790342220125.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 3,
+   "successes": 3,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 55.211,
+    "median": 76.266,
+    "p95": 90.37,
+    "max": 90.37
+   }
+  },
+  {
+   "file": "bench_phone_a/bench/probes_1790342223432-77c8_1790342233432.csv",
+   "origin_phone": "PHONE_A",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 3,
+   "successes": 3,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 59.972,
+    "median": 71.671,
+    "p95": 72.526,
+    "max": 72.526
+   }
+  },
+  {
+   "file": "bench_phone_b/bench/probes_1790338215868-0109_1790338332755.csv",
+   "origin_phone": "PHONE_B",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 8,
+   "echo_payload": true,
+   "link_frame_bytes": 46,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 20,
+   "successes": 20,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 47.521,
+    "median": 74.9045,
+    "p95": 94.027,
+    "max": 95.389
+   }
+  },
+  {
+   "file": "bench_phone_b/bench/probes_1790338215868-0109_1790338338156.csv",
+   "origin_phone": "PHONE_B",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 20,
+   "successes": 20,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 54.692,
+    "median": 74.8735,
+    "p95": 93.678,
+    "max": 106.475
+   }
+  },
+  {
+   "file": "bench_phone_b/bench/probes_1790338215868-0109_1790338343554.csv",
+   "origin_phone": "PHONE_B",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 2000,
+   "echo_payload": true,
+   "link_frame_bytes": 2040,
+   "first_hop_fragments_per_frame": "5",
+   "attempts": 20,
+   "successes": 20,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 322.592,
+    "median": 457.64700000000005,
+    "p95": 893.169,
+    "max": 1144.537
+   },
+   "payload_goodput_bytes_per_s_median": 8740
+  },
+  {
+   "file": "bench_phone_b/bench/probes_1790338215868-0109_1790338358038.csv",
+   "origin_phone": "PHONE_B",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 16000,
+   "echo_payload": true,
+   "link_frame_bytes": 16040,
+   "first_hop_fragments_per_frame": "33",
+   "attempts": 20,
+   "successes": 20,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 2066.804,
+    "median": 2947.4505,
+    "p95": 3346.202,
+    "max": 3432.822
+   },
+   "payload_goodput_bytes_per_s_median": 10857
+  },
+  {
+   "file": "bench_phone_b/bench/probes_1790338933828-3e2e_1790338980385.csv",
+   "origin_phone": "PHONE_B",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 64,
+   "echo_payload": true,
+   "link_frame_bytes": 103,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 1,
+   "successes": 0,
+   "failures": {
+    "timeout": 1
+   },
+   "phase": "fault-injection trigger (corrupt: no echo expected; replay: echo expected)"
+  },
+  {
+   "file": "bench_phone_b/bench/probes_1790338933828-3e2e_1790339002261.csv",
+   "origin_phone": "PHONE_B",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 3,
+   "successes": 3,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 93.491,
+    "median": 105.079,
+    "p95": 116.559,
+    "max": 116.559
+   }
+  },
+  {
+   "file": "bench_phone_b/bench/probes_1790338933828-3e2e_1790339050062.csv",
+   "origin_phone": "PHONE_B",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 64,
+   "echo_payload": true,
+   "link_frame_bytes": 103,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 1,
+   "successes": 0,
+   "failures": {
+    "timeout": 1
+   },
+   "phase": "fault-injection trigger (corrupt: no echo expected; replay: echo expected)"
+  },
+  {
+   "file": "bench_phone_b/bench/probes_1790338933828-3e2e_1790339061798.csv",
+   "origin_phone": "PHONE_B",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 3,
+   "successes": 3,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 96.741,
+    "median": 105.635,
+    "p95": 113.54,
+    "max": 113.54
+   }
+  },
+  {
+   "file": "bench_phone_b/bench/probes_1790338933828-3e2e_1790339110531.csv",
+   "origin_phone": "PHONE_B",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 64,
+   "echo_payload": true,
+   "link_frame_bytes": 103,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 1,
+   "successes": 0,
+   "failures": {
+    "timeout": 1
+   },
+   "phase": "fault-injection trigger (corrupt: no echo expected; replay: echo expected)"
+  },
+  {
+   "file": "bench_phone_b/bench/probes_1790338933828-3e2e_1790339122550.csv",
+   "origin_phone": "PHONE_B",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 3,
+   "successes": 3,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 91.408,
+    "median": 106.594,
+    "p95": 119.897,
+    "max": 119.897
+   }
+  },
+  {
+   "file": "bench_phone_b/bench/probes_1790339447037-d603_1790339474016.csv",
+   "origin_phone": "PHONE_B",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 64,
+   "echo_payload": true,
+   "link_frame_bytes": 103,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 1,
+   "successes": 0,
+   "failures": {
+    "timeout": 1
+   },
+   "phase": "fault-injection trigger (corrupt: no echo expected; replay: echo expected)"
+  },
+  {
+   "file": "bench_phone_b/bench/probes_1790339447037-d603_1790339484781.csv",
+   "origin_phone": "PHONE_B",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 3,
+   "successes": 3,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 60.295,
+    "median": 82.785,
+    "p95": 85.629,
+    "max": 85.629
+   }
+  },
+  {
+   "file": "bench_phone_b/bench/probes_1790339447037-d603_1790339503478.csv",
+   "origin_phone": "PHONE_B",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 64,
+   "echo_payload": true,
+   "link_frame_bytes": 103,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 1,
+   "successes": 0,
+   "failures": {
+    "timeout": 1
+   },
+   "phase": "fault-injection trigger (corrupt: no echo expected; replay: echo expected)"
+  },
+  {
+   "file": "bench_phone_b/bench/probes_1790339447037-d603_1790339514217.csv",
+   "origin_phone": "PHONE_B",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 3,
+   "successes": 3,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 83.583,
+    "median": 86.138,
+    "p95": 115.926,
+    "max": 115.926
+   }
+  },
+  {
+   "file": "bench_phone_b/bench/probes_1790339447037-d603_1790339533142.csv",
+   "origin_phone": "PHONE_B",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 64,
+   "echo_payload": true,
+   "link_frame_bytes": 103,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 1,
+   "successes": 0,
+   "failures": {
+    "timeout": 1
+   },
+   "phase": "fault-injection trigger (corrupt: no echo expected; replay: echo expected)"
+  },
+  {
+   "file": "bench_phone_b/bench/probes_1790339447037-d603_1790339543953.csv",
+   "origin_phone": "PHONE_B",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 3,
+   "successes": 3,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 93.259,
+    "median": 104.165,
+    "p95": 110.039,
+    "max": 110.039
+   }
+  },
+  {
+   "file": "bench_phone_b/bench/probes_1790342099666-f903_1790342243893.csv",
+   "origin_phone": "PHONE_B",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 3,
+   "successes": 3,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 65.867,
+    "median": 74.21,
+    "p95": 79.918,
+    "max": 79.918
+   }
+  },
+  {
+   "file": "bench_phone_b/bench/probes_1790342099666-f903_1790342254479.csv",
+   "origin_phone": "PHONE_B",
+   "transport": "BLE_GATT",
+   "negotiated_mtu": "517",
+   "payload_bytes": 200,
+   "echo_payload": true,
+   "link_frame_bytes": 239,
+   "first_hop_fragments_per_frame": "1",
+   "attempts": 3,
+   "successes": 3,
+   "failures": {},
+   "phase": "after fix",
+   "rtt_ms": {
+    "min": 53.158,
+    "median": 73.571,
+    "p95": 79.042,
+    "max": 79.042
+   }
+  }
+ ]
+}

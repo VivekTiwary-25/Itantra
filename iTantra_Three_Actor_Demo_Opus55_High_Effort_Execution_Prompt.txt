@@ -1,0 +1,1955 @@
+ITANTRA SIH — THREE-ACTOR DEMO BUILD
+GINORMOUS EXECUTION PROMPT FOR CLAUDE OPUS 5.5 — HIGH EFFORT
+
+You are operating inside the iTantra Android repository. This is an EXECUTION task, not a design essay, not a code review, not a capability audit, and not a request for a speculative plan.
+
+Your job is to inspect the current checkout, understand the real project structure, then IMPLEMENT a polished, deterministic, film-ready Android UI demo as THREE DEDICATED ACTOR APPS/APKs:
+
+1. VACHANA DEMO APP
+2. YASH DEMO APP
+3. VIVEK DEMO APP
+
+These are three dedicated role-specific demo builds, but DO NOT create three separate codebases. Reuse shared components, state, navigation, styling, and demo infrastructure aggressively. The preferred architecture is three product flavors/build variants with role-specific configuration, application IDs, defaults, and reachable flows. If the repository already has a better equivalent mechanism, use it, but the result must still be three independently buildable/installable actor-specific APKs.
+
+The film editor will stitch clips together. THERE IS NO REQUIREMENT FOR THE THREE PHONES TO ACTUALLY COMMUNICATE WITH EACH OTHER DURING FILMING.
+
+That is a fundamental constraint.
+
+The purpose of these demo builds is deterministic UI capture. A send on Vachana's phone does not need to cause an event on Yash's phone. A reply on Yash's phone does not need to reach Vachana's phone. Vivek does not need to actually discover Vachana's SOS over radio. Each actor app can locally simulate the state needed for its own shot, on a controllable timer, and the edit supplies continuity.
+
+The real iTantra networking/speech code may remain intact in the repository. Do not destroy it. Do not perform giant refactors of backend systems. Isolate demo-only behavior cleanly so it is obvious that these are demo builds.
+
+The most important implementation principles are:
+
+- Make the UI look finished and intentional.
+- Make filming deterministic.
+- Reuse components ruthlessly.
+- Prefer local demo state over flaky Bluetooth/STT/TTS dependencies for these filmed paths.
+- Do not expose developer-looking diagnostic screens in the filmed UI.
+- Do not make the filmed flow depend on real STT, real TTS, real Bluetooth delivery, or real QR trust establishment.
+- Use real Android system notifications so the notification footage looks native.
+- Use hidden/demo-only controls to configure the next filmed event.
+- Keep the number of unique screens/components low.
+- Build and test the three APKs on the actual project, not in a web mockup.
+- Do not merely describe changes. Make them.
+
+===============================================================================
+0. START BY DISCOVERING THE REPOSITORY
+===============================================================================
+
+Before editing:
+
+- Read AGENTS.md and any repository-specific instructions.
+- Inspect the current branch and git status.
+- Do not overwrite unrelated user changes.
+- Find the actual Android app module, launcher activity, navigation setup, theme, Compose/XML framework, current Home UI, Logs UI, existing message-detail UI, speech/PTT code, hands-free code, current QR/trust screens, current notification utilities, and any existing demo/debug screens.
+- Inspect build.gradle / build.gradle.kts and current flavor/buildType setup.
+- Identify minimum/target SDK and runtime notification permission handling.
+- Identify current application ID/package.
+- Identify whether MediaPlayer/ExoPlayer or another audio player is already available.
+- Identify existing QR scanner code/dependencies.
+- Identify existing reusable PTT/HF UI components.
+- Find existing tests/build commands.
+- Preserve repository conventions.
+
+Do not assume old screenshots equal current code. Current checkout wins.
+
+Make a short internal implementation map, then implement.
+
+Ask the user only if a repository fact makes the requested build literally impossible to implement safely. Do not stop for cosmetic choices. Infer sensible values and keep moving.
+
+===============================================================================
+1. THREE DEDICATED DEMO APPS, ONE SHARED CODEBASE
+===============================================================================
+
+Create three actor-specific demo outputs.
+
+Preferred shape if compatible with the current Gradle project:
+
+flavor dimension: demoActor
+
+product flavors:
+- demoVachana
+- demoYash
+- demoVivek
+
+Use role-specific BuildConfig values or an equivalent compile-time mechanism.
+
+Prefer independently installable IDs such as:
+- com.chmod777.itantra.demo.vachana
+- com.chmod777.itantra.demo.yash
+- com.chmod777.itantra.demo.vivek
+
+If the real package/applicationId differs, preserve it and use clean suffixes.
+
+Visible app branding should remain "iTantra" unless there is a strong practical reason otherwise. Do NOT visibly label the apps "fake", "mock", "simulator", "Vachana build", etc. Role differentiation is internal/demo-only.
+
+The role must be fixed for each build. Do not add a public "choose actor" screen.
+
+Use a shared abstraction like:
+
+enum class DemoActor { VACHANA, YASH, VIVEK }
+
+or equivalent.
+
+Shared components must include as much as practical:
+- Home shell
+- Language selector
+- PTT control
+- Hands-free control
+- shared message composer
+- three-way Normal/Urgent/SOS selector
+- trusted-contact picker
+- Logs list
+- message detail
+- reply control row: PTT / Hands-free / Type
+- send animation
+- notification plumbing
+- demo message repository
+- demo transcript store
+- fake audio playback state
+- hidden Demo Controls screen
+
+Role-specific behavior should come from configuration/state, not copy-pasted screens.
+
+Do NOT create three duplicated versions of each screen.
+
+===============================================================================
+2. THIS PROMPT OVERRIDES OLD "CAPABILITY AUDIT" BEHAVIOR FOR DEMO BUILDS
+===============================================================================
+
+The old UI guidance was deliberately strict about real backend capability. These three demo builds now have a different purpose: FILMED UI DEMONSTRATION.
+
+Therefore, for these three demo flavors:
+
+- No "Beta" labels in the language picker.
+- No "Coming soon" labels in the language picker.
+- No visible STT/TTS support audit.
+- No developer-facing capability warnings in the filmed path.
+- No device fingerprints, raw IDs, cryptographic diagnostics, "instrumented" labels, or internal status blocks in the filmed UI.
+- Do not expose nearby-device diagnostics.
+- Do not require real STT.
+- Do not require real TTS.
+- Do not require real cross-device messaging.
+- Do not require real QR identity/trust verification.
+- Do not require real SOS discovery/session establishment.
+- Do not require authentic delivery receipts.
+
+All of those may remain elsewhere in the real product code. The demo flavors simply do not depend on them.
+
+Do not lie inside the implementation to itself. Keep demo state clearly isolated in code/packages/classes/configuration. But the filmed user-facing UI should look like a coherent product, not a capability audit.
+
+===============================================================================
+3. VISUAL LANGUAGE — LOCK THIS
+===============================================================================
+
+Use the existing iTantra design direction but make the filmed surfaces feel finished.
+
+Overall:
+- dark navy / charcoal field-radio identity
+- matte surfaces
+- restrained tactile/clay/neumorphic primary controls
+- minimal clutter
+- excellent spacing
+- strong readable typography
+- touch targets appropriate for real phones
+- Indian scripts must render cleanly
+- no network-fetched fonts/assets
+- no giant 3D illustrations
+- no dashboard-style developer panels in the filmed path
+- no chevron-list-settings aesthetic for primary flows
+- no excessive dividers
+
+IMPORTANT CHANGE:
+The relevant sheets/backgrounds should be fully opaque/matte. Do NOT use a see-through glass sheet where the background is visibly bleeding through. Treat "transparency = 0" as the user wanting no translucency. If current components use blur/glass, make demo-facing sheets matte and opaque.
+
+Motion:
+- short
+- tactile
+- intentional
+- no perpetual HUD nonsense
+- reuse animations instead of creating unique animation systems
+
+Accent semantics:
+- Normal: neutral
+- Urgent: muted amber
+- SOS: restrained warm red
+
+Urgent remains in the three-way selector but IS NOT USED IN THE FILMED PATHS described below. Do not spend implementation time creating a special demo narrative for Urgent.
+
+===============================================================================
+4. HIDDEN DEMO CONTROLS = DIRECTOR CONSOLE
+===============================================================================
+
+All three apps need a hidden but quick-to-access Demo Controls screen.
+
+This is the director console for filming.
+
+Recommended access:
+- long-press the iTantra title/logo on Home for roughly one second
+OR
+- reuse an existing Settings screen and place a clearly separated demo-only section there
+
+Prefer the long-press route if it is quicker and does not interfere with the filmed UI.
+
+The director console may look utilitarian. It is not part of the cinematic footage.
+
+It must allow the team to configure events on the fly without rebuilding the app.
+
+Persist demo configuration locally across app backgrounding and process recreation where practical.
+
+Include at least:
+
+A. LANGUAGE / TRANSCRIPT CONTROLS
+
+For EACH language:
+- Push-to-talk mock transcript
+- Hands-free mock transcript
+
+These are TWO COMPLETELY SEPARATE editable strings.
+
+Do not share one transcript field between PTT and Hands-free.
+
+The intended language list:
+- English
+- Hindi · हिन्दी
+- Gujarati · ગુજરાતી
+- Marathi · मराठी
+- Kannada · ಕನ್ನಡ
+- Malayalam · മലയാളം
+- Tamil · தமிழ்
+- Telugu · తెలుగు
+- Odia · ଓଡ଼ିଆ
+- Bengali · বাংলা
+
+The Home language picker chooses which language's configured mock transcript is used.
+
+Allow choosing the current demo language from Demo Controls too, because the team may need to set up a shot quickly.
+
+Suggested default demo values:
+Vachana English PTT:
+"Hey, remember to bring milk on your way back."
+
+Vachana English Hands-free:
+"I need help near the south gate."
+
+Yash English PTT:
+"Yep, got it."
+
+Yash English Hands-free:
+"Yep, got it."
+
+Vivek English PTT:
+"I'm coming. Stay where you are."
+
+Vivek English Hands-free:
+"I'm coming. Stay where you are."
+
+These are defaults only. ALL must be editable on the fly.
+
+B. GENERIC SIMULATE INCOMING MESSAGE
+
+The Vachana app especially needs a generic tool to simulate an incoming message from any person.
+
+Fields:
+- sender name
+- message text
+- message mode/context
+- optional audio clip
+- delay
+- whether to post a system notification
+- trigger now / schedule
+
+The system should inject the message into the local demo Logs state BEFORE/AT notification time so that tapping the notification and opening Logs shows the matching record.
+
+Recommended modes:
+- Normal
+- Urgent
+- SOS reply / SOS context
+
+Use the simplest internal representation that supports the filmed flows.
+
+C. SCHEDULED NOTIFICATION
+
+Support short filming delays:
+- 3 seconds
+- 5 seconds
+- 10 seconds
+- custom seconds
+
+The notification must still fire while the user has switched away to Instagram, Photos, Notes, PDF viewer, browser, etc.
+
+Do not use WorkManager if its scheduling characteristics make 3–10 second timing unreliable.
+
+Use an Android mechanism suitable for short deterministic demo scheduling on the target devices. Inspect current min/target SDK and implement the most reliable approach available. A BroadcastReceiver/AlarmManager-based route or another system-backed mechanism is preferable to a coroutine that dies immediately when the process is backgrounded. If exact-alarm permissions are problematic, handle it pragmatically and test on the actual devices. The requirement is: for a short filming window, switching to another app must not cancel the planned notification.
+
+Always provide a "Trigger now" fallback.
+
+D. AUDIO CLIP
+
+Incoming message detail uses FAKE/PRE-RECORDED audio, not the project's TTS model.
+
+The director console should allow an optional audio file to be attached to a simulated incoming message.
+
+Use the simplest robust mechanism:
+- if a suitable demo audio asset already exists, support selecting it
+- otherwise allow choosing a local WAV/MP3/M4A via Android file picker and persist URI permission when needed
+- use existing audio playback dependency if available; otherwise Android MediaPlayer is sufficient
+
+Do not use real iTantra TTS for these filmed message-detail shots.
+
+E. RESET
+
+Provide:
+- clear demo logs
+- cancel pending demo notification(s)
+- reset demo state to role defaults
+
+This is important for reshooting.
+
+===============================================================================
+5. HOME — SHARED VACHANA-FACING SURFACE
+===============================================================================
+
+The Vachana app needs the full Home filming UI.
+
+Keep Home in one phone viewport.
+
+Top:
+- iTantra branding
+- compact language control such as "English ▾"
+
+Centre:
+- large tactile Hold to Talk orb
+
+Under it:
+- Hands-free control/tile
+
+Bottom:
+- Write message
+- Logs
+
+Do not show:
+- permanent SOS card
+- device list
+- readiness dashboard
+- diagnostics
+- unsupported capability banners
+- Beta
+- Coming soon
+- networking internals
+
+PTT animation:
+- press/hold depresses control
+- one subtle haptic pulse if available
+- normal mic/text can recede/disappear
+- waveform becomes visible while held
+- subtle outward ripple is allowed
+- release ends capture
+- show a short "Transcribing…" beat so the edit reads naturally
+- then use the configured mock PTT transcript for the selected language
+- DO NOT wait for a real speech model
+
+Hands-free:
+- starts a continuous listening visual
+- same visual family as PTT but a dedicated continuous state
+- show waveform/listening state
+- bottom/obvious "Done" action
+- when Done is tapped, show a brief finishing/transcribing beat
+- then use the configured mock HANDS-FREE transcript for the selected language
+- DO NOT reuse the PTT transcript field
+- DO NOT require a real model
+
+Write message:
+- directly opens shared composer with empty text
+
+===============================================================================
+6. LANGUAGE PICKER — DEMO VERSION
+===============================================================================
+
+Tap the Home language control to open a medium-height MATTE, OPAQUE bottom sheet.
+
+Title:
+Message language
+
+Rows:
+English
+Hindi · हिन्दी
+Gujarati · ગુજરાતી
+Marathi · मराठी
+Kannada · ಕನ್ನಡ
+Malayalam · മലയാളം
+Tamil · தமிழ்
+Telugu · తెలుగు
+Odia · ଓଡ଼ିଆ
+Bengali · বাংলা
+
+No per-row cards.
+
+No Beta.
+
+No Coming soon.
+
+No support status.
+
+No technical explanation.
+
+Selected row gets a quiet selected mark.
+
+Selecting a language:
+- updates Home label
+- closes the sheet
+- determines which configured PTT/HF demo transcript is injected
+- influences message metadata only as needed by the demo UI
+
+No automatic translation/transliteration.
+
+===============================================================================
+7. SHARED NEW MESSAGE COMPOSER
+===============================================================================
+
+PTT, Hands-free, Write, and reply actions should converge on ONE reusable composer component/screen.
+
+Header:
+← New message
+
+Near the top:
+one three-way control:
+Normal | Urgent | SOS
+
+Do not create three separate rows/buttons.
+
+Private modes:
+Normal and Urgent show recipient line.
+
+SOS:
+recipient line disappears.
+
+Text:
+- editable
+- spacious
+- no giant border
+- no character counter
+- no "text only"
+- no developer status
+
+Send:
+large enough to film clearly
+same component across flows
+
+Keyboard:
+must not cover Send or make the layout unusable.
+
+For actor reply contexts:
+- prefill recipient automatically
+- prefill transcript from PTT/HF
+- preserve shared composer styling
+- do not force the actor through contact selection again
+
+For SOS replies:
+- reuse the composer component in a reply configuration
+- do not show a full Normal/Urgent/SOS choice if it makes no semantic sense inside an already-active SOS context
+- a small fixed SOS context indication is enough
+- recipient may be fixed to Vachana for the filmed reply
+- do not build a whole new composer just for SOS
+
+===============================================================================
+8. TRUSTED CONTACT PICKER — VACHANA FILMED VERSION
+===============================================================================
+
+Path 1 requires Vachana to select Yash.
+
+The trusted-contact picker must look like a real product surface, NOT the current developer-ish trust/identity screen.
+
+Open it from:
+To · Select trusted contact
+
+Use a matte bottom sheet or clean full-screen selector.
+
+Top:
+Select trusted contact
+
+Under title:
+a decorative/mock search field:
+"Search trusted contacts"
+
+The search field does NOT need to be functional for this demo.
+It should simply look like a plausible search affordance.
+Do not waste time building filtering unless it is trivial.
+
+NO AVATARS.
+NO INITIAL CIRCLES.
+JUST NAMES.
+
+Default Vachana trusted list:
+- Yash
+- Trisha
+- Utkarsh Keshri
+- Vaishnavi M H
+
+Do NOT include:
+- Vachana herself
+- Vivek
+
+Reason:
+Vachana is the sender and must not appear as her own destination.
+Vivek is specifically the untrusted nearby responder in the SOS narrative and should not simultaneously appear as a pre-trusted private contact in this filmed setup.
+
+At bottom:
++ Add trusted contact
+
+Selecting Yash:
+- closes picker
+- composer shows To · Yash
+- Send is now targeted to Yash in demo state
+
+No:
+- fingerprint
+- device ID
+- QR verified badge
+- "instrumented"
+- cryptographic explanations
+
+===============================================================================
+9. ADD TRUSTED CONTACT — SIMULATED QR FLOW
+===============================================================================
+
+This is demo-only setup/presentation.
+
+Tap:
++ Add trusted contact
+
+Open a QR scanning screen.
+
+Goal:
+scan ANY QR and move to an Add trusted contact form.
+
+Do not require authentic cryptographic trust establishment in the demo flavor.
+
+If the repository already has QR scanner/camera code, reuse it.
+If a QR library already exists, reuse it.
+Avoid adding a giant new scanner dependency if unnecessary.
+
+On any successfully detected QR payload:
+open:
+
+Add trusted contact
+
+Fields:
+- Name
+- optional minimal subtitle if necessary
+- Save / Add
+
+Do not show the raw QR payload.
+Do not show keys/fingerprints.
+Do not show trust internals.
+
+Save:
+- adds the typed name to the local demo trusted-contact list
+- returns to picker or contact screen
+- new name is selectable
+
+This does not need to participate in real cryptographic identity for the demo flavors.
+
+===============================================================================
+10. SEND ANIMATION — REUSE EVERYWHERE
+===============================================================================
+
+Create ONE reusable send animation component.
+
+Inspiration:
+the satisfying finality of a GPay-like send interaction, but DO NOT clone GPay visuals.
+
+Duration:
+roughly 0.8–1.3 seconds
+
+Behavior:
+- Send button depresses
+- message/lock/paper-plane style mark can rise or resolve
+- subtle ring/sweep
+- satisfying completion tick/check
+- short haptic if supported
+
+Normal:
+neutral accent
+final copy can be "Sent to Yash" or contextual recipient
+
+SOS:
+warm red accent
+final copy: "SOS sent"
+
+Do not create separate elaborate animation systems for each mode.
+
+After Vachana's top-level send:
+return to Home.
+
+After Yash/Vivek reply send:
+returning to Logs or previous thread is fine; the video will cut immediately after send anyway. Prefer the navigation that requires the least custom branching.
+
+===============================================================================
+11. LOGS — SHARED, CLEAN, FILMABLE
+===============================================================================
+
+Logs must exist and feel like product UI.
+
+No developer diagnostics.
+
+List incoming/outgoing demo records with:
+- sender/recipient name
+- first line / short message preview
+- timestamp such as Now / 1m
+- unread state
+- Normal/Urgent/SOS treatment if relevant
+
+Incoming unread messages:
+- small unread dot or equivalent
+- mark read when opened, not merely when Logs screen is opened
+
+For the film:
+new incoming message should appear at the top.
+
+Tap a row:
+open message detail.
+
+Normal messages can be visually neutral.
+
+SOS messages can carry a restrained red treatment.
+
+Do not show:
+- route internals
+- hop counters
+- Bluetooth IDs
+- cryptographic state
+- protocol status words unrelated to the user experience
+
+===============================================================================
+12. MESSAGE DETAIL — THE BIG REUSE SURFACE
+===============================================================================
+
+The same core Message Detail component should be used for:
+- Yash opening Vachana's Normal message
+- Vachana opening Yash's reply
+- Vivek opening Vachana's accepted SOS request
+- Vachana opening Vivek's SOS reply
+
+Header:
+← SenderName
+
+Optional compact context indicator:
+Normal can have none
+Urgent can have small amber if ever used
+SOS can have small red SOS treatment
+
+Main:
+large readable message text
+
+Optional audio:
+If this simulated incoming message has a configured audio clip, show ONE control:
+
+▶ Play audio
+
+When tapped:
+- start the prerecorded/mock audio
+- change control to:
+⏸ Pause
+
+Tap Pause:
+- pause playback at current position
+
+Tap Play again:
+- continue from current position
+
+NO REPLAY BUTTON.
+NO SCRUBBER.
+NO DRAGGING.
+NO AUTOPLAY.
+NO automatic speech when screen opens.
+NO waveform requirement for this audio player.
+NO real TTS model.
+
+When clip ends:
+it is acceptable for the control to return to "Play audio" and start from beginning on the next press, but DO NOT label it Replay.
+
+Below message/audio:
+reply controls where appropriate:
+
+Hold to talk | Hands-free | Type
+
+These are smaller variants of the same input controls already used elsewhere.
+
+They should NOT be dead static icons.
+Keep the same tactile/animated interaction family.
+
+PTT reply:
+- press/hold animation
+- release
+- short transcribing beat
+- inject role/language-specific PTT mock transcript
+- open shared composer with sender preselected as recipient
+
+Hands-free reply:
+- opens/reuses hands-free listening state
+- Done
+- inject role/language-specific HF mock transcript
+- open shared composer with sender preselected
+
+Type reply:
+- open shared composer with sender preselected and text field focused
+
+For Vachana's final receiving shots, she simply does not use the reply controls. That is okay. Reuse the same screen anyway.
+
+===============================================================================
+13. REAL ANDROID NOTIFICATIONS — DO NOT DRAW FAKE NOTIFICATION UI
+===============================================================================
+
+Use actual Android system notifications for filmed incoming events.
+
+The app schedules/posts the notification.
+Android renders it.
+
+This is critical because Yash/Vachana/Vivek may be in Instagram, Notes, Photos, browser, etc. when the event appears.
+
+Configure an appropriate notification channel:
+- visible heads-up behavior where allowed
+- normal iTantra icon
+- reasonable importance
+- avoid absurd alarm-like behavior for Normal messages
+- SOS can be more prominent but still tasteful
+
+Handle POST_NOTIFICATIONS runtime permission cleanly on modern Android.
+
+Provide an easy way in hidden Demo Controls to ensure permission is granted before filming.
+
+NORMAL MESSAGE NOTIFICATION
+
+Example:
+App: iTantra
+Sender: Vachana
+Text: Hey, remember to bring milk on your way back.
+
+Tap behavior:
+open iTantra directly to Logs.
+Do NOT deep-link straight to the message detail for the filmed Normal path.
+
+The matching message must already exist in Logs as unread.
+
+SOS RESPONDER NOTIFICATION
+
+Vivek is an UNTRUSTED nearby responder.
+
+His incoming SOS notification is different.
+
+It must surface:
+- SOS
+- Vachana
+- request text
+- Accept action
+- Decline action
+
+The first decision is at the notification.
+
+Accept:
+- mark demo SOS accepted
+- launch/open iTantra Logs
+- ensure Vachana's SOS record exists at top
+- user can tap it to open detail/conversation
+
+Decline:
+- dismiss/mark declined
+- do not enter conversation
+
+The film uses Accept.
+
+Do not require Vivek to be a trusted contact.
+
+===============================================================================
+14. PATH 1 — FINAL LOCKED FILM WORKFLOW
+===============================================================================
+
+This path demonstrates ordinary private communication using NORMAL mode.
+
+The story is intentionally mundane to contrast with SOS later.
+
+--------------------------------------------------
+PATH 1A — VACHANA SENDS NORMAL MESSAGE TO YASH
+--------------------------------------------------
+
+Actor app:
+Vachana build
+
+Start:
+Vachana is in iTantra Home.
+
+Sequence:
+
+1. Tap language control.
+2. Matte language picker opens.
+3. Select English.
+4. Hold large PTT orb.
+5. PTT animation plays while held.
+6. Vachana speaks for the camera.
+7. Release.
+8. Short "Transcribing…" beat.
+9. Inject configured English PTT mock transcript.
+
+Default:
+"Hey, remember to bring milk on your way back."
+
+10. Open shared New message composer.
+11. Normal is selected.
+12. Recipient line says:
+To · Select trusted contact
+13. Tap recipient.
+14. Trusted-contact picker opens.
+15. Mock search affordance visible.
+16. Names visible:
+Yash
+Trisha
+Utkarsh Keshri
+Vaishnavi M H
+17. No Vachana.
+18. No Vivek.
+19. Tap Yash.
+20. Return to composer.
+21. Recipient now:
+To · Yash
+22. Transcript remains editable.
+23. Tap Send.
+24. Reused Normal send animation.
+25. Final visual:
+Sent to Yash
+26. Return Home.
+
+END VACHANA SEND CLIP.
+
+No actual cross-device delivery is required.
+
+--------------------------------------------------
+PATH 1B — YASH RECEIVES WHILE DOING SOMETHING ELSE
+--------------------------------------------------
+
+Actor app:
+Yash build
+
+Before filming:
+open hidden Demo Controls.
+
+Configure/schedule:
+From: Vachana
+Mode: Normal
+Text: same message
+Optional audio clip: prerecorded Vachana voice saying same line
+Delay: 3/5/10 sec
+Show Android notification: ON
+
+Arm/schedule it.
+
+Then leave iTantra.
+
+Yash can casually scroll Instagram/Reels or do any ordinary phone activity.
+
+The app must be able to produce the notification while backgrounded.
+
+When timer fires:
+real Android iTantra notification appears.
+
+Notification:
+Vachana
+Hey, remember to bring milk on your way back.
+
+Yash taps notification.
+
+Tap opens:
+LOGS
+
+At top:
+Vachana
+Now
+message preview
+unread indicator
+
+Yash taps the row.
+
+Open Message Detail.
+
+Show:
+Vachana
+full message
+Play audio
+Hold to talk | Hands-free | Type
+
+Audio:
+does NOT autoplay.
+
+For film:
+Yash taps Play audio.
+Prerecorded/fake audio plays.
+Button becomes Pause.
+No replay/scrubber.
+
+Then Yash replies.
+
+Preferred filmed reply:
+PTT
+
+1. Hold smaller PTT reply control.
+2. Same tactile animation family.
+3. Release.
+4. Short transcribing beat.
+5. Inject Yash's configured English PTT mock transcript:
+
+"Yep, got it."
+
+6. Open SAME shared composer.
+7. Normal selected.
+8. Recipient preselected:
+To · Vachana
+9. Text:
+Yep, got it.
+10. Tap Send.
+11. Same reusable send animation.
+
+END YASH CLIP.
+
+No actual send to Vachana is required.
+
+--------------------------------------------------
+PATH 1C — VACHANA RECEIVES YASH'S REPLY
+--------------------------------------------------
+
+Actor app:
+Vachana build
+
+This is independently simulated.
+
+Before/during filming, use Vachana hidden Demo Controls:
+
+Simulate incoming message
+From: Yash
+Mode: Normal
+Text: Yep, got it.
+Delay: desired filming value
+Show Android notification: ON
+
+Arm it.
+
+Vachana leaves iTantra.
+
+For the funny contrast:
+Yash was wasting time scrolling Reels.
+Vachana is doing something studious:
+- reading notes
+- PDF
+- class material
+- anything visually studious
+
+Timer fires.
+
+Real Android iTantra notification:
+Yash
+Yep, got it.
+
+Vachana taps notification.
+
+Open:
+Logs
+
+Top:
+Yash
+Yep, got it.
+unread
+
+Tap row.
+
+Open same Message Detail screen.
+
+Show:
+Yash
+Yep, got it.
+reply controls may remain present because it is the shared screen
+
+Vachana does NOT reply.
+
+CUT.
+
+PATH 1 ENDS HERE.
+
+===============================================================================
+15. PATH 2 — FINAL LOCKED FILM WORKFLOW
+===============================================================================
+
+Path 2 demonstrates the other extreme:
+SOS from Vachana to an untrusted nearby responder, Vivek.
+
+No need to explain/use Urgent in the film.
+
+--------------------------------------------------
+PATH 2A — VACHANA SENDS SOS VIA HANDS-FREE
+--------------------------------------------------
+
+Actor app:
+Vachana build
+
+Start:
+Home.
+
+1. Tap Hands-free.
+2. Open/reuse Hands-free listening state.
+3. Show continuous listening/waveform visual.
+4. Vachana speaks for camera.
+5. Tap Done.
+6. Brief finishing/transcribing beat.
+7. Inject configured English HANDS-FREE mock transcript.
+
+Default:
+"I need help near the south gate."
+
+IMPORTANT:
+This is from the Hands-free transcript field, NOT the PTT transcript field.
+
+8. Open shared New message composer.
+9. Text is editable.
+10. User selects SOS in Normal | Urgent | SOS control.
+11. Recipient line disappears completely.
+12. SOS context gets restrained red treatment.
+13. Tap Send.
+14. Same reusable send animation, SOS red variant.
+15. Final copy:
+SOS sent
+16. Return Home.
+
+CUT.
+
+No real responder discovery required.
+
+--------------------------------------------------
+PATH 2B — VIVEK RECEIVES UNTRUSTED SOS
+--------------------------------------------------
+
+Actor app:
+Vivek build
+
+Before filming:
+hidden Demo Controls.
+
+Configure/schedule:
+Incoming type: SOS
+From: Vachana
+Text: I need help near the south gate.
+Delay: 3/5/10 sec
+Notification: ON
+
+Arm.
+
+Vivek may be doing something else on the phone.
+
+Timer fires.
+
+Real Android notification appears.
+
+Because Vivek is untrusted / nearby responder, notification itself presents the decision:
+
+SOS
+Vachana
+I need help near the south gate.
+
+[Accept] [Decline]
+
+Film:
+Vivek taps ACCEPT.
+
+Accept action:
+- marks request accepted in demo state
+- opens iTantra
+- lands on Logs
+- puts Vachana SOS at top
+
+Logs:
+SOS / Vachana
+I need help near the south gate.
+
+Vivek taps the SOS row.
+
+Open shared Message Detail / conversation surface.
+
+Show:
+Vachana
+SOS indicator
+I need help near the south gate.
+
+At bottom:
+Hold to talk | Hands-free | Type
+
+No extra responder dashboard.
+No map.
+No distance.
+No device details.
+No six-digit comparison.
+No cryptographic identity explanation.
+
+Vivek chooses PTT for the film.
+
+1. Hold reply PTT.
+2. Animation.
+3. Release.
+4. Short transcribing beat.
+5. Inject Vivek configured PTT mock transcript:
+
+"I'm coming. Stay where you are."
+
+6. Open shared composer in SOS-reply context.
+7. Recipient effectively fixed to Vachana.
+8. Do not force a trusted-contact picker.
+9. Do not show Normal/Urgent/SOS selector if it would imply this reply can stop being part of the SOS.
+10. Show fixed SOS context in the smallest reusable way.
+11. Tap Send.
+12. Reuse send animation, SOS red variant.
+
+CUT.
+
+No actual network reply required.
+
+--------------------------------------------------
+PATH 2C — VACHANA RECEIVES VIVEK'S RESPONSE
+--------------------------------------------------
+
+Actor app:
+Vachana build
+
+Independently use hidden Demo Controls.
+
+Simulate incoming message:
+From: Vivek
+Context: SOS reply
+Text: I'm coming. Stay where you are.
+Delay: desired filming value
+Show Android notification: ON
+
+Arm.
+
+Vachana can be in any natural phone context.
+
+Timer fires.
+
+Real Android iTantra notification from Vivek.
+
+Vachana taps notification.
+
+Open:
+Logs
+
+Top message:
+Vivek
+SOS context
+I'm coming. Stay where you are.
+
+Vachana taps row.
+
+Open same Message Detail screen.
+
+Show:
+Vivek
+I'm coming. Stay where you are.
+
+She does not reply.
+
+CUT.
+
+PATH 2 ENDS HERE.
+
+IMPORTANT:
+There is NO separate "Vivek is responding" prompt in the film.
+There is NO separate acceptance screen on Vachana.
+There is NO requirement to synchronize acceptance with Vachana.
+The edit supplies continuity.
+
+===============================================================================
+16. REPLY CONTROLS — ONE SHARED COMPONENT
+===============================================================================
+
+Implement one reusable reply control row for message detail/conversation:
+
+Hold to talk
+Hands-free
+Type
+
+Use the same iconography/design language as the Home input controls.
+
+The variants are smaller because they live at the bottom of Message Detail.
+
+Do not strip all animation just because they are small.
+
+PTT should still:
+- depress
+- show listening waveform/ripple behavior
+- release cleanly
+
+Hands-free should still:
+- enter a listening state
+- require Done
+- inject the separate hands-free transcript
+
+Type:
+- opens shared composer
+- recipient/context preselected
+
+Do not create dedicated Yash reply controls and dedicated Vivek reply controls separately.
+
+===============================================================================
+17. DEMO DATA MODEL / REPOSITORY
+===============================================================================
+
+Keep demo-only state clean and obvious.
+
+Create a demo repository/state store appropriate for the current architecture.
+
+Need to represent at least:
+
+DemoMessage:
+- id
+- sender
+- recipient if relevant
+- body
+- mode/context (Normal/Urgent/SOS/SOS_REPLY)
+- direction (incoming/outgoing)
+- timestamp
+- unread
+- optional audio URI/resource
+- maybe thread/request id if useful
+- maybe accepted state for SOS
+
+Need:
+- insert simulated incoming
+- create outgoing demo record
+- mark read
+- list logs
+- reset
+- persist enough for reshoots/navigation
+
+Data persistence:
+SharedPreferences/DataStore/Room whichever is already idiomatic in the repo.
+
+Do not invent a large database migration if the existing project already has a reasonable storage layer.
+Do not risk the production message store if that makes the demo fragile.
+A demo-only store keyed by demo flavor is acceptable.
+
+===============================================================================
+18. NOTIFICATION DEEP LINKS
+===============================================================================
+
+Normal notification tap:
+- open Logs
+
+Yash/Vachana Normal flow explicitly wants:
+notification → Logs → tap message → detail
+
+Do not deep-link straight to detail for this filmed flow.
+
+SOS notification on Vivek:
+- Accept/Decline actions
+- Accept opens Logs
+- Decline dismisses/marks declined
+
+Vachana receiving Vivek's final response:
+- same receive pattern again:
+notification → Logs → tap message → detail
+
+Keep notification pending intents unique and safe.
+
+If app is already running:
+navigation should still land reliably on Logs.
+
+If app is cold:
+launch directly into correct Logs state.
+
+===============================================================================
+19. AUDIO PLAYBACK
+===============================================================================
+
+This is deliberately simple.
+
+Message detail:
+if audio configured:
+show "Play audio"
+
+Tap:
+start playback
+label becomes "Pause"
+
+Pause:
+pause
+
+Play after pause:
+resume
+
+No:
+- autoplay
+- replay label
+- waveform
+- slider
+- scrubber
+- duration requirement
+- speed controls
+- TTS model invocation
+
+The audio is pre-recorded/mock.
+
+Release media resources appropriately when screen/app leaves.
+
+Do not make audio playback crash if URI is missing; hide or disable the control in hidden/demo-safe manner.
+
+===============================================================================
+20. ROLE-SPECIFIC SURFACE REQUIREMENTS
+===============================================================================
+
+VACHANA APP MUST SUPPORT:
+- Home
+- matte language selector
+- PTT mock transcript
+- Hands-free mock transcript
+- shared composer
+- Normal recipient picker
+- Yash selection
+- mock search field
+- simulated Add trusted contact via any QR
+- Normal send animation
+- SOS selection/send
+- Logs
+- message detail
+- receiving/scheduling arbitrary incoming demo messages
+- receiving Yash reply
+- receiving Vivek SOS reply
+- hidden Demo Controls
+
+YASH APP MUST SUPPORT:
+- hidden Demo Controls
+- schedule Vachana Normal incoming notification
+- real Android heads-up notification
+- notification → Logs
+- Vachana message in Logs
+- message detail
+- Play/Pause prerecorded audio
+- reply controls
+- PTT/HF/type reply
+- shared composer with Vachana preselected
+- send animation
+- reset/reshoot
+
+YASH DOES NOT NEED:
+- trusted contact setup for the filmed path
+- full Home feature parity if not necessary
+- real Bluetooth delivery
+- real STT/TTS
+
+VIVEK APP MUST SUPPORT:
+- hidden Demo Controls
+- schedule incoming Vachana SOS
+- real Android notification with Accept/Decline
+- Accept → Logs
+- SOS entry in Logs
+- open message/conversation
+- reply controls
+- PTT/HF/type
+- preloaded responder transcript
+- shared composer in SOS reply context
+- send animation
+- reset/reshoot
+
+VIVEK DOES NOT NEED:
+- trusted status
+- contact picker for the filmed path
+- real SOS radio discovery
+- real responder handshake
+- map/distance
+- six-digit device check in demo flow
+
+===============================================================================
+21. DO NOT OVERBUILD
+===============================================================================
+
+We are low on time.
+
+"Low on time" DOES NOT mean drop important behavior.
+It means reuse harder.
+
+Therefore:
+
+Do NOT:
+- build a whole contacts app
+- build a whole settings app
+- build multiple duplicate composers
+- build multiple duplicate message-detail screens
+- build a unique chat system if message detail + reply controls can represent the filmed interaction
+- build a search backend for the decorative contact search field
+- build real STT integration for the film
+- build real TTS integration for the film
+- build real multi-phone sync
+- build real SOS discovery
+- build a map
+- build a delivery-tracking dashboard
+- build network diagnostics
+- add unrelated pages
+- create visual assets that belong in the edited video
+
+Aggressively reuse:
+- PTT component
+- Hands-free component
+- composer
+- message detail
+- reply controls
+- send animation
+- Logs
+- notification scheduler
+- demo repository
+- demo settings fields
+
+===============================================================================
+22. EDGE CASES THAT MUST NOT RUIN A TAKE
+===============================================================================
+
+Handle:
+
+- Notification permission not granted:
+  Demo Controls should make it obvious to the team before they leave the app.
+  Provide a direct request/grant path.
+
+- Notification channel disabled:
+  show a hidden/demo control hint or open system notification settings.
+
+- Scheduled event fired while app visible:
+  still insert Logs item and show appropriate notification/banner if Android permits.
+
+- Duplicate trigger:
+  avoid creating infinite duplicate rows from accidental double tap.
+
+- Reset:
+  cancel pending notification and clear demo state.
+
+- Audio file missing:
+  message still opens; no crash.
+
+- User backs out of composer:
+  no accidental send.
+
+- User presses Home after arming:
+  scheduled notification should still work.
+
+- Process recreated:
+  prefer preserving armed event enough to survive normal short filming switch if practical.
+
+- Camera permission for QR:
+  request cleanly.
+  If camera unavailable, provide a demo-safe fallback only inside the QR demo flow.
+
+- Keyboard:
+  composer remains usable.
+
+- Long names:
+  truncate gracefully.
+
+- Large text:
+  basic layout should not explode.
+
+===============================================================================
+23. OPTIONAL QR FALLBACK IF SCANNER IMPLEMENTATION IS BLOCKED
+===============================================================================
+
+The primary desired behavior is:
+scan any QR → Add trusted contact form.
+
+If existing QR scanning code can be reused, do that.
+
+If QR infrastructure is genuinely broken and fixing it would threaten the rest of the demo:
+- keep the scanner-looking screen
+- allow a hidden demo-only "simulate scan" action that advances to the form
+- do NOT put a giant visible "fake scan" button in the filmed UI
+
+This is a fallback, not first choice.
+
+===============================================================================
+24. ANIMATION / POLISH DETAILS
+===============================================================================
+
+Home PTT:
+- satisfyingly tactile
+- no giant delay
+- no janky recomposition/layout jump
+- no blocking loading spinner
+
+Hands-free:
+- listening state must feel visibly different from idle
+- Done must be obvious
+
+Composer mode selector:
+- one tactile control
+- active segment gets subtle elevation/accent
+- do not make three independent giant buttons
+
+Contact picker:
+- matte
+- clean
+- names only
+- search affordance visually plausible
+- Yash easy to tap
+
+Message detail:
+- generous text
+- no speech bubble clutter
+- Play/Pause obvious
+- reply controls anchored near bottom
+
+Send:
+- do not over-animate
+- should read clearly in screen recording at normal speed
+
+SOS:
+- warm red but not flashing siren UI
+- no fear-inducing full-screen red
+
+===============================================================================
+25. BUILD / INSTALL CONVENIENCE
+===============================================================================
+
+Provide straightforward build commands for all three APKs.
+
+If using flavors, expose commands analogous to:
+./gradlew assembleDemoVachanaDebug
+./gradlew assembleDemoYashDebug
+./gradlew assembleDemoVivekDebug
+
+Adjust names to actual project conventions.
+
+At the end, report exact output APK paths.
+
+If adb-connected phones are available, optionally install the matching APK to each:
+- Vachana phone
+- Yash phone
+- Vivek phone
+
+Do not overwrite another actor build on the wrong phone without checking package IDs.
+
+===============================================================================
+25A. MANDATORY REMOTE PUBLISH STEP — REPO-BACKED APK DELIVERY
+===============================================================================
+
+The user's phones do NOT need to remain connected to the development machine.
+
+After every successful final build, you MUST publish the three actor APKs to the repository's remote so they can be downloaded later.
+
+Preferred publication mechanism:
+GITHUB RELEASE ASSETS associated with the current repository.
+
+Why:
+- do not bloat normal git history with APK binaries
+- APKs may be too large for ordinary GitHub file limits
+- release assets are easy to download onto a phone
+- each actor can retrieve only the APK they need
+
+Inspect the repository's `origin` remote and current authentication.
+
+If the remote is GitHub and the GitHub CLI (`gh`) is installed/authenticated:
+
+1. Build all three APKs successfully.
+2. Copy/rename successful artifacts to stable filenames:
+   - iTantra-Vachana-latest.apk
+   - iTantra-Yash-latest.apk
+   - iTantra-Vivek-latest.apk
+3. Compute SHA-256 for each.
+4. Create or update a dedicated rolling release/tag:
+   - tag: demo-latest
+   - title: iTantra SIH Demo — Latest
+5. Upload the three APKs to that release using overwrite/clobber behavior where supported.
+6. Also include a tiny text manifest containing:
+   - build timestamp
+   - git commit SHA
+   - actor/app variant
+   - APK SHA-256
+7. Do not publish failed or partially built artifacts.
+8. Only replace a prior "latest" APK after the new APK for that actor has built successfully.
+9. Push the source-code branch/commits normally before or alongside publishing the release.
+10. Report the final repository remote, release/tag, asset names, and commit SHA.
+
+If `gh` is unavailable or unauthenticated but ordinary `git push` works:
+- DO NOT silently skip remote delivery.
+- First try to discover whether another existing authenticated repository-release mechanism is available.
+- If none is available, use a dedicated artifact branch ONLY as a fallback:
+  - branch: demo-apks
+  - keep only the current latest APKs + manifest in the working tree
+  - use stable names above
+  - avoid polluting the main/source branch with binary APK commits
+  - force-updating the dedicated artifact branch is acceptable ONLY if necessary to keep it rolling and isolated, and only after preserving source work on its normal branch
+- Be aware of host binary-size limits. If an APK exceeds the remote's file limit, do not pretend upload succeeded; report the exact blocker and prefer release assets.
+
+Never require a phone to be connected for the final delivery step.
+
+The final definition of "done" is:
+SOURCE CHANGES COMMITTED/PUSHED
++ ALL THREE APKS BUILT
++ ALL THREE APKS PUBLISHED REMOTELY
++ DOWNLOAD LOCATION/RELEASE IDENTIFIED
+
+If remote publication fails due authentication/permissions, continue to preserve all successful local builds and source commits, then report the exact command/error and the local APK paths. Do not claim completion of remote delivery.
+
+===============================================================================
+26. TESTING / VALIDATION
+===============================================================================
+
+At minimum:
+
+A. Compile all three actor APKs.
+
+B. Vachana smoke test:
+- Home renders
+- language sheet opaque
+- no Beta/Coming soon
+- PTT injects PTT transcript
+- Hands-free injects separate HF transcript
+- Normal contact picker has correct names
+- no Vachana
+- no Vivek
+- select Yash
+- Send animation
+- SOS hides recipient
+- Vachana can schedule incoming Yash/Vivek demo message
+- notification opens Logs
+- detail opens
+
+C. Yash smoke test:
+- schedule Normal incoming
+- background app
+- notification appears after short delay
+- tap opens Logs
+- message exists and unread
+- detail opens
+- Play/Pause works
+- PTT reply injects "Yep, got it."
+- composer has Vachana preselected
+- send animation
+
+D. Vivek smoke test:
+- schedule SOS
+- background app
+- SOS notification shows Accept/Decline
+- Accept opens Logs
+- Vachana SOS visible
+- tap opens detail
+- reply controls visible
+- PTT injects responder line
+- SOS reply composer works
+- send animation
+
+E. Reset:
+- clears Logs
+- cancels pending scheduled events
+
+If actual phones are connected, test on them.
+
+Do not claim a device test you did not perform.
+
+===============================================================================
+27. FILMING SCRIPT / SHOT CHECKLIST TO OUTPUT AFTER IMPLEMENTATION
+===============================================================================
+
+After implementation, give a concise actor-by-actor recording checklist.
+
+VACHANA — PATH 1 SEND
+1. Open iTantra
+2. choose English
+3. hold PTT
+4. release
+5. select Yash
+6. Send
+7. capture animation
+
+YASH — PATH 1 RECEIVE/REPLY
+1. configure notification
+2. arm timer
+3. leave app
+4. scroll Instagram/Reels
+5. wait for notification
+6. tap notification
+7. Logs
+8. tap Vachana
+9. Play audio
+10. PTT reply
+11. Send
+
+VACHANA — PATH 1 RETURN
+1. configure Yash reply
+2. arm timer
+3. open study notes/PDF
+4. wait notification
+5. tap
+6. Logs
+7. tap Yash message
+8. cut
+
+VACHANA — PATH 2 SOS SEND
+1. Home
+2. Hands-free
+3. speak
+4. Done
+5. select SOS
+6. Send
+7. capture SOS send animation
+
+VIVEK — PATH 2 RESPOND
+1. configure SOS notification
+2. arm
+3. leave app
+4. wait
+5. Accept notification
+6. Logs
+7. tap Vachana SOS
+8. PTT reply
+9. Send
+
+VACHANA — PATH 2 FINAL
+1. configure Vivek reply
+2. arm
+3. leave app
+4. wait notification
+5. tap
+6. Logs
+7. tap Vivek
+8. show message
+9. cut
+
+Keep this filming checklist concise in your final report even though this execution prompt is long.
+
+===============================================================================
+28. ACCEPTANCE CHECKLIST
+===============================================================================
+
+Do not call the work complete until all applicable items are true.
+
+ARCHITECTURE
+[ ] Three dedicated actor APKs exist: Vachana, Yash, Vivek.
+[ ] They share components/state architecture rather than three copy-pasted apps.
+[ ] Demo behavior is isolated from production behavior.
+[ ] All three build.
+
+VISUAL
+[ ] Demo sheets are matte/opaque.
+[ ] Language picker has no Beta.
+[ ] Language picker has no Coming soon.
+[ ] Filmed UI contains no developer diagnostics.
+[ ] No circular avatars in trusted-contact picker.
+[ ] Contact picker is names-only.
+[ ] Decorative search affordance exists.
+[ ] UI is coherent on demo device screen size.
+
+TRANSCRIPTS
+[ ] PTT and Hands-free have separate mock transcript values.
+[ ] Values are editable per language.
+[ ] Values can be changed on the go in hidden Demo Controls.
+[ ] PTT never waits for real STT in demo build.
+[ ] Hands-free never waits for real STT in demo build.
+
+CONTACTS
+[ ] Vachana picker includes Yash, Trisha, Utkarsh Keshri, Vaishnavi M H.
+[ ] Vachana is not in her own trusted list.
+[ ] Vivek is not in the trusted list.
+[ ] Add trusted contact can accept any QR and proceed to clean add-contact form.
+
+SEND
+[ ] Shared send animation exists.
+[ ] Normal and SOS reuse it with different contextual copy/accent.
+[ ] Vachana Normal send returns Home.
+[ ] Vachana SOS send returns Home.
+
+NOTIFICATIONS
+[ ] Demo notification can be scheduled for short delays.
+[ ] It appears while actor is in another app.
+[ ] Normal notification opens Logs.
+[ ] Matching message exists in Logs.
+[ ] Vivek SOS notification has Accept and Decline.
+[ ] Accept opens Logs with SOS record ready.
+
+LOGS
+[ ] Incoming message appears at top.
+[ ] Unread state works.
+[ ] Opening item marks it read.
+[ ] Detail shows the real simulated message body.
+
+AUDIO
+[ ] No autoplay.
+[ ] No real TTS dependency.
+[ ] Play audio exists when clip configured.
+[ ] Play becomes Pause.
+[ ] Pause resumes with Play.
+[ ] No Replay label.
+[ ] No scrubber.
+
+REPLIES
+[ ] Message detail has Hold to talk / Hands-free / Type.
+[ ] Controls are smaller reused variants, not separate new systems.
+[ ] PTT retains animation.
+[ ] PTT opens shared composer with recipient preselected.
+[ ] Yash reply defaults to Vachana.
+[ ] Vivek SOS reply stays in SOS context.
+[ ] Type and Hands-free paths are reachable even if not filmed.
+
+PATH 1
+[ ] Vachana can perform full send take.
+[ ] Yash can independently perform notification/Logs/detail/audio/reply take.
+[ ] Vachana can independently perform returned-message take.
+[ ] No actual phone-to-phone synchronization required.
+
+PATH 2
+[ ] Vachana can perform Hands-free SOS take.
+[ ] Vivek can independently perform Accept/Logs/reply take.
+[ ] Vachana can independently perform final Vivek-response take.
+[ ] No actual phone-to-phone synchronization required.
+
+RESET
+[ ] Director can clear demo logs.
+[ ] Director can cancel scheduled notification(s).
+[ ] Director can rapidly prepare another take.
+
+===============================================================================
+29. GIT / SAFETY
+===============================================================================
+
+Respect current working tree.
+
+Prefer a dedicated feature branch if the current checkout is not already on one.
+
+Do not:
+- delete unrelated work
+- hard reset
+- rewrite history
+- merge unrelated branches
+- modify backend protocol unnecessarily
+- remove production code merely because demo build bypasses it
+
+Keep commits logical.
+
+Suggested commit grouping:
+1. actor flavor/demo infrastructure
+2. shared demo state + notification scheduler
+3. UI polish + composer/contact picker
+4. Logs/detail/reply controls/audio
+5. role flows + SOS notification actions
+6. fixes/tests
+
+Do not force this exact grouping if repo conventions suggest better.
+
+===============================================================================
+30. FINAL DELIVERABLE FROM YOU
+===============================================================================
+
+Do not return only prose.
+
+Actually make the changes.
+
+Then provide:
+
+1. Short summary of what was implemented.
+2. Exact branch + HEAD.
+3. Exact build commands.
+4. Exact local APK paths for:
+   - Vachana
+   - Yash
+   - Vivek
+5. Exact remote publication destination:
+   - repository remote
+   - release/tag or fallback artifact branch
+   - filenames/assets for all three APKs
+   - commit SHA and APK SHA-256 values
+6. List of significant files changed.
+7. What was verified by build/tests.
+8. What was verified on hardware, if any.
+9. Any blocker that still prevents a specific filmed shot.
+10. Very short recording checklist per actor.
+11. Exact hidden Demo Controls access gesture/path.
+12. Exact default demo transcript values.
+13. Exact notification permission/setup step if needed before filming.
+
+Do NOT pad the final report with architecture theory.
+
+===============================================================================
+31. EXECUTION PRIORITY ORDER
+===============================================================================
+
+If time pressure becomes severe, do not randomly drop features.
+
+Use this order:
+
+P0 — MUST WORK
+- three actor builds
+- Vachana PTT mock transcript
+- Vachana Hands-free mock transcript
+- shared composer
+- Yash trusted selection
+- send animation
+- scheduled real Android Normal notification
+- notification → Logs
+- message detail
+- Play/Pause fake audio
+- reply PTT → composer
+- generic incoming simulation on Vachana
+- Vivek SOS notification Accept/Decline
+- Vivek Accept → Logs
+- Vivek PTT reply
+- Vachana final simulated Vivek reply
+- reset state
+
+P1 — IMPORTANT POLISH
+- matte language sheet
+- mock search affordance
+- QR any-code add contact
+- refined animations/haptics
+- smooth keyboard behavior
+- unread badge polish
+
+P2 — NICE IF TRIVIAL
+- extra language defaults
+- additional transition polish
+- secondary non-filmed routes
+
+Do NOT sacrifice the two complete film paths to beautify an unused screen.
+
+===============================================================================
+32. FINAL MENTAL MODEL
+===============================================================================
+
+This is not a distributed-system validation exercise.
+
+It is not a benchmark screen.
+
+It is not a capability audit.
+
+It is not a fake web prototype.
+
+It is a native Android FILM DEMO comprising three actor-specific apps that locally simulate exactly the states needed for editing.
+
+The continuity is cinematic:
+
+Vachana appears to send.
+Cut.
+Yash independently receives a locally scheduled notification.
+He listens and replies.
+Cut.
+Vachana independently receives a locally scheduled reply.
+
+Then:
+
+Vachana appears to send SOS.
+Cut.
+Vivek independently receives locally scheduled SOS with Accept/Decline.
+He accepts and replies.
+Cut.
+Vachana independently receives the locally scheduled response.
+
+The app UI should make those cuts feel like one coherent product.
+
+Reuse everything possible.
+
+Make it polished.
+
+Make it deterministic.
+
+Make it build.
+
+Execute now.

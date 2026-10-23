@@ -1,0 +1,2 @@
+run_id,device,attempt,probe_id,transport,first_hop_link,negotiated_mtu,payload_bytes,protocol_frame_bytes,noise_bytes,link_frame_bytes,first_hop_fragments,first_hop_fragment_bytes,hops_requested,hops_traversed,echo_payload,result,failure_cause,rtt_ms,relay_processing_ms
+1790338933828-3e2e,RMX5070-1ffb,0,515cc1f21dc19a43,BLE_GATT,ble-s-24e211,517,64,86,102,103,1,114,1,0,true,failure,timeout,,

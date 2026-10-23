@@ -1,0 +1,20 @@
+{
+ "method": "Two phones only: persistence, deferred delivery, receipts, tombstones and duplicate suppression. This is NOT multi-hop validation. Raw: dtn_log.txt, phone_*_val.jsonl, bench_phone_*/bench/events_*.jsonl.",
+ "store_carry_forward": {
+  "steps": [
+   "PHONE_B Emergency mode stopped; PHONE_A has no session",
+   "PHONE_A queues 5 trusted messages (tag DTN1, 120 B) to PHONE_B -> 5 LOCAL bundles, 4 copy tokens each, state QUEUED",
+   "PHONE_A app force-stopped and restarted -> all 5 still QUEUED in the durable store",
+   "PHONE_B Emergency mode restarted"
+  ],
+  "result": "5/5 delivered to PHONE_B, each exactly once; all 5 DELIVERED on PHONE_A (verified signed receipts)",
+  "timing_on_PHONE_B_clock_ms": {"emergency_on_to_noise_session": 2562, "emergency_on_to_deliveries": [3117, 3314, 3491, 3648, 3779]}
+ },
+ "cleanup": "After a few inventory rounds both stores held zero bundles: PHONE_A's originals and PHONE_B's receipt copies were removed by tombstones.",
+ "duplicate_suppression": {
+  "two_fresh_encounters_after_delivery": "0 new deliveries on either phone",
+  "whole_session": "PHONE_B inbox 160 = sum of all A->B runs; PHONE_A inbox 105 = sum of all B->A runs; 0 duplicate delivery events across 265 messages"
+ },
+ "survived_app_restart_and_reinstall": "34 messages stalled by the lifetime-cap bug stayed QUEUED across reinstall + restart and delivered after the fix (run A2B)",
+ "rate_limit_finding": "Destination copies (messages AND receipts) are limited to 16 per session per sliding minute (ProtocolConfig.maxDestinationClaimsPerSession). With both directions active, receipts double the demand, so above ~8 messages/min/direction deliveries queue behind the limit (run A2Bq/B2Aq p95 queued->RELAYED 58 s). This is a tunable abuse limit, not a fault."
+}

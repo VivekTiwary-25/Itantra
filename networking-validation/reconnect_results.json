@@ -1,0 +1,52 @@
+{
+ "method": "Recovery = from a phone detecting link/session loss (or its Emergency mode restarting) to that SAME phone's next completed Noise XX handshake, both on its own elapsedRealtimeNanos. Each cycle is verified afterwards with probes. Raw: bench_phone_*/bench/events_*.jsonl, lifecycle_log.txt.",
+ "cases": [
+  {
+   "case": "Noise session killed by a tampered frame (fault switch), 6 cycles alternating A/B",
+   "build": "before reconnect fix (after 5dca7fc)",
+   "result": "6/6 recovered, 18/18 post-recovery probes, but slow",
+   "recovery_ms_on_detecting_phone": [7335, 36335, 37419, 18193, 8929, 8782],
+   "failed_attempts_per_cycle": [4, 3, 3, 2, 2, 2],
+   "root_cause": "stale server link on a reused LE connection ignored the new CCCD; server stuck at MTU 23; duplicate rule kept a dead link and cancelConnection killed the peer's re-dial",
+   "fixed_by": "c25f758"
+  },
+  {
+   "case": "Noise session killed by a tampered frame, 6 cycles alternating A/B",
+   "build": "after c25f758",
+   "result": "6/6 recovered, 18/18 post-recovery probes, all MTU 517",
+   "recovery_ms_on_detecting_phone": [614, 1436, 612, 1284, 965, 596],
+   "failed_attempts_per_cycle": [0, 0, 0, 0, 0, 0]
+  },
+  {
+   "case": "Bluetooth off 6-8 s then on, on PHONE_B",
+   "build": "before 4b13e27 / 87af871",
+   "result": "cycle 2 crashed PHONE_A's app (uncaught LinkClosedException); a later run left one cycle with probes 0/3 on a stale link and several Noise timeouts",
+   "fixed_by": ["4b13e27", "87af871"]
+  },
+  {
+   "case": "Bluetooth off 8 s then on, on PHONE_B, 3 cycles",
+   "build": "after 87af871",
+   "result": "3/3 recovered with exactly one session per side, 9/9 probes, MTU 517, 0 link failures, 0 Noise failures, 0 uncaught exceptions",
+   "recovery_ms_B_emergency_on_to_session": [7494, 4344, 8662]
+  },
+  {
+   "case": "PHONE_A app force-stopped and relaunched (am start -S), 2 cycles",
+   "result": "2/2 recovered, 6/6 probes, MTU 517",
+   "recovery_ms_A_emergency_on_to_session": [1442, 1403]
+  },
+  {
+   "case": "PHONE_A deliberately closes its sessions (drop_links), 2 cycles",
+   "result": "2/2 recovered, 6/6 probes from PHONE_B",
+   "recovery_ms_A_close_to_new_session": [712, 900]
+  },
+  {
+   "case": "PHONE_A sent to HOME (backgrounded) during bidirectional traffic",
+   "result": "5/5 B->A and 5/5 A->B delivered within ~24 s; foreground service stayed running",
+   "not_tested": "screen off: KEYCODE_SLEEP did not turn the screen off (phone stayed Awake on USB); device settings were not changed"
+  },
+  {
+   "case": "Clean cold start of both apps (radio gate)",
+   "result": "PHONE_B (GATT client), its own clock from Emergency on: peer discovered 90 ms, GATT connected 1496 ms, services 1804 ms, MTU 517 at 1925 ms, CCCD 2043 ms, HELLO/READY 2164 ms, Noise XX done 2471 ms (handshake 305 ms). PHONE_A (server) handshake 303 ms."
+  }
+ ]
+}

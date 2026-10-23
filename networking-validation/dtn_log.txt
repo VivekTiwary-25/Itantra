@@ -1,0 +1,7 @@
+1. B Emergency mode stopped. A sessions='' B emergency=Off
+2. A queued 5 to absent B: outgoing={QUEUED=5, DELIVERED=155} bundles=90fa18e0:LOCAL:t=4;3b14e3dd:LOCAL:t=4;53de9ccf:LOCAL:t=4;7ede6077:LOCAL:t=4;13d572b6:LOCAL:t=4
+3. A app force-stopped + restarted: pid=28549 outgoing={QUEUED=5, DELIVERED=155} DTN1 bundles on A=5
+4. B back: DTN1 delivered on B=5 (events), A outgoing={DELIVERED=160}
+5. cleanup after rounds: A bundles=''  B bundles=''  B delivered total=160
+   B clock: Emergency on -> Noise session 2562 ms; -> DTN deliveries at 3117, 3314, 3491, 3648, 3779 ms
+6. two fresh encounters after delivery: new delivery events B=0 A=0; inbox B=160 A=105; bundles A='' B=''

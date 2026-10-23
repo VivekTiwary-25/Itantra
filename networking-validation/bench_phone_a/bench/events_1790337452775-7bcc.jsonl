@@ -1,0 +1,45 @@
+{"t_ns":937653280044128,"wall_ms":1790337452778,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"runtime_init","sdk":36,"key_protection":"TEE"}
+{"t_ns":937654375205898,"wall_ms":1790337453873,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"gatt_server_started","ok":true}
+{"t_ns":937654376794205,"wall_ms":1790337453874,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"adv_status","status":"Starting"}
+{"t_ns":937654437224667,"wall_ms":1790337453935,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"adv_status","status":"Advertising"}
+{"t_ns":937654440289590,"wall_ms":1790337453938,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"scan_start"}
+{"t_ns":937654442962898,"wall_ms":1790337453940,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"emergency_on"}
+{"t_ns":937654600527205,"wall_ms":1790337454098,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"peer_discovered","peer":"0c849827","rssi":-62}
+{"t_ns":937656040542590,"wall_ms":1790337455538,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"peer_discovered","peer":"44860fcd","rssi":-54}
+{"t_ns":937657139584359,"wall_ms":1790337456637,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"gatt_server_central_connected","link":"ble-s-dfd921","role":"RESPONDER","since_open_ns":37538}
+{"t_ns":937657232655205,"wall_ms":1790337456730,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"gatt_server_central_connected","link":"ble-s-9782a2","role":"RESPONDER","since_open_ns":30769}
+{"t_ns":937658580383744,"wall_ms":1790337458078,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"mtu_result","link":"ble-s-9782a2","role":"RESPONDER","since_open_ns":1347773538,"mtu":517,"status":0}
+{"t_ns":937658610810821,"wall_ms":1790337458108,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"cccd_ready","link":"ble-s-9782a2","role":"RESPONDER","since_open_ns":1378175077}
+{"t_ns":937658625861282,"wall_ms":1790337458123,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"frame_tx","link":"ble-s-9782a2","type":1,"bytes":10,"fragments":1,"fragment_bytes":21,"mtu":517,"write_ns":14621615}
+{"t_ns":937658640553052,"wall_ms":1790337458138,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"link_ready","link":"ble-s-9782a2","role":"RESPONDER","since_open_ns":1407942461,"mtu":517,"peer":"0c849827"}
+{"t_ns":937658641314590,"wall_ms":1790337458139,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"noise_start","link":"ble-s-9782a2","transport":"BLE_GATT","role":"RESPONDER"}
+{"t_ns":937658795201898,"wall_ms":1790337458293,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"frame_rx","link":"ble-s-9782a2","type":2,"bytes":33}
+{"t_ns":937658894771206,"wall_ms":1790337458392,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"frame_tx","link":"ble-s-9782a2","type":2,"bytes":102,"fragments":1,"fragment_bytes":113,"mtu":517,"write_ns":83685462}
+{"t_ns":937658896456667,"wall_ms":1790337458394,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"frame_rx","link":"ble-s-9782a2","type":2,"bytes":70}
+{"t_ns":937658901041898,"wall_ms":1790337458399,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"noise_done","link":"ble-s-9782a2","transport":"BLE_GATT","role":"RESPONDER","handshake_ns":258656000}
+{"t_ns":937658956747436,"wall_ms":1790337458454,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"mtu_result","link":"ble-s-dfd921","role":"RESPONDER","since_open_ns":1817247923,"mtu":517,"status":0}
+{"t_ns":937658989790898,"wall_ms":1790337458487,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"frame_tx","link":"ble-s-9782a2","type":3,"bytes":28,"fragments":1,"fragment_bytes":39,"mtu":517,"write_ns":86124000}
+{"t_ns":937658989883206,"wall_ms":1790337458487,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"dtn_inventory_tx","round":135290714,"summaries":0,"pages":0}
+{"t_ns":937658991776436,"wall_ms":1790337458489,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"frame_rx","link":"ble-s-9782a2","type":3,"bytes":28}
+{"t_ns":937658993014898,"wall_ms":1790337458490,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"dtn_inventory_rx","round":2455282353,"summaries":0,"wants":0,"tombstones_tx":0}
+{"t_ns":937658993815513,"wall_ms":1790337458491,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"cccd_ready","link":"ble-s-dfd921","role":"RESPONDER","since_open_ns":1854311615}
+{"t_ns":937659011150206,"wall_ms":1790337458509,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"frame_tx","link":"ble-s-dfd921","type":1,"bytes":10,"fragments":1,"fragment_bytes":21,"mtu":517,"write_ns":17246077}
+{"t_ns":937659035659129,"wall_ms":1790337458533,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"link_ready","link":"ble-s-dfd921","role":"RESPONDER","since_open_ns":1896158769,"mtu":517,"peer":"44860fcd"}
+{"t_ns":937659036224436,"wall_ms":1790337458534,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"noise_start","link":"ble-s-dfd921","transport":"BLE_GATT","role":"RESPONDER"}
+{"t_ns":937659162112129,"wall_ms":1790337458660,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"frame_rx","link":"ble-s-dfd921","type":2,"bytes":33}
+{"t_ns":937659217208052,"wall_ms":1790337458715,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"frame_tx","link":"ble-s-dfd921","type":2,"bytes":102,"fragments":1,"fragment_bytes":113,"mtu":517,"write_ns":46409846}
+{"t_ns":937659263214513,"wall_ms":1790337458761,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"frame_rx","link":"ble-s-dfd921","type":2,"bytes":70}
+{"t_ns":937659266677283,"wall_ms":1790337458764,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"noise_done","link":"ble-s-dfd921","transport":"BLE_GATT","role":"RESPONDER","handshake_ns":230160000}
+{"t_ns":937659309027513,"wall_ms":1790337458807,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"frame_rx","link":"ble-s-dfd921","type":3,"bytes":28}
+{"t_ns":937659309998206,"wall_ms":1790337458807,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"dtn_inventory_rx","round":3617106302,"summaries":0,"wants":0,"tombstones_tx":0}
+{"t_ns":937659321877052,"wall_ms":1790337458819,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"frame_tx","link":"ble-s-dfd921","type":3,"bytes":28,"fragments":1,"fragment_bytes":39,"mtu":517,"write_ns":54189923}
+{"t_ns":937659321957359,"wall_ms":1790337458819,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"dtn_inventory_tx","round":3371592147,"summaries":0,"pages":0}
+{"t_ns":937738347522826,"wall_ms":1790337537845,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"link_disconnected","link":"ble-s-9782a2","role":"RESPONDER","since_open_ns":81114145235,"cause":"central disconnected status=0"}
+{"t_ns":937738903017980,"wall_ms":1790337538400,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"connect_attempt","peer":"0c849827","link":"ble-c-494a25"}
+{"t_ns":937738905344056,"wall_ms":1790337538403,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"gatt_connect_start","link":"ble-c-494a25","role":"INITIATOR","since_open_ns":2966154}
+{"t_ns":937750951993903,"wall_ms":1790337550449,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"gatt_connect_failed","link":"ble-c-494a25","role":"INITIATOR","since_open_ns":12049517616,"status":-3,"attempt":0}
+{"t_ns":937763548402212,"wall_ms":1790337563046,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"gatt_connect_failed","link":"ble-c-494a25","role":"INITIATOR","since_open_ns":24646006540,"status":-3,"attempt":1}
+{"t_ns":937769177839135,"wall_ms":1790337568675,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"gatt_connect_failed","link":"ble-c-494a25","role":"INITIATOR","since_open_ns":30275437848,"status":147,"attempt":2}
+{"t_ns":937785235056752,"wall_ms":1790337584733,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"gatt_connect_failed","link":"ble-c-494a25","role":"INITIATOR","since_open_ns":46332580310,"status":-3,"attempt":3}
+{"t_ns":937785266004982,"wall_ms":1790337584763,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"link_failed","link":"ble-c-494a25","role":"INITIATOR","since_open_ns":46363390464,"cause":"setup failed: GATT connect failed after 4 attempts (last status -3)"}
+{"t_ns":937785273517675,"wall_ms":1790337584771,"dev":"RMX5108-5a0d","run":"1790337452775-7bcc","ev":"connect_failed","peer":"0c849827","cause":"GATT client setup failed: GATT connect failed after 4 attempts (last status -3)"}

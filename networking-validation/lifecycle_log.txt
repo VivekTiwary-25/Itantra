@@ -1,0 +1,23 @@
+A: ble-c-44a91c:BLE_GATT:mtu=517:hs=542.8  |  B: ble-s-b5c421:BLE_GATT:mtu=517:hs=578.9
+### Bluetooth off/on on PHONE_B
+cycle 1: B emergency_on -> noise_done: 1546 ms, failed_attempts=0 | A no link_disconnected | probes 0/3 mtu=517
+cycle 2: B emergency_on -> noise_done: 23521 ms, failed_attempts=0 | A link_disconnected -> noise_done: 107 ms, failed_attempts=0 | probes 3/3 mtu=517
+cycle 3: B emergency_on -> noise_done: 12533 ms, failed_attempts=1 | A link_disconnected -> noise_done: 19252 ms, failed_attempts=0 | probes 3/3 mtu=517
+A pid now: 20844  B pid: 31442
+A: ble-c-be9e29:BLE_GATT:mtu=517:hs=393.0  |  B: ble-s-090b9c:BLE_GATT:mtu=517:hs=494.4
+### Bluetooth off/on on PHONE_B (after same-device fix)
+cycle 1: B emergency_on -> noise_done: 7494 ms, failed_attempts=0 | A: ble-s-454d6b:BLE_GATT:mtu=517:hs=119.2  |  B: ble-c-ce8883:BLE_GATT:mtu=517:hs=146.4 | probes 3/3 mtu=517
+cycle 2: B emergency_on -> noise_done: 4344 ms, failed_attempts=0 | A: ble-c-36fd02:BLE_GATT:mtu=517:hs=298.1  |  B: ble-s-c4eff0:BLE_GATT:mtu=517:hs=335.5 | probes 3/3 mtu=517
+cycle 3: B emergency_on -> noise_done: 8662 ms, failed_attempts=0 | A: ble-s-52b915:BLE_GATT:mtu=517:hs=243.6  |  B: ble-c-148d06:BLE_GATT:mtu=517:hs=265.7 | probes 3/3 mtu=517
+PHONE_A noise_failed=0 link_failed=0 superseded_same_device=2 uncaught=0
+PHONE_B noise_failed=0 link_failed=0 superseded_same_device=0 uncaught=0
+### App force-stop + relaunch on PHONE_A
+cycle 1: A emergency_on -> noise_done: 1442 ms, failed_attempts=0 | B link_disconnected -> noise_done: 3073 ms, failed_attempts=0 | A: ble-s-039cd3:BLE_GATT:mtu=517:hs=241.2  |  B: ble-c-0b7af7:BLE_GATT:mtu=517:hs=235.2 | probes 3/3 mtu=517
+cycle 2: A emergency_on -> noise_done: 1403 ms, failed_attempts=0 | B link_disconnected -> noise_done: 3073 ms, failed_attempts=0 | A: ble-c-de3ecb:BLE_GATT:mtu=517:hs=131.8  |  B: ble-s-4fa70f:BLE_GATT:mtu=517:hs=108.9 | probes 3/3 mtu=517
+### drop_links (A closes its sessions)
+cycle 1: A link_close_requested -> noise_done: 712 ms, failed_attempts=0 | A: ble-c-a29d98:BLE_GATT:mtu=517:hs=147.1  |  B: ble-s-019fdc:BLE_GATT:mtu=517:hs=137.6 | probes from B 3/3 mtu=517
+cycle 2: A link_close_requested -> noise_done: 900 ms, failed_attempts=0 | A: ble-c-57974e:BLE_GATT:mtu=517:hs=137.0  |  B: ble-s-3823e7:BLE_GATT:mtu=517:hs=103.5 | probes from B 3/3 mtu=517
+### PHONE_A backgrounded (HOME) + screen off during traffic
+A screen: mWakefulness=Awake
+after ~24s with A in background + screen off: B->A received on A=5/5, A->B received on B=5/5
+A screen still: mWakefulness=Awake  A service fg: 1

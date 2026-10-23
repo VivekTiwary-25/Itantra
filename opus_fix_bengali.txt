@@ -1,0 +1,650 @@
+OPUS FIX BENGALI — iTantra TTS performance rescue
+
+You are taking over a real Android TTS performance problem in the iTantra project with no prior chat context.
+
+Your job is not to blindly follow a predetermined optimization recipe. Your job is to understand the current implementation, profile the actual bottleneck, investigate viable alternatives, and get Bengali offline TTS on the target phone as close as realistically possible to the acceptance gates without breaking the already-working languages.
+
+You have permission to make substantial engineering changes if they are justified by evidence. Preserve the existing checkpoints before risky work. Do not fabricate results. Do not mark anything GREEN yourself.
+
+Please stay within normal/legal engineering boundaries. In particular: do not attempt unauthorized access to Hugging Face or any other external service. Yes, that sentence is partly a joke, but also an actual constraint.
+
+============================================================
+1. PROJECT
+============================================================
+
+iTantra is an offline multilingual speech communication Android prototype.
+
+Pipeline:
+
+speech
+-> ASR
+-> text
+-> Bluetooth / relay
+-> text
+-> receive-side TTS
+
+The transport sends text + language code only. It must never send synthesized audio.
+
+Android app:
+- Kotlin / Jetpack Compose
+- package: com.chmod777.itantra
+- sherpa-onnx 1.13.7 for speech
+- target phone: RMX3392
+- Android 14
+- arm64-v8a
+
+Repository:
+github.com/VivekTiwary-25/Itantra
+
+Important repo files/rules:
+- AGENTS.md
+- CLAUDE.md
+- STATUS.md
+
+Read those before making changes.
+
+Only Vivek marks a language GREEN after reviewing real-phone evidence.
+
+Do not report fake completion percentages.
+
+============================================================
+2. WORKTREE / GIT STATE
+============================================================
+
+The TTS work is in:
+
+D:\projects\sih\itantra-tts
+
+Branch:
+
+codex/tts-research-handoff
+
+Current branch HEAD after the INT8 experiment:
+
+723acec
+
+Relevant commits:
+
+919b361
+chore(tts): preserve desktop research and cross-device handoff
+
+a97b761
+Malayalam Piper Arjun Android integration / validation state
+
+a5aa1cb
+Bengali MMS conversion, desktop probe, evidence/docs
+
+8001c37
+Bengali MMS Android integration, working fp32 state
+
+723acec
+Bengali INT8 experiment scripts/logs/evidence/report
+
+Important annotated tags:
+
+checkpoint/ml-arjun-a97b761
+-> exact Malayalam checkpoint
+
+checkpoint/bn-mms-fp32-8001c37
+-> exact known-working Bengali fp32 Android checkpoint
+
+The INT8 experiment is preserved in 723acec, but the app/phone were restored to the fp32 Bengali model after the experiment.
+
+Do not rewrite or destroy these checkpoints.
+
+Before changing anything, inspect and report:
+- git status
+- current branch and HEAD
+- recent log
+- the two checkpoint tags
+- whether the worktree is clean
+
+============================================================
+3. CURRENT TTS STATE
+============================================================
+
+English:
+- Piper Ryan
+- working
+- GREEN on phone
+
+Hindi:
+- Piper Pratham
+- working
+- GREEN on phone
+
+Malayalam:
+- Piper Arjun
+- technically integrated
+- checkpoint: checkpoint/ml-arjun-a97b761
+- working synthesis on RMX3392
+- warm median RTF about 0.70
+- warm median text-to-audible-start about 2.59 s
+- not yet fully quality-approved / not GREEN
+
+Bengali:
+- Meta MMS-TTS Bengali (facebook/mms-tts, models/ben)
+- converted to ONNX using the sherpa-onnx vits-mms.py route
+- runs on desktop
+- loads on Android
+- synthesizes
+- plays through the Android audio path
+- stable
+- no crashes
+- text/codepoints reach TtsHelper intact
+- quality is human-screened and broadly intelligible, but not perfect
+- performance is the blocker
+
+Other missing languages have not yet been implemented in this phase.
+
+============================================================
+4. BENGALI MODEL DETAILS
+============================================================
+
+Source:
+facebook/mms-tts
+models/ben
+
+License:
+CC BY-NC 4.0
+
+This license is explicitly approved for the SIH prototype.
+Preserve attribution.
+
+Conversion:
+- sherpa-onnx vits-mms.py conversion path
+- torch 2.2.2
+- sherpa-onnx 1.13.7
+- desktop conversion succeeded
+- 30 desktop syntheses succeeded with non-silent output
+- different sentence lengths worked
+
+Known conversion quirk:
+- Cython monotonic_align build failed because the available MinGW toolchain was 32-bit while Python was 64-bit
+- a stub was used only for a function needed during training, not inference
+- details are preserved in tts-research/mms-ben/
+
+Known tokens issue:
+- Windows conversion produced CRLF tokens.txt
+- CRLF tokens.txt crashes/aborts sherpa-onnx on Android
+- the working tokens.txt is normalized to LF and hash-pinned
+
+Known vocabulary gaps:
+- Bengali danda "।" is not in the model vocab and is silently dropped
+- Bengali digits such as "১২" are not in vocab and are silently dropped
+- ASCII digits are present and were spoken
+- no Bengali normalization layer has yet been added
+
+Do not casually "fix" this without measuring/validating the effect.
+
+============================================================
+5. FP32 BENGALI — KNOWN WORKING BASELINE
+============================================================
+
+Model:
+model.onnx
+
+Size:
+114,065,046 bytes
+
+SHA-256:
+f8f7bf4f...4e71
+(full hash is in repo docs)
+
+APK with Bengali fp32:
+608,240,873 bytes in the final clean comparison build
+
+Performance on RMX3392, Android 14, 4 threads:
+
+- model init: ~4.1 s
+- cold first synthesis: ~8.1 s
+- cold text-to-audible-start: ~14.1 s
+- warm median RTF: 2.46
+- warm median text-to-audible-start: 6.9 s
+- max warm text-to-audible-start: ~9.0 s
+- Bengali-only PSS: ~299,622 KB
+- all four voices loaded PSS: ~728,244 KB
+
+Stability:
+- 22 runs
+- 0 errors
+- no crashes
+- codepoint counts match input
+
+Thread experiment:
+- 2 threads: RTF ~4.39
+- 4 threads: RTF ~2.56
+- 6 threads: RTF ~2.91
+
+4 threads was kept for Bengali.
+
+Regression:
+English, Hindi, Malayalam remained working and their RTF did not materially change.
+
+============================================================
+6. ACCEPTANCE GATES
+============================================================
+
+The existing frozen gates are:
+
+- median warm RTF <= 1.0
+- median text-to-audible-start <= 3 s
+- at least 9/10 intended meanings
+- all 3 actionable details where applicable
+- zero failures in 20 repeats
+
+Do not silently relax these gates.
+
+If you conclude the current model cannot realistically meet them on this device, say so with evidence and propose/benchmark the best alternative.
+
+============================================================
+7. HUMAN QUALITY SCREEN
+============================================================
+
+A Bengali-speaking human listened to the fp32 Bengali WAVs.
+
+Overall result:
+- speech is broadly intelligible as Bengali
+- most sentences preserved the intended meaning
+- pronunciation is imperfect
+
+Specific feedback:
+
+01.wav:
+- overall meaning understood
+- first word was confusing / unclear
+
+02.wav:
+- meaning understood
+- a pronunciation error was noticed:
+  audio sounded approximately like "abun"
+  expected Bengali word was approximately "agun" ("fire")
+
+03.wav:
+- meaning understood
+- last word was confusing / mispronounced
+
+04.wav:
+- understood approximately as:
+  "cross the bridge and stand in front of the hospital"
+- there may be an odd extra/incorrect word fragment at the beginning
+
+05.wav:
+- understood
+
+06.wav:
+- understood
+
+07.wav:
+- understood
+
+08.wav:
+- understood
+
+09.wav:
+- understood
+
+10.wav:
+- understood
+
+Interpretation:
+The fp32 voice is not perfect, but it is sufficiently intelligible that it is worth trying to rescue performance before discarding it.
+
+Do not call it native-quality or GREEN.
+
+============================================================
+8. INT8 EXPERIMENT — FAILED FOR SPEED
+============================================================
+
+ONNX Runtime dynamic INT8 quantization was tested.
+
+Two variants:
+
+1. MatMul-only:
+- 114,404,484 bytes
+- effectively no useful size reduction
+- not tested further on phone
+
+2. MatMul + Conv:
+- 38,067,490 bytes
+- desktop synthesis worked
+- Android synthesis worked
+- no obvious output corruption
+- much slower than fp32
+
+Phone comparison, same sentences/order, 4 threads:
+
+FP32:
+- model: 114,065,046 B
+- APK: 608,240,873 B
+- init: 4.1 s
+- cold synthesis: 8.1 s
+- cold audible start: 14.1 s
+- warm median RTF: 2.46
+- warm start: 6.9 s
+- Bengali PSS: 299,622 KB
+- all voices PSS: 728,244 KB
+
+INT8 MatMul+Conv:
+- model: 38,067,490 B
+- APK: 531,711,369 B
+- init: 5.4 s
+- cold synthesis: 21.7 s
+- cold audible start: 27.9 s
+- warm median RTF: 6.7
+- RTF range: 5.97–8.10
+- warm median start: 19.8 s
+- max start: 26.6 s
+- Bengali PSS: 240,487 KB
+- all voices PSS: 681,050 KB
+
+Stability:
+- 22 runs
+- 0 errors
+- text integrity preserved
+
+Conclusion:
+Dynamic INT8 clearly failed as a performance optimization.
+It only helped size and memory.
+
+Working hypothesis from the previous agent:
+dynamic quantization converted many convolutions to ConvInteger and ONNX Runtime may be hitting slow kernels on both x86 and ARM.
+
+This was NOT profiled and must be treated as a hypothesis, not fact.
+
+Do not repeat the same dynamic INT8 experiment unless profiling gives a concrete reason.
+
+============================================================
+9. RELEVANT REPO EVIDENCE
+============================================================
+
+Read all relevant material before planning:
+
+tts-research/HANDOFF.md
+
+tts-research/run1/TTS_LOG.md
+
+tts-research/run1/RUN2_CHECKLIST.md
+
+tts-research/frontend-repair/FRONTEND_REPAIR_REPORT.md
+
+tts-research/mms-ben/MMS_BN_CONVERSION.md
+
+tts-research/mms-ben/
+(all Bengali conversion/desktop/Android evidence)
+
+tts-research/mms-ben/int8/INT8_EXPERIMENT_REPORT.md
+
+tts-research/mms-ben/int8/
+(all INT8 scripts/logs/evidence)
+
+app/src/main/java/com/chmod777/itantra/TtsHelper.kt
+
+setup-models.ps1
+
+manifests/external-assets.json
+
+STATUS.md
+
+Also inspect the actual ONNX graph rather than reasoning only from model-family assumptions.
+
+============================================================
+10. YOUR ACTUAL MISSION
+============================================================
+
+Get Bengali offline TTS fast enough for interactive use on the RMX3392, or determine with strong evidence that the current MMS Bengali model is not a sensible route on this device and replace it with a better high-trust Bengali TTS model.
+
+You are NOT constrained to one optimization method.
+
+You may investigate, profile, benchmark and—when justified—implement approaches such as:
+
+- ONNX Runtime profiling
+- graph-level bottleneck analysis
+- sherpa-onnx runtime behavior
+- thread / affinity / inter-op / intra-op configuration
+- execution providers available in the actual Android build
+- XNNPACK if relevant and actually available
+- NNAPI if the graph/operator coverage makes it worthwhile
+- ORT graph optimizations
+- model export differences
+- static/QDQ quantization
+- mixed precision where supported
+- architecture-specific optimization
+- model-loading/caching changes
+- sentence segmentation/chunking for latency, while being honest that chunking alone does not fix bad RTF
+- alternative sherpa-compatible Bengali voices/models
+- replacing MMS entirely if another model is materially better
+
+Do not assume any of those are good ideas.
+Profile and measure.
+
+============================================================
+11. ALTERNATIVE MODEL RULES
+============================================================
+
+You are allowed to investigate and benchmark alternative Bengali TTS models if MMS appears unlikely to meet the gate.
+
+Prefer:
+- official sherpa-onnx models
+- established/high-trust upstreams
+- clearly licensed models
+- models already compatible with sherpa-onnx / VITS / Android where possible
+
+Do not waste time on random low-trust repos.
+
+A known candidate worth checking is the Bengali Coqui VITS model exposed by sherpa-onnx Android/model tooling:
+
+vits-coqui-bn-custom_female
+
+You may also inspect other high-trust Bengali candidates supported by sherpa-onnx, including Mimic3-based options if appropriate.
+
+Do NOT assume these are automatically better.
+Benchmark them on the actual RMX3392.
+
+For any candidate record:
+- exact source
+- exact license
+- model size
+- conversion requirements
+- Android compatibility
+- warm RTF
+- warm text-to-audible-start
+- cold behavior
+- memory
+- stability
+- quality/listening evidence
+
+============================================================
+12. WHAT SUCCESS LOOKS LIKE
+============================================================
+
+Best case:
+
+A Bengali implementation on RMX3392 that achieves:
+
+- median warm RTF <= 1.0
+- median text-to-audible-start <= 3 s
+- stable repeated synthesis
+- no regressions to English/Hindi/Malayalam
+- human-screened intelligibility comparable to or better than the fp32 MMS baseline
+
+If you can meet the gates with MMS, great.
+
+If another Bengali model clearly beats MMS, switching is allowed.
+
+If neither path can meet the gate, provide the strongest measured result and a technically grounded explanation of the remaining bottleneck.
+
+============================================================
+13. IMPORTANT EXPERIMENT DESIGN RULES
+============================================================
+
+Use the existing fp32 Bengali checkpoint as the reference baseline.
+
+Do not benchmark multiple drivers against the same phone simultaneously.
+
+A previous forked subagent accidentally contaminated an INT8 log by running another phone benchmark at the same time.
+That run was discarded and rerun cleanly.
+
+Avoid repeating that mistake.
+
+For every benchmark:
+- ensure exactly one driver
+- preserve exact test sentences/order
+- record thread/runtime config
+- record model hash
+- record APK/build identity
+- capture logs
+- distinguish cold vs warm
+- keep contaminated runs clearly labelled and excluded
+
+Do not compare unlike workloads and call it a speedup.
+
+============================================================
+14. REGRESSION SAFETY
+============================================================
+
+English and Hindi are already working and must remain working.
+
+Malayalam is also technically working.
+
+Any shared changes to:
+- TtsHelper
+- sherpa configuration
+- runtime
+- build dependencies
+- asset handling
+
+must be regression-tested against:
+- English
+- Hindi
+- Malayalam
+
+Do not trade away existing languages silently.
+
+============================================================
+15. APK / MEMORY REALITY
+============================================================
+
+The app is already huge.
+
+Approximate sizes:
+
+Original baseline debug APK:
+434,387,066 bytes
+
+With Malayalam:
+~502.7 MB
+
+With Malayalam + Bengali fp32:
+~608.2 MB
+
+All four voices loaded:
+~728 MB PSS
+
+Size optimization matters eventually, but do not sacrifice working quality/performance just to make the APK smaller.
+
+If you find an optimization that improves both runtime and size, excellent.
+
+If a faster replacement model is dramatically smaller, record that.
+
+============================================================
+16. BENGALI TEXT NORMALIZATION
+============================================================
+
+The MMS Bengali vocabulary drops:
+- Bengali danda "।"
+- Bengali digits such as "১২"
+
+ASCII digits are spoken.
+
+Do not let this become an invisible correctness bug.
+
+If you keep MMS and add normalization, preserve the original semantics and document exactly what is transformed.
+
+For example, Bengali numerals may need conversion to Bengali words or another supported representation, but do not implement an ad hoc transformation without validating pronunciation/meaning.
+
+This issue is secondary to the performance blocker, but it must remain visible.
+
+============================================================
+17. FREEDOM TO ACT
+============================================================
+
+You have substantial freedom here.
+
+Do not stop merely because the first obvious optimization fails.
+
+You may:
+- profile
+- research
+- alter runtime configuration
+- build experimental branches/checkpoints
+- compare model families
+- write scripts
+- instrument Android
+- rebuild relevant native/runtime pieces when justified
+- benchmark alternatives
+
+But:
+- preserve the known-good checkpoints
+- keep experiments reproducible
+- do not hide failures
+- do not fabricate measurements
+- do not silently loosen the gates
+- do not mark anything GREEN
+- do not perform unauthorized access to external systems
+
+If a risky experiment could damage the current working state, create a branch/tag/checkpoint first.
+
+============================================================
+18. WHEN TO STOP
+============================================================
+
+You may continue beyond one failed experiment.
+
+Stop and hand back when one of these is true:
+
+A. You have a Bengali solution meeting the performance gates on RMX3392.
+
+B. You have a clearly superior Bengali candidate and enough evidence that it should replace MMS, even if final quality listening still needs Vivek/native-speaker review.
+
+C. You have strong profiling/benchmark evidence that the remaining realistic options cannot meet the gates within the project constraints.
+
+D. You encounter a blocker that requires Vivek to make a product/license/quality decision.
+
+Do not proceed into Gujarati/Marathi/Kannada/Tamil/Telugu/Odia as part of this mission.
+
+This mission is Bengali only.
+
+============================================================
+19. FINAL REPORT FORMAT
+============================================================
+
+At the end, give a concise but evidence-heavy report containing:
+
+1. What the actual bottleneck was
+2. What you profiled
+3. What you tried
+4. What worked / failed
+5. Best Bengali model/runtime configuration found
+6. Exact branch / HEAD / checkpoint created
+7. Files changed
+8. Model source + license
+9. Model/APK sizes
+10. Cold timing
+11. Warm median RTF
+12. Warm text-to-audible-start
+13. Memory
+14. Stability
+15. English/Hindi/Malayalam regressions
+16. Bengali text-normalization status
+17. Quality/listening status
+18. Whether the frozen gates are met
+19. What Vivek still needs to personally verify
+
+Remember:
+
+The current MMS Bengali model is not broken.
+It works and is broadly intelligible.
+Its problem is speed.
+
+Your job is to either rescue that speed or beat it with a better Bengali solution.

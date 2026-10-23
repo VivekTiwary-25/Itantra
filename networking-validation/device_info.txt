@@ -1,0 +1,20 @@
+Captured: 2026-09-25T17:18:47+05:30
+Branch: feature/itantra-v1-networking  HEAD: 64ba490 (+ uncommitted validation hooks)
+
+PHONE_A serial=VCU4AAP7KVN7FQGQ
+  ro.product.manufacturer=realme
+  ro.product.model=RMX5108
+  ro.build.version.release=16
+  ro.build.version.sdk=36
+  ro.product.cpu.abi=arm64-v8a
+  ro.build.display.id=RMX5108_16.0.5.1201(EX01)
+  bluetooth_on(before test)=1
+
+PHONE_B serial=a83e3811
+  ro.product.manufacturer=realme
+  ro.product.model=RMX5070
+  ro.build.version.release=16
+  ro.build.version.sdk=36
+  ro.product.cpu.abi=arm64-v8a
+  ro.build.display.id=RMX5070_16.0.5.1010(EX01)
+  bluetooth_on(before test)=0

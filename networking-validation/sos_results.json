@@ -1,0 +1,15 @@
+{
+ "method": "Direct one-hop SOS over the live BLE GATT + Noise XX session. PHONE_B set 'available to help' (new session so capabilities are re-exchanged). Raw: sos_log.txt, phone_*_val.jsonl.",
+ "decline": {
+  "PHONE_B_offer": "OFFERED, trust=ENCRYPTED_UNVERIFIED",
+  "PHONE_A_after_decline": "SEARCHING, declined=1 (keeps searching)"
+ },
+ "accept": {
+  "PHONE_A": "CONNECTED, trust=ENCRYPTED_UNVERIFIED, SAS 533979, 2 chat lines",
+  "PHONE_B": "ACTIVE, trust=ENCRYPTED_UNVERIFIED, SAS 533979, 2 chat lines",
+  "sas_match": true,
+  "chat": "A->B and B->A both delivered inside the Noise session"
+ },
+ "cancel": "The first (declined) incident showed ENDED on PHONE_B after PHONE_A's signed cancel",
+ "not_tested": ["multi-hop SOS requests / waves 2-3 (needs 3+ phones)", "two responders accepting at once (needs 3 phones)"]
+}

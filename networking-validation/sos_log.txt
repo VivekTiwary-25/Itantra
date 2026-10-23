@@ -1,0 +1,7 @@
+A: ble-s-bdc2e4:BLE_GATT:mtu=517:hs=183.4  |  B: ble-c-e8fa39:BLE_GATT:mtu=517:hs=183.3
+### decline
+B sos_in: OFFERED:ENCRYPTED_UNVERIFIED:sas=795583:chat=0
+A sos_out after decline: SEARCHING:null:sas=null:chat=0:declined=1
+### accept
+A sos_out: CONNECTED:ENCRYPTED_UNVERIFIED:sas=533979:chat=2:declined=0
+B sos_in:  ENDED:ENCRYPTED_UNVERIFIED:sas=795583:chat=0;ACTIVE:ENCRYPTED_UNVERIFIED:sas=533979:chat=2

@@ -1,0 +1,199 @@
+{"t_ns":1411152924049342,"wall_ms":1790341814544,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"runtime_init","sdk":36,"key_protection":"TEE"}
+{"t_ns":1411154744034758,"wall_ms":1790341816364,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"gatt_server_started","ok":true}
+{"t_ns":1411154746696789,"wall_ms":1790341816367,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"adv_status","status":"Starting"}
+{"t_ns":1411154934474341,"wall_ms":1790341816555,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"adv_status","status":"Advertising"}
+{"t_ns":1411155077411685,"wall_ms":1790341816698,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"scan_start"}
+{"t_ns":1411155085165955,"wall_ms":1790341816706,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"emergency_on"}
+{"t_ns":1411155363338195,"wall_ms":1790341816984,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"peer_discovered","peer":"27553ea7","rssi":-73}
+{"t_ns":1411156487885017,"wall_ms":1790341818108,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"gatt_server_central_connected","link":"ble-s-b5c421","role":"RESPONDER","since_open_ns":39375}
+{"t_ns":1411156578302101,"wall_ms":1790341818199,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"mtu_result","link":"ble-s-b5c421","role":"RESPONDER","since_open_ns":90475781,"mtu":517,"status":0}
+{"t_ns":1411156671209288,"wall_ms":1790341818292,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"cccd_ready","link":"ble-s-b5c421","role":"RESPONDER","since_open_ns":183369218}
+{"t_ns":1411156768281580,"wall_ms":1790341818389,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-s-b5c421","type":1,"bytes":10,"fragments":1,"fragment_bytes":21,"mtu":517,"write_ns":96353177}
+{"t_ns":1411156771277413,"wall_ms":1790341818392,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"link_ready","link":"ble-s-b5c421","role":"RESPONDER","since_open_ns":283453593,"mtu":517,"peer":"27553ea7"}
+{"t_ns":1411156773505486,"wall_ms":1790341818394,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"noise_start","link":"ble-s-b5c421","transport":"BLE_GATT","role":"RESPONDER"}
+{"t_ns":1411156962198663,"wall_ms":1790341818583,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_rx","link":"ble-s-b5c421","type":2,"bytes":33}
+{"t_ns":1411157274807517,"wall_ms":1790341818895,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-s-b5c421","type":2,"bytes":102,"fragments":1,"fragment_bytes":113,"mtu":517,"write_ns":62343542}
+{"t_ns":1411157336933038,"wall_ms":1790341818957,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_rx","link":"ble-s-b5c421","type":2,"bytes":70}
+{"t_ns":1411157353747673,"wall_ms":1790341818974,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"noise_done","link":"ble-s-b5c421","transport":"BLE_GATT","role":"RESPONDER","handshake_ns":578918854}
+{"t_ns":1411157385920850,"wall_ms":1790341819006,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_rx","link":"ble-s-b5c421","type":3,"bytes":28}
+{"t_ns":1411157387956163,"wall_ms":1790341819008,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"dtn_inventory_rx","round":3906564802,"summaries":0,"wants":0,"tombstones_tx":0}
+{"t_ns":1411157394990590,"wall_ms":1790341819015,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-s-b5c421","type":3,"bytes":28,"fragments":1,"fragment_bytes":39,"mtu":517,"write_ns":36251041}
+{"t_ns":1411157395139027,"wall_ms":1790341819016,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"dtn_inventory_tx","round":3398137728,"summaries":0,"pages":0}
+{"t_ns":1411164564040431,"wall_ms":1790341826184,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"link_close_requested","link":"ble-s-b5c421","role":"RESPONDER","since_open_ns":8076170674}
+{"t_ns":1411164572934129,"wall_ms":1790341826193,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"emergency_off","user":false}
+{"t_ns":1411172749653657,"wall_ms":1790341834370,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"gatt_server_central_connected","link":"ble-s-c8cafd","role":"RESPONDER","since_open_ns":70052}
+{"t_ns":1411172766699386,"wall_ms":1790341834387,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"gatt_server_started","ok":true}
+{"t_ns":1411172767584699,"wall_ms":1790341834388,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"adv_status","status":"Starting"}
+{"t_ns":1411172786347667,"wall_ms":1790341834407,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"scan_start"}
+{"t_ns":1411172787291678,"wall_ms":1790341834408,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"emergency_on"}
+{"t_ns":1411172884667980,"wall_ms":1790341834505,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"adv_status","status":"Advertising"}
+{"t_ns":1411173399045532,"wall_ms":1790341835019,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"peer_discovered","peer":"27553ea7","rssi":-72}
+{"t_ns":1411173791038500,"wall_ms":1790341835411,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"connect_attempt","peer":"27553ea7","link":"ble-c-4ec562"}
+{"t_ns":1411173792012042,"wall_ms":1790341835412,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"gatt_connect_start","link":"ble-c-4ec562","role":"INITIATOR","since_open_ns":1313490}
+{"t_ns":1411173849349438,"wall_ms":1790341835470,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"gatt_connected","link":"ble-c-4ec562","role":"INITIATOR","since_open_ns":58640156,"attempt":0}
+{"t_ns":1411174013451625,"wall_ms":1790341835634,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"services_discovered","link":"ble-c-4ec562","role":"INITIATOR","since_open_ns":222737135,"status":0}
+{"t_ns":1411174021622146,"wall_ms":1790341835642,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"mtu","link":"ble-c-4ec562","role":"INITIATOR","since_open_ns":230925417,"status":0}
+{"t_ns":1411174021717667,"wall_ms":1790341835642,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"mtu_result","link":"ble-c-4ec562","role":"INITIATOR","since_open_ns":231039427,"mtu":517,"status":0}
+{"t_ns":1411174063266573,"wall_ms":1790341835684,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"cccd_ready","link":"ble-c-4ec562","role":"INITIATOR","since_open_ns":272568385,"status":0}
+{"t_ns":1411174136524802,"wall_ms":1790341835757,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-c-4ec562","type":1,"bytes":12,"fragments":1,"fragment_bytes":23,"mtu":517,"write_ns":70705260}
+{"t_ns":1411174136934802,"wall_ms":1790341835757,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"link_ready","link":"ble-c-4ec562","role":"INITIATOR","since_open_ns":346254323,"mtu":517,"peer":"27553ea7"}
+{"t_ns":1411174137519490,"wall_ms":1790341835758,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"noise_start","link":"ble-c-4ec562","transport":"BLE_GATT","role":"INITIATOR"}
+{"t_ns":1411174197938396,"wall_ms":1790341835818,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-c-4ec562","type":2,"bytes":33,"fragments":1,"fragment_bytes":44,"mtu":517,"write_ns":53360782}
+{"t_ns":1411174253159646,"wall_ms":1790341835874,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_rx","link":"ble-c-4ec562","type":2,"bytes":102}
+{"t_ns":1411174332095219,"wall_ms":1790341835952,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-c-4ec562","type":2,"bytes":70,"fragments":1,"fragment_bytes":81,"mtu":517,"write_ns":48064791}
+{"t_ns":1411174333397667,"wall_ms":1790341835954,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"noise_done","link":"ble-c-4ec562","transport":"BLE_GATT","role":"INITIATOR","handshake_ns":195423594}
+{"t_ns":1411174349361469,"wall_ms":1790341835970,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_rx","link":"ble-c-4ec562","type":3,"bytes":28}
+{"t_ns":1411174354831313,"wall_ms":1790341835975,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"dtn_inventory_rx","round":1630469808,"summaries":0,"wants":0,"tombstones_tx":0}
+{"t_ns":1411174374742667,"wall_ms":1790341835995,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-c-4ec562","type":3,"bytes":28,"fragments":1,"fragment_bytes":39,"mtu":517,"write_ns":32415313}
+{"t_ns":1411174374856677,"wall_ms":1790341835995,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"dtn_inventory_tx","round":3460500139,"summaries":0,"pages":0}
+{"t_ns":1411181339837612,"wall_ms":1790341842960,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_rx","link":"ble-s-c8cafd","type":3,"bytes":239}
+{"t_ns":1411187432602037,"wall_ms":1790341849053,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_rx","link":"ble-s-c8cafd","type":3,"bytes":28}
+{"t_ns":1411189639870630,"wall_ms":1790341851260,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_rx","link":"ble-s-c8cafd","type":3,"bytes":239}
+{"t_ns":1411192753965889,"wall_ms":1790341854374,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"server_link_unused_detached","link":"ble-s-c8cafd","role":"RESPONDER","since_open_ns":20004283899,"cause":"central never enabled indications"}
+{"t_ns":1411192754432660,"wall_ms":1790341854375,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"link_disconnected","link":"ble-s-c8cafd","role":"RESPONDER","since_open_ns":20004775982,"cause":"central never enabled indications"}
+{"t_ns":1411199192385209,"wall_ms":1790341860813,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"link_disconnected","link":"ble-c-4ec562","role":"INITIATOR","since_open_ns":25401683636,"cause":"gatt disconnected status=19"}
+{"t_ns":1411199715175365,"wall_ms":1790341861336,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"emergency_off","user":false}
+{"t_ns":1411207977309164,"wall_ms":1790341869598,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"gatt_server_started","ok":true}
+{"t_ns":1411207977975414,"wall_ms":1790341869598,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"adv_status","status":"Starting"}
+{"t_ns":1411207990428904,"wall_ms":1790341869611,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"scan_start"}
+{"t_ns":1411207991201925,"wall_ms":1790341869612,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"emergency_on"}
+{"t_ns":1411208091632498,"wall_ms":1790341869712,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"adv_status","status":"Advertising"}
+{"t_ns":1411208526480414,"wall_ms":1790341870147,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"gatt_server_central_connected","link":"ble-s-6d20e9","role":"RESPONDER","since_open_ns":29739}
+{"t_ns":1411208979041456,"wall_ms":1790341870599,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"mtu_result","link":"ble-s-6d20e9","role":"RESPONDER","since_open_ns":452603541,"mtu":517,"status":0}
+{"t_ns":1411209075301299,"wall_ms":1790341870696,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"cccd_ready","link":"ble-s-6d20e9","role":"RESPONDER","since_open_ns":548852656}
+{"t_ns":1411209181804008,"wall_ms":1790341870802,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"gatt_server_central_connected","link":"ble-s-393001","role":"RESPONDER","since_open_ns":202865}
+{"t_ns":1411209184766404,"wall_ms":1790341870805,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"server_link_unused_detached","link":"ble-s-6d20e9","role":"RESPONDER","since_open_ns":658272656,"cause":"superseded by a new client subscription"}
+{"t_ns":1411209184890622,"wall_ms":1790341870805,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"link_disconnected","link":"ble-s-6d20e9","role":"RESPONDER","since_open_ns":658436562,"cause":"superseded by a new client subscription"}
+{"t_ns":1411209186584112,"wall_ms":1790341870807,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"cccd_ready","link":"ble-s-393001","role":"RESPONDER","since_open_ns":5023906}
+{"t_ns":1411209278361195,"wall_ms":1790341870899,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"mtu_from_hello","link":"ble-s-393001","role":"RESPONDER","since_open_ns":96813073,"mtu":517}
+{"t_ns":1411209367590778,"wall_ms":1790341870988,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-s-393001","type":1,"bytes":10,"fragments":2,"fragment_bytes":32,"mtu":517,"write_ns":180496563}
+{"t_ns":1411209368522706,"wall_ms":1790341870989,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"link_ready","link":"ble-s-393001","role":"RESPONDER","since_open_ns":187063594,"mtu":517,"peer":"27553ea7"}
+{"t_ns":1411209369061039,"wall_ms":1790341870989,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"fragment_rejected","link":"ble-s-393001","role":"RESPONDER","since_open_ns":187586823,"cause":"fragment from a different connection session"}
+{"t_ns":1411209370037133,"wall_ms":1790341870990,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"noise_start","link":"ble-s-393001","transport":"BLE_GATT","role":"RESPONDER"}
+{"t_ns":1411209495947810,"wall_ms":1790341871116,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"fragment_rejected","link":"ble-s-393001","role":"RESPONDER","since_open_ns":314457708,"cause":"fragment from a different connection session"}
+{"t_ns":1411210013673122,"wall_ms":1790341871634,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"peer_discovered","peer":"27553ea7","rssi":-88}
+{"t_ns":1411219388051712,"wall_ms":1790341881008,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"noise_failed","link":"ble-s-393001","transport":"BLE_GATT","role":"RESPONDER","cause":"Noise XX failed: TimeoutCancellationException: Timed out waiting for 10000 ms"}
+{"t_ns":1411219388483952,"wall_ms":1790341881009,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"link_close_requested","link":"ble-s-393001","role":"RESPONDER","since_open_ns":10206987652}
+{"t_ns":1411220032593639,"wall_ms":1790341881653,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"connect_attempt","peer":"27553ea7","link":"ble-c-bccd44"}
+{"t_ns":1411220033486295,"wall_ms":1790341881654,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"gatt_connect_start","link":"ble-c-bccd44","role":"INITIATOR","since_open_ns":907864}
+{"t_ns":1411220073333066,"wall_ms":1790341881694,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"gatt_connected","link":"ble-c-bccd44","role":"INITIATOR","since_open_ns":40732604,"attempt":0}
+{"t_ns":1411220098425774,"wall_ms":1790341881719,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"gatt_server_central_connected","link":"ble-s-0ea6e4","role":"RESPONDER","since_open_ns":88593}
+{"t_ns":1411220100323743,"wall_ms":1790341881721,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"cccd_ready","link":"ble-s-0ea6e4","role":"RESPONDER","since_open_ns":1998906}
+{"t_ns":1411220131962076,"wall_ms":1790341881752,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"gatt_server_central_connected","link":"ble-s-806d2b","role":"RESPONDER","since_open_ns":175208}
+{"t_ns":1411220133810983,"wall_ms":1790341881754,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"server_link_unused_detached","link":"ble-s-0ea6e4","role":"RESPONDER","since_open_ns":35512239,"cause":"superseded by a new client subscription"}
+{"t_ns":1411220133911295,"wall_ms":1790341881754,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"link_disconnected","link":"ble-s-0ea6e4","role":"RESPONDER","since_open_ns":35646093,"cause":"superseded by a new client subscription"}
+{"t_ns":1411220136157597,"wall_ms":1790341881757,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"cccd_ready","link":"ble-s-806d2b","role":"RESPONDER","since_open_ns":4371875}
+{"t_ns":1411220177114837,"wall_ms":1790341881798,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"mtu_from_hello","link":"ble-s-806d2b","role":"RESPONDER","since_open_ns":45319427,"mtu":517}
+{"t_ns":1411220217176920,"wall_ms":1790341881838,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-s-806d2b","type":1,"bytes":10,"fragments":2,"fragment_bytes":32,"mtu":517,"write_ns":80545729}
+{"t_ns":1411220219857076,"wall_ms":1790341881840,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"link_ready","link":"ble-s-806d2b","role":"RESPONDER","since_open_ns":88133229,"mtu":517,"peer":"27553ea7"}
+{"t_ns":1411220220977285,"wall_ms":1790341881841,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"fragment_rejected","link":"ble-s-806d2b","role":"RESPONDER","since_open_ns":89239010,"cause":"fragment from a different connection session"}
+{"t_ns":1411220225647545,"wall_ms":1790341881846,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"noise_start","link":"ble-s-806d2b","transport":"BLE_GATT","role":"RESPONDER"}
+{"t_ns":1411220241798639,"wall_ms":1790341881862,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"services_discovered","link":"ble-c-bccd44","role":"INITIATOR","since_open_ns":209175364,"status":0}
+{"t_ns":1411220247481660,"wall_ms":1790341881868,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"mtu","link":"ble-c-bccd44","role":"INITIATOR","since_open_ns":214875156,"status":0}
+{"t_ns":1411220247654056,"wall_ms":1790341881868,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"mtu_result","link":"ble-c-bccd44","role":"INITIATOR","since_open_ns":215087552,"mtu":517,"status":0}
+{"t_ns":1411220292522128,"wall_ms":1790341881913,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"cccd_ready","link":"ble-c-bccd44","role":"INITIATOR","since_open_ns":259913489,"status":0}
+{"t_ns":1411220335929056,"wall_ms":1790341881956,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-c-bccd44","type":1,"bytes":12,"fragments":1,"fragment_bytes":23,"mtu":517,"write_ns":40216458}
+{"t_ns":1411220357964264,"wall_ms":1790341881978,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"link_ready","link":"ble-c-bccd44","role":"INITIATOR","since_open_ns":325339479,"mtu":517,"peer":"27553ea7"}
+{"t_ns":1411220359023326,"wall_ms":1790341881979,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"link_duplicate_resolved","kept":"ble-s-806d2b","dropped":"ble-c-bccd44","apart_ms":138}
+{"t_ns":1411220359192389,"wall_ms":1790341881980,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"link_closed_keeping_connection","link":"ble-c-bccd44","role":"INITIATOR","since_open_ns":326583385}
+{"t_ns":1411230250824833,"wall_ms":1790341891871,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"noise_failed","link":"ble-s-806d2b","transport":"BLE_GATT","role":"RESPONDER","cause":"Noise XX failed: TimeoutCancellationException: Timed out waiting for 10000 ms"}
+{"t_ns":1411230251683948,"wall_ms":1790341891872,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"link_close_requested","link":"ble-s-806d2b","role":"RESPONDER","since_open_ns":10119979058}
+{"t_ns":1411231095711968,"wall_ms":1790341892716,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"connect_attempt","peer":"27553ea7","link":"ble-c-73713e"}
+{"t_ns":1411231096543583,"wall_ms":1790341892717,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"gatt_connect_start","link":"ble-c-73713e","role":"INITIATOR","since_open_ns":847708}
+{"t_ns":1411231116049624,"wall_ms":1790341892736,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"gatt_connected","link":"ble-c-73713e","role":"INITIATOR","since_open_ns":20325521,"attempt":0}
+{"t_ns":1411231233984676,"wall_ms":1790341892854,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"gatt_server_central_connected","link":"ble-s-0c2b96","role":"RESPONDER","since_open_ns":151562}
+{"t_ns":1411231236206499,"wall_ms":1790341892857,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"cccd_ready","link":"ble-s-0c2b96","role":"RESPONDER","since_open_ns":2312552}
+{"t_ns":1411231277573218,"wall_ms":1790341892898,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"mtu_from_hello","link":"ble-s-0c2b96","role":"RESPONDER","since_open_ns":43755833,"mtu":517}
+{"t_ns":1411231294654624,"wall_ms":1790341892915,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"services_discovered","link":"ble-c-73713e","role":"INITIATOR","since_open_ns":198910625,"status":0}
+{"t_ns":1411231301499103,"wall_ms":1790341892922,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"mtu","link":"ble-c-73713e","role":"INITIATOR","since_open_ns":205764062,"status":0}
+{"t_ns":1411231301762176,"wall_ms":1790341892922,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"mtu_result","link":"ble-c-73713e","role":"INITIATOR","since_open_ns":206074375,"mtu":517,"status":0}
+{"t_ns":1411231315441968,"wall_ms":1790341892936,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-s-0c2b96","type":1,"bytes":10,"fragments":2,"fragment_bytes":32,"mtu":517,"write_ns":78761667}
+{"t_ns":1411231316479937,"wall_ms":1790341892937,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"link_ready","link":"ble-s-0c2b96","role":"RESPONDER","since_open_ns":82758281,"mtu":517,"peer":"27553ea7"}
+{"t_ns":1411231318319624,"wall_ms":1790341892939,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"noise_start","link":"ble-s-0c2b96","transport":"BLE_GATT","role":"RESPONDER"}
+{"t_ns":1411231347502749,"wall_ms":1790341892968,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"cccd_ready","link":"ble-c-73713e","role":"INITIATOR","since_open_ns":251770885,"status":0}
+{"t_ns":1411231347740926,"wall_ms":1790341892968,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"fragment_rejected","link":"ble-c-bccd44","role":"INITIATOR","since_open_ns":11315134891,"cause":"fragment from a different connection session"}
+{"t_ns":1411231390275093,"wall_ms":1790341893011,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-c-73713e","type":1,"bytes":12,"fragments":1,"fragment_bytes":23,"mtu":517,"write_ns":39734479}
+{"t_ns":1411231391723999,"wall_ms":1790341893012,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_rx","link":"ble-s-0c2b96","type":2,"bytes":33}
+{"t_ns":1411231393794989,"wall_ms":1790341893014,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"fragment_rejected","link":"ble-c-bccd44","role":"INITIATOR","since_open_ns":11361224527,"cause":"fragment from a different connection session"}
+{"t_ns":1411231394666655,"wall_ms":1790341893015,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"link_ready","link":"ble-c-73713e","role":"INITIATOR","since_open_ns":299014062,"mtu":517,"peer":"27553ea7"}
+{"t_ns":1411231394938895,"wall_ms":1790341893015,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"link_duplicate_resolved","kept":"ble-s-0c2b96","dropped":"ble-c-73713e","apart_ms":78}
+{"t_ns":1411231395032593,"wall_ms":1790341893015,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"link_closed_keeping_connection","link":"ble-c-73713e","role":"INITIATOR","since_open_ns":299359062}
+{"t_ns":1411231420990249,"wall_ms":1790341893041,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-s-0c2b96","type":2,"bytes":102,"fragments":1,"fragment_bytes":113,"mtu":517,"write_ns":22173125}
+{"t_ns":1411231498181916,"wall_ms":1790341893119,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_rx","link":"ble-s-0c2b96","type":2,"bytes":70}
+{"t_ns":1411231512131291,"wall_ms":1790341893133,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"noise_done","link":"ble-s-0c2b96","transport":"BLE_GATT","role":"RESPONDER","handshake_ns":192886302}
+{"t_ns":1411231541802020,"wall_ms":1790341893162,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-s-0c2b96","type":3,"bytes":28,"fragments":1,"fragment_bytes":39,"mtu":517,"write_ns":25619427}
+{"t_ns":1411231542503374,"wall_ms":1790341893163,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"dtn_inventory_tx","round":317091535,"summaries":0,"pages":0}
+{"t_ns":1411231557016030,"wall_ms":1790341893177,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_rx","link":"ble-s-0c2b96","type":3,"bytes":28}
+{"t_ns":1411231559670041,"wall_ms":1790341893180,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"dtn_inventory_rx","round":1678025403,"summaries":0,"wants":0,"tombstones_tx":0}
+{"t_ns":1411235449761602,"wall_ms":1790341897070,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_rx","link":"ble-s-0c2b96","type":3,"bytes":239}
+{"t_ns":1411235489589362,"wall_ms":1790341897110,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-s-0c2b96","type":3,"bytes":237,"fragments":1,"fragment_bytes":248,"mtu":517,"write_ns":32246562}
+{"t_ns":1411235490143425,"wall_ms":1790341897111,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"probe_echo_tx","probe":"a609f869b0e31447","hops_traversed":1}
+{"t_ns":1411235751955716,"wall_ms":1790341897372,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_rx","link":"ble-s-0c2b96","type":3,"bytes":239}
+{"t_ns":1411235807943789,"wall_ms":1790341897428,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-s-0c2b96","type":3,"bytes":237,"fragments":1,"fragment_bytes":248,"mtu":517,"write_ns":44082864}
+{"t_ns":1411235808446550,"wall_ms":1790341897429,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"probe_echo_tx","probe":"974e3f1531a5decb","hops_traversed":1}
+{"t_ns":1411236079681550,"wall_ms":1790341897700,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_rx","link":"ble-s-0c2b96","type":3,"bytes":239}
+{"t_ns":1411236134500664,"wall_ms":1790341897755,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-s-0c2b96","type":3,"bytes":237,"fragments":1,"fragment_bytes":248,"mtu":517,"write_ns":41666875}
+{"t_ns":1411236135089362,"wall_ms":1790341897755,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"probe_echo_tx","probe":"a0c7f3d55c6bc9f6","hops_traversed":1}
+{"t_ns":1411238005613476,"wall_ms":1790341899626,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"link_close_requested","link":"ble-s-0c2b96","role":"RESPONDER","since_open_ns":6771901612}
+{"t_ns":1411238011944361,"wall_ms":1790341899632,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"emergency_off","user":false}
+{"t_ns":1411246059672952,"wall_ms":1790341907680,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"gatt_server_started","ok":true}
+{"t_ns":1411246060261233,"wall_ms":1790341907681,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"adv_status","status":"Starting"}
+{"t_ns":1411246097823889,"wall_ms":1790341907718,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"scan_start"}
+{"t_ns":1411246098621598,"wall_ms":1790341907719,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"emergency_on"}
+{"t_ns":1411246277316337,"wall_ms":1790341907898,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"adv_status","status":"Advertising"}
+{"t_ns":1411246728062431,"wall_ms":1790341908348,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"gatt_server_central_connected","link":"ble-s-128eae","role":"RESPONDER","since_open_ns":39427}
+{"t_ns":1411246908064045,"wall_ms":1790341908528,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"mtu_result","link":"ble-s-128eae","role":"RESPONDER","since_open_ns":180052500,"mtu":517,"status":0}
+{"t_ns":1411247053172535,"wall_ms":1790341908674,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"cccd_ready","link":"ble-s-128eae","role":"RESPONDER","since_open_ns":325153646}
+{"t_ns":1411247155033368,"wall_ms":1790341908775,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-s-128eae","type":1,"bytes":10,"fragments":1,"fragment_bytes":21,"mtu":517,"write_ns":101448125}
+{"t_ns":1411247206497170,"wall_ms":1790341908827,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"link_ready","link":"ble-s-128eae","role":"RESPONDER","since_open_ns":478391041,"mtu":517,"peer":"27553ea7"}
+{"t_ns":1411247211604149,"wall_ms":1790341908832,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"noise_start","link":"ble-s-128eae","transport":"BLE_GATT","role":"RESPONDER"}
+{"t_ns":1411247295142691,"wall_ms":1790341908916,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"gatt_server_central_connected","link":"ble-s-6dfcf4","role":"RESPONDER","since_open_ns":37604}
+{"t_ns":1411247295626545,"wall_ms":1790341908916,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"server_link_unused_detached","link":"ble-s-128eae","role":"RESPONDER","since_open_ns":567597916,"cause":"superseded by a new client subscription"}
+{"t_ns":1411247295714514,"wall_ms":1790341908916,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"link_disconnected","link":"ble-s-128eae","role":"RESPONDER","since_open_ns":567712500,"cause":"superseded by a new client subscription"}
+{"t_ns":1411247295773837,"wall_ms":1790341908916,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"cccd_ready","link":"ble-s-6dfcf4","role":"RESPONDER","since_open_ns":685937}
+{"t_ns":1411247297766441,"wall_ms":1790341908918,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"noise_failed","link":"ble-s-128eae","transport":"BLE_GATT","role":"RESPONDER","cause":"Noise XX failed: ClosedReceiveChannelException: Channel was closed"}
+{"t_ns":1411247395623212,"wall_ms":1790341909016,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_rx","link":"ble-s-6dfcf4","type":2,"bytes":33}
+{"t_ns":1411247472938368,"wall_ms":1790341909093,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-s-6dfcf4","type":1,"bytes":10,"fragments":2,"fragment_bytes":32,"mtu":23,"write_ns":177039271}
+{"t_ns":1411247503841076,"wall_ms":1790341909124,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"fragment_rejected","link":"ble-s-6dfcf4","role":"RESPONDER","since_open_ns":208716614,"cause":"fragment from a different connection session"}
+{"t_ns":1411247613571128,"wall_ms":1790341909234,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"fragment_rejected","link":"ble-s-6dfcf4","role":"RESPONDER","since_open_ns":318302656,"cause":"fragment from a different connection session"}
+{"t_ns":1411257476210448,"wall_ms":1790341919097,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"link_failed","link":"ble-s-6dfcf4","role":"RESPONDER","since_open_ns":10181080934,"cause":"server setup failed: no HELLO from peer"}
+{"t_ns":1411258323443520,"wall_ms":1790341919944,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"gatt_server_central_connected","link":"ble-s-c75138","role":"RESPONDER","since_open_ns":146823}
+{"t_ns":1411258325395656,"wall_ms":1790341919946,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"cccd_ready","link":"ble-s-c75138","role":"RESPONDER","since_open_ns":2053646}
+{"t_ns":1411258397041906,"wall_ms":1790341920017,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"mtu_from_hello","link":"ble-s-c75138","role":"RESPONDER","since_open_ns":73798125,"mtu":517}
+{"t_ns":1411258399988260,"wall_ms":1790341920020,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-s-c75138","type":1,"bytes":10,"fragments":2,"fragment_bytes":32,"mtu":517,"write_ns":74091927}
+{"t_ns":1411258401828416,"wall_ms":1790341920022,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"link_ready","link":"ble-s-c75138","role":"RESPONDER","since_open_ns":78610885,"mtu":517,"peer":"27553ea7"}
+{"t_ns":1411258404800916,"wall_ms":1790341920025,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"noise_start","link":"ble-s-c75138","transport":"BLE_GATT","role":"RESPONDER"}
+{"t_ns":1411258495628833,"wall_ms":1790341920116,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_rx","link":"ble-s-c75138","type":2,"bytes":33}
+{"t_ns":1411258540994093,"wall_ms":1790341920161,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-s-c75138","type":2,"bytes":102,"fragments":1,"fragment_bytes":113,"mtu":517,"write_ns":38788282}
+{"t_ns":1411258619948728,"wall_ms":1790341920240,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_rx","link":"ble-s-c75138","type":2,"bytes":70}
+{"t_ns":1411258631711958,"wall_ms":1790341920252,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"noise_done","link":"ble-s-c75138","transport":"BLE_GATT","role":"RESPONDER","handshake_ns":225901875}
+{"t_ns":1411258679585499,"wall_ms":1790341920300,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_rx","link":"ble-s-c75138","type":3,"bytes":28}
+{"t_ns":1411258682561176,"wall_ms":1790341920303,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-s-c75138","type":3,"bytes":28,"fragments":1,"fragment_bytes":39,"mtu":517,"write_ns":45577395}
+{"t_ns":1411258683127114,"wall_ms":1790341920304,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"dtn_inventory_tx","round":3934974264,"summaries":0,"pages":0}
+{"t_ns":1411258685160760,"wall_ms":1790341920306,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"dtn_inventory_rx","round":2601531607,"summaries":0,"wants":0,"tombstones_tx":0}
+{"t_ns":1411262198370498,"wall_ms":1790341923819,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_rx","link":"ble-s-c75138","type":3,"bytes":239}
+{"t_ns":1411262265218467,"wall_ms":1790341923886,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-s-c75138","type":3,"bytes":237,"fragments":1,"fragment_bytes":248,"mtu":517,"write_ns":52148854}
+{"t_ns":1411262265726904,"wall_ms":1790341923886,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"probe_echo_tx","probe":"eea283c7ede60100","hops_traversed":1}
+{"t_ns":1411262523163779,"wall_ms":1790341924144,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_rx","link":"ble-s-c75138","type":3,"bytes":239}
+{"t_ns":1411262564439456,"wall_ms":1790341924185,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-s-c75138","type":3,"bytes":237,"fragments":1,"fragment_bytes":248,"mtu":517,"write_ns":33565938}
+{"t_ns":1411262564932060,"wall_ms":1790341924185,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"probe_echo_tx","probe":"f4430e6481a0ea41","hops_traversed":1}
+{"t_ns":1411262844409873,"wall_ms":1790341924465,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_rx","link":"ble-s-c75138","type":3,"bytes":239}
+{"t_ns":1411262894724508,"wall_ms":1790341924515,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-s-c75138","type":3,"bytes":237,"fragments":1,"fragment_bytes":248,"mtu":517,"write_ns":38118750}
+{"t_ns":1411262895355654,"wall_ms":1790341924516,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"probe_echo_tx","probe":"a86d4e1c9fee28a3","hops_traversed":1}
+{"t_ns":1411288746004134,"wall_ms":1790341950366,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_rx","link":"ble-s-c75138","type":3,"bytes":28}
+{"t_ns":1411288752474863,"wall_ms":1790341950373,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-s-c75138","type":3,"bytes":28,"fragments":1,"fragment_bytes":39,"mtu":517,"write_ns":58207291}
+{"t_ns":1411288752852467,"wall_ms":1790341950373,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"dtn_inventory_tx","round":3940771105,"summaries":0,"pages":0}
+{"t_ns":1411288754225540,"wall_ms":1790341950375,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"dtn_inventory_rx","round":3566746268,"summaries":0,"wants":0,"tombstones_tx":0}
+{"t_ns":1411318815935320,"wall_ms":1790341980436,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-s-c75138","type":3,"bytes":28,"fragments":1,"fragment_bytes":39,"mtu":517,"write_ns":53253907}
+{"t_ns":1411318816450841,"wall_ms":1790341980437,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"dtn_inventory_tx","round":2181670375,"summaries":0,"pages":0}
+{"t_ns":1411318831169747,"wall_ms":1790341980452,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_rx","link":"ble-s-c75138","type":3,"bytes":28}
+{"t_ns":1411318838463237,"wall_ms":1790341980459,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"dtn_inventory_rx","round":2380801335,"summaries":0,"wants":0,"tombstones_tx":0}
+{"t_ns":1411348878453850,"wall_ms":1790342010499,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-s-c75138","type":3,"bytes":28,"fragments":1,"fragment_bytes":39,"mtu":517,"write_ns":53320052}
+{"t_ns":1411348879239892,"wall_ms":1790342010500,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"dtn_inventory_tx","round":3483409331,"summaries":0,"pages":0}
+{"t_ns":1411348890844371,"wall_ms":1790342010511,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_rx","link":"ble-s-c75138","type":3,"bytes":28}
+{"t_ns":1411348896817652,"wall_ms":1790342010517,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"dtn_inventory_rx","round":3001892833,"summaries":0,"wants":0,"tombstones_tx":0}
+{"t_ns":1411378936448005,"wall_ms":1790342040557,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_tx","link":"ble-s-c75138","type":3,"bytes":28,"fragments":1,"fragment_bytes":39,"mtu":517,"write_ns":47436250}
+{"t_ns":1411378936947172,"wall_ms":1790342040557,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"dtn_inventory_tx","round":2444873265,"summaries":0,"pages":0}
+{"t_ns":1411378940004047,"wall_ms":1790342040560,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"frame_rx","link":"ble-s-c75138","type":3,"bytes":28}
+{"t_ns":1411378947123266,"wall_ms":1790342040568,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"dtn_inventory_rx","round":3025091077,"summaries":0,"wants":0,"tombstones_tx":0}
+{"t_ns":1411393944102687,"wall_ms":1790342055564,"dev":"RMX5070-0fc5","run":"1790341814540-9e2a","ev":"link_disconnected","link":"ble-s-c75138","role":"RESPONDER","since_open_ns":135620920885,"cause":"central disconnected status=0"}

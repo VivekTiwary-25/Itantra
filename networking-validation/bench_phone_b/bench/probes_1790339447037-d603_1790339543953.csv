@@ -1,0 +1,4 @@
+run_id,device,attempt,probe_id,transport,first_hop_link,negotiated_mtu,payload_bytes,protocol_frame_bytes,noise_bytes,link_frame_bytes,first_hop_fragments,first_hop_fragment_bytes,hops_requested,hops_traversed,echo_payload,result,failure_cause,rtt_ms,relay_processing_ms
+1790339447037-d603,RMX5070-224f,0,67bfdb7870227f09,BLE_GATT,ble-s-98bf85,517,200,222,238,239,1,250,1,1,true,success,,104.165,
+1790339447037-d603,RMX5070-224f,1,ec96a5f41525ea65,BLE_GATT,ble-s-98bf85,517,200,222,238,239,1,250,1,1,true,success,,93.259,
+1790339447037-d603,RMX5070-224f,2,3083ca9cc4ea0404,BLE_GATT,ble-s-98bf85,517,200,222,238,239,1,250,1,1,true,success,,110.039,

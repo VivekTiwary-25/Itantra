@@ -1,0 +1,4 @@
+run_id,device,attempt,probe_id,transport,first_hop_link,negotiated_mtu,payload_bytes,protocol_frame_bytes,noise_bytes,link_frame_bytes,first_hop_fragments,first_hop_fragment_bytes,hops_requested,hops_traversed,echo_payload,result,failure_cause,rtt_ms,relay_processing_ms
+1790341811443-c6d1,RMX5108-7e7a,0,9db8de9a739ec27f,BLE_GATT,ble-c-44a91c,517,200,222,238,239,1,250,1,0,true,failure,timeout,,
+1790341811443-c6d1,RMX5108-7e7a,1,70068b2950fa4694,BLE_GATT,ble-c-44a91c,517,200,222,238,239,1,250,1,0,true,failure,timeout,,
+1790341811443-c6d1,RMX5108-7e7a,2,c97a4815d26c90b8,BLE_GATT,ble-c-44a91c,517,200,222,238,239,1,250,1,0,true,failure,send_failed:LinkClosedException,,
