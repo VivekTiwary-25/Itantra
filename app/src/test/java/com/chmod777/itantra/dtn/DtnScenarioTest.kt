@@ -292,4 +292,79 @@ class DtnScenarioTest {
         val result = runCatching { vivek.node.createMessage(stranger.identity.nodeId, "hi", "en") }
         assertTrue(result.exceptionOrNull()?.message == "Cannot securely identify this recipient.")
     }
+
+    // E1 (test day 2026-10-23, bundle a10b5860): a bundle stored as a relay copy while its sender was
+    // not trusted was never delivered after trust came back; the sender stayed "Relayed".
+
+    @Test
+    fun e1_messageHeldAsRelayCopyIsDeliveredOnceTheSenderIsTrusted() {
+        // T4B1 order: trusted both ways and linked, Rahul removes Vivek, Vivek sends, Rahul re-adds Vivek.
+        val (vivek, _, rahul) = trustedPair()
+        meet(vivek, rahul)
+        rahul.contacts.remove(vivek.identity.nodeId)
+        val out = vivek.node.createMessage(rahul.identity.nodeId, "T4B1 receiver removes sender", "en")
+        meet(vivek, rahul)
+        assertTrue(rahul.node.deliveredMessages().isEmpty())
+        assertEquals(BundleOrigin.RELAY, rahul.copies(out.bundleId).single().origin)
+        assertEquals(DeliveryState.RELAYED, vivek.outgoingState(out.bundleId))
+
+        rahul.trust(vivek)
+        meet(vivek, rahul)
+        assertEquals(listOf("T4B1 receiver removes sender"), rahul.node.deliveredMessages().map { it.text })
+        assertTrue(rahul.copies(out.bundleId).isEmpty())
+        assertEquals(DeliveryState.DELIVERED, vivek.outgoingState(out.bundleId))
+        assertTrue(vivek.copies(out.bundleId).isEmpty())
+        // Shown and spoken once only.
+        meet(vivek, rahul)
+        assertEquals(1, rahul.node.deliveredMessages().size)
+    }
+
+    @Test
+    fun e1_receiptHeldAsRelayCopyMarksDeliveredOnceTheRecipientIsTrusted() {
+        // T4B2: the sender removed the recipient after sending, so the recipient's receipt was held as a relay copy.
+        val (vivek, _, rahul) = trustedPair()
+        val out = vivek.node.createMessage(rahul.identity.nodeId, "T4B2 sender removes receiver", "en")
+        vivek.contacts.remove(rahul.identity.nodeId)
+        meet(vivek, rahul)
+        assertEquals(1, rahul.node.deliveredMessages().size)
+        assertTrue(vivek.store.allBundles().any { it.origin == BundleOrigin.RELAY })
+        assertEquals(DeliveryState.RELAYED, vivek.outgoingState(out.bundleId))
+
+        vivek.trust(rahul)
+        meet(vivek, rahul)
+        assertEquals(DeliveryState.DELIVERED, vivek.outgoingState(out.bundleId))
+        assertNotNull(vivek.store.receipt(out.bundleId))
+        assertTrue(vivek.store.allBundles().none { it.origin == BundleOrigin.RELAY })
+    }
+
+    @Test
+    fun e1_trustingTheSenderOfARelayCopyAddressedToSomeoneElseDeliversNothing() {
+        val (vivek, relay, rahul) = trustedPair()
+        val out = vivek.node.createMessage(rahul.identity.nodeId, "for rahul only", "en")
+        meet(vivek, relay)
+        relay.trust(vivek)
+        meet(vivek, relay)
+        assertTrue(relay.node.deliveredMessages().isEmpty())
+        assertEquals(BundleOrigin.RELAY, relay.copies(out.bundleId).single().origin)
+    }
+
+    @Test
+    fun e1_tamperedRelayCopyIsNotDeliveredAfterTrust() {
+        val vivek = Peer("vivek")
+        val rahul = Peer("rahul")
+        vivek.trust(rahul)
+        val out = vivek.node.createMessage(rahul.identity.nodeId, "genuine", "en")
+        val original = vivek.copies(out.bundleId).single()
+        val b = original.bundle
+        val flipped = b.ciphertext.copyOf().also { it[it.size - 5] = (it[it.size - 5].toInt() xor 1).toByte() }
+        val forged = com.chmod777.itantra.protocol.PrivateBundleV1(
+            b.bundleId, b.destinationTag, b.lifetimeMs, b.priority, b.deletionCommitment, b.ciphertextHash, flipped, b.kind,
+        )
+        rahul.store.putBundle(original.copy(bundle = forged, origin = BundleOrigin.RELAY, sourcePeerSessionKey = "mallory"))
+
+        rahul.trust(vivek)
+        rahul.node.planEncounter(emptyList(), SessionBudget("anyone"))
+        assertTrue(rahul.node.deliveredMessages().isEmpty())
+        assertNull(rahul.store.tombstone(out.bundleId))
+    }
 }

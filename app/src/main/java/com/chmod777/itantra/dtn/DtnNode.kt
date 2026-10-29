@@ -3,6 +3,7 @@ package com.chmod777.itantra.dtn
 import com.chmod777.itantra.crypto.OpenFailure
 import com.chmod777.itantra.crypto.OpenedPayload
 import com.chmod777.itantra.crypto.PrivateMessageCrypto
+import com.chmod777.itantra.crypto.toHex
 import com.chmod777.itantra.identity.LocalIdentity
 import com.chmod777.itantra.identity.TrustedContact
 import com.chmod777.itantra.identity.TrustedContactStore
@@ -168,6 +169,7 @@ class DtnNode(
         val wants = ArrayList<WantEntry>()
         val tombstones = ArrayList<TombstoneV1>()
         val contactList = contacts.all()
+        deliverHeldCopiesForNewContacts(contactList)
         for (summary in peerSummaries) {
             val storageKey = key(summary.bundleId, summary.ciphertextHash)
             // Reconcile an unacknowledged split: this same session peer now evidently holds the bundle (audit A).
@@ -192,6 +194,29 @@ class DtnNode(
             budget.outstandingWants[storageKey] = mode
         }
         EncounterPlan(wants, tombstones.take(config.maxWantsPerEncounterRound))
+    }
+
+    /** Contacts (node id + keys) the held relay copies were last checked against; empty after a process start. */
+    private var checkedContactKeys: Set<String> = emptySet()
+
+    /**
+     * E1: a bundle that arrived while its sender was not trusted is held as a relay copy, and the seen
+     * check in [planEncounter] never asks for it again. When a contact is new since the last check
+     * (first trust, re-added after removal, or after a restart), re-check our relay copies against it.
+     * A match goes through [ingestAsDestination], the same tag/open/signature checks as a live delivery.
+     */
+    private fun deliverHeldCopiesForNewContacts(contactList: List<TrustedContact>) {
+        val current = contactList.associateBy { (it.nodeId + it.signingPublicKey + it.encryptionPublicKey).toHex() }
+        val added = current.filterKeys { it !in checkedContactKeys }.values.toList()
+        checkedContactKeys = current.keys
+        if (added.isEmpty()) return
+        for (stored in store.allBundles()) {
+            if (stored.origin != BundleOrigin.RELAY || stored.isExpired(clock) || store.tombstone(stored.bundle.bundleId) != null) continue
+            if (crypto.matchDestination(identity, added, stored.bundle) == null) continue
+            ingestAsDestination(stored.bundle) { status, tombstones ->
+                IngestResult(BundleAckFrame(stored.bundle.bundleId, stored.bundle.ciphertextHash, status), tombstones)
+            }
+        }
     }
 
     private fun remainingTombstoneMs(record: TombstoneRecord) = (record.expiresAtWallMs - clock.wallMs()).coerceAtLeast(0)
