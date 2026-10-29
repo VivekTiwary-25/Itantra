@@ -1,0 +1,6 @@
+testcase name="e1_messageHeldAsRelayCopyIsDeliveredOnceTheSenderIsTrusted"
+message="java.lang.AssertionError: expected:&lt;[T4B1 receiver removes sender]&gt; but was:&lt;[]&gt;"
+testcase name="e1_receiptHeldAsRelayCopyMarksDeliveredOnceTheRecipientIsTrusted"
+message="java.lang.AssertionError: expected:&lt;DELIVERED&gt; but was:&lt;RELAYED&gt;"
+testcase name="e1_trustingTheSenderOfARelayCopyAddressedToSomeoneElseDeliversNothing"
+testcase name="e1_tamperedRelayCopyIsNotDeliveredAfterTrust"

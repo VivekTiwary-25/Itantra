@@ -1,0 +1,2 @@
+BUILD SUCCESSFUL in 16s
+459663fde54b421648dc470500f3195a *app/build/outputs/apk/debug/app-debug.apk

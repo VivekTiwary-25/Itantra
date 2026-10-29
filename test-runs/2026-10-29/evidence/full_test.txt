@@ -1,0 +1,2 @@
+Command: gradlew.bat cleanTestDebugUnitTest test  -> BUILD SUCCESSFUL (the 'test' task runs testDebugUnitTest only in this project)
+app/build/test-results/testDebugUnitTest: 138 tests, 0 failures, 0 errors, 0 skipped
