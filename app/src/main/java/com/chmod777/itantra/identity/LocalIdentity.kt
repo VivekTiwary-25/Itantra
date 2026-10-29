@@ -9,14 +9,18 @@ import com.chmod777.itantra.crypto.Primitives
  * in memory here; persistence is the job of the Keystore-wrapped `KeyManager`.
  */
 class LocalIdentity(
-    private val signingSeed: ByteArray,
-    private val encryptionPrivateKey: ByteArray,
+    signingSeed: ByteArray,
+    encryptionPrivateKey: ByteArray,
     val keyEpoch: Long,
     val displayNameHint: String,
 ) {
     init {
         require(signingSeed.size == Primitives.KEY_BYTES && encryptionPrivateKey.size == Primitives.KEY_BYTES)
     }
+
+    // Own copies: callers wipe the arrays they pass in (KeyManager.rename did, which zeroed the identity).
+    private val signingSeed: ByteArray = signingSeed.copyOf()
+    private val encryptionPrivateKey: ByteArray = encryptionPrivateKey.copyOf()
 
     val signingPublicKey: ByteArray = Primitives.ed25519PublicKey(signingSeed)
     val encryptionPublicKey: ByteArray = Primitives.x25519PublicKey(encryptionPrivateKey)
