@@ -15,8 +15,10 @@ work happens. Those branches keep their agent files; `Prime` never has them.
 1. **Never merge** `Prime` into a working branch, and never merge a working branch into
    `Prime`. It is updated only by taking a fresh snapshot (see "How to update").
 2. **Only update it when Vivek asks.** Don't refresh it on your own just because the app changed.
-3. **No AI attribution on its commits.** No `Co-Authored-By: Claude` (or any model), no session links.
-   Commits are authored as `VivekTiwary-25 <vivek.rajesh.tiwary@gmail.com>`.
+3. **No AI attribution on any commit, on any branch of this repo** (`Prime` and every working branch).
+   No `Co-Authored-By: Claude` (or any model), no session links, no "Generated with" lines. Commits are
+   authored as `VivekTiwary-25 <vivek.rajesh.tiwary@gmail.com>`. Commits pushed before 8 Nov 2026 that
+   already carry such lines stay as they are: history is not rewritten.
 4. **This file itself does not go on `Prime`.** It's for agents, not visitors.
 
 ## `Prime` must NOT have
