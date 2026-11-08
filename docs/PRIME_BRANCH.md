@@ -1,6 +1,6 @@
 # `Prime`: the branch visitors see
 
-(It was first named `Prime`; Vivek renamed it `Prime` on 8 Nov 2026.)
+(It was first named sunday-best; Vivek renamed it to Prime on 8 Nov 2026.)
 
 `Prime` is this repo's **default branch**. It is what anyone sees when they open
 github.com/VivekTiwary-25/Itantra from Vivek's profile: recruiters, judges, other developers.
