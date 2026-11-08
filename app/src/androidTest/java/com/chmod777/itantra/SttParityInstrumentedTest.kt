@@ -35,7 +35,9 @@ class SttParityInstrumentedTest {
         val clips = dir.listFiles { f -> f.extension == "wav" }!!.sortedBy { it.name }.take(limit)
         val engine = SpeechEngine(ctx)
         val out = JSONArray()
-        Log.d(TAG, "start lang=$lang prime='$prime' passes=$passes clips=${clips.size} ${mem()}")
+        // The same check the app uses to tell "no model on this phone" apart from "heard nothing".
+        val modelPresent = engine.canTranscribe(lang)
+        Log.d(TAG, "start lang=$lang modelPresent=$modelPresent prime='$prime' passes=$passes clips=${clips.size} ${mem()}")
         try {
             if (prime.isNotEmpty()) {
                 val t0 = System.nanoTime()
@@ -48,7 +50,10 @@ class SttParityInstrumentedTest {
                     val text = engine.transcribe(clip.absolutePath, lang)
                     val ms = (System.nanoTime() - t0) / 1_000_000
                     Log.d(TAG, "pass=$pass clip=${clip.name} totalMs=$ms ${mem()}")
-                    out.put(JSONObject().put("pass", pass).put("clip", clip.name).put("text", text).put("total_ms", ms))
+                    out.put(
+                        JSONObject().put("pass", pass).put("clip", clip.name).put("text", text).put("total_ms", ms)
+                            .put("model_present", modelPresent),
+                    )
                 }
             }
         } finally {
