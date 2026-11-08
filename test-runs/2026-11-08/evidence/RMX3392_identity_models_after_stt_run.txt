@@ -1,0 +1,9 @@
+total 10
+drwx------ 2 u0_a513 u0_a513 3440 2026-10-29 10:01 .
+drwxrwx--x 3 u0_a513 u0_a513 3440 2026-10-29 10:01 ..
+-rw------- 1 u0_a513 u0_a513  123 2026-10-29 10:01 identity_v1.bin
+837a846082e5f3ff7c02c65fd856c9aa  no_backup/identity/identity_v1.bin
+a3f6137e2d2db801b9fcc095af1b448b  shared_prefs/itantra_networking.xml
+36853a552406820674f95400713c87f0  shared_prefs/ui_permissions.xml
+19
+75396daddbd898de74afab6832b309b8  -

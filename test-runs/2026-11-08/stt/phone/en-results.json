@@ -1,0 +1,37 @@
+[
+ {
+  "pass": 1,
+  "clip": "001-1904.wav",
+  "text": "However, due to the slow communication channels, styles in the west could lag behind by 25 to 30 years.",
+  "total_ms": 3202,
+  "model_present": true
+ },
+ {
+  "pass": 1,
+  "clip": "002-1675.wav",
+  "text": "All now's alongside the world's say for you, always begin with a capital letter, even in the middle of a sentence.",
+  "total_ms": 1291,
+  "model_present": true
+ },
+ {
+  "pass": 1,
+  "clip": "003-1950.wav",
+  "text": "To the north and within easy reach is the romantic and fascinating town of St. Tra. which was made famous to foreigners after a glowing account of its splinters recorded by Lord Byron.",
+  "total_ms": 1837,
+  "model_present": true
+ },
+ {
+  "pass": 1,
+  "clip": "004-1728.wav",
+  "text": "The cabbage juice changes color depending on how acidic, basic alkaline the chemical is.",
+  "total_ms": 879,
+  "model_present": true
+ },
+ {
+  "pass": 1,
+  "clip": "005-1972.wav",
+  "text": "Many people don't think about them as a dinosaur because they have feathers and can fly.",
+  "total_ms": 790,
+  "model_present": true
+ }
+]

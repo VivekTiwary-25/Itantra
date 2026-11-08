@@ -1,0 +1,172 @@
+12:41:35 runtime_init {"sdk": 34, "key_protection": "TEE"}
+13:11:23 gatt_server_started {"ok": true}
+13:11:23 scan_start {}
+13:11:23 emergency_on {}
+13:11:23 sos_start {"category": "UNSAFE"}
+13:11:47 sos_end {"reason": "USER_CANCELLED"}
+13:11:50 emergency_off {"user": true}
+13:11:50 emergency_off {"user": false}
+13:11:51 gatt_server_started {"ok": true}
+13:11:51 scan_start {}
+13:11:51 emergency_on {}
+13:11:57 sos_start {"category": "UNSAFE"}
+13:12:23 sos_request_tx {"hop_limit": 2, "sessions": 0}
+13:12:49 sos_end {"reason": "USER_CANCELLED"}
+13:13:56 product_speech_end {"source": "PTT", "t_event_ns": 318844041713790}
+13:13:57 product_transcript_ready {"source": "PTT", "t_event_ns": 318845803199405}
+13:14:00 product_queued {"bundle": "149cf19e", "lang": "en", "t_queued_ns": 318848527866174}
+13:17:31 peer_discovered {"peer": "f4a43da2", "rssi": -55}
+13:17:31 connect_attempt {"peer": "f4a43da2", "link": "ble-c-7ff059"}
+13:17:31 gatt_connect_start {"link": "ble-c-7ff059", "role": "INITIATOR", "since_open_ns": 2122770}
+13:17:32 gatt_server_central_connected {"link": "ble-s-2fc7b1", "role": "RESPONDER", "since_open_ns": 203384}
+13:17:32 gatt_connected {"link": "ble-c-7ff059", "role": "INITIATOR", "since_open_ns": 809697231, "attempt": 0}
+13:17:33 services_discovered {"link": "ble-c-7ff059", "role": "INITIATOR", "since_open_ns": 1431584308, "status": 0}
+13:17:33 mtu {"link": "ble-c-7ff059", "role": "INITIATOR", "since_open_ns": 1449337000, "status": 0}
+13:17:33 mtu_result {"link": "ble-c-7ff059", "role": "INITIATOR", "since_open_ns": 1449494770, "mtu": 517, "status": 0}
+13:17:33 cccd_ready {"link": "ble-c-7ff059", "role": "INITIATOR", "since_open_ns": 1472927462, "status": 0}
+13:17:33 frame_tx {"link": "ble-c-7ff059", "type": 1, "bytes": 12, "fragments": 1, "fragment_bytes": 23, "mtu": 517, "write_ns": 19639077}
+13:17:33 link_ready {"link": "ble-c-7ff059", "role": "INITIATOR", "since_open_ns": 1496690462, "mtu": 517, "peer": "f4a43da2"}
+13:17:33 noise_start {"link": "ble-c-7ff059", "transport": "BLE_GATT", "role": "INITIATOR"}
+13:17:33 frame_tx {"link": "ble-c-7ff059", "type": 2, "bytes": 33, "fragments": 1, "fragment_bytes": 44, "mtu": 517, "write_ns": 25956923}
+13:17:33 frame_rx {"link": "ble-c-7ff059", "type": 2, "bytes": 102}
+13:17:33 frame_rx {"link": "ble-c-7ff059", "type": 3, "bytes": 28}
+13:17:33 frame_tx {"link": "ble-c-7ff059", "type": 2, "bytes": 70, "fragments": 1, "fragment_bytes": 81, "mtu": 517, "write_ns": 102014154}
+13:17:33 noise_done {"link": "ble-c-7ff059", "transport": "BLE_GATT", "role": "INITIATOR", "handshake_ns": 284468000}
+13:17:33 dtn_inventory_rx {"round": 4220504676, "summaries": 0, "wants": 0, "tombstones_tx": 0}
+13:17:33 frame_tx {"link": "ble-c-7ff059", "type": 3, "bytes": 118, "fragments": 1, "fragment_bytes": 129, "mtu": 517, "write_ns": 78423077}
+13:17:33 frame_tx {"link": "ble-c-7ff059", "type": 3, "bytes": 28, "fragments": 1, "fragment_bytes": 39, "mtu": 517, "write_ns": 95701539}
+13:17:33 dtn_inventory_tx {"round": 3342457976, "summaries": 1, "pages": 1}
+13:17:33 frame_rx {"link": "ble-c-7ff059", "type": 3, "bytes": 84}
+13:17:33 frame_tx {"link": "ble-c-7ff059", "type": 3, "bytes": 463, "fragments": 1, "fragment_bytes": 474, "mtu": 517, "write_ns": 38762770}
+13:17:33 dtn_bundle_tx {"mode": "RELAY", "bytes": 427, "tokens": 2, "send_ns": 42305154}
+13:17:33 frame_rx {"link": "ble-c-7ff059", "type": 3, "bytes": 75}
+13:17:38 frame_rx {"link": "ble-c-7ff059", "type": 3, "bytes": 118}
+13:17:38 frame_rx {"link": "ble-c-7ff059", "type": 3, "bytes": 28}
+13:17:38 dtn_inventory_rx {"round": 1000468233, "summaries": 1, "wants": 0, "tombstones_tx": 0}
+13:17:52 server_link_unused_detached {"link": "ble-s-2fc7b1", "role": "RESPONDER", "since_open_ns": 20019418155, "cause": "central never enabled indications"}
+13:17:52 link_disconnected {"link": "ble-s-2fc7b1", "role": "RESPONDER", "since_open_ns": 20020087693, "cause": "central never enabled indications"}
+13:18:00 frame_rx {"link": "ble-c-7ff059", "type": 3, "bytes": 178}
+13:18:00 sos_request_rx {"decision": "FORWARD", "hop": 0}
+13:18:00 sos_request_forward {"hop": 1, "jitter_ms": 209}
+13:18:01 frame_rx {"link": "ble-c-7ff059", "type": 3, "bytes": 107}
+13:18:03 frame_tx {"link": "ble-c-7ff059", "type": 3, "bytes": 118, "fragments": 1, "fragment_bytes": 129, "mtu": 517, "write_ns": 42956307}
+13:18:03 frame_tx {"link": "ble-c-7ff059", "type": 3, "bytes": 28, "fragments": 1, "fragment_bytes": 39, "mtu": 517, "write_ns": 41647077}
+13:18:03 dtn_inventory_tx {"round": 797876766, "summaries": 1, "pages": 1}
+13:18:51 link_failed {"link": "ble-c-7ff059", "role": "INITIATOR", "since_open_ns": 80150254231, "cause": "GATT write failed"}
+13:18:51 round_send_failed {"link": "ble-c-7ff059", "cause": "GATT write failed"}
+13:19:17 peer_discovered {"peer": "f75be174", "rssi": -85}
+13:19:18 connect_attempt {"peer": "f75be174", "link": "ble-c-1cc8a3"}
+13:19:18 gatt_connect_start {"link": "ble-c-1cc8a3", "role": "INITIATOR", "since_open_ns": 2437846}
+13:19:18 gatt_server_central_connected {"link": "ble-s-a9cc65", "role": "RESPONDER", "since_open_ns": 205231}
+13:19:18 gatt_connected {"link": "ble-c-1cc8a3", "role": "INITIATOR", "since_open_ns": 434219000, "attempt": 0}
+13:19:20 services_discovered {"link": "ble-c-1cc8a3", "role": "INITIATOR", "since_open_ns": 2371494769, "status": 0}
+13:19:20 mtu {"link": "ble-c-1cc8a3", "role": "INITIATOR", "since_open_ns": 2464669461, "status": 0}
+13:19:20 mtu_result {"link": "ble-c-1cc8a3", "role": "INITIATOR", "since_open_ns": 2465419307, "mtu": 517, "status": 0}
+13:19:20 cccd_ready {"link": "ble-c-1cc8a3", "role": "INITIATOR", "since_open_ns": 2565907077, "status": 0}
+13:19:21 frame_tx {"link": "ble-c-1cc8a3", "type": 1, "bytes": 12, "fragments": 1, "fragment_bytes": 23, "mtu": 517, "write_ns": 83899385}
+13:19:21 link_ready {"link": "ble-c-1cc8a3", "role": "INITIATOR", "since_open_ns": 2661542769, "mtu": 517, "peer": "f75be174"}
+13:19:21 noise_start {"link": "ble-c-1cc8a3", "transport": "BLE_GATT", "role": "INITIATOR"}
+13:19:21 frame_rx {"link": "ble-c-1cc8a3", "type": 2, "bytes": 102}
+13:19:21 frame_tx {"link": "ble-c-1cc8a3", "type": 2, "bytes": 33, "fragments": 1, "fragment_bytes": 44, "mtu": 517, "write_ns": 74372923}
+13:19:21 frame_tx {"link": "ble-c-1cc8a3", "type": 2, "bytes": 70, "fragments": 1, "fragment_bytes": 81, "mtu": 517, "write_ns": 77215692}
+13:19:21 noise_done {"link": "ble-c-1cc8a3", "transport": "BLE_GATT", "role": "INITIATOR", "handshake_ns": 255184077}
+13:19:21 frame_rx {"link": "ble-c-1cc8a3", "type": 3, "bytes": 28}
+13:19:21 dtn_inventory_rx {"round": 2546311106, "summaries": 0, "wants": 0, "tombstones_tx": 0}
+13:19:21 frame_tx {"link": "ble-c-1cc8a3", "type": 3, "bytes": 118, "fragments": 1, "fragment_bytes": 129, "mtu": 517, "write_ns": 35798077}
+13:19:21 frame_tx {"link": "ble-c-1cc8a3", "type": 3, "bytes": 28, "fragments": 1, "fragment_bytes": 39, "mtu": 517, "write_ns": 46049923}
+13:19:21 dtn_inventory_tx {"round": 3344979223, "summaries": 1, "pages": 1}
+13:19:21 frame_rx {"link": "ble-c-1cc8a3", "type": 3, "bytes": 84}
+13:19:21 frame_tx {"link": "ble-c-1cc8a3", "type": 3, "bytes": 463, "fragments": 1, "fragment_bytes": 474, "mtu": 517, "write_ns": 38378462}
+13:19:21 dtn_bundle_tx {"mode": "RELAY", "bytes": 427, "tokens": 1, "send_ns": 48435769}
+13:19:21 frame_rx {"link": "ble-c-1cc8a3", "type": 3, "bytes": 75}
+13:19:26 frame_rx {"link": "ble-c-1cc8a3", "type": 3, "bytes": 118}
+13:19:26 frame_rx {"link": "ble-c-1cc8a3", "type": 3, "bytes": 28}
+13:19:26 dtn_inventory_rx {"round": 1417537155, "summaries": 1, "wants": 0, "tombstones_tx": 0}
+13:19:35 link_close_requested {"link": "ble-c-1cc8a3", "role": "INITIATOR", "since_open_ns": 17467927077}
+13:19:35 link_close_requested {"link": "ble-s-a9cc65", "role": "RESPONDER", "since_open_ns": 17099907078}
+13:19:35 emergency_off {"user": true}
+13:19:35 emergency_off {"user": false}
+13:19:40 gatt_server_started {"ok": true}
+13:19:40 scan_start {}
+13:19:40 emergency_on {}
+13:19:41 peer_discovered {"peer": "f75be174", "rssi": -82}
+13:19:41 connect_attempt {"peer": "f75be174", "link": "ble-c-a7d915"}
+13:19:41 gatt_connect_start {"link": "ble-c-a7d915", "role": "INITIATOR", "since_open_ns": 1048385}
+13:19:42 gatt_server_central_connected {"link": "ble-s-786960", "role": "RESPONDER", "since_open_ns": 119692}
+13:19:42 gatt_connected {"link": "ble-c-a7d915", "role": "INITIATOR", "since_open_ns": 695667693, "attempt": 0}
+13:19:44 services_discovered {"link": "ble-c-a7d915", "role": "INITIATOR", "since_open_ns": 2330074847, "status": 0}
+13:19:44 mtu {"link": "ble-c-a7d915", "role": "INITIATOR", "since_open_ns": 2349456385, "status": 0}
+13:19:44 mtu_result {"link": "ble-c-a7d915", "role": "INITIATOR", "since_open_ns": 2349713308, "mtu": 517, "status": 0}
+13:19:44 cccd_ready {"link": "ble-c-a7d915", "role": "INITIATOR", "since_open_ns": 2375241616, "status": 0}
+13:19:44 frame_tx {"link": "ble-c-a7d915", "type": 1, "bytes": 12, "fragments": 1, "fragment_bytes": 23, "mtu": 517, "write_ns": 95573307}
+13:19:44 link_ready {"link": "ble-c-a7d915", "role": "INITIATOR", "since_open_ns": 2474936308, "mtu": 517, "peer": "f75be174"}
+13:19:44 noise_start {"link": "ble-c-a7d915", "transport": "BLE_GATT", "role": "INITIATOR"}
+13:19:44 frame_rx {"link": "ble-c-a7d915", "type": 2, "bytes": 102}
+13:19:44 frame_tx {"link": "ble-c-a7d915", "type": 2, "bytes": 33, "fragments": 1, "fragment_bytes": 44, "mtu": 517, "write_ns": 71773538}
+13:19:44 frame_rx {"link": "ble-c-a7d915", "type": 3, "bytes": 118}
+13:19:44 frame_tx {"link": "ble-c-a7d915", "type": 2, "bytes": 70, "fragments": 1, "fragment_bytes": 81, "mtu": 517, "write_ns": 71036923}
+13:19:44 noise_done {"link": "ble-c-a7d915", "transport": "BLE_GATT", "role": "INITIATOR", "handshake_ns": 194538077}
+13:19:44 frame_rx {"link": "ble-c-a7d915", "type": 3, "bytes": 28}
+13:19:44 frame_tx {"link": "ble-c-a7d915", "type": 3, "bytes": 118, "fragments": 1, "fragment_bytes": 129, "mtu": 517, "write_ns": 63264615}
+13:19:44 dtn_inventory_rx {"round": 4085280620, "summaries": 1, "wants": 0, "tombstones_tx": 0}
+13:19:44 frame_tx {"link": "ble-c-a7d915", "type": 3, "bytes": 28, "fragments": 1, "fragment_bytes": 39, "mtu": 517, "write_ns": 25956847}
+13:19:44 dtn_inventory_tx {"round": 578352002, "summaries": 1, "pages": 1}
+13:19:54 sos_start {"category": "UNSAFE"}
+13:20:02 server_link_unused_detached {"link": "ble-s-786960", "role": "RESPONDER", "since_open_ns": 20002341770, "cause": "central never enabled indications"}
+13:20:02 link_disconnected {"link": "ble-s-786960", "role": "RESPONDER", "since_open_ns": 20002665232, "cause": "central never enabled indications"}
+13:20:14 frame_rx {"link": "ble-c-a7d915", "type": 3, "bytes": 118}
+13:20:14 frame_rx {"link": "ble-c-a7d915", "type": 3, "bytes": 28}
+13:20:14 frame_tx {"link": "ble-c-a7d915", "type": 3, "bytes": 118, "fragments": 1, "fragment_bytes": 129, "mtu": 517, "write_ns": 118697231}
+13:20:14 dtn_inventory_rx {"round": 1872417081, "summaries": 1, "wants": 0, "tombstones_tx": 0}
+13:20:14 frame_tx {"link": "ble-c-a7d915", "type": 3, "bytes": 28, "fragments": 1, "fragment_bytes": 39, "mtu": 517, "write_ns": 77797538}
+13:20:14 dtn_inventory_tx {"round": 440201436, "summaries": 1, "pages": 1}
+13:20:20 frame_tx {"link": "ble-c-a7d915", "type": 3, "bytes": 178, "fragments": 1, "fragment_bytes": 189, "mtu": 517, "write_ns": 103965461}
+13:20:20 sos_request_tx {"hop_limit": 2, "sessions": 1}
+13:20:27 sos_end {"reason": "USER_CANCELLED"}
+13:20:27 frame_tx {"link": "ble-c-a7d915", "type": 3, "bytes": 107, "fragments": 1, "fragment_bytes": 118, "mtu": 517, "write_ns": 145575077}
+13:20:39 peer_discovered {"peer": "86bc07a9", "rssi": -51}
+13:20:40 connect_attempt {"peer": "86bc07a9", "link": "ble-c-b51eeb"}
+13:20:40 gatt_connect_start {"link": "ble-c-b51eeb", "role": "INITIATOR", "since_open_ns": 4507077}
+13:20:41 gatt_connect_failed {"link": "ble-c-b51eeb", "role": "INITIATOR", "since_open_ns": 1850661154, "status": 133, "attempt": 0}
+13:20:42 gatt_server_central_connected {"link": "ble-s-e298db", "role": "RESPONDER", "since_open_ns": 188923}
+13:20:42 gatt_connected {"link": "ble-c-b51eeb", "role": "INITIATOR", "since_open_ns": 2786139385, "attempt": 1}
+13:20:44 services_discovered {"link": "ble-c-b51eeb", "role": "INITIATOR", "since_open_ns": 4703706077, "status": 0}
+13:20:44 mtu {"link": "ble-c-b51eeb", "role": "INITIATOR", "since_open_ns": 4753652616, "status": 0}
+13:20:44 mtu_result {"link": "ble-c-b51eeb", "role": "INITIATOR", "since_open_ns": 4754358154, "mtu": 517, "status": 0}
+13:20:45 cccd_ready {"link": "ble-c-b51eeb", "role": "INITIATOR", "since_open_ns": 5001823308, "status": 0}
+13:20:45 frame_tx {"link": "ble-c-a7d915", "type": 3, "bytes": 118, "fragments": 1, "fragment_bytes": 129, "mtu": 517, "write_ns": 303108000}
+13:20:45 frame_tx {"link": "ble-c-b51eeb", "type": 1, "bytes": 12, "fragments": 1, "fragment_bytes": 23, "mtu": 517, "write_ns": 182258539}
+13:20:45 link_ready {"link": "ble-c-b51eeb", "role": "INITIATOR", "since_open_ns": 5194118077, "mtu": 517, "peer": "86bc07a9"}
+13:20:45 noise_start {"link": "ble-c-b51eeb", "transport": "BLE_GATT", "role": "INITIATOR"}
+13:20:45 frame_tx {"link": "ble-c-a7d915", "type": 3, "bytes": 28, "fragments": 1, "fragment_bytes": 39, "mtu": 517, "write_ns": 187013154}
+13:20:45 dtn_inventory_tx {"round": 3146968333, "summaries": 1, "pages": 1}
+13:20:45 frame_rx {"link": "ble-c-b51eeb", "type": 2, "bytes": 102}
+13:20:45 frame_tx {"link": "ble-c-b51eeb", "type": 2, "bytes": 33, "fragments": 1, "fragment_bytes": 44, "mtu": 517, "write_ns": 88880692}
+13:20:45 frame_tx {"link": "ble-c-b51eeb", "type": 2, "bytes": 70, "fragments": 1, "fragment_bytes": 81, "mtu": 517, "write_ns": 32132923}
+13:20:45 noise_done {"link": "ble-c-b51eeb", "transport": "BLE_GATT", "role": "INITIATOR", "handshake_ns": 204094692}
+13:20:45 frame_rx {"link": "ble-c-b51eeb", "type": 3, "bytes": 118}
+13:20:45 frame_tx {"link": "ble-c-b51eeb", "type": 3, "bytes": 118, "fragments": 1, "fragment_bytes": 129, "mtu": 517, "write_ns": 36890461}
+13:20:45 frame_rx {"link": "ble-c-b51eeb", "type": 3, "bytes": 28}
+13:20:45 dtn_inventory_rx {"round": 292819191, "summaries": 1, "wants": 0, "tombstones_tx": 0}
+13:20:45 frame_tx {"link": "ble-c-b51eeb", "type": 3, "bytes": 28, "fragments": 1, "fragment_bytes": 39, "mtu": 517, "write_ns": 46587923}
+13:20:45 dtn_inventory_tx {"round": 361002766, "summaries": 1, "pages": 1}
+13:21:02 server_link_unused_detached {"link": "ble-s-e298db", "role": "RESPONDER", "since_open_ns": 20004761539, "cause": "central never enabled indications"}
+13:21:02 link_disconnected {"link": "ble-s-e298db", "role": "RESPONDER", "since_open_ns": 20005792924, "cause": "central never enabled indications"}
+13:21:04 frame_rx {"link": "ble-c-b51eeb", "type": 3, "bytes": 107}
+13:21:15 frame_rx {"link": "ble-c-b51eeb", "type": 3, "bytes": 118}
+13:21:15 frame_tx {"link": "ble-c-b51eeb", "type": 3, "bytes": 118, "fragments": 1, "fragment_bytes": 129, "mtu": 517, "write_ns": 40005154}
+13:21:15 frame_rx {"link": "ble-c-b51eeb", "type": 3, "bytes": 28}
+13:21:15 dtn_inventory_rx {"round": 3438974041, "summaries": 1, "wants": 0, "tombstones_tx": 0}
+13:21:15 frame_tx {"link": "ble-c-b51eeb", "type": 3, "bytes": 28, "fragments": 1, "fragment_bytes": 39, "mtu": 517, "write_ns": 60996308}
+13:21:15 dtn_inventory_tx {"round": 3327216267, "summaries": 1, "pages": 1}
+13:21:15 link_failed {"link": "ble-c-a7d915", "role": "INITIATOR", "since_open_ns": 93880159468, "cause": "GATT write failed"}
+13:21:15 round_send_failed {"link": "ble-c-a7d915", "cause": "GATT write failed"}
+13:21:46 link_failed {"link": "ble-c-b51eeb", "role": "INITIATOR", "since_open_ns": 66792971388, "cause": "GATT write failed"}
+13:21:46 round_send_failed {"link": "ble-c-b51eeb", "cause": "GATT write failed"}
+13:21:47 connect_attempt {"peer": "86bc07a9", "link": "ble-c-57ee12"}
+13:21:47 gatt_connect_start {"link": "ble-c-57ee12", "role": "INITIATOR", "since_open_ns": 3356539}
+13:21:59 gatt_connect_failed {"link": "ble-c-57ee12", "role": "INITIATOR", "since_open_ns": 12017946463, "status": -3, "attempt": 0}
+13:22:11 gatt_connect_failed {"link": "ble-c-57ee12", "role": "INITIATOR", "since_open_ns": 24553023002, "status": -3, "attempt": 1}
+13:22:25 gatt_connect_failed {"link": "ble-c-57ee12", "role": "INITIATOR", "since_open_ns": 38073427080, "status": -3, "attempt": 2}
+13:22:25 emergency_off {"user": true}
+13:22:25 emergency_off {"user": false}
