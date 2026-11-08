@@ -1,0 +1,105 @@
+# Live notes, two-phone test, 2026-11-08
+
+Phones: RMX3392 (EILZRCFQLZIZ6H6P), V2059 (1370831502000ZH). Build b460de9, APK MD5 1f14a7e8...
+Times are phone wall-clock (events) or laptop time (state polls, logcat). PROBLEM marks failures.
+
+- 17:33:15 watcher started
+- 17:33:18 RMX3392 state: emergency=Off links=None outgoing={EXPIRED=1} delivered=0 contacts=Suyash Gupta sos_out=None sos_in=None
+- 17:33:18 V2059 state: emergency=Off links=None outgoing={} delivered=0 contacts= sos_out=None sos_in=None
+- 17:35:32 V2059 state: emergency=Off links=None outgoing={} delivered=0 contacts=Vivek Tiwary sos_out=None sos_in=None
+- 17:36:03 PROBLEM V2059 not reachable over adb (unplugged or asleep?)
+- 17:36:05 RMX3392 state: emergency=Off links=None outgoing={EXPIRED=1} delivered=0 contacts=Suyash Gupta;Pratham Patel sos_out=None sos_in=None
+- 17:38:47 V2059 reachable again
+- 17:35:57 V2059 product_transcript_ready {"source": "PTT"}
+- 17:36:02 V2059 product_queued {"bundle": "48ffc5e3", "lang": "en"}
+- PROBLEM V2059 logcat capture: 2026-11-08 17:36:02 capture stopped (exit 0)
+- V2059 logcat capture: 2026-11-08 17:38:39 capture start (resuming from 11-08 17:35:57.000)
+- 17:38:50 V2059 state: emergency=Off links=None outgoing={QUEUED=1} delivered=0 contacts=Vivek Tiwary sos_out=None sos_in=None
+- 17:39:14 RMX3392 emergency_on {}
+- 17:39:14 RMX3392 peer_discovered {"peer": "d19025c2", "rssi": -49}
+- 17:39:17 RMX3392 link_ready {"link": "ble-c-3244f9", "role": "INITIATOR", "mtu": 517, "peer": "d19025c2"}
+- 17:39:17 RMX3392 product_delivered {"bundle": "48ffc5e3", "lang": "en"}
+- 17:39:17 RMX3392 product_tts_start {"lang": "en"}
+- 17:39:17 RMX3392 dtn_bundle_rx {"mode": "DESTINATION", "bytes": 1195, "ack": "ACCEPTED_AS_DESTINATION_ATTEMPT"}
+- 17:39:14 V2059 emergency_on {}
+- 17:39:15 V2059 peer_discovered {"peer": "5c3a5956", "rssi": -48}
+- 17:39:18 V2059 link_ready {"link": "ble-s-89f682", "role": "RESPONDER", "mtu": 517, "peer": "5c3a5956"}
+- 17:39:18 V2059 dtn_bundle_tx {"mode": "DESTINATION", "bytes": 1195, "tokens": 0}
+- 17:39:18 V2059 dtn_tombstone_rx {"applied": true}
+- 17:39:24 RMX3392 state: emergency=On links=BLE_GATT outgoing={EXPIRED=1} delivered=1 contacts=Suyash Gupta;Pratham Patel sos_out=None sos_in=
+- 17:39:24 V2059 state: emergency=On links=BLE_GATT outgoing={RELAYED=1} delivered=0 contacts=Vivek Tiwary sos_out=None sos_in=
+- 17:39:21 RMX3392 product_tts_returned {"lang": "en"}
+- 17:39:22 RMX3392 dtn_bundle_tx {"mode": "DESTINATION", "bytes": 427, "tokens": 0}
+- 17:39:23 RMX3392 dtn_tombstone_rx {"applied": true}
+- 17:39:34 PROBLEM V2059 not reachable over adb (unplugged or asleep?)
+- 17:39:36 RMX3392 link_disconnected {"link": "ble-s-149489", "role": "RESPONDER", "cause": "central never enabled indications"}
+- 17:40:07 V2059 reachable again
+- 17:39:24 V2059 dtn_bundle_rx {"mode": "DESTINATION", "bytes": 427, "ack": "ACCEPTED_AS_DESTINATION_ATTEMPT"}
+- 17:39:37 V2059 product_transcript_ready {"source": "PTT"}
+- PROBLEM V2059 logcat capture: 2026-11-08 17:39:32 capture stopped (exit 0)
+- V2059 logcat capture: 2026-11-08 17:39:57 capture start (resuming from 11-08 17:39:27.000)
+- 17:40:30 V2059 state: emergency=On links=BLE_GATT outgoing={DELIVERED=1} delivered=0 contacts=Vivek Tiwary sos_out=None sos_in=
+- 17:40:37 RMX3392 product_delivered {"bundle": "a230577a", "lang": "en"}
+- 17:40:37 RMX3392 product_tts_start {"lang": "en"}
+- 17:40:37 RMX3392 dtn_bundle_rx {"mode": "DESTINATION", "bytes": 1195, "ack": "ACCEPTED_AS_DESTINATION_ATTEMPT"}
+- 17:40:37 RMX3392 dtn_bundle_tx {"mode": "DESTINATION", "bytes": 427, "tokens": 0}
+- 17:40:38 RMX3392 dtn_tombstone_rx {"applied": true}
+- 17:40:38 RMX3392 product_tts_returned {"lang": "en"}
+- 17:40:32 V2059 product_queued {"bundle": "a230577a", "lang": "en"}
+- 17:40:38 V2059 dtn_bundle_tx {"mode": "DESTINATION", "bytes": 1195, "tokens": 0}
+- 17:40:38 V2059 dtn_tombstone_rx {"applied": true}
+- 17:40:38 V2059 dtn_bundle_rx {"mode": "DESTINATION", "bytes": 427, "ack": "ACCEPTED_AS_DESTINATION_ATTEMPT"}
+- 17:40:56 RMX3392 product_transcript_ready {"source": "HANDSFREE"}
+- 17:41:03 RMX3392 state: emergency=On links=BLE_GATT outgoing={EXPIRED=1} delivered=2 contacts=Suyash Gupta;Pratham Patel sos_out=None sos_in=
+- 17:41:04 V2059 state: emergency=On links=BLE_GATT outgoing={DELIVERED=2} delivered=0 contacts=Vivek Tiwary sos_out=None sos_in=
+- 17:41:06 RMX3392 product_queued {"bundle": "3860a8a2", "lang": "en"}
+- 17:41:06 RMX3392 dtn_bundle_tx {"mode": "DESTINATION", "bytes": 1195, "tokens": 0}
+- 17:41:07 RMX3392 dtn_tombstone_rx {"applied": true}
+- 17:41:07 RMX3392 dtn_bundle_rx {"mode": "DESTINATION", "bytes": 427, "ack": "ACCEPTED_AS_DESTINATION_ATTEMPT"}
+- 17:41:07 V2059 product_delivered {"bundle": "3860a8a2", "lang": "en"}
+- 17:41:07 V2059 product_tts_start {"lang": "en"}
+- 17:41:07 V2059 dtn_bundle_rx {"mode": "DESTINATION", "bytes": 1195, "ack": "ACCEPTED_AS_DESTINATION_ATTEMPT"}
+- 17:41:08 V2059 dtn_bundle_tx {"mode": "DESTINATION", "bytes": 427, "tokens": 0}
+- 17:41:08 V2059 dtn_tombstone_rx {"applied": true}
+- 17:41:13 V2059 product_tts_returned {"lang": "en"}
+- 17:41:30 RMX3392 product_transcript_ready {"source": "PTT"}
+- 17:41:33 RMX3392 product_queued {"bundle": "0efb7352", "lang": "hi"}
+- 17:41:35 V2059 product_delivered {"bundle": "0efb7352", "lang": "hi"}
+- 17:41:35 V2059 product_tts_start {"lang": "hi"}
+- 17:41:35 V2059 dtn_bundle_rx {"mode": "DESTINATION", "bytes": 1195, "ack": "ACCEPTED_AS_DESTINATION_ATTEMPT"}
+- 17:41:37 RMX3392 state: emergency=On links=BLE_GATT outgoing={DELIVERED=2, EXPIRED=1} delivered=2 contacts=Suyash Gupta;Pratham Patel sos_out=None sos_in=
+- 17:41:37 V2059 state: emergency=On links=BLE_GATT outgoing={DELIVERED=2} delivered=2 contacts=Vivek Tiwary sos_out=None sos_in=
+- 17:41:33 RMX3392 dtn_bundle_tx {"mode": "DESTINATION", "bytes": 1195, "tokens": 0}
+- 17:41:34 RMX3392 dtn_tombstone_rx {"applied": true}
+- 17:41:34 RMX3392 dtn_bundle_rx {"mode": "DESTINATION", "bytes": 427, "ack": "ACCEPTED_AS_DESTINATION_ATTEMPT"}
+- 17:41:35 V2059 dtn_bundle_tx {"mode": "DESTINATION", "bytes": 427, "tokens": 0}
+- 17:41:35 V2059 dtn_tombstone_rx {"applied": true}
+- 17:41:40 V2059 product_tts_returned {"lang": "hi"}
+- 17:42:04 RMX3392 product_delivered {"bundle": "67c783ec", "lang": "hi"}
+- 17:42:04 RMX3392 product_tts_start {"lang": "hi"}
+- 17:42:04 RMX3392 dtn_bundle_rx {"mode": "DESTINATION", "bytes": 1195, "ack": "ACCEPTED_AS_DESTINATION_ATTEMPT"}
+- 17:42:04 RMX3392 dtn_bundle_tx {"mode": "DESTINATION", "bytes": 427, "tokens": 0}
+- 17:42:05 RMX3392 dtn_tombstone_rx {"applied": true}
+- 17:42:03 V2059 product_transcript_ready {"source": "PTT"}
+- 17:42:05 V2059 product_queued {"bundle": "67c783ec", "lang": "hi"}
+- 17:42:05 V2059 dtn_bundle_tx {"mode": "DESTINATION", "bytes": 1195, "tokens": 0}
+- 17:42:05 V2059 dtn_tombstone_rx {"applied": true}
+- 17:42:06 V2059 dtn_bundle_rx {"mode": "DESTINATION", "bytes": 427, "ack": "ACCEPTED_AS_DESTINATION_ATTEMPT"}
+- 17:42:10 RMX3392 state: emergency=On links=BLE_GATT outgoing={DELIVERED=2, EXPIRED=1} delivered=3 contacts=Suyash Gupta;Pratham Patel sos_out=None sos_in=
+- 17:42:11 V2059 state: emergency=On links=BLE_GATT outgoing={DELIVERED=3} delivered=2 contacts=Vivek Tiwary sos_out=None sos_in=
+- 17:42:08 RMX3392 product_tts_returned {"lang": "hi"}
+- 17:50:45 PROBLEM V2059 not reachable over adb (unplugged or asleep?)
+- 17:52:23 V2059 reachable again
+- PROBLEM V2059 logcat capture: 2026-11-08 17:50:37 capture stopped (exit 0)
+- V2059 logcat capture: 2026-11-08 17:52:23 capture start (resuming from 11-08 17:50:32.000)
+- PROBLEM V2059 logcat capture: 2026-11-08 17:55:16 capture stopped (exit 0)
+- V2059 logcat capture: 2026-11-08 17:55:22 capture start (resuming from 11-08 17:55:11.000)
+- PROBLEM V2059 logcat capture: 2026-11-08 17:55:50 capture stopped (exit 0)
+- V2059 logcat capture: 2026-11-08 17:55:55 capture start (resuming from 11-08 17:55:45.000)
+- 17:56:07 PROBLEM V2059 not reachable over adb (unplugged or asleep?)
+- 17:56:09 RMX3392 state: emergency=On links=BLE_GATT outgoing={DELIVERED=2, EXPIRED=1} delivered=3 contacts=Suyash Gupta;Pratham Patel;Umar Habib sos_out=None sos_in=
+- 17:56:30 V2059 reachable again
+- PROBLEM V2059 logcat capture: 2026-11-08 17:55:59 capture stopped (exit 0)
+- V2059 logcat capture: 2026-11-08 17:56:28 capture start (resuming from 11-08 17:55:54.000)
+- 17:56:43 V2059 state: emergency=On links=BLE_GATT outgoing={DELIVERED=3} delivered=2 contacts=Vivek Tiwary;Umar Habib sos_out=None sos_in=
+- 17:58:33 watcher stopped
