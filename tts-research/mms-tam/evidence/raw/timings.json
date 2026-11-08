@@ -1,0 +1,327 @@
+{
+  "model": "D:\\iTantra-tts-models\\mms-tam\\model.onnx",
+  "sherpa_onnx": "1.13.7",
+  "load_seconds": 1.056,
+  "records": [
+    {
+      "number": 1,
+      "repeat": 1,
+      "language_code": "ta",
+      "text": "ஆற்று நீர் வேகமாக உயர்கிறது. பாதுகாப்பான இடத்திற்கு செல்லுங்கள்.",
+      "codepoints": 64,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "01.wav",
+      "generation_seconds": 4.063,
+      "audio_seconds": 5.282,
+      "rtf": 0.769,
+      "sample_rate": 16000,
+      "samples": 84509
+    },
+    {
+      "number": 2,
+      "repeat": 1,
+      "language_code": "ta",
+      "text": "பள்ளிக்கு அருகில் தீ பிடித்துவிட்டது. தூரமாக இருங்கள்.",
+      "codepoints": 54,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "02.wav",
+      "generation_seconds": 9.05,
+      "audio_seconds": 4.21,
+      "rtf": 2.15,
+      "sample_rate": 16000,
+      "samples": 67361
+    },
+    {
+      "number": 3,
+      "repeat": 1,
+      "language_code": "ta",
+      "text": "சந்தையை கடந்து இடதுபுறம் திரும்புங்கள்.",
+      "codepoints": 39,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "03.wav",
+      "generation_seconds": 8.111,
+      "audio_seconds": 2.784,
+      "rtf": 2.913,
+      "sample_rate": 16000,
+      "samples": 44544
+    },
+    {
+      "number": 4,
+      "repeat": 1,
+      "language_code": "ta",
+      "text": "பழைய பாலத்தை கடந்து மருத்துவமனைக்கு முன் நில்லுங்கள்.",
+      "codepoints": 53,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "04.wav",
+      "generation_seconds": 14.582,
+      "audio_seconds": 3.672,
+      "rtf": 3.971,
+      "sample_rate": 16000,
+      "samples": 58759
+    },
+    {
+      "number": 5,
+      "repeat": 1,
+      "language_code": "ta",
+      "text": "தயவுசெய்து கிராமத்தின் வடக்கு பகுதியிலிருந்து ஒரு மருத்துவரை அனுப்புங்கள்.",
+      "codepoints": 74,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "05.wav",
+      "generation_seconds": 19.907,
+      "audio_seconds": 5.384,
+      "rtf": 3.698,
+      "sample_rate": 16000,
+      "samples": 86138
+    },
+    {
+      "number": 6,
+      "repeat": 1,
+      "language_code": "ta",
+      "text": "மூன்று குழந்தைகள் கோவிலில் சிக்கியுள்ளனர். உதவி செய்யுங்கள்.",
+      "codepoints": 60,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "06.wav",
+      "generation_seconds": 17.808,
+      "audio_seconds": 4.442,
+      "rtf": 4.009,
+      "sample_rate": 16000,
+      "samples": 71078
+    },
+    {
+      "number": 7,
+      "repeat": 1,
+      "language_code": "ta",
+      "text": "இன்று மாலை நாங்கள் வீட்டில் சந்திப்போம்.",
+      "codepoints": 40,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "07.wav",
+      "generation_seconds": 8.857,
+      "audio_seconds": 2.66,
+      "rtf": 3.33,
+      "sample_rate": 16000,
+      "samples": 42559
+    },
+    {
+      "number": 8,
+      "repeat": 1,
+      "language_code": "ta",
+      "text": "என் அண்ணன் காலையில் கடைக்கு செல்வான்.",
+      "codepoints": 37,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "08.wav",
+      "generation_seconds": 9.82,
+      "audio_seconds": 2.786,
+      "rtf": 3.525,
+      "sample_rate": 16000,
+      "samples": 44572
+    },
+    {
+      "number": 9,
+      "repeat": 1,
+      "language_code": "ta",
+      "text": "மருந்துக்காக 12 பெட்டிகள் கொண்டு வாருங்கள்.",
+      "codepoints": 43,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "09.wav",
+      "generation_seconds": 17.33,
+      "audio_seconds": 3.505,
+      "rtf": 4.945,
+      "sample_rate": 16000,
+      "samples": 56074
+    },
+    {
+      "number": 10,
+      "repeat": 1,
+      "language_code": "ta",
+      "text": "சென்னை அண்ணா சாலையில் என்னைச் சந்தியுங்கள்.",
+      "codepoints": 43,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "10.wav",
+      "generation_seconds": 18.356,
+      "audio_seconds": 2.815,
+      "rtf": 6.521,
+      "sample_rate": 16000,
+      "samples": 45041
+    },
+    {
+      "number": 1,
+      "repeat": 2,
+      "language_code": "ta",
+      "text": "ஆற்று நீர் வேகமாக உயர்கிறது. பாதுகாப்பான இடத்திற்கு செல்லுங்கள்.",
+      "codepoints": 64,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "01_r2.wav",
+      "generation_seconds": 8.857,
+      "audio_seconds": 5.177,
+      "rtf": 1.711,
+      "sample_rate": 16000,
+      "samples": 82834
+    },
+    {
+      "number": 2,
+      "repeat": 2,
+      "language_code": "ta",
+      "text": "பள்ளிக்கு அருகில் தீ பிடித்துவிட்டது. தூரமாக இருங்கள்.",
+      "codepoints": 54,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "02_r2.wav",
+      "generation_seconds": 2.786,
+      "audio_seconds": 3.941,
+      "rtf": 0.707,
+      "sample_rate": 16000,
+      "samples": 63062
+    },
+    {
+      "number": 3,
+      "repeat": 2,
+      "language_code": "ta",
+      "text": "சந்தையை கடந்து இடதுபுறம் திரும்புங்கள்.",
+      "codepoints": 39,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "03_r2.wav",
+      "generation_seconds": 1.771,
+      "audio_seconds": 2.625,
+      "rtf": 0.675,
+      "sample_rate": 16000,
+      "samples": 41994
+    },
+    {
+      "number": 4,
+      "repeat": 2,
+      "language_code": "ta",
+      "text": "பழைய பாலத்தை கடந்து மருத்துவமனைக்கு முன் நில்லுங்கள்.",
+      "codepoints": 53,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "04_r2.wav",
+      "generation_seconds": 9.202,
+      "audio_seconds": 4.032,
+      "rtf": 2.282,
+      "sample_rate": 16000,
+      "samples": 64511
+    },
+    {
+      "number": 5,
+      "repeat": 2,
+      "language_code": "ta",
+      "text": "தயவுசெய்து கிராமத்தின் வடக்கு பகுதியிலிருந்து ஒரு மருத்துவரை அனுப்புங்கள்.",
+      "codepoints": 74,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "05_r2.wav",
+      "generation_seconds": 14.565,
+      "audio_seconds": 4.845,
+      "rtf": 3.006,
+      "sample_rate": 16000,
+      "samples": 77516
+    },
+    {
+      "number": 6,
+      "repeat": 2,
+      "language_code": "ta",
+      "text": "மூன்று குழந்தைகள் கோவிலில் சிக்கியுள்ளனர். உதவி செய்யுங்கள்.",
+      "codepoints": 60,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "06_r2.wav",
+      "generation_seconds": 14.674,
+      "audio_seconds": 4.559,
+      "rtf": 3.218,
+      "sample_rate": 16000,
+      "samples": 72952
+    },
+    {
+      "number": 7,
+      "repeat": 2,
+      "language_code": "ta",
+      "text": "இன்று மாலை நாங்கள் வீட்டில் சந்திப்போம்.",
+      "codepoints": 40,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "07_r2.wav",
+      "generation_seconds": 9.7,
+      "audio_seconds": 2.762,
+      "rtf": 3.512,
+      "sample_rate": 16000,
+      "samples": 44189
+    },
+    {
+      "number": 8,
+      "repeat": 2,
+      "language_code": "ta",
+      "text": "என் அண்ணன் காலையில் கடைக்கு செல்வான்.",
+      "codepoints": 37,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "08_r2.wav",
+      "generation_seconds": 9.132,
+      "audio_seconds": 2.682,
+      "rtf": 3.404,
+      "sample_rate": 16000,
+      "samples": 42917
+    },
+    {
+      "number": 9,
+      "repeat": 2,
+      "language_code": "ta",
+      "text": "மருந்துக்காக 12 பெட்டிகள் கொண்டு வாருங்கள்.",
+      "codepoints": 43,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "09_r2.wav",
+      "generation_seconds": 11.685,
+      "audio_seconds": 3.36,
+      "rtf": 3.478,
+      "sample_rate": 16000,
+      "samples": 53763
+    },
+    {
+      "number": 10,
+      "repeat": 2,
+      "language_code": "ta",
+      "text": "சென்னை அண்ணா சாலையில் என்னைச் சந்தியுங்கள்.",
+      "codepoints": 43,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "10_r2.wav",
+      "generation_seconds": 11.963,
+      "audio_seconds": 2.745,
+      "rtf": 4.359,
+      "sample_rate": 16000,
+      "samples": 43913
+    }
+  ]
+}

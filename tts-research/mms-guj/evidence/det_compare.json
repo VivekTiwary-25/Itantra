@@ -1,0 +1,72 @@
+[
+  {
+    "line": 1,
+    "len32": 57698,
+    "len16": 57698,
+    "length_match": true,
+    "snr_db": 67.87739556762864
+  },
+  {
+    "line": 2,
+    "len32": 40290,
+    "len16": 40290,
+    "length_match": true,
+    "snr_db": 67.51761549564512
+  },
+  {
+    "line": 3,
+    "len32": 37218,
+    "len16": 37218,
+    "length_match": true,
+    "snr_db": 67.30957601683072
+  },
+  {
+    "line": 4,
+    "len32": 46434,
+    "len16": 46434,
+    "length_match": true,
+    "snr_db": 69.66511604865909
+  },
+  {
+    "line": 5,
+    "len32": 58040,
+    "len16": 58040,
+    "length_match": true,
+    "snr_db": 66.47918673801382
+  },
+  {
+    "line": 6,
+    "len32": 52915,
+    "len16": 52915,
+    "length_match": true,
+    "snr_db": 66.48888426611444
+  },
+  {
+    "line": 7,
+    "len32": 30306,
+    "len16": 30306,
+    "length_match": true,
+    "snr_db": 66.41046505006076
+  },
+  {
+    "line": 8,
+    "len32": 31330,
+    "len16": 31330,
+    "length_match": true,
+    "snr_db": 67.99308013920256
+  },
+  {
+    "line": 9,
+    "len32": 31842,
+    "len16": 31842,
+    "length_match": true,
+    "snr_db": 69.1554213049507
+  },
+  {
+    "line": 10,
+    "len32": 43514,
+    "len16": 43514,
+    "length_match": true,
+    "snr_db": 69.13392914381303
+  }
+]

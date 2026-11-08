@@ -1,0 +1,89 @@
+Threads: 38 total,   1 running,  37 sleeping,   0 stopped,   0 zombie
+  Mem:  7721024K total,  7180936K used,   540088K free,     2056K buffers
+ Swap:  7864316K total,  4127984K used,  3736332K free,  1868924K cached
+800%cpu 150%user   0%nice  89%sys 529%idle   0%iow  25%irq   7%sirq   0%host
+  TID USER         PR  NI VIRT  RES  SHR S[%CPU] %MEM     TIME+ THREAD          PROCESS
+19952 u0_a511      10 -10 6.9G 243M 123M S 60.7   3.2   0:14.31 hmod777.itantra com.chmod777.itantra
+20037 u0_a511      10 -10 6.9G 241M 123M R 50.0   3.1   0:05.08 RenderThread    com.chmod777.itantra
+20077 u0_a511       0 -20 6.9G 241M 123M S 17.8   3.1   0:03.02 mali-cmar-backe com.chmod777.itantra
+19986 u0_a511      20   0 6.9G 241M 123M S  7.1   3.1   0:00.06 binder:19952_3  com.chmod777.itantra
+20086 u0_a511      30  10 6.9G 241M 123M S  0.0   3.1   0:00.00 oplus.view.bg   com.chmod777.itantra
+20085 u0_a511       0 -20 6.9G 241M 123M S  0.0   3.1   0:00.09 binder:19952_3  com.chmod777.itantra
+20083 u0_a511      18  -2 6.9G 241M 123M S  0.0   3.1   0:00.00 hwuiTask1       com.chmod777.itantra
+20082 u0_a511      18  -2 6.9G 241M 123M S  0.0   3.1   0:00.00 hwuiTask0       com.chmod777.itantra
+20081 u0_a511      20   0 6.9G 241M 123M S  0.0   3.1   0:00.00 SurfaceSyncGrou com.chmod777.itantra
+20078 u0_a511      10 -10 6.9G 241M 123M S  0.0   3.1   0:00.28 ged-swd         com.chmod777.itantra
+20076 u0_a511      10 -10 6.9G 241M 123M S  0.0   3.1   0:00.00 mali-utility-wo com.chmod777.itantra
+20068 u0_a511      10 -10 6.9G 241M 123M S  0.0   3.1   0:00.04 mali-mem-purge  com.chmod777.itantra
+20069 u0_a511      10 -10 6.9G 241M 123M S  0.0   3.1   0:00.00 mali-utility-wo com.chmod777.itantra
+20070 u0_a511      10 -10 6.9G 241M 123M S  0.0   3.1   0:00.00 mali-utility-wo com.chmod777.itantra
+20071 u0_a511      10 -10 6.9G 241M 123M S  0.0   3.1   0:00.00 mali-utility-wo com.chmod777.itantra
+20072 u0_a511      10 -10 6.9G 241M 123M S  0.0   3.1   0:00.00 mali-utility-wo com.chmod777.itantra
+20073 u0_a511      10 -10 6.9G 241M 123M S  0.0   3.1   0:00.00 mali-utility-wo com.chmod777.itantra
+20074 u0_a511      10 -10 6.9G 241M 123M S  0.0   3.1   0:00.00 mali-utility-wo com.chmod777.itantra
+20075 u0_a511      10 -10 6.9G 241M 123M S  0.0   3.1   0:00.00 mali-utility-wo com.chmod777.itantra
+20063 u0_a511      20   0 6.9G 241M 123M S  0.0   3.1   0:00.00 DefaultExecutor com.chmod777.itantra
+20061 u0_a511      20   0 6.9G 241M 123M S  0.0   3.1   0:00.05 DefaultDispatch com.chmod777.itantra
+20062 u0_a511      20   0 6.9G 241M 123M S  0.0   3.1   0:00.00 DefaultDispatch com.chmod777.itantra
+20060 u0_a511      20   0 6.9G 241M 123M S  0.0   3.1   0:00.00 itantra-metrics com.chmod777.itantra
+20035 u0_a511      30  10 6.9G 241M 123M S  0.0   3.1   0:00.00 oplus.app.bg    com.chmod777.itantra
+20036 u0_a511      20   0 6.9G 241M 123M S  0.0   3.1   0:00.00 UIMonitorThread com.chmod777.itantra
+20034 u0_a511      16  -4 6.9G 241M 123M S  0.0   3.1   0:00.23 FramePolicy     com.chmod777.itantra
+20033 u0_a511      20   0 6.9G 241M 123M S  0.0   3.1   0:00.00 FramePolicy     com.chmod777.itantra
+20029 u0_a511      29   9 6.9G 241M 123M S  0.0   3.1   0:00.01 Profile Saver   com.chmod777.itantra
+19966 u0_a511      20   0 6.9G 241M 123M S  0.0   3.1   0:00.78 binder:19952_2  com.chmod777.itantra
+19963 u0_a511      20   0 6.9G 241M 123M S  0.0   3.1   0:00.00 binder:19952_1  com.chmod777.itantra
+19959 u0_a511      24   4 6.9G 243M 125M S  0.0   3.2   0:00.22 HeapTaskDaemon  com.chmod777.itantra
+19960 u0_a511      24   4 6.9G 243M 125M S  0.0   3.2   0:00.00 ReferenceQueueD com.chmod777.itantra
+19961 u0_a511      24   4 6.9G 243M 125M S  0.0   3.2   0:00.00 FinalizerDaemon com.chmod777.itantra
+19962 u0_a511      24   4 6.9G 243M 123M S  0.0   3.2   0:00.00 FinalizerWatchd com.chmod777.itantra
+19958 u0_a511      29   9 6.9G 243M 125M S  0.0   3.2   0:03.69 Jit thread pool com.chmod777.itantra
+19957 u0_a511       0 -20 6.9G 243M 125M S  0.0   3.2   0:00.00 ADB-JDWP Connec com.chmod777.itantra
+19956 u0_a511       0 -20 6.9G 243M 125M S  0.0   3.2   0:00.00 perfetto_hprof_ com.chmod777.itantra
+19955 u0_a511       0 -20 6.9G 243M 125M S  0.0   3.2   0:00.00 Signal Catcher  com.chmod777.itantra
+
+
+
+Threads: 38 total,   0 running,  38 sleeping,   0 stopped,   0 zombie
+  Mem:  7721024K total,  7193372K used,   527652K free,     2072K buffers
+ Swap:  7864316K total,  4146928K used,  3717388K free,  1871392K cached
+800%cpu 151%user   6%nice 114%sys 488%idle   0%iow  33%irq   8%sirq   0%host
+  TID USER         PR  NI VIRT  RES  SHR S[%CPU] %MEM     TIME+ THREAD          PROCESS
+19952 u0_a511      10 -10 6.9G 241M 123M S 64.2   3.2   0:14.48 hmod777.itantra com.chmod777.itantra
+20037 u0_a511      10 -10 6.9G 241M 123M S 25.4   3.2   0:05.22 RenderThread    com.chmod777.itantra
+20077 u0_a511       0 -20 6.9G 241M 123M S 20.0   3.2   0:03.07 mali-cmar-backe com.chmod777.itantra
+19966 u0_a511      20   0 6.9G 241M 123M S  5.0   3.2   0:00.78 binder:19952_2  com.chmod777.itantra
+19958 u0_a511      29   9 6.9G 241M 123M S  4.0   3.2   0:03.69 Jit thread pool com.chmod777.itantra
+20078 u0_a511      10 -10 6.9G 241M 123M S  2.0   3.2   0:00.28 ged-swd         com.chmod777.itantra
+20034 u0_a511      16  -4 6.9G 241M 123M S  1.6   3.2   0:00.23 FramePolicy     com.chmod777.itantra
+20085 u0_a511       0 -20 6.9G 241M 123M S  0.6   3.2   0:00.09 binder:19952_3  com.chmod777.itantra
+20068 u0_a511      10 -10 6.9G 241M 123M S  0.6   3.2   0:00.04 mali-mem-purge  com.chmod777.itantra
+19986 u0_a511      20   0 6.9G 241M 123M S  0.6   3.2   0:00.08 binder:19952_3  com.chmod777.itantra
+20086 u0_a511      30  10 6.9G 241M 123M S  0.0   3.2   0:00.00 oplus.view.bg   com.chmod777.itantra
+20083 u0_a511      18  -2 6.9G 241M 123M S  0.0   3.2   0:00.00 hwuiTask1       com.chmod777.itantra
+20082 u0_a511      18  -2 6.9G 241M 123M S  0.0   3.2   0:00.00 hwuiTask0       com.chmod777.itantra
+20081 u0_a511      20   0 6.9G 241M 123M S  0.0   3.2   0:00.00 SurfaceSyncGrou com.chmod777.itantra
+20076 u0_a511      10 -10 6.9G 241M 123M S  0.0   3.2   0:00.00 mali-utility-wo com.chmod777.itantra
+20069 u0_a511      10 -10 6.9G 241M 123M S  0.0   3.2   0:00.00 mali-utility-wo com.chmod777.itantra
+20070 u0_a511      10 -10 6.9G 241M 123M S  0.0   3.2   0:00.00 mali-utility-wo com.chmod777.itantra
+20071 u0_a511      10 -10 6.9G 241M 123M S  0.0   3.2   0:00.00 mali-utility-wo com.chmod777.itantra
+20072 u0_a511      10 -10 6.9G 241M 123M S  0.0   3.2   0:00.00 mali-utility-wo com.chmod777.itantra
+20073 u0_a511      10 -10 6.9G 241M 123M S  0.0   3.2   0:00.00 mali-utility-wo com.chmod777.itantra
+20074 u0_a511      10 -10 6.9G 241M 123M S  0.0   3.2   0:00.00 mali-utility-wo com.chmod777.itantra
+20075 u0_a511      10 -10 6.9G 241M 123M S  0.0   3.2   0:00.00 mali-utility-wo com.chmod777.itantra
+20063 u0_a511      20   0 6.9G 241M 123M S  0.0   3.2   0:00.00 DefaultExecutor com.chmod777.itantra
+20061 u0_a511      20   0 6.9G 241M 123M S  0.0   3.2   0:00.05 DefaultDispatch com.chmod777.itantra
+20062 u0_a511      20   0 6.9G 241M 123M S  0.0   3.2   0:00.00 DefaultDispatch com.chmod777.itantra
+20060 u0_a511      20   0 6.9G 241M 123M S  0.0   3.2   0:00.00 itantra-metrics com.chmod777.itantra
+20036 u0_a511      20   0 6.9G 241M 123M S  0.0   3.2   0:00.00 UIMonitorThread com.chmod777.itantra
+20035 u0_a511      30  10 6.9G 241M 123M S  0.0   3.2   0:00.00 oplus.app.bg    com.chmod777.itantra
+20033 u0_a511      20   0 6.9G 241M 123M S  0.0   3.2   0:00.00 FramePolicy     com.chmod777.itantra
+20029 u0_a511      29   9 6.9G 241M 123M S  0.0   3.2   0:00.01 Profile Saver   com.chmod777.itantra
+19963 u0_a511      20   0 6.9G 241M 123M S  0.0   3.2   0:00.00 binder:19952_1  com.chmod777.itantra
+19961 u0_a511      24   4 6.9G 241M 123M S  0.0   3.2   0:00.00 FinalizerDaemon com.chmod777.itantra
+19957 u0_a511       0 -20 6.9G 241M 123M S  0.0   3.2   0:00.00 ADB-JDWP Connec com.chmod777.itantra
+19960 u0_a511      24   4 6.9G 241M 123M S  0.0   3.2   0:00.00 ReferenceQueueD com.chmod777.itantra
+19959 u0_a511      24   4 6.9G 241M 123M S  0.0   3.2   0:00.22 HeapTaskDaemon  com.chmod777.itantra
+19962 u0_a511      24   4 6.9G 241M 123M S  0.0   3.2   0:00.00 FinalizerWatchd com.chmod777.itantra
+19956 u0_a511       0 -20 6.9G 241M 123M S  0.0   3.2   0:00.00 perfetto_hprof_ com.chmod777.itantra
+19955 u0_a511       0 -20 6.9G 241M 123M S  0.0   3.2   0:00.00 Signal Catcher  com.chmod777.itantra

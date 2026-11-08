@@ -1,0 +1,130 @@
+ > Using model: fast_pitch
+ > Setting up Audio Processor...
+ | > sample_rate:22050
+ | > resample:False
+ | > num_mels:80
+ | > log_func:np.log
+ | > min_level_db:-100
+ | > frame_shift_ms:None
+ | > frame_length_ms:None
+ | > ref_level_db:20
+ | > fft_size:1024
+ | > power:1.5
+ | > preemphasis:0.0
+ | > griffin_lim_iters:60
+ | > signal_norm:False
+ | > symmetric_norm:True
+ | > mel_fmin:0
+ | > mel_fmax:8000.0
+ | > pitch_fmin:0.0
+ | > pitch_fmax:640.0
+ | > spec_gain:1.0
+ | > stft_pad_mode:reflect
+ | > max_norm:4.0
+ | > clip_norm:True
+ | > do_trim_silence:True
+ | > trim_db:60
+ | > do_sound_norm:False
+ | > do_amp_to_db_linear:True
+ | > do_amp_to_db_mel:True
+ | > do_rms_norm:False
+ | > db_level:None
+ | > stats_path:None
+ | > base:2.718281828459045
+ | > hop_length:256
+ | > win_length:1024
+ > Init speaker_embedding layer.
+ > Vocoder Model: hifigan
+ > Setting up Audio Processor...
+ | > sample_rate:22050
+ | > resample:False
+ | > num_mels:80
+ | > log_func:np.log
+ | > min_level_db:-100
+ | > frame_shift_ms:None
+ | > frame_length_ms:None
+ | > ref_level_db:20
+ | > fft_size:1024
+ | > power:1.5
+ | > preemphasis:0.0
+ | > griffin_lim_iters:60
+ | > signal_norm:False
+ | > symmetric_norm:True
+ | > mel_fmin:0
+ | > mel_fmax:8000.0
+ | > pitch_fmin:0.0
+ | > pitch_fmax:640.0
+ | > spec_gain:1.0
+ | > stft_pad_mode:reflect
+ | > max_norm:4.0
+ | > clip_norm:True
+ | > do_trim_silence:True
+ | > trim_db:60
+ | > do_sound_norm:False
+ | > do_amp_to_db_linear:True
+ | > do_amp_to_db_mel:True
+ | > do_rms_norm:False
+ | > db_level:None
+ | > stats_path:None
+ | > base:2.718281828459045
+ | > hop_length:256
+ | > win_length:1024
+ > Generator Model: hifigan_generator
+ > Discriminator Model: hifigan_discriminator
+Removing weight norm...
+ > Text splitted to sentences.
+['ନଦୀର ପାଣି ଶୀଘ୍ର ବଢ଼ୁଛି। ସୁରକ୍ଷିତ ସ୍ଥାନକୁ ଯାଆନ୍ତୁ।']
+ନଦୀର ପାଣି ଶୀଘ୍ର ବଢ଼ୁଛି। ସୁରକ୍ଷିତ ସ୍ଥାନକୁ ଯାଆନ୍ତୁ।
+ [!] Character '଼' not found in the vocabulary. Discarding it.
+ > Processing time: 1.6730968952178955
+ > Real-time factor: 0.3584232331295138
+{"number": 1, "language_code": "or", "text": "ନଦୀର ପାଣି ଶୀଘ୍ର ବଢ଼ୁଛି। ସୁରକ୍ଷିତ ସ୍ଥାନକୁ ଯାଆନ୍ତୁ।", "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/01.wav", "generation_seconds": 1.673, "audio_seconds": 4.668, "sample_rate": 22050}
+ > Text splitted to sentences.
+['ବିଦ୍ୟାଳୟ ନିକଟରେ ନିଆଁ ଲାଗିଛି। ଦୂରେ ରୁହନ୍ତୁ।']
+ > Processing time: 1.4607994556427002
+ > Real-time factor: 0.3533726961220987
+{"number": 2, "language_code": "or", "text": "ବିଦ୍ୟାଳୟ ନିକଟରେ ନିଆଁ ଲାଗିଛି। ଦୂରେ ରୁହନ୍ତୁ।", "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/02.wav", "generation_seconds": 1.461, "audio_seconds": 4.134, "sample_rate": 22050}
+ > Text splitted to sentences.
+['ବଜାର ପରେ ବାମକୁ ମୁହଁ ଘୁରାନ୍ତୁ।']
+ > Processing time: 1.129929780960083
+ > Real-time factor: 0.3475082524850735
+{"number": 3, "language_code": "or", "text": "ବଜାର ପରେ ବାମକୁ ମୁହଁ ଘୁରାନ୍ତୁ।", "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/03.wav", "generation_seconds": 1.131, "audio_seconds": 3.252, "sample_rate": 22050}
+ > Text splitted to sentences.
+['ପୁରୁଣା ସେତୁ ପାର ହୋଇ ଡାକ୍ତରଖାନା ଆଗରେ ରୁହନ୍ତୁ।']
+ > Processing time: 1.5572774410247803
+ > Real-time factor: 0.35385374664670655
+{"number": 4, "language_code": "or", "text": "ପୁରୁଣା ସେତୁ ପାର ହୋଇ ଡାକ୍ତରଖାନା ଆଗରେ ରୁହନ୍ତୁ।", "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/04.wav", "generation_seconds": 1.558, "audio_seconds": 4.401, "sample_rate": 22050}
+ > Text splitted to sentences.
+['ଦୟାକରି ଗାଁର ଉତ୍ତର ଭାଗକୁ ଜଣେ ଡାକ୍ତର ପଠାନ୍ତୁ।']
+ > Processing time: 1.6397302150726318
+ > Real-time factor: 0.33622276486340885
+{"number": 5, "language_code": "or", "text": "ଦୟାକରି ଗାଁର ଉତ୍ତର ଭାଗକୁ ଜଣେ ଡାକ୍ତର ପଠାନ୍ତୁ।", "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/05.wav", "generation_seconds": 1.64, "audio_seconds": 4.877, "sample_rate": 22050}
+ > Text splitted to sentences.
+['ତିନିଜଣ ପିଲା ମନ୍ଦିରରେ ଅଟକି ରହିଛନ୍ତି। ସାହାଯ୍ୟ କରନ୍ତୁ।']
+ > Processing time: 1.6859025955200195
+ > Real-time factor: 0.3515485723182065
+{"number": 6, "language_code": "or", "text": "ତିନିଜଣ ପିଲା ମନ୍ଦିରରେ ଅଟକି ରହିଛନ୍ତି। ସାହାଯ୍ୟ କରନ୍ତୁ।", "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/06.wav", "generation_seconds": 1.686, "audio_seconds": 4.796, "sample_rate": 22050}
+ > Text splitted to sentences.
+['ଆଜି ସନ୍ଧ୍ୟାରେ ଆମେ ଘରେ ଦେଖା କରିବା।']
+ > Processing time: 1.220618486404419
+ > Real-time factor: 0.34127913401827753
+{"number": 7, "language_code": "or", "text": "ଆଜି ସନ୍ଧ୍ୟାରେ ଆମେ ଘରେ ଦେଖା କରିବା।", "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/07.wav", "generation_seconds": 1.221, "audio_seconds": 3.577, "sample_rate": 22050}
+ > Text splitted to sentences.
+['ମୋ ଭାଇ ସକାଳେ ଦୋକାନକୁ ଯିବ।']
+ > Processing time: 1.0409996509552002
+ > Real-time factor: 0.32246069767872226
+{"number": 8, "language_code": "or", "text": "ମୋ ଭାଇ ସକାଳେ ଦୋକାନକୁ ଯିବ।", "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/08.wav", "generation_seconds": 1.041, "audio_seconds": 3.228, "sample_rate": 22050}
+ > Text splitted to sentences.
+['ଔଷଧ ପାଇଁ ୧୨ଟି ବାକ୍ସ ଆଣନ୍ତୁ।']
+ଔଷଧ ପାଇଁ ୧୨ଟି ବାକ୍ସ ଆଣନ୍ତୁ।
+ [!] Character '୧' not found in the vocabulary. Discarding it.
+ଔଷଧ ପାଇଁ ୧୨ଟି ବାକ୍ସ ଆଣନ୍ତୁ।
+ [!] Character '୨' not found in the vocabulary. Discarding it.
+ > Processing time: 0.9290604591369629
+ > Real-time factor: 0.3361410987787154
+{"number": 9, "language_code": "or", "text": "ଔଷଧ ପାଇଁ ୧୨ଟି ବାକ୍ସ ଆଣନ୍ତୁ।", "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/09.wav", "generation_seconds": 0.929, "audio_seconds": 2.764, "sample_rate": 22050}
+ > Text splitted to sentences.
+['ଭୁବନେଶ୍ୱରର ଜନପଥ ରାସ୍ତାରେ ମୋତେ ଭେଟନ୍ତୁ।']
+ > Processing time: 1.3576855659484863
+ > Real-time factor: 0.32935406100559017
+{"number": 10, "language_code": "or", "text": "ଭୁବନେଶ୍ୱରର ଜନପଥ ରାସ୍ତାରେ ମୋତେ ଭେଟନ୍ତୁ।", "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/10.wav", "generation_seconds": 1.358, "audio_seconds": 4.122, "sample_rate": 22050}

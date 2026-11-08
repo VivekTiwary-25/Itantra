@@ -1,0 +1,96 @@
+{
+  "model_dir": "/mnt/d/iTantra-tts-models/te",
+  "load_seconds": 14.805,
+  "records": [
+    {
+      "number": 1,
+      "language_code": "te",
+      "text": "నది నీరు వేగంగా పెరుగుతోంది. సురక్షిత ప్రదేశానికి వెళ్లండి.",
+      "wav": "/mnt/d/iTantra-tts-te-indic/local-recordings/te-indic/01.wav",
+      "generation_seconds": 1.929,
+      "audio_seconds": 5.748,
+      "sample_rate": 22050
+    },
+    {
+      "number": 2,
+      "language_code": "te",
+      "text": "పాఠశాల దగ్గర మంటలు చెలరేగాయి. దూరంగా ఉండండి.",
+      "wav": "/mnt/d/iTantra-tts-te-indic/local-recordings/te-indic/02.wav",
+      "generation_seconds": 1.591,
+      "audio_seconds": 5.18,
+      "sample_rate": 22050
+    },
+    {
+      "number": 3,
+      "language_code": "te",
+      "text": "మార్కెట్ తర్వాత ఎడమవైపు తిరగండి.",
+      "wav": "/mnt/d/iTantra-tts-te-indic/local-recordings/te-indic/03.wav",
+      "generation_seconds": 0.988,
+      "audio_seconds": 2.95,
+      "sample_rate": 22050
+    },
+    {
+      "number": 4,
+      "language_code": "te",
+      "text": "పాత వంతెన దాటి ఆసుపత్రి ముందు ఆగండి.",
+      "wav": "/mnt/d/iTantra-tts-te-indic/local-recordings/te-indic/04.wav",
+      "generation_seconds": 1.202,
+      "audio_seconds": 3.658,
+      "sample_rate": 22050
+    },
+    {
+      "number": 5,
+      "language_code": "te",
+      "text": "దయచేసి గ్రామం ఉత్తర భాగానికి ఒక వైద్యుడిని పంపండి.",
+      "wav": "/mnt/d/iTantra-tts-te-indic/local-recordings/te-indic/05.wav",
+      "generation_seconds": 1.736,
+      "audio_seconds": 4.958,
+      "sample_rate": 22050
+    },
+    {
+      "number": 6,
+      "language_code": "te",
+      "text": "ముగ్గురు పిల్లలు దేవాలయంలో చిక్కుకున్నారు. సహాయం చేయండి.",
+      "wav": "/mnt/d/iTantra-tts-te-indic/local-recordings/te-indic/06.wav",
+      "generation_seconds": 1.751,
+      "audio_seconds": 5.4,
+      "sample_rate": 22050
+    },
+    {
+      "number": 7,
+      "language_code": "te",
+      "text": "ఈ సాయంత్రం మనం ఇంట్లో కలుద్దాం.",
+      "wav": "/mnt/d/iTantra-tts-te-indic/local-recordings/te-indic/07.wav",
+      "generation_seconds": 0.769,
+      "audio_seconds": 2.95,
+      "sample_rate": 22050
+    },
+    {
+      "number": 8,
+      "language_code": "te",
+      "text": "నా సోదరుడు ఉదయం దుకాణానికి వెళ్తాడు.",
+      "wav": "/mnt/d/iTantra-tts-te-indic/local-recordings/te-indic/08.wav",
+      "generation_seconds": 0.947,
+      "audio_seconds": 2.938,
+      "sample_rate": 22050
+    },
+    {
+      "number": 9,
+      "language_code": "te",
+      "text": "మందుల కోసం ౧౨ పెట్టెలు తీసుకురండి.",
+      "wav": "/mnt/d/iTantra-tts-te-indic/local-recordings/te-indic/09.wav",
+      "generation_seconds": 0.98,
+      "audio_seconds": 3.275,
+      "sample_rate": 22050
+    },
+    {
+      "number": 10,
+      "language_code": "te",
+      "text": "హైదరాబాద్‌లోని గాంధీ రోడ్డులో నన్ను కలవండి.",
+      "wav": "/mnt/d/iTantra-tts-te-indic/local-recordings/te-indic/10.wav",
+      "generation_seconds": 1.198,
+      "audio_seconds": 3.693,
+      "sample_rate": 22050
+    }
+  ]
+}

@@ -1,0 +1,124 @@
+ > Using model: fast_pitch
+ > Setting up Audio Processor...
+ | > sample_rate:22050
+ | > resample:False
+ | > num_mels:80
+ | > log_func:np.log
+ | > min_level_db:-100
+ | > frame_shift_ms:None
+ | > frame_length_ms:None
+ | > ref_level_db:20
+ | > fft_size:1024
+ | > power:1.5
+ | > preemphasis:0.0
+ | > griffin_lim_iters:60
+ | > signal_norm:False
+ | > symmetric_norm:True
+ | > mel_fmin:0
+ | > mel_fmax:8000.0
+ | > pitch_fmin:0.0
+ | > pitch_fmax:640.0
+ | > spec_gain:1.0
+ | > stft_pad_mode:reflect
+ | > max_norm:4.0
+ | > clip_norm:True
+ | > do_trim_silence:True
+ | > trim_db:60
+ | > do_sound_norm:False
+ | > do_amp_to_db_linear:True
+ | > do_amp_to_db_mel:True
+ | > do_rms_norm:False
+ | > db_level:None
+ | > stats_path:None
+ | > base:2.718281828459045
+ | > hop_length:256
+ | > win_length:1024
+ > Init speaker_embedding layer.
+ > Vocoder Model: hifigan
+ > Setting up Audio Processor...
+ | > sample_rate:22050
+ | > resample:False
+ | > num_mels:80
+ | > log_func:np.log
+ | > min_level_db:-100
+ | > frame_shift_ms:None
+ | > frame_length_ms:None
+ | > ref_level_db:20
+ | > fft_size:1024
+ | > power:1.5
+ | > preemphasis:0.0
+ | > griffin_lim_iters:60
+ | > signal_norm:False
+ | > symmetric_norm:True
+ | > mel_fmin:0
+ | > mel_fmax:8000.0
+ | > pitch_fmin:0.0
+ | > pitch_fmax:640.0
+ | > spec_gain:1.0
+ | > stft_pad_mode:reflect
+ | > max_norm:4.0
+ | > clip_norm:True
+ | > do_trim_silence:True
+ | > trim_db:60
+ | > do_sound_norm:False
+ | > do_amp_to_db_linear:True
+ | > do_amp_to_db_mel:True
+ | > do_rms_norm:False
+ | > db_level:None
+ | > stats_path:None
+ | > base:2.718281828459045
+ | > hop_length:256
+ | > win_length:1024
+ > Generator Model: hifigan_generator
+ > Discriminator Model: hifigan_discriminator
+Removing weight norm...
+ > Text splitted to sentences.
+['नदीचे पाणी वेगाने वाढत आहे.', 'सुरक्षित ठिकाणी जा.']
+ > Processing time: 1.7423052787780762
+ > Real-time factor: 0.31989268083080685
+{"number": 1, "language_code": "mr", "text": "नदीचे पाणी वेगाने वाढत आहे. सुरक्षित ठिकाणी जा.", "wav": "/mnt/d/iTantra-tts-mr-indic/local-recordings/mr-indic/01.wav", "generation_seconds": 1.742, "audio_seconds": 5.447, "sample_rate": 22050}
+ > Text splitted to sentences.
+['शाळेजवळ आग लागली आहे.', 'तिथून दूर राहा.']
+ > Processing time: 1.4716973304748535
+ > Real-time factor: 0.2841388180947965
+{"number": 2, "language_code": "mr", "text": "शाळेजवळ आग लागली आहे. तिथून दूर राहा.", "wav": "/mnt/d/iTantra-tts-mr-indic/local-recordings/mr-indic/02.wav", "generation_seconds": 1.472, "audio_seconds": 5.18, "sample_rate": 22050}
+ > Text splitted to sentences.
+['बाजारानंतर डावीकडे वळा.']
+ > Processing time: 0.9886431694030762
+ > Real-time factor: 0.3018998156068279
+{"number": 3, "language_code": "mr", "text": "बाजारानंतर डावीकडे वळा.", "wav": "/mnt/d/iTantra-tts-mr-indic/local-recordings/mr-indic/03.wav", "generation_seconds": 0.989, "audio_seconds": 3.275, "sample_rate": 22050}
+ > Text splitted to sentences.
+['जुना पूल ओलांडून रुग्णालयासमोर थांबा.']
+ > Processing time: 1.4305219650268555
+ > Real-time factor: 0.3158849676418259
+{"number": 4, "language_code": "mr", "text": "जुना पूल ओलांडून रुग्णालयासमोर थांबा.", "wav": "/mnt/d/iTantra-tts-mr-indic/local-recordings/mr-indic/04.wav", "generation_seconds": 1.431, "audio_seconds": 4.529, "sample_rate": 22050}
+ > Text splitted to sentences.
+['कृपया गावाच्या उत्तरेकडे एक डॉक्टर पाठवा.']
+ > Processing time: 1.3743176460266113
+ > Real-time factor: 0.32248961449521946
+{"number": 5, "language_code": "mr", "text": "कृपया गावाच्या उत्तरेकडे एक डॉक्टर पाठवा.", "wav": "/mnt/d/iTantra-tts-mr-indic/local-recordings/mr-indic/05.wav", "generation_seconds": 1.375, "audio_seconds": 4.262, "sample_rate": 22050}
+ > Text splitted to sentences.
+['तीन मुले मंदिरात अडकली आहेत.', 'मदत करा.']
+ > Processing time: 1.3557627201080322
+ > Real-time factor: 0.28824598868387563
+{"number": 6, "language_code": "mr", "text": "तीन मुले मंदिरात अडकली आहेत. मदत करा.", "wav": "/mnt/d/iTantra-tts-mr-indic/local-recordings/mr-indic/06.wav", "generation_seconds": 1.356, "audio_seconds": 4.703, "sample_rate": 22050}
+ > Text splitted to sentences.
+['आज संध्याकाळी आपण घरी भेटू.']
+ > Processing time: 1.1434550285339355
+ > Real-time factor: 0.30391976107971647
+{"number": 7, "language_code": "mr", "text": "आज संध्याकाळी आपण घरी भेटू.", "wav": "/mnt/d/iTantra-tts-mr-indic/local-recordings/mr-indic/07.wav", "generation_seconds": 1.144, "audio_seconds": 3.762, "sample_rate": 22050}
+ > Text splitted to sentences.
+['माझा भाऊ सकाळी दुकानात जाईल.']
+ > Processing time: 1.0261340141296387
+ > Real-time factor: 0.3005613046168774
+{"number": 8, "language_code": "mr", "text": "माझा भाऊ सकाळी दुकानात जाईल.", "wav": "/mnt/d/iTantra-tts-mr-indic/local-recordings/mr-indic/08.wav", "generation_seconds": 1.027, "audio_seconds": 3.414, "sample_rate": 22050}
+ > Text splitted to sentences.
+['औषधांसाठी १२ पेट्या घेऊन या.']
+ > Processing time: 1.2063379287719727
+ > Real-time factor: 0.3129088006943111
+{"number": 9, "language_code": "mr", "text": "औषधांसाठी १२ पेट्या घेऊन या.", "wav": "/mnt/d/iTantra-tts-mr-indic/local-recordings/mr-indic/09.wav", "generation_seconds": 1.207, "audio_seconds": 3.855, "sample_rate": 22050}
+ > Text splitted to sentences.
+['पुण्यातील शिवाजी रस्त्यावर मला भेटा.']
+ > Processing time: 1.304893970489502
+ > Real-time factor: 0.3174416598554007
+{"number": 10, "language_code": "mr", "text": "पुण्यातील शिवाजी रस्त्यावर मला भेटा.", "wav": "/mnt/d/iTantra-tts-mr-indic/local-recordings/mr-indic/10.wav", "generation_seconds": 1.305, "audio_seconds": 4.111, "sample_rate": 22050}

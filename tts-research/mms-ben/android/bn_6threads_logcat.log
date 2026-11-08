@@ -1,0 +1,73 @@
+--------- beginning of main
+09-26 22:20:02.680  9600  9622 D ITANTRA_TTS: debug speak lang=bn codepoints=44
+09-26 22:20:02.680  9600  9622 D ITANTRA_TTS: speak lang=bn textLen=44
+09-26 22:20:02.726  9600  9622 D ITANTRA_TTS: initialising 'bn' model=/data/user/0/com.chmod777.itantra/files/vits-mms-ben/model.onnx
+09-26 22:20:07.292  9600  9622 D ITANTRA_TTS: initialised 'bn' sampleRate=16000
+09-26 22:20:07.293  9600  9622 D ITANTRA_TTS: synthesis start lang=bn
+09-26 22:20:16.176  9600  9622 D ITANTRA_TTS: synthesis done lang=bn samples=49534 rate=16000 deltaMs=8883
+09-26 22:20:16.206  9600  9622 D ITANTRA_TTS: playback start samples=49534 rate=16000
+09-26 22:20:19.396  9600  9622 D ITANTRA_TTS: playback end
+09-26 22:20:19.401  9600  9622 D ITANTRA_TTS: debug speak returned lang=bn
+09-26 22:20:19.810  9600  9622 D ITANTRA_TTS: debug speak lang=bn codepoints=37
+09-26 22:20:19.810  9600  9622 D ITANTRA_TTS: speak lang=bn textLen=37
+09-26 22:20:19.810  9600  9622 D ITANTRA_TTS: synthesis start lang=bn
+09-26 22:20:29.264  9600  9622 D ITANTRA_TTS: synthesis done lang=bn samples=47971 rate=16000 deltaMs=9454
+09-26 22:20:29.284  9600  9622 D ITANTRA_TTS: playback start samples=47971 rate=16000
+09-26 22:20:32.373  9600  9622 D ITANTRA_TTS: playback end
+09-26 22:20:32.385  9600  9622 D ITANTRA_TTS: debug speak returned lang=bn
+09-26 22:20:32.768  9600  9622 D ITANTRA_TTS: debug speak lang=bn codepoints=28
+09-26 22:20:32.769  9600  9622 D ITANTRA_TTS: speak lang=bn textLen=28
+09-26 22:20:32.769  9600  9622 D ITANTRA_TTS: synthesis start lang=bn
+09-26 22:20:38.176  9600  9622 D ITANTRA_TTS: synthesis done lang=bn samples=29695 rate=16000 deltaMs=5407
+09-26 22:20:38.205  9600  9622 D ITANTRA_TTS: playback start samples=29695 rate=16000
+09-26 22:20:40.128  9600  9622 D ITANTRA_TTS: playback end
+09-26 22:20:40.141  9600  9622 D ITANTRA_TTS: debug speak returned lang=bn
+09-26 22:20:40.521  9600  9622 D ITANTRA_TTS: debug speak lang=bn codepoints=43
+09-26 22:20:40.521  9600  9622 D ITANTRA_TTS: speak lang=bn textLen=43
+09-26 22:20:40.521  9600  9622 D ITANTRA_TTS: synthesis start lang=bn
+09-26 22:20:49.776  9600  9622 D ITANTRA_TTS: synthesis done lang=bn samples=51613 rate=16000 deltaMs=9255
+09-26 22:20:49.798  9600  9622 D ITANTRA_TTS: playback start samples=51613 rate=16000
+09-26 22:20:53.102  9600  9622 D ITANTRA_TTS: playback end
+09-26 22:20:53.112  9600  9622 D ITANTRA_TTS: debug speak returned lang=bn
+09-26 22:20:53.531  9600  9622 D ITANTRA_TTS: debug speak lang=bn codepoints=51
+09-26 22:20:53.531  9600  9622 D ITANTRA_TTS: speak lang=bn textLen=51
+09-26 22:20:53.531  9600  9622 D ITANTRA_TTS: synthesis start lang=bn
+09-26 22:21:03.209  9600  9622 D ITANTRA_TTS: synthesis done lang=bn samples=58667 rate=16000 deltaMs=9678
+09-26 22:21:03.228  9600  9622 D ITANTRA_TTS: playback start samples=58667 rate=16000
+09-26 22:21:06.970  9600  9622 D ITANTRA_TTS: playback end
+09-26 22:21:06.981  9600  9622 D ITANTRA_TTS: debug speak returned lang=bn
+09-26 22:21:07.358  9600  9622 D ITANTRA_TTS: debug speak lang=bn codepoints=45
+09-26 22:21:07.358  9600  9622 D ITANTRA_TTS: speak lang=bn textLen=45
+09-26 22:21:07.358  9600  9622 D ITANTRA_TTS: synthesis start lang=bn
+09-26 22:21:17.756  9600  9622 D ITANTRA_TTS: synthesis done lang=bn samples=59538 rate=16000 deltaMs=10398
+09-26 22:21:17.776  9600  9622 D ITANTRA_TTS: playback start samples=59538 rate=16000
+09-26 22:21:21.586  9600  9622 D ITANTRA_TTS: playback end
+09-26 22:21:21.593  9600  9622 D ITANTRA_TTS: debug speak returned lang=bn
+09-26 22:21:21.992  9600  9622 D ITANTRA_TTS: debug speak lang=bn codepoints=32
+09-26 22:21:21.992  9600  9622 D ITANTRA_TTS: speak lang=bn textLen=32
+09-26 22:21:21.992  9600  9622 D ITANTRA_TTS: synthesis start lang=bn
+09-26 22:21:29.432  9600  9622 D ITANTRA_TTS: synthesis done lang=bn samples=35506 rate=16000 deltaMs=7440
+09-26 22:21:29.450  9600  9622 D ITANTRA_TTS: playback start samples=35506 rate=16000
+09-26 22:21:31.765  9600  9622 D ITANTRA_TTS: playback end
+09-26 22:21:31.776  9600  9622 D ITANTRA_TTS: debug speak returned lang=bn
+09-26 22:21:32.119  9600  9622 D ITANTRA_TTS: debug speak lang=bn codepoints=27
+09-26 22:21:32.119  9600  9622 D ITANTRA_TTS: speak lang=bn textLen=27
+09-26 22:21:32.119  9600  9622 D ITANTRA_TTS: synthesis start lang=bn
+09-26 22:21:38.803  9600  9622 D ITANTRA_TTS: synthesis done lang=bn samples=33567 rate=16000 deltaMs=6684
+09-26 22:21:38.821  9600  9622 D ITANTRA_TTS: playback start samples=33567 rate=16000
+09-26 22:21:41.012  9600  9622 D ITANTRA_TTS: playback end
+09-26 22:21:41.025  9600  9622 D ITANTRA_TTS: debug speak returned lang=bn
+09-26 22:21:41.408  9600  9622 D ITANTRA_TTS: debug speak lang=bn codepoints=34
+09-26 22:21:41.408  9600  9622 D ITANTRA_TTS: speak lang=bn textLen=34
+09-26 22:21:41.408  9600  9622 D ITANTRA_TTS: synthesis start lang=bn
+09-26 22:21:48.469  9600  9622 D ITANTRA_TTS: synthesis done lang=bn samples=38731 rate=16000 deltaMs=7060
+09-26 22:21:48.486  9600  9622 D ITANTRA_TTS: playback start samples=38731 rate=16000
+09-26 22:21:50.987  9600  9622 D ITANTRA_TTS: playback end
+09-26 22:21:50.997  9600  9622 D ITANTRA_TTS: debug speak returned lang=bn
+09-26 22:21:51.372  9600  9622 D ITANTRA_TTS: debug speak lang=bn codepoints=44
+09-26 22:21:51.373  9600  9622 D ITANTRA_TTS: speak lang=bn textLen=44
+09-26 22:21:51.373  9600  9622 D ITANTRA_TTS: synthesis start lang=bn
+09-26 22:22:00.239  9600  9622 D ITANTRA_TTS: synthesis done lang=bn samples=51482 rate=16000 deltaMs=8866
+09-26 22:22:00.262  9600  9622 D ITANTRA_TTS: playback start samples=51482 rate=16000
+09-26 22:22:03.564  9600  9622 D ITANTRA_TTS: playback end
+09-26 22:22:03.574  9600  9622 D ITANTRA_TTS: debug speak returned lang=bn

@@ -1,0 +1,98 @@
+[
+  {
+    "language": "en",
+    "clips": 50,
+    "word_count": 1076,
+    "word_errors": 155,
+    "wer": 0.14405204460966542,
+    "character_count": 6210,
+    "character_errors": 435,
+    "cer": 0.07004830917874397,
+    "wrong_script_outputs": 0,
+    "results_csv": "docs/sih-metrics/raw/task5-wer/en-results.csv"
+  },
+  {
+    "language": "hi",
+    "clips": 50,
+    "word_count": 1264,
+    "word_errors": 479,
+    "wer": 0.37895569620253167,
+    "character_count": 6375,
+    "character_errors": 1317,
+    "cer": 0.20658823529411766,
+    "wrong_script_outputs": 0,
+    "results_csv": "docs/sih-metrics/raw/task5-wer/hi-results.csv"
+  },
+  {
+    "language": "gu",
+    "clips": 50,
+    "word_count": 1113,
+    "word_errors": 872,
+    "wer": 0.7834681042228212,
+    "character_count": 6446,
+    "character_errors": 3626,
+    "cer": 0.5625193918709277,
+    "wrong_script_outputs": 11,
+    "results_csv": "docs/sih-metrics/raw/task5-wer/gu-results.csv"
+  },
+  {
+    "language": "mr",
+    "clips": 50,
+    "word_count": 1045,
+    "word_errors": 739,
+    "wer": 0.707177033492823,
+    "character_count": 7243,
+    "character_errors": 1716,
+    "cer": 0.23691840397625294,
+    "wrong_script_outputs": 0,
+    "results_csv": "docs/sih-metrics/raw/task5-wer/mr-results.csv"
+  },
+  {
+    "language": "ta",
+    "clips": 50,
+    "word_count": 836,
+    "word_errors": 609,
+    "wer": 0.7284688995215312,
+    "character_count": 7350,
+    "character_errors": 2000,
+    "cer": 0.272108843537415,
+    "wrong_script_outputs": 0,
+    "results_csv": "docs/sih-metrics/raw/task5-wer/ta-results.csv"
+  },
+  {
+    "language": "te",
+    "clips": 50,
+    "word_count": 856,
+    "word_errors": 602,
+    "wer": 0.7032710280373832,
+    "character_count": 6498,
+    "character_errors": 1793,
+    "cer": 0.27593105570944904,
+    "wrong_script_outputs": 0,
+    "results_csv": "docs/sih-metrics/raw/task5-wer/te-results.csv"
+  },
+  {
+    "language": "or",
+    "clips": 50,
+    "word_count": 965,
+    "word_errors": 655,
+    "wer": 0.6787564766839378,
+    "character_count": 6391,
+    "character_errors": 1683,
+    "cer": 0.2633390705679862,
+    "wrong_script_outputs": 2,
+    "results_csv": "docs/sih-metrics/raw/task5-wer/or-results.csv"
+  },
+  {
+    "language": "bn",
+    "clips": 50,
+    "word_count": 984,
+    "word_errors": 402,
+    "wer": 0.40853658536585363,
+    "character_count": 6337,
+    "character_errors": 879,
+    "cer": 0.13870916837620326,
+    "wrong_script_outputs": 0,
+    "results_csv": "docs/sih-metrics/raw/task5-wer/bn-results.csv"
+  }
+]

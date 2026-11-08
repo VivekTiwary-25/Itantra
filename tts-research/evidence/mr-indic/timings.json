@@ -1,0 +1,96 @@
+{
+  "model_dir": "/mnt/d/iTantra-tts-models/mr",
+  "load_seconds": 10.865,
+  "records": [
+    {
+      "number": 1,
+      "language_code": "mr",
+      "text": "नदीचे पाणी वेगाने वाढत आहे. सुरक्षित ठिकाणी जा.",
+      "wav": "/mnt/d/iTantra-tts-mr-indic/local-recordings/mr-indic/01.wav",
+      "generation_seconds": 1.742,
+      "audio_seconds": 5.447,
+      "sample_rate": 22050
+    },
+    {
+      "number": 2,
+      "language_code": "mr",
+      "text": "शाळेजवळ आग लागली आहे. तिथून दूर राहा.",
+      "wav": "/mnt/d/iTantra-tts-mr-indic/local-recordings/mr-indic/02.wav",
+      "generation_seconds": 1.472,
+      "audio_seconds": 5.18,
+      "sample_rate": 22050
+    },
+    {
+      "number": 3,
+      "language_code": "mr",
+      "text": "बाजारानंतर डावीकडे वळा.",
+      "wav": "/mnt/d/iTantra-tts-mr-indic/local-recordings/mr-indic/03.wav",
+      "generation_seconds": 0.989,
+      "audio_seconds": 3.275,
+      "sample_rate": 22050
+    },
+    {
+      "number": 4,
+      "language_code": "mr",
+      "text": "जुना पूल ओलांडून रुग्णालयासमोर थांबा.",
+      "wav": "/mnt/d/iTantra-tts-mr-indic/local-recordings/mr-indic/04.wav",
+      "generation_seconds": 1.431,
+      "audio_seconds": 4.529,
+      "sample_rate": 22050
+    },
+    {
+      "number": 5,
+      "language_code": "mr",
+      "text": "कृपया गावाच्या उत्तरेकडे एक डॉक्टर पाठवा.",
+      "wav": "/mnt/d/iTantra-tts-mr-indic/local-recordings/mr-indic/05.wav",
+      "generation_seconds": 1.375,
+      "audio_seconds": 4.262,
+      "sample_rate": 22050
+    },
+    {
+      "number": 6,
+      "language_code": "mr",
+      "text": "तीन मुले मंदिरात अडकली आहेत. मदत करा.",
+      "wav": "/mnt/d/iTantra-tts-mr-indic/local-recordings/mr-indic/06.wav",
+      "generation_seconds": 1.356,
+      "audio_seconds": 4.703,
+      "sample_rate": 22050
+    },
+    {
+      "number": 7,
+      "language_code": "mr",
+      "text": "आज संध्याकाळी आपण घरी भेटू.",
+      "wav": "/mnt/d/iTantra-tts-mr-indic/local-recordings/mr-indic/07.wav",
+      "generation_seconds": 1.144,
+      "audio_seconds": 3.762,
+      "sample_rate": 22050
+    },
+    {
+      "number": 8,
+      "language_code": "mr",
+      "text": "माझा भाऊ सकाळी दुकानात जाईल.",
+      "wav": "/mnt/d/iTantra-tts-mr-indic/local-recordings/mr-indic/08.wav",
+      "generation_seconds": 1.027,
+      "audio_seconds": 3.414,
+      "sample_rate": 22050
+    },
+    {
+      "number": 9,
+      "language_code": "mr",
+      "text": "औषधांसाठी १२ पेट्या घेऊन या.",
+      "wav": "/mnt/d/iTantra-tts-mr-indic/local-recordings/mr-indic/09.wav",
+      "generation_seconds": 1.207,
+      "audio_seconds": 3.855,
+      "sample_rate": 22050
+    },
+    {
+      "number": 10,
+      "language_code": "mr",
+      "text": "पुण्यातील शिवाजी रस्त्यावर मला भेटा.",
+      "wav": "/mnt/d/iTantra-tts-mr-indic/local-recordings/mr-indic/10.wav",
+      "generation_seconds": 1.305,
+      "audio_seconds": 4.111,
+      "sample_rate": 22050
+    }
+  ]
+}

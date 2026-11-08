@@ -1,0 +1,23 @@
+{
+  "model": "IndicConformer-600M multilingual-adapters (shared INT8-B encoder + per-language wrapper)",
+  "model_dir": "D:\\projects\\SIH\\iTantra\\.indicconformer-600m\\multilingual-adapters",
+  "sherpa_onnx": "1.13.7",
+  "jiwer": "?",
+  "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "settings": "sherpa-onnx from_nemo_ctc, CPU, 2 threads, greedy_search, feature_dim=80",
+  "dataset": "google/fleurs test, first 50 rows per language config (same as Task 5)",
+  "normalization": "lowercase, strip Unicode punctuation, NFC, collapse whitespace (measure_wer.normalize)",
+  "languages": [
+    "hi",
+    "gu",
+    "mr",
+    "ta",
+    "te",
+    "or",
+    "bn",
+    "kn",
+    "ml"
+  ],
+  "note": "decode_seconds are desktop timings taken while another process used the CPU; not a result"
+}

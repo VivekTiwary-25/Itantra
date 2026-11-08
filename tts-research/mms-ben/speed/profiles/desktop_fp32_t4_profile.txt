@@ -1,0 +1,32 @@
+len 85 audio 3.98s time 0.78s rtf 0.20
+len 71 audio 4.22s time 1.27s rtf 0.30
+len 55 audio 2.48s time 1.49s rtf 0.60
+len 85 audio 3.86s time 2.23s rtf 0.58
+len 101 audio 4.50s time 2.84s rtf 0.63
+len 87 audio 4.86s time 2.78s rtf 0.57
+len 63 audio 3.12s time 1.82s rtf 0.58
+len 53 audio 3.07s time 1.99s rtf 0.65
+len 63 audio 2.99s time 1.94s rtf 0.65
+len 87 audio 4.13s time 2.45s rtf 0.59
+total rtf 0.53
+Conv                41.9%
+FusedConv           39.8%
+ConvTranspose        9.4%
+Add                  2.7%
+LeakyRelu            2.0%
+Mul                  0.4%
+Slice                0.4%
+Unsqueeze            0.3%
+Transpose            0.3%
+Concat               0.3%
+Gather               0.2%
+Reshape              0.2%
+decoder (dec/) share 92.0%
+    3.1% /dec/ups.1/ConvTranspose
+    3.0% /dec/resblocks.5/convs2.0/Conv
+    2.9% /dec/resblocks.5/convs1.0/Conv
+    2.9% /dec/resblocks.5/convs1.1/Conv
+    2.7% /dec/resblocks.5/convs2.2/Conv
+    2.7% /dec/resblocks.5/convs1.2/Conv
+    2.6% /dec/ups.2/ConvTranspose
+    2.6% /dec/resblocks.5/convs2.1/Conv

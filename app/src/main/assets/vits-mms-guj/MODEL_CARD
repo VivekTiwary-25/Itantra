@@ -1,0 +1,16 @@
+# Model card for mms-tts-guj (Gujarati)
+
+* Source: https://huggingface.co/facebook/mms-tts (models/guj), Meta Massively Multilingual Speech (MMS)
+* License: CC BY-NC 4.0 (non-commercial) - https://creativecommons.org/licenses/by-nc/4.0/
+* Attribution: Meta MMS-TTS (facebook/mms-tts, guj), converted to ONNX for sherpa-onnx (character frontend, no espeak).
+* Language: guj (Gujarati), 1 speaker, sample rate 16,000 Hz
+* Converted with sherpa-onnx's documented vits-mms.py; the HiFi-GAN decoder was then converted to fp16
+  (tts-research/mms-guj/mms_decoder_fp16.py, reusing tts-research/mms-ben/speed/mms_decoder_fp16.py verbatim;
+  encoder, duration predictor and flow stay fp32). Length parity against fp32 verified on 10 deterministic
+  sentences (noise_scale=0, noise_scale_w=0): 10/10 identical sample counts, SNR 66.4-69.7 dB. Quality UNVERIFIED
+  by a native listener.
+* Text normalisation in the app (GujaratiTextNormalizer): digits (Gujarati ૦-૯ or ASCII 0-9; neither is in the
+  60-token vocabulary) -> Gujarati number words (AI4Bharat indic-numtowords 1.1.0 data, MIT), Unicode NFC.
+  No punctuation is in the vocabulary either (not just danda); sentence-final "." is dropped, same as Bengali's
+  danda. Candra vowel signs (ૉ/ૅ) are also absent from the vocabulary; not observed in any tested sentence
+  after using the more common non-candra spelling, so no normalisation was added for it.

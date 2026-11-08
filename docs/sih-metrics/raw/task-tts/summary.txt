@@ -1,0 +1,6 @@
+gu warm_runs=5 total_runs=6 medianRTF=0.685 rtf_range=0.663-0.708 median_text_to_audible_ms=1153 range=1113-1188 median_audio_s=1.62 rate=16000 | cold_first: 3307 ms
+mr warm_runs=5 total_runs=6 medianRTF=0.859 rtf_range=0.779-0.928 median_text_to_audible_ms=1652 range=1579-1858 median_audio_s=1.98 rate=16000 | cold_first: 3992 ms
+ta warm_runs=5 total_runs=6 medianRTF=0.925 rtf_range=0.910-0.947 median_text_to_audible_ms=1366 range=1336-1432 median_audio_s=1.47 rate=16000 | cold_first: 3641 ms
+te warm_runs=5 total_runs=6 medianRTF=0.919 rtf_range=0.857-0.969 median_text_to_audible_ms=1657 range=1492-1744 median_audio_s=1.75 rate=16000 | cold_first: 3755 ms
+or warm_runs=5 total_runs=6 medianRTF=0.974 rtf_range=0.833-1.065 median_text_to_audible_ms=1343 range=1142-1584 median_audio_s=1.38 rate=16000 | cold_first: 3712 ms
+kn warm_runs=5 total_runs=6 medianRTF=0.884 rtf_range=0.859-1.154 median_text_to_audible_ms=2029 range=1924-2679 median_audio_s=2.28 rate=16000 | cold_first: n/a (model already loaded)

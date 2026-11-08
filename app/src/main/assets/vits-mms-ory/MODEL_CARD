@@ -1,0 +1,16 @@
+# Model card for mms-tts-ory (Odia)
+
+* Source: https://huggingface.co/facebook/mms-tts (repo sha 44cc7fb408064ef9ea6e7c59130d88cac1274671), models/ory/,
+  Meta Massively Multilingual Speech (MMS).
+* License: CC BY-NC 4.0 (non-commercial) - https://creativecommons.org/licenses/by-nc/4.0/
+* Attribution: Meta MMS-TTS (facebook/mms-tts, ory), converted to ONNX for sherpa-onnx (character frontend, no espeak).
+* Language: ory (Odia), 1 speaker, sample rate 16,000 Hz. Config is byte-identical to the ben checkpoint's
+  config.json (same VITS/HiFi-GAN-V1 architecture; only the vocabulary and weights differ).
+* Converted with sherpa-onnx's documented vits-mms.py; the HiFi-GAN decoder was then converted to fp16
+  (tts-research/mms-ory/mms_decoder_fp16.py, copied verbatim from tts-research/mms-ben/speed/mms_decoder_fp16.py;
+  encoder, duration predictor and flow stay fp32). Length-parity-checked against the fp32 export on 10 deterministic
+  sentences (noise_scale=0, noise_scale_w=0, silence_scale=1): 10/10 identical sample counts, RMS differing by
+  <0.0001 on 9/10 and 0.0582 vs 0.0581 rounding on the 10th. Quality UNVERIFIED by a listener.
+* Text normalisation in the app (OdiaTextNormalizer): digits -> Odia number words (AI4Bharat indic-numtowords 1.1.0
+  `ori` data, MIT), Unicode NFC (decomposes precomposed ଡ଼/ଢ଼ into base+nukta, which the vocabulary has). The danda
+  (।, U+0964) is not in the vocabulary and is dropped, same as the Bengali voice.

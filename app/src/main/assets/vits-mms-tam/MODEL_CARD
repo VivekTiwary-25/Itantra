@@ -1,0 +1,14 @@
+# Model card for mms-tts-tam (Tamil)
+
+* Source: https://huggingface.co/facebook/mms-tts (models/tam), Meta Massively Multilingual Speech (MMS)
+* License: CC BY-NC 4.0 (non-commercial) - https://creativecommons.org/licenses/by-nc/4.0/
+* Attribution: Meta MMS-TTS (facebook/mms-tts, tam), converted to ONNX for sherpa-onnx (character frontend, no espeak).
+* Language: tam (Tamil), 1 speaker, sample rate 16,000 Hz
+* Converted with sherpa-onnx's documented vits-mms.py (same script and hyperparameters as the Bengali voice,
+  tts-research/mms-ben/MMS_BN_CONVERSION.md); the HiFi-GAN decoder was then converted to fp16 with the same
+  tool used for Bengali (tts-research/mms-ben/speed/mms_decoder_fp16.py; encoder, duration predictor and flow
+  stay fp32). Quality UNVERIFIED (no native Tamil listener).
+* Text normalisation in the app (TamilTextNormalizer): digits (Tamil ௦-௯ or ASCII 0-9) -> Tamil number words
+  (AI4Bharat indic-numtowords 1.1.0 data, MIT), Unicode NFC (folds decomposed ொ/ோ/ௌ vowel-sign sequences to
+  the precomposed codepoints the vocabulary actually uses). The full stop and the aytham (ஃ, U+0B83) are not
+  in the vocabulary and are silently dropped; see tts-research/mms-tam/MMS_TAM_CONVERSION.md.

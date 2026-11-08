@@ -1,0 +1,333 @@
+{
+  "model": "D:\\iTantra-tts-models\\mms-tel\\model.onnx",
+  "sherpa_onnx": "1.13.7",
+  "load_seconds": 1.143,
+  "records": [
+    {
+      "number": 1,
+      "repeat": 1,
+      "language_code": "te",
+      "text": "నది నీరు వేగంగా పెరుగుతోంది. సురక్షిత ప్రదేశానికి వెళ్లండి.",
+      "codepoints": 59,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "01.wav",
+      "generation_seconds": 4.036,
+      "audio_seconds": 4.903,
+      "rtf": 0.823,
+      "sample_rate": 16000,
+      "samples": 78450
+    },
+    {
+      "number": 2,
+      "repeat": 1,
+      "language_code": "te",
+      "text": "పాఠశాల దగ్గర మంటలు చెలరేగాయి. దూరంగా ఉండండి.",
+      "codepoints": 44,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "02.wav",
+      "generation_seconds": 10.061,
+      "audio_seconds": 4.476,
+      "rtf": 2.248,
+      "sample_rate": 16000,
+      "samples": 71621
+    },
+    {
+      "number": 3,
+      "repeat": 1,
+      "language_code": "te",
+      "text": "మార్కెట్ తర్వాత ఎడమవైపు తిరగండి.",
+      "codepoints": 32,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "03.wav",
+      "generation_seconds": 10.677,
+      "audio_seconds": 3.745,
+      "rtf": 2.851,
+      "sample_rate": 16000,
+      "samples": 59925
+    },
+    {
+      "number": 4,
+      "repeat": 1,
+      "language_code": "te",
+      "text": "పాత వంతెన దాటి ఆసుపత్రి ముందు ఆగండి.",
+      "codepoints": 36,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "04.wav",
+      "generation_seconds": 11.642,
+      "audio_seconds": 3.404,
+      "rtf": 3.42,
+      "sample_rate": 16000,
+      "samples": 54459
+    },
+    {
+      "number": 5,
+      "repeat": 1,
+      "language_code": "te",
+      "text": "దయచేసి గ్రామం ఉత్తర భాగానికి ఒక వైద్యుడిని పంపండి.",
+      "codepoints": 50,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "05.wav",
+      "generation_seconds": 20.838,
+      "audio_seconds": 4.775,
+      "rtf": 4.364,
+      "sample_rate": 16000,
+      "samples": 76407
+    },
+    {
+      "number": 6,
+      "repeat": 1,
+      "language_code": "te",
+      "text": "ముగ్గురు పిల్లలు దేవాలయంలో చిక్కుకున్నారు. సహాయం చేయండి.",
+      "codepoints": 56,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "06.wav",
+      "generation_seconds": 22.687,
+      "audio_seconds": 5.617,
+      "rtf": 4.039,
+      "sample_rate": 16000,
+      "samples": 89864
+    },
+    {
+      "number": 7,
+      "repeat": 1,
+      "language_code": "te",
+      "text": "ఈ సాయంత్రం మనం ఇంట్లో కలుద్దాం.",
+      "codepoints": 31,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "07.wav",
+      "generation_seconds": 10.845,
+      "audio_seconds": 2.952,
+      "rtf": 3.674,
+      "sample_rate": 16000,
+      "samples": 47235
+    },
+    {
+      "number": 8,
+      "repeat": 1,
+      "language_code": "te",
+      "text": "నా సోదరుడు ఉదయం దుకాణానికి వెళ్తాడు.",
+      "codepoints": 36,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "08.wav",
+      "generation_seconds": 20.729,
+      "audio_seconds": 3.365,
+      "rtf": 6.161,
+      "sample_rate": 16000,
+      "samples": 53832
+    },
+    {
+      "number": 9,
+      "repeat": 1,
+      "language_code": "te",
+      "text": "మందుల కోసం ౧౨ పెట్టెలు తీసుకురండి.",
+      "codepoints": 34,
+      "oov_codepoints": [
+        "U+002E",
+        "U+0C67",
+        "U+0C68"
+      ],
+      "wav": "09.wav",
+      "generation_seconds": 17.656,
+      "audio_seconds": 2.807,
+      "rtf": 6.291,
+      "sample_rate": 16000,
+      "samples": 44904
+    },
+    {
+      "number": 10,
+      "repeat": 1,
+      "language_code": "te",
+      "text": "హైదరాబాద్‌లోని గాంధీ రోడ్డులో నన్ను కలవండి.",
+      "codepoints": 43,
+      "oov_codepoints": [
+        "U+002E",
+        "U+200C"
+      ],
+      "wav": "10.wav",
+      "generation_seconds": 7.533,
+      "audio_seconds": 3.971,
+      "rtf": 1.897,
+      "sample_rate": 16000,
+      "samples": 63536
+    },
+    {
+      "number": 1,
+      "repeat": 2,
+      "language_code": "te",
+      "text": "నది నీరు వేగంగా పెరుగుతోంది. సురక్షిత ప్రదేశానికి వెళ్లండి.",
+      "codepoints": 59,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "01_r2.wav",
+      "generation_seconds": 4.229,
+      "audio_seconds": 5.116,
+      "rtf": 0.827,
+      "sample_rate": 16000,
+      "samples": 81853
+    },
+    {
+      "number": 2,
+      "repeat": 2,
+      "language_code": "te",
+      "text": "పాఠశాల దగ్గర మంటలు చెలరేగాయి. దూరంగా ఉండండి.",
+      "codepoints": 44,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "02_r2.wav",
+      "generation_seconds": 6.88,
+      "audio_seconds": 4.623,
+      "rtf": 1.488,
+      "sample_rate": 16000,
+      "samples": 73972
+    },
+    {
+      "number": 3,
+      "repeat": 2,
+      "language_code": "te",
+      "text": "మార్కెట్ తర్వాత ఎడమవైపు తిరగండి.",
+      "codepoints": 32,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "03_r2.wav",
+      "generation_seconds": 10.864,
+      "audio_seconds": 3.508,
+      "rtf": 3.097,
+      "sample_rate": 16000,
+      "samples": 56132
+    },
+    {
+      "number": 4,
+      "repeat": 2,
+      "language_code": "te",
+      "text": "పాత వంతెన దాటి ఆసుపత్రి ముందు ఆగండి.",
+      "codepoints": 36,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "04_r2.wav",
+      "generation_seconds": 11.993,
+      "audio_seconds": 3.614,
+      "rtf": 3.319,
+      "sample_rate": 16000,
+      "samples": 57816
+    },
+    {
+      "number": 5,
+      "repeat": 2,
+      "language_code": "te",
+      "text": "దయచేసి గ్రామం ఉత్తర భాగానికి ఒక వైద్యుడిని పంపండి.",
+      "codepoints": 50,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "05_r2.wav",
+      "generation_seconds": 15.995,
+      "audio_seconds": 4.537,
+      "rtf": 3.526,
+      "sample_rate": 16000,
+      "samples": 72584
+    },
+    {
+      "number": 6,
+      "repeat": 2,
+      "language_code": "te",
+      "text": "ముగ్గురు పిల్లలు దేవాలయంలో చిక్కుకున్నారు. సహాయం చేయండి.",
+      "codepoints": 56,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "06_r2.wav",
+      "generation_seconds": 23.014,
+      "audio_seconds": 5.274,
+      "rtf": 4.363,
+      "sample_rate": 16000,
+      "samples": 84392
+    },
+    {
+      "number": 7,
+      "repeat": 2,
+      "language_code": "te",
+      "text": "ఈ సాయంత్రం మనం ఇంట్లో కలుద్దాం.",
+      "codepoints": 31,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "07_r2.wav",
+      "generation_seconds": 12.072,
+      "audio_seconds": 2.894,
+      "rtf": 4.172,
+      "sample_rate": 16000,
+      "samples": 46300
+    },
+    {
+      "number": 8,
+      "repeat": 2,
+      "language_code": "te",
+      "text": "నా సోదరుడు ఉదయం దుకాణానికి వెళ్తాడు.",
+      "codepoints": 36,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "08_r2.wav",
+      "generation_seconds": 10.476,
+      "audio_seconds": 3.312,
+      "rtf": 3.163,
+      "sample_rate": 16000,
+      "samples": 52993
+    },
+    {
+      "number": 9,
+      "repeat": 2,
+      "language_code": "te",
+      "text": "మందుల కోసం ౧౨ పెట్టెలు తీసుకురండి.",
+      "codepoints": 34,
+      "oov_codepoints": [
+        "U+002E",
+        "U+0C67",
+        "U+0C68"
+      ],
+      "wav": "09_r2.wav",
+      "generation_seconds": 8.304,
+      "audio_seconds": 2.78,
+      "rtf": 2.987,
+      "sample_rate": 16000,
+      "samples": 44488
+    },
+    {
+      "number": 10,
+      "repeat": 2,
+      "language_code": "te",
+      "text": "హైదరాబాద్‌లోని గాంధీ రోడ్డులో నన్ను కలవండి.",
+      "codepoints": 43,
+      "oov_codepoints": [
+        "U+002E",
+        "U+200C"
+      ],
+      "wav": "10_r2.wav",
+      "generation_seconds": 11.995,
+      "audio_seconds": 3.761,
+      "rtf": 3.189,
+      "sample_rate": 16000,
+      "samples": 60177
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+# Odia Indic-TTS frontend repair log — 2026-09-26
+
+- Worktree `D:\iTantra-tts-or-indic`, branch `tts/or/indic-tts`, unchanged `BASE_SHA` `0e63c4581f4a1fa465ed64e17ef5ff4067e16edc`.
+- RUN 1 message 1 lost U+0B3C nukta from `ଢ଼`; message 9 lost native digits U+0B67/U+0B68. The checkpoint vocabulary contains Unicode-equivalent precomposed `ଢ଼` and `ଡ଼`, so the strict frontend maps only those canonical pairs. AI4Bharat `indic-numtowords` 1.1.0 (MIT) supplies `ବାର` for 12. Other nukta contexts produce a detectable error. Full-line IDs are in `local-recordings/or-indic/repair-20260926/frontend_trace.json`; exact per-sentence acoustic IDs are in `acoustic_segments.json` beside it.
+- Five real-vocabulary regression tests passed. The unchanged ten-line input SHA-256 is `268793dce1b0805399863bff4e9ef7b7e7b64f527069525593365a2bfd40b81a`. Ten new non-silent WAVs are `local-recordings/or-indic/repair-20260926/01.wav`–`10.wav`. Generation total 13.559 s; audio total 40.191 s. All original RUN 1 WAV hashes still match.
+- **QUALITY UNVERIFIED — listener needed. PENDING PHONE.** Native speaker must approve draft text and a blind listener must check the nukta letter in #1, spoken number in #9, and all intended meanings. Checkpoint license terms remain UNKNOWN and variable-length acoustic ONNX/Android inference remains unproved.
+- Aggregate report and per-message CSV: `D:\iTantra-tts-ta-indic\FRONTEND_REPAIR_REPORT.md` and `FRONTEND_REPAIR_RESULTS.csv`. The occupied UI/UX worktree containing original Track B logs was not edited.

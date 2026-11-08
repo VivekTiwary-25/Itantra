@@ -1,0 +1,16 @@
+﻿15:07:47 
+15:07:48            TOTAL PSS:    98135            TOTAL RSS:   175636       TOTAL SWAP PSS:      442
+15:07:49            TOTAL PSS:   214875            TOTAL RSS:   299184       TOTAL SWAP PSS:       79
+15:07:50            TOTAL PSS:   215290            TOTAL RSS:   299664       TOTAL SWAP PSS:       79
+15:07:51            TOTAL PSS:   307346            TOTAL RSS:   391724       TOTAL SWAP PSS:       79
+15:07:53            TOTAL PSS:   836035            TOTAL RSS:   920660       TOTAL SWAP PSS:       79
+15:07:54            TOTAL PSS:   834770            TOTAL RSS:   919464       TOTAL SWAP PSS:       79
+15:07:55            TOTAL PSS:   214402            TOTAL RSS:   299096       TOTAL SWAP PSS:       79
+15:07:56            TOTAL PSS:   252810            TOTAL RSS:   337504       TOTAL SWAP PSS:       79
+15:07:58            TOTAL PSS:   795798            TOTAL RSS:   880492       TOTAL SWAP PSS:       79
+15:07:59            TOTAL PSS:   840336            TOTAL RSS:   925060       TOTAL SWAP PSS:       79
+15:08:00            TOTAL PSS:   869960            TOTAL RSS:   954688       TOTAL SWAP PSS:       79
+15:08:01            TOTAL PSS:   867844            TOTAL RSS:   952572       TOTAL SWAP PSS:       79
+15:08:03            TOTAL PSS:   868840            TOTAL RSS:   953568       TOTAL SWAP PSS:       79
+15:08:04            TOTAL PSS:   869592            TOTAL RSS:   954320       TOTAL SWAP PSS:       79
+15:08:05 

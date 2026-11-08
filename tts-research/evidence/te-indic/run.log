@@ -1,0 +1,130 @@
+ > Using model: fast_pitch
+ > Setting up Audio Processor...
+ | > sample_rate:22050
+ | > resample:False
+ | > num_mels:80
+ | > log_func:np.log
+ | > min_level_db:-100
+ | > frame_shift_ms:None
+ | > frame_length_ms:None
+ | > ref_level_db:20
+ | > fft_size:1024
+ | > power:1.5
+ | > preemphasis:0.0
+ | > griffin_lim_iters:60
+ | > signal_norm:False
+ | > symmetric_norm:True
+ | > mel_fmin:0
+ | > mel_fmax:8000.0
+ | > pitch_fmin:0.0
+ | > pitch_fmax:640.0
+ | > spec_gain:1.0
+ | > stft_pad_mode:reflect
+ | > max_norm:4.0
+ | > clip_norm:True
+ | > do_trim_silence:True
+ | > trim_db:60
+ | > do_sound_norm:False
+ | > do_amp_to_db_linear:True
+ | > do_amp_to_db_mel:True
+ | > do_rms_norm:False
+ | > db_level:None
+ | > stats_path:None
+ | > base:2.718281828459045
+ | > hop_length:256
+ | > win_length:1024
+ > Init speaker_embedding layer.
+ > Vocoder Model: hifigan
+ > Setting up Audio Processor...
+ | > sample_rate:22050
+ | > resample:False
+ | > num_mels:80
+ | > log_func:np.log
+ | > min_level_db:-100
+ | > frame_shift_ms:None
+ | > frame_length_ms:None
+ | > ref_level_db:20
+ | > fft_size:1024
+ | > power:1.5
+ | > preemphasis:0.0
+ | > griffin_lim_iters:60
+ | > signal_norm:False
+ | > symmetric_norm:True
+ | > mel_fmin:0
+ | > mel_fmax:8000.0
+ | > pitch_fmin:0.0
+ | > pitch_fmax:640.0
+ | > spec_gain:1.0
+ | > stft_pad_mode:reflect
+ | > max_norm:4.0
+ | > clip_norm:True
+ | > do_trim_silence:True
+ | > trim_db:60
+ | > do_sound_norm:False
+ | > do_amp_to_db_linear:True
+ | > do_amp_to_db_mel:True
+ | > do_rms_norm:False
+ | > db_level:None
+ | > stats_path:None
+ | > base:2.718281828459045
+ | > hop_length:256
+ | > win_length:1024
+ > Generator Model: hifigan_generator
+ > Discriminator Model: hifigan_discriminator
+Removing weight norm...
+ > Text splitted to sentences.
+['నది నీరు వేగంగా పెరుగుతోంది.', 'సురక్షిత ప్రదేశానికి వెళ్లండి.']
+ > Processing time: 1.9287159442901611
+ > Real-time factor: 0.3355228049387627
+{"number": 1, "language_code": "te", "text": "నది నీరు వేగంగా పెరుగుతోంది. సురక్షిత ప్రదేశానికి వెళ్లండి.", "wav": "/mnt/d/iTantra-tts-te-indic/local-recordings/te-indic/01.wav", "generation_seconds": 1.929, "audio_seconds": 5.748, "sample_rate": 22050}
+ > Text splitted to sentences.
+['పాఠశాల దగ్గర మంటలు చెలరేగాయి.', 'దూరంగా ఉండండి.']
+ > Processing time: 1.5904016494750977
+ > Real-time factor: 0.30705691694912707
+{"number": 2, "language_code": "te", "text": "పాఠశాల దగ్గర మంటలు చెలరేగాయి. దూరంగా ఉండండి.", "wav": "/mnt/d/iTantra-tts-te-indic/local-recordings/te-indic/02.wav", "generation_seconds": 1.591, "audio_seconds": 5.18, "sample_rate": 22050}
+ > Text splitted to sentences.
+['మార్కెట్ తర్వాత ఎడమవైపు తిరగండి.']
+ > Processing time: 0.9869034290313721
+ > Real-time factor: 0.3345821127020565
+{"number": 3, "language_code": "te", "text": "మార్కెట్ తర్వాత ఎడమవైపు తిరగండి.", "wav": "/mnt/d/iTantra-tts-te-indic/local-recordings/te-indic/03.wav", "generation_seconds": 0.988, "audio_seconds": 2.95, "sample_rate": 22050}
+ > Text splitted to sentences.
+['పాత వంతెన దాటి ఆసుపత్రి ముందు ఆగండి.']
+ > Processing time: 1.2019743919372559
+ > Real-time factor: 0.3285996744472388
+{"number": 4, "language_code": "te", "text": "పాత వంతెన దాటి ఆసుపత్రి ముందు ఆగండి.", "wav": "/mnt/d/iTantra-tts-te-indic/local-recordings/te-indic/04.wav", "generation_seconds": 1.202, "audio_seconds": 3.658, "sample_rate": 22050}
+ > Text splitted to sentences.
+['దయచేసి గ్రామం ఉత్తర భాగానికి ఒక వైద్యుడిని పంపండి.']
+ > Processing time: 1.7354466915130615
+ > Real-time factor: 0.3500164600821657
+{"number": 5, "language_code": "te", "text": "దయచేసి గ్రామం ఉత్తర భాగానికి ఒక వైద్యుడిని పంపండి.", "wav": "/mnt/d/iTantra-tts-te-indic/local-recordings/te-indic/05.wav", "generation_seconds": 1.736, "audio_seconds": 4.958, "sample_rate": 22050}
+ > Text splitted to sentences.
+['ముగ్గురు పిల్లలు దేవాలయంలో చిక్కుకున్నారు.', 'సహాయం చేయండి.']
+ > Processing time: 1.7507264614105225
+ > Real-time factor: 0.32420315837562164
+{"number": 6, "language_code": "te", "text": "ముగ్గురు పిల్లలు దేవాలయంలో చిక్కుకున్నారు. సహాయం చేయండి.", "wav": "/mnt/d/iTantra-tts-te-indic/local-recordings/te-indic/06.wav", "generation_seconds": 1.751, "audio_seconds": 5.4, "sample_rate": 22050}
+ > Text splitted to sentences.
+['ఈ సాయంత్రం మనం ఇంట్లో కలుద్దాం.']
+ > Processing time: 0.7676544189453125
+ > Real-time factor: 0.2602518440612568
+{"number": 7, "language_code": "te", "text": "ఈ సాయంత్రం మనం ఇంట్లో కలుద్దాం.", "wav": "/mnt/d/iTantra-tts-te-indic/local-recordings/te-indic/07.wav", "generation_seconds": 0.769, "audio_seconds": 2.95, "sample_rate": 22050}
+ > Text splitted to sentences.
+['నా సోదరుడు ఉదయం దుకాణానికి వెళ్తాడు.']
+ > Processing time: 0.9469039440155029
+ > Real-time factor: 0.322289947603449
+{"number": 8, "language_code": "te", "text": "నా సోదరుడు ఉదయం దుకాణానికి వెళ్తాడు.", "wav": "/mnt/d/iTantra-tts-te-indic/local-recordings/te-indic/08.wav", "generation_seconds": 0.947, "audio_seconds": 2.938, "sample_rate": 22050}
+ > Text splitted to sentences.
+['మందుల కోసం ౧౨ పెట్టెలు తీసుకురండి.']
+మందుల కోసం ౧౨ పెట్టెలు తీసుకురండి.
+ [!] Character '౧' not found in the vocabulary. Discarding it.
+మందుల కోసం ౧౨ పెట్టెలు తీసుకురండి.
+ [!] Character '౨' not found in the vocabulary. Discarding it.
+ > Processing time: 0.9794058799743652
+ > Real-time factor: 0.29907904461326656
+{"number": 9, "language_code": "te", "text": "మందుల కోసం ౧౨ పెట్టెలు తీసుకురండి.", "wav": "/mnt/d/iTantra-tts-te-indic/local-recordings/te-indic/09.wav", "generation_seconds": 0.98, "audio_seconds": 3.275, "sample_rate": 22050}
+ > Text splitted to sentences.
+['హైదరాబాద్\u200cలోని గాంధీ రోడ్డులో నన్ను కలవండి.']
+హైదరాబాద్‌లోని గాంధీ రోడ్డులో నన్ను కలవండి.
+ [!] Character '\u200c' not found in the vocabulary. Discarding it.
+ > Processing time: 1.197723627090454
+ > Real-time factor: 0.32434915967459854
+{"number": 10, "language_code": "te", "text": "హైదరాబాద్‌లోని గాంధీ రోడ్డులో నన్ను కలవండి.", "wav": "/mnt/d/iTantra-tts-te-indic/local-recordings/te-indic/10.wav", "generation_seconds": 1.198, "audio_seconds": 3.693, "sample_rate": 22050}

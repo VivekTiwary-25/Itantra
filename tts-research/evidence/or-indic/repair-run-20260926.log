@@ -1,0 +1,124 @@
+ > Using model: fast_pitch
+ > Setting up Audio Processor...
+ | > sample_rate:22050
+ | > resample:False
+ | > num_mels:80
+ | > log_func:np.log
+ | > min_level_db:-100
+ | > frame_shift_ms:None
+ | > frame_length_ms:None
+ | > ref_level_db:20
+ | > fft_size:1024
+ | > power:1.5
+ | > preemphasis:0.0
+ | > griffin_lim_iters:60
+ | > signal_norm:False
+ | > symmetric_norm:True
+ | > mel_fmin:0
+ | > mel_fmax:8000.0
+ | > pitch_fmin:0.0
+ | > pitch_fmax:640.0
+ | > spec_gain:1.0
+ | > stft_pad_mode:reflect
+ | > max_norm:4.0
+ | > clip_norm:True
+ | > do_trim_silence:True
+ | > trim_db:60
+ | > do_sound_norm:False
+ | > do_amp_to_db_linear:True
+ | > do_amp_to_db_mel:True
+ | > do_rms_norm:False
+ | > db_level:None
+ | > stats_path:None
+ | > base:2.718281828459045
+ | > hop_length:256
+ | > win_length:1024
+ > Init speaker_embedding layer.
+ > Vocoder Model: hifigan
+ > Setting up Audio Processor...
+ | > sample_rate:22050
+ | > resample:False
+ | > num_mels:80
+ | > log_func:np.log
+ | > min_level_db:-100
+ | > frame_shift_ms:None
+ | > frame_length_ms:None
+ | > ref_level_db:20
+ | > fft_size:1024
+ | > power:1.5
+ | > preemphasis:0.0
+ | > griffin_lim_iters:60
+ | > signal_norm:False
+ | > symmetric_norm:True
+ | > mel_fmin:0
+ | > mel_fmax:8000.0
+ | > pitch_fmin:0.0
+ | > pitch_fmax:640.0
+ | > spec_gain:1.0
+ | > stft_pad_mode:reflect
+ | > max_norm:4.0
+ | > clip_norm:True
+ | > do_trim_silence:True
+ | > trim_db:60
+ | > do_sound_norm:False
+ | > do_amp_to_db_linear:True
+ | > do_amp_to_db_mel:True
+ | > do_rms_norm:False
+ | > db_level:None
+ | > stats_path:None
+ | > base:2.718281828459045
+ | > hop_length:256
+ | > win_length:1024
+ > Generator Model: hifigan_generator
+ > Discriminator Model: hifigan_discriminator
+Removing weight norm...
+ > Text splitted to sentences.
+['ନଦୀର ପାଣି ଶୀଘ୍ର ବଢ଼ୁଛି। ସୁରକ୍ଷିତ ସ୍ଥାନକୁ ଯାଆନ୍ତୁ।']
+ > Processing time: 1.7260780334472656
+ > Real-time factor: 0.35992605384241383
+{"number": 1, "error": null, "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/repair-20260926/01.wav"}
+ > Text splitted to sentences.
+['ବିଦ୍ୟାଳୟ ନିକଟରେ ନିଆଁ ଲାଗିଛି। ଦୂରେ ରୁହନ୍ତୁ।']
+ > Processing time: 1.447295904159546
+ > Real-time factor: 0.3501061379532867
+{"number": 2, "error": null, "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/repair-20260926/02.wav"}
+ > Text splitted to sentences.
+['ବଜାର ପରେ ବାମକୁ ମୁହଁ ଘୁରାନ୍ତୁ।']
+ > Processing time: 1.0699834823608398
+ > Real-time factor: 0.32907185597601707
+{"number": 3, "error": null, "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/repair-20260926/03.wav"}
+ > Text splitted to sentences.
+['ପୁରୁଣା ସେତୁ ପାର ହୋଇ ଡାକ୍ତରଖାନା ଆଗରେ ରୁହନ୍ତୁ।']
+ > Processing time: 1.520888328552246
+ > Real-time factor: 0.34558519831592155
+{"number": 4, "error": null, "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/repair-20260926/04.wav"}
+ > Text splitted to sentences.
+['ଦୟାକରି ଗାଁର ଉତ୍ତର ଭାଗକୁ ଜଣେ ଡାକ୍ତର ପଠାନ୍ତୁ।']
+ > Processing time: 1.648775339126587
+ > Real-time factor: 0.3380774459505769
+{"number": 5, "error": null, "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/repair-20260926/05.wav"}
+ > Text splitted to sentences.
+['ତିନିଜଣ ପିଲା ମନ୍ଦିରରେ ଅଟକି ରହିଛନ୍ତି। ସାହାଯ୍ୟ କରନ୍ତୁ।']
+ > Processing time: 1.4261093139648438
+ > Real-time factor: 0.29737583572519294
+{"number": 6, "error": null, "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/repair-20260926/06.wav"}
+ > Text splitted to sentences.
+['ଆଜି ସନ୍ଧ୍ୟାରେ ଆମେ ଘରେ ଦେଖା କରିବା।']
+ > Processing time: 1.2369716167449951
+ > Real-time factor: 0.34585139162643463
+{"number": 7, "error": null, "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/repair-20260926/07.wav"}
+ > Text splitted to sentences.
+['ମୋ ଭାଇ ସକାଳେ ଦୋକାନକୁ ଯିବ।']
+ > Processing time: 1.079594612121582
+ > Real-time factor: 0.33441589679255007
+{"number": 8, "error": null, "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/repair-20260926/08.wav"}
+ > Text splitted to sentences.
+['ଔଷଧ ପାଇଁ ବାରଟି ବାକ୍ସ ଆଣନ୍ତୁ।']
+ > Processing time: 1.0114433765411377
+ > Real-time factor: 0.33628357136206405
+{"number": 9, "error": null, "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/repair-20260926/09.wav"}
+ > Text splitted to sentences.
+['ଭୁବନେଶ୍ୱରର ଜନପଥ ରାସ୍ତାରେ ମୋତେ ଭେଟନ୍ତୁ।']
+ > Processing time: 1.386265754699707
+ > Real-time factor: 0.3362871841569326
+{"number": 10, "error": null, "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/repair-20260926/10.wav"}

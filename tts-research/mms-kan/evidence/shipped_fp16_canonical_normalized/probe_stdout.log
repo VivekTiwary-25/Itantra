@@ -1,0 +1,23 @@
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+D:\a\sherpa-onnx\sherpa-onnx\sherpa-onnx\csrc\offline-tts-character-frontend.cc:ConvertTextToTokenIds:133 Skip unknown character. Unicode codepoint: \U+002e.
+[01] dur=5.12s synth=2.16s missing=['.', '.']
+[02] dur=4.23s synth=1.78s missing=['.', '.']
+[03] dur=3.42s synth=1.32s missing=['.']
+[04] dur=4.45s synth=4.14s missing=['.']
+[05] dur=5.11s synth=5.71s missing=['.']
+[06] dur=5.70s synth=6.78s missing=['.', '.']
+[07] dur=3.68s synth=4.39s missing=['.']
+[08] dur=3.75s synth=5.08s missing=['.']
+[09] dur=4.36s synth=5.91s missing=['.']
+[10] dur=5.11s synth=6.73s missing=['.']

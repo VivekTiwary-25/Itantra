@@ -1,0 +1,174 @@
+{
+  "model": "D:\\iTantra-tts-models\\mms-mr\\model.onnx",
+  "sherpa_onnx": "1.13.7",
+  "load_seconds": 1.162,
+  "records": [
+    {
+      "number": 1,
+      "repeat": 1,
+      "language_code": "mr",
+      "text": "नमस्कार, आपण कसे आहात?",
+      "codepoints": 22,
+      "oov_codepoints": [
+        "U+002C",
+        "U+003F"
+      ],
+      "wav": "01.wav",
+      "generation_seconds": 0.891,
+      "audio_seconds": 2.031,
+      "rtf": 0.439,
+      "sample_rate": 16000,
+      "samples": 32492
+    },
+    {
+      "number": 2,
+      "repeat": 1,
+      "language_code": "mr",
+      "text": "आज हवामान खूप छान आहे.",
+      "codepoints": 22,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "02.wav",
+      "generation_seconds": 0.721,
+      "audio_seconds": 1.815,
+      "rtf": 0.397,
+      "sample_rate": 16000,
+      "samples": 29045
+    },
+    {
+      "number": 3,
+      "repeat": 1,
+      "language_code": "mr",
+      "text": "कृपया मला थोडं पाणी द्या.",
+      "codepoints": 25,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "03.wav",
+      "generation_seconds": 6.77,
+      "audio_seconds": 2.092,
+      "rtf": 3.235,
+      "sample_rate": 16000,
+      "samples": 33480
+    },
+    {
+      "number": 4,
+      "repeat": 1,
+      "language_code": "mr",
+      "text": "माझा फोन नंबर 12 आहे.",
+      "codepoints": 21,
+      "oov_codepoints": [
+        "U+002E"
+      ],
+      "wav": "04.wav",
+      "generation_seconds": 6.409,
+      "audio_seconds": 1.645,
+      "rtf": 3.895,
+      "sample_rate": 16000,
+      "samples": 26328
+    },
+    {
+      "number": 5,
+      "repeat": 1,
+      "language_code": "mr",
+      "text": "बैठक संध्याकाळी 5 वाजता आहे.",
+      "codepoints": 28,
+      "oov_codepoints": [
+        "U+002E",
+        "U+0035"
+      ],
+      "wav": "05.wav",
+      "generation_seconds": 7.914,
+      "audio_seconds": 2.075,
+      "rtf": 3.814,
+      "sample_rate": 16000,
+      "samples": 33198
+    },
+    {
+      "number": 6,
+      "repeat": 1,
+      "language_code": "mr",
+      "text": "या महिन्यात एकूण 250 विद्यार्थी आले.",
+      "codepoints": 36,
+      "oov_codepoints": [
+        "U+002E",
+        "U+0035"
+      ],
+      "wav": "06.wav",
+      "generation_seconds": 13.925,
+      "audio_seconds": 2.943,
+      "rtf": 4.731,
+      "sample_rate": 16000,
+      "samples": 47089
+    },
+    {
+      "number": 7,
+      "repeat": 1,
+      "language_code": "mr",
+      "text": "आम्ही उद्या 3 वाजता भेटू.",
+      "codepoints": 25,
+      "oov_codepoints": [
+        "U+002E",
+        "U+0033"
+      ],
+      "wav": "07.wav",
+      "generation_seconds": 5.839,
+      "audio_seconds": 1.411,
+      "rtf": 4.139,
+      "sample_rate": 16000,
+      "samples": 22574
+    },
+    {
+      "number": 8,
+      "repeat": 1,
+      "language_code": "mr",
+      "text": "सुरक्षिततेसाठी 108 या क्रमांकावर संपर्क करा.",
+      "codepoints": 44,
+      "oov_codepoints": [
+        "U+002E",
+        "U+0038"
+      ],
+      "wav": "08.wav",
+      "generation_seconds": 11.443,
+      "audio_seconds": 3.489,
+      "rtf": 3.279,
+      "sample_rate": 16000,
+      "samples": 55828
+    },
+    {
+      "number": 9,
+      "repeat": 1,
+      "language_code": "mr",
+      "text": "धन्यवाद, पुन्हा भेटू!",
+      "codepoints": 21,
+      "oov_codepoints": [
+        "U+0021",
+        "U+002C"
+      ],
+      "wav": "09.wav",
+      "generation_seconds": 4.874,
+      "audio_seconds": 1.467,
+      "rtf": 3.322,
+      "sample_rate": 16000,
+      "samples": 23473
+    },
+    {
+      "number": 10,
+      "repeat": 1,
+      "language_code": "mr",
+      "text": "हा संदेश ऑफलाइन पाठवला गेला आहे.",
+      "codepoints": 32,
+      "oov_codepoints": [
+        "U+002E",
+        "U+0911"
+      ],
+      "wav": "10.wav",
+      "generation_seconds": 12.656,
+      "audio_seconds": 2.551,
+      "rtf": 4.961,
+      "sample_rate": 16000,
+      "samples": 40816
+    }
+  ]
+}

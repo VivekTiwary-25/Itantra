@@ -1,0 +1,25 @@
+--------- beginning of main
+09-27 07:45:02.835 D/ITANTRA_BENCH(26981): bench init tag=mimic3 threads=4 provider=cpu ms=3601
+09-27 07:45:04.567 D/ITANTRA_BENCH(26981): bench gen tag=mimic3 cp=44 samples=75066 rate=22050 ms=1732
+09-27 07:45:04.568 D/ITANTRA_BENCH(26981): bench done
+09-27 07:45:06.597 D/ITANTRA_BENCH(26981): bench gen tag=mimic3 cp=44 samples=72048 rate=22050 ms=1547
+09-27 07:45:06.597 D/ITANTRA_BENCH(26981): bench done
+09-27 07:45:08.730 D/ITANTRA_BENCH(26981): bench gen tag=mimic3 cp=37 samples=67327 rate=22050 ms=1732
+09-27 07:45:08.730 D/ITANTRA_BENCH(26981): bench done
+09-27 07:45:10.067 D/ITANTRA_BENCH(26981): bench gen tag=mimic3 cp=28 samples=44369 rate=22050 ms=997
+09-27 07:45:10.067 D/ITANTRA_BENCH(26981): bench done
+09-27 07:45:11.932 D/ITANTRA_BENCH(26981): bench gen tag=mimic3 cp=43 samples=66622 rate=22050 ms=1450
+09-27 07:45:11.932 D/ITANTRA_BENCH(26981): bench done
+09-27 07:45:14.089 D/ITANTRA_BENCH(26981): bench gen tag=mimic3 cp=51 samples=80439 rate=22050 ms=1713
+09-27 07:45:14.090 D/ITANTRA_BENCH(26981): bench done
+09-27 07:45:16.634 D/ITANTRA_BENCH(26981): bench gen tag=mimic3 cp=45 samples=82767 rate=22050 ms=2172
+09-27 07:45:16.634 D/ITANTRA_BENCH(26981): bench done
+09-27 07:45:18.049 D/ITANTRA_BENCH(26981): bench gen tag=mimic3 cp=32 samples=46825 rate=22050 ms=1014
+09-27 07:45:18.049 D/ITANTRA_BENCH(26981): bench done
+09-27 07:45:19.695 D/ITANTRA_BENCH(26981): bench gen tag=mimic3 cp=27 samples=49282 rate=22050 ms=1219
+09-27 07:45:19.695 D/ITANTRA_BENCH(26981): bench done
+09-27 07:45:21.342 D/ITANTRA_BENCH(26981): bench gen tag=mimic3 cp=34 samples=57100 rate=22050 ms=1228
+09-27 07:45:21.343 D/ITANTRA_BENCH(26981): bench done
+09-27 07:45:23.380 D/ITANTRA_BENCH(26981): bench gen tag=mimic3 cp=44 samples=68963 rate=22050 ms=1602
+09-27 07:45:23.380 D/ITANTRA_BENCH(26981): bench done
+09-27 07:45:23.706 D/ITANTRA_BENCH(26981): bench done

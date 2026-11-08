@@ -1,0 +1,24 @@
+{
+  "dataset": "google/fleurs",
+  "split": "test",
+  "selection": "first 50 rows from each requested language configuration",
+  "normalization": "lowercase, strip Unicode punctuation, Unicode NFC, collapse whitespace",
+  "method": "same model files, desktop sherpa-onnx; phone spot-check recorded separately",
+  "commit": "ad120d32575aff00bd09d412150b3a1eec3ba615",
+  "branch": "Complete-App-V1",
+  "python": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "sherpa_onnx": "1.13.7",
+  "jiwer": "4.0.0",
+  "languages": [
+    "en",
+    "hi",
+    "gu",
+    "mr",
+    "ta",
+    "te",
+    "or",
+    "bn"
+  ],
+  "clips_per_language": 50
+}

@@ -1,0 +1,68 @@
+﻿device RMX3392 arm64-v8a
+Filesystem       Size Used Avail Use% Mounted on
+/dev/block/dm-74 226G 161G   64G  72% /data/user/0
+  push retry 1 for files/clips/or/004-1620.wav
+pushed
+{
+ "name": "int8bctl",
+ "serial": "EILZRCFQLZIZ6H6P",
+ "logcat_end": [
+  "09-29 17:26:02.384  7210  7261 I ICQ     : MEM {\"label\":\"after_decode_ml\",\"VmRSS_kB\":754096,\"VmHWM_kB\":890848,\"RssAnon_kB\":667460,\"RssFile_kB\":79052,\"VmSwap_kB\":124664,\"pss_total_kB\":781537}",
+  "09-29 17:26:02.451  7210  7261 I ICQ     : LANG_DONE ml load_ms=3521.769923 warm_rtf=0.1317",
+  "09-29 17:26:03.088  7210  7261 I ICQ     : ICQ_DONE pkg=int8bctl warm_rtf=0.1282 peakRss_MB=869 peakPss_MB=843"
+ ],
+ "device": {
+  "model": "RMX3392",
+  "android": "14",
+  "sdk": 34,
+  "abis": [
+   "arm64-v8a",
+   "armeabi-v7a",
+   "armeabi"
+  ]
+ },
+ "peak_rss_MB": 869.96875,
+ "peak_pss_MB": 843.3779296875,
+ "warm_rtf_all": 0.12817192233729835,
+ "per_language": {
+  "hi": {
+   "load_ms": 3662,
+   "warm_rtf": 0.1231
+  },
+  "gu": {
+   "load_ms": 3573,
+   "warm_rtf": 0.1159
+  },
+  "mr": {
+   "load_ms": 3085,
+   "warm_rtf": 0.1204
+  },
+  "ta": {
+   "load_ms": 3060,
+   "warm_rtf": 0.1163
+  },
+  "te": {
+   "load_ms": 3082,
+   "warm_rtf": 0.118
+  },
+  "or": {
+   "load_ms": 3137,
+   "warm_rtf": 0.1488
+  },
+  "bn": {
+   "load_ms": 4019,
+   "warm_rtf": 0.1331
+  },
+  "kn": {
+   "load_ms": 3592,
+   "warm_rtf": 0.1347
+  },
+  "ml": {
+   "load_ms": 3522,
+   "warm_rtf": 0.1317
+  }
+ },
+ "parity_pass": false
+}
+{"hi": {"differ": 0, "of": 5, "clips": []}, "gu": {"differ": 0, "of": 5, "clips": []}, "mr": {"differ": 2, "of": 5, "clips": ["001-1558.wav", "005-1538.wav"]}, "ta": {"differ": 0, "of": 5, "clips": []}, "te": {"differ": 1, "of": 5, "clips": ["005-1608.wav"]}, "or": {"differ": 2, "of": 5, "clips": ["004-1620.wav", "005-1621.wav"]}, "bn": {"differ": 1, "of": 5, "clips": ["003-1600.wav"]}, "kn": {"differ": 1, "of": 5, "clips": ["003-1625.wav"]}, "ml": {"differ": 1, "of": 5, "clips": ["005-1614.wav"]}}
+exit: 0

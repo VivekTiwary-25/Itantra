@@ -1,0 +1,124 @@
+ > Using model: fast_pitch
+ > Setting up Audio Processor...
+ | > sample_rate:22050
+ | > resample:False
+ | > num_mels:80
+ | > log_func:np.log
+ | > min_level_db:-100
+ | > frame_shift_ms:None
+ | > frame_length_ms:None
+ | > ref_level_db:20
+ | > fft_size:1024
+ | > power:1.5
+ | > preemphasis:0.0
+ | > griffin_lim_iters:60
+ | > signal_norm:False
+ | > symmetric_norm:True
+ | > mel_fmin:0
+ | > mel_fmax:8000.0
+ | > pitch_fmin:0.0
+ | > pitch_fmax:640.0
+ | > spec_gain:1.0
+ | > stft_pad_mode:reflect
+ | > max_norm:4.0
+ | > clip_norm:True
+ | > do_trim_silence:True
+ | > trim_db:60
+ | > do_sound_norm:False
+ | > do_amp_to_db_linear:True
+ | > do_amp_to_db_mel:True
+ | > do_rms_norm:False
+ | > db_level:None
+ | > stats_path:None
+ | > base:2.718281828459045
+ | > hop_length:256
+ | > win_length:1024
+ > Init speaker_embedding layer.
+ > Vocoder Model: hifigan
+ > Setting up Audio Processor...
+ | > sample_rate:22050
+ | > resample:False
+ | > num_mels:80
+ | > log_func:np.log
+ | > min_level_db:-100
+ | > frame_shift_ms:None
+ | > frame_length_ms:None
+ | > ref_level_db:20
+ | > fft_size:1024
+ | > power:1.5
+ | > preemphasis:0.0
+ | > griffin_lim_iters:60
+ | > signal_norm:False
+ | > symmetric_norm:True
+ | > mel_fmin:0
+ | > mel_fmax:8000.0
+ | > pitch_fmin:0.0
+ | > pitch_fmax:640.0
+ | > spec_gain:1.0
+ | > stft_pad_mode:reflect
+ | > max_norm:4.0
+ | > clip_norm:True
+ | > do_trim_silence:True
+ | > trim_db:60
+ | > do_sound_norm:False
+ | > do_amp_to_db_linear:True
+ | > do_amp_to_db_mel:True
+ | > do_rms_norm:False
+ | > db_level:None
+ | > stats_path:None
+ | > base:2.718281828459045
+ | > hop_length:256
+ | > win_length:1024
+ > Generator Model: hifigan_generator
+ > Discriminator Model: hifigan_discriminator
+Removing weight norm...
+ > Text splitted to sentences.
+['நதியின் நீர்மட்டம் வேகமாக உயர்கிறது.', 'பாதுகாப்பான இடத்திற்குச் செல்லுங்கள்.']
+ > Processing time: 2.5437839031219482
+ > Real-time factor: 0.3428175426843277
+{"number": 1, "error": null, "wav": "/mnt/d/iTantra-tts-ta-indic/local-recordings/ta-indic/repair-20260926/01.wav"}
+ > Text splitted to sentences.
+['பள்ளி அருகே தீப்பற்றி உள்ளது.', 'தூரமாக இருங்கள்.']
+ > Processing time: 1.7635509967803955
+ > Real-time factor: 0.33375360030733076
+{"number": 2, "error": null, "wav": "/mnt/d/iTantra-tts-ta-indic/local-recordings/ta-indic/repair-20260926/02.wav"}
+ > Text splitted to sentences.
+['சந்தைக்குப் பிறகு இடதுபுறம் திரும்புங்கள்.']
+ > Processing time: 1.405869483947754
+ > Real-time factor: 0.357136199551244
+{"number": 3, "error": null, "wav": "/mnt/d/iTantra-tts-ta-indic/local-recordings/ta-indic/repair-20260926/03.wav"}
+ > Text splitted to sentences.
+['பழைய பாலத்தைக் கடந்து மருத்துவமனை முன் நிற்குங்கள்.']
+ > Processing time: 1.5857791900634766
+ > Real-time factor: 0.3680986940047547
+{"number": 4, "error": null, "wav": "/mnt/d/iTantra-tts-ta-indic/local-recordings/ta-indic/repair-20260926/04.wav"}
+ > Text splitted to sentences.
+['தயவுசெய்து கிராமத்தின் வடக்குப் பகுதிக்கு ஒரு மருத்துவரை அனுப்புங்கள்.']
+ > Processing time: 1.956636667251587
+ > Real-time factor: 0.37280380299406796
+{"number": 5, "error": null, "wav": "/mnt/d/iTantra-tts-ta-indic/local-recordings/ta-indic/repair-20260926/05.wav"}
+ > Text splitted to sentences.
+['மூன்று குழந்தைகள் கோவிலில் சிக்கியுள்ளனர்.', 'உதவி செய்யுங்கள்.']
+ > Processing time: 2.0292084217071533
+ > Real-time factor: 0.3467025608932768
+{"number": 6, "error": null, "wav": "/mnt/d/iTantra-tts-ta-indic/local-recordings/ta-indic/repair-20260926/06.wav"}
+ > Text splitted to sentences.
+['இன்று மாலை நாம் வீட்டில் சந்திப்போம்.']
+ > Processing time: 1.2705953121185303
+ > Real-time factor: 0.3623089518959962
+{"number": 7, "error": null, "wav": "/mnt/d/iTantra-tts-ta-indic/local-recordings/ta-indic/repair-20260926/07.wav"}
+ > Text splitted to sentences.
+['என் சகோதரன் காலையில் கடைக்குச் செல்வான்.']
+ > Processing time: 1.0546596050262451
+ > Real-time factor: 0.28832627815449197
+{"number": 8, "error": null, "wav": "/mnt/d/iTantra-tts-ta-indic/local-recordings/ta-indic/repair-20260926/08.wav"}
+ > Text splitted to sentences.
+['மருந்துக்காக பன்னிரண்டு பெட்டிகளை கொண்டு வாருங்கள்.']
+ > Processing time: 1.6436474323272705
+ > Real-time factor: 0.3648174613747817
+{"number": 9, "error": null, "wav": "/mnt/d/iTantra-tts-ta-indic/local-recordings/ta-indic/repair-20260926/09.wav"}
+ > Text splitted to sentences.
+['சென்னையின் அண்ணா சாலையில் என்னை சந்திக்கவும்.']
+ > Processing time: 1.4820544719696045
+ > Real-time factor: 0.3458859134941763
+{"number": 10, "error": null, "wav": "/mnt/d/iTantra-tts-ta-indic/local-recordings/ta-indic/repair-20260926/10.wav"}

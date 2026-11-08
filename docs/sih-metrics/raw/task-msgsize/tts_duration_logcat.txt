@@ -1,0 +1,39 @@
+--------- beginning of main
+09-29 18:02:58.666 D/ITANTRA_TTS(18944): speak lang=en textLen=44
+09-29 18:02:58.675 D/ITANTRA_TTS(18944): initialising 'en' model=/data/user/0/com.chmod777.itantra/files/vits-piper-en_US-ryan-medium/en_US-ryan-medium.onnx
+09-29 18:02:59.967 D/ITANTRA_TTS(18944): initialised 'en' sampleRate=22050
+09-29 18:02:59.967 D/ITANTRA_TTS(18944): synthesis start lang=en
+09-29 18:03:00.514 D/ITANTRA_TTS(18944): synthesis done lang=en samples=49920 rate=22050 deltaMs=547
+09-29 18:03:00.622 D/ITANTRA_TTS(18944): playback start samples=49920 rate=22050
+09-29 18:03:03.017 D/ITANTRA_TTS(18944): playback end
+09-29 18:03:03.022 D/ITANTRA_TTS(18944): speak lang=en textLen=44
+09-29 18:03:03.023 D/ITANTRA_TTS(18944): synthesis start lang=en
+09-29 18:03:03.525 D/ITANTRA_TTS(18944): synthesis done lang=en samples=52480 rate=22050 deltaMs=502
+09-29 18:03:03.544 D/ITANTRA_TTS(18944): playback start samples=52480 rate=22050
+09-29 18:03:05.961 D/ITANTRA_TTS(18944): playback end
+09-29 18:03:05.971 D/ITANTRA_TTS(18944): speak lang=hi textLen=37
+09-29 18:03:06.155 D/ITANTRA_TTS(18944): installing assets 'vits-piper-hi_IN-pratham-medium' -> /data/user/0/com.chmod777.itantra/files/vits-piper-hi_IN-pratham-medium
+09-29 18:03:07.190 D/ITANTRA_TTS(18944): installed 'vits-piper-hi_IN-pratham-medium' deltaMs=1036
+09-29 18:03:07.190 D/ITANTRA_TTS(18944): initialising 'hi' model=/data/user/0/com.chmod777.itantra/files/vits-piper-hi_IN-pratham-medium/hi_IN-pratham-medium.onnx
+09-29 18:03:08.393 D/ITANTRA_TTS(18944): initialised 'hi' sampleRate=22050
+09-29 18:03:08.393 D/ITANTRA_TTS(18944): synthesis start lang=hi
+09-29 18:03:08.938 D/ITANTRA_TTS(18944): synthesis done lang=hi samples=52154 rate=22050 deltaMs=545
+09-29 18:03:08.962 D/ITANTRA_TTS(18944): playback start samples=52154 rate=22050
+09-29 18:03:11.371 D/ITANTRA_TTS(18944): playback end
+09-29 18:03:11.384 D/ITANTRA_TTS(18944): speak lang=hi textLen=37
+09-29 18:03:11.384 D/ITANTRA_TTS(18944): synthesis start lang=hi
+09-29 18:03:11.975 D/ITANTRA_TTS(18944): synthesis done lang=hi samples=50500 rate=22050 deltaMs=591
+09-29 18:03:11.993 D/ITANTRA_TTS(18944): playback start samples=50500 rate=22050
+09-29 18:03:14.364 D/ITANTRA_TTS(18944): playback end
+09-29 18:03:14.377 D/ITANTRA_TTS(18944): speak lang=ta textLen=55
+09-29 18:03:14.389 D/ITANTRA_TTS(18944): initialising 'ta' model=/data/user/0/com.chmod777.itantra/files/vits-mms-tam/model.onnx
+09-29 18:03:15.950 D/ITANTRA_TTS(18944): initialised 'ta' sampleRate=16000
+09-29 18:03:15.951 D/ITANTRA_TTS(18944): synthesis start lang=ta
+09-29 18:03:18.527 D/ITANTRA_TTS(18944): synthesis done lang=ta samples=56796 rate=16000 deltaMs=2576
+09-29 18:03:18.545 D/ITANTRA_TTS(18944): playback start samples=56796 rate=16000
+09-29 18:03:22.183 D/ITANTRA_TTS(18944): playback end
+09-29 18:03:22.190 D/ITANTRA_TTS(18944): speak lang=ta textLen=55
+09-29 18:03:22.191 D/ITANTRA_TTS(18944): synthesis start lang=ta
+09-29 18:03:24.661 D/ITANTRA_TTS(18944): synthesis done lang=ta samples=54816 rate=16000 deltaMs=2471
+09-29 18:03:24.683 D/ITANTRA_TTS(18944): playback start samples=54816 rate=16000
+09-29 18:03:28.198 D/ITANTRA_TTS(18944): playback end

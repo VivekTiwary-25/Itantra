@@ -1,0 +1,4 @@
+cond fg-start cpuset=top-app
+cond fg-end cpuset=top-app
+cond bg-start cpuset=background
+cond bg-end cpuset=background

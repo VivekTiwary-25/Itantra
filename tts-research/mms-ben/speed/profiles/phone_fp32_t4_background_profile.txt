@@ -1,0 +1,24 @@
+runs 11 model_run total 77.3s, kernel total 76.8s
+  Conv              45.3%
+  FusedConv         42.5%
+  ConvTranspose      7.2%
+  Add                1.8%
+  LeakyRelu          0.9%
+  Mul                0.2%
+  Slice              0.2%
+  Unsqueeze          0.1%
+  dec/resblocks stage1        36.9%
+  dec/resblocks stage0        20.2%
+  dec/resblocks stage2        17.9%
+  dec/resblocks stage3        10.3%
+  flow                         3.5%
+  dec/ups.1                    2.7%
+  dec/ups.2                    1.9%
+  enc_p                        1.7%
+  dec/ups.3                    1.7%
+  dec/ups.0                    1.0%
+  dp                           1.0%
+  other                        0.5%
+  dec/misc                     0.4%
+  dec/conv_pre                 0.3%
+  dec/conv_post                0.1%

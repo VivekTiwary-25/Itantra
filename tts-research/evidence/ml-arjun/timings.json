@@ -1,0 +1,106 @@
+{
+  "model": "D:\\iTantra-tts-models\\vits-piper-ml_IN-arjun-medium\\ml_IN-arjun-medium.onnx",
+  "load_seconds": 0.933,
+  "records": [
+    {
+      "number": 1,
+      "language_code": "ml",
+      "text": "നദിയിലെ വെള്ളം വേഗത്തിൽ ഉയരുന്നു. സുരക്ഷിത സ്ഥലത്തേക്ക് പോകുക.",
+      "wav": "D:\\iTantra-tts-ml\\local-recordings\\ml-arjun\\01.wav",
+      "generation_seconds": 0.412,
+      "audio_seconds": 5.216,
+      "sample_rate": 22050,
+      "samples": 115020
+    },
+    {
+      "number": 2,
+      "language_code": "ml",
+      "text": "സ്കൂളിന് സമീപം തീപിടിച്ചു. അകലം പാലിക്കുക.",
+      "wav": "D:\\iTantra-tts-ml\\local-recordings\\ml-arjun\\02.wav",
+      "generation_seconds": 0.269,
+      "audio_seconds": 3.895,
+      "sample_rate": 22050,
+      "samples": 85883
+    },
+    {
+      "number": 3,
+      "language_code": "ml",
+      "text": "ചന്ത കഴിഞ്ഞ് ഇടത്തോട്ട് തിരിയുക.",
+      "wav": "D:\\iTantra-tts-ml\\local-recordings\\ml-arjun\\03.wav",
+      "generation_seconds": 0.178,
+      "audio_seconds": 2.578,
+      "sample_rate": 22050,
+      "samples": 56853
+    },
+    {
+      "number": 4,
+      "language_code": "ml",
+      "text": "പഴയ പാലം കടന്ന് ആശുപത്രിയുടെ മുന്നിൽ നിൽക്കുക.",
+      "wav": "D:\\iTantra-tts-ml\\local-recordings\\ml-arjun\\04.wav",
+      "generation_seconds": 0.239,
+      "audio_seconds": 3.531,
+      "sample_rate": 22050,
+      "samples": 77865
+    },
+    {
+      "number": 5,
+      "language_code": "ml",
+      "text": "ദയവായി ഗ്രാമത്തിന്റെ വടക്കുഭാഗത്തേക്ക് ഒരു ഡോക്ടറെ അയയ്ക്കുക.",
+      "wav": "D:\\iTantra-tts-ml\\local-recordings\\ml-arjun\\05.wav",
+      "generation_seconds": 0.335,
+      "audio_seconds": 5.247,
+      "sample_rate": 22050,
+      "samples": 115702
+    },
+    {
+      "number": 6,
+      "language_code": "ml",
+      "text": "മൂന്ന് കുട്ടികൾ ക്ഷേത്രത്തിൽ കുടുങ്ങിയിരിക്കുന്നു. സഹായിക്കുക.",
+      "wav": "D:\\iTantra-tts-ml\\local-recordings\\ml-arjun\\06.wav",
+      "generation_seconds": 0.288,
+      "audio_seconds": 4.1,
+      "sample_rate": 22050,
+      "samples": 90397
+    },
+    {
+      "number": 7,
+      "language_code": "ml",
+      "text": "ഇന്ന് വൈകുന്നേരം നമുക്ക് വീട്ടിൽ കാണാം.",
+      "wav": "D:\\iTantra-tts-ml\\local-recordings\\ml-arjun\\07.wav",
+      "generation_seconds": 0.228,
+      "audio_seconds": 3.275,
+      "sample_rate": 22050,
+      "samples": 72224
+    },
+    {
+      "number": 8,
+      "language_code": "ml",
+      "text": "എന്റെ സഹോദരൻ രാവിലെ കടയിലേക്ക് പോകും.",
+      "wav": "D:\\iTantra-tts-ml\\local-recordings\\ml-arjun\\08.wav",
+      "generation_seconds": 0.222,
+      "audio_seconds": 3.263,
+      "sample_rate": 22050,
+      "samples": 71948
+    },
+    {
+      "number": 9,
+      "language_code": "ml",
+      "text": "മരുന്നിനായി ൧൨ പെട്ടികൾ കൊണ്ടുവരുക.",
+      "wav": "D:\\iTantra-tts-ml\\local-recordings\\ml-arjun\\09.wav",
+      "generation_seconds": 0.21,
+      "audio_seconds": 2.868,
+      "sample_rate": 22050,
+      "samples": 63235
+    },
+    {
+      "number": 10,
+      "language_code": "ml",
+      "text": "കൊച്ചിയിലെ മഹാത്മാ ഗാന്ധി റോഡിൽ എന്നെ കാണുക.",
+      "wav": "D:\\iTantra-tts-ml\\local-recordings\\ml-arjun\\10.wav",
+      "generation_seconds": 0.265,
+      "audio_seconds": 4.207,
+      "sample_rate": 22050,
+      "samples": 92765
+    }
+  ]
+}

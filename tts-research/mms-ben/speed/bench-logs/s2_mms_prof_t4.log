@@ -1,0 +1,25 @@
+--------- beginning of main
+09-27 07:47:46.749 D/ITANTRA_BENCH(26981): bench init tag=mms-prof threads=4 provider=cpu:/data/user/0/com.chmod777.itantra/files/bench/cfg/prof.cfg ms=3708
+09-27 07:47:53.919 D/ITANTRA_BENCH(26981): bench gen tag=mms-prof cp=44 samples=51533 rate=16000 ms=7170
+09-27 07:47:53.919 D/ITANTRA_BENCH(26981): bench done
+09-27 07:48:02.320 D/ITANTRA_BENCH(26981): bench gen tag=mms-prof cp=44 samples=52892 rate=16000 ms=7926
+09-27 07:48:02.320 D/ITANTRA_BENCH(26981): bench done
+09-27 07:48:10.459 D/ITANTRA_BENCH(26981): bench gen tag=mms-prof cp=37 samples=46855 rate=16000 ms=7706
+09-27 07:48:10.459 D/ITANTRA_BENCH(26981): bench done
+09-27 07:48:15.259 D/ITANTRA_BENCH(26981): bench gen tag=mms-prof cp=28 samples=32667 rate=16000 ms=4394
+09-27 07:48:15.259 D/ITANTRA_BENCH(26981): bench done
+09-27 07:48:22.838 D/ITANTRA_BENCH(26981): bench gen tag=mms-prof cp=43 samples=50333 rate=16000 ms=7192
+09-27 07:48:22.838 D/ITANTRA_BENCH(26981): bench done
+09-27 07:48:31.632 D/ITANTRA_BENCH(26981): bench gen tag=mms-prof cp=51 samples=57171 rate=16000 ms=8338
+09-27 07:48:31.632 D/ITANTRA_BENCH(26981): bench done
+09-27 07:48:42.003 D/ITANTRA_BENCH(26981): bench gen tag=mms-prof cp=45 samples=60151 rate=16000 ms=9975
+09-27 07:48:42.003 D/ITANTRA_BENCH(26981): bench done
+09-27 07:48:48.324 D/ITANTRA_BENCH(26981): bench gen tag=mms-prof cp=32 samples=36558 rate=16000 ms=5878
+09-27 07:48:48.324 D/ITANTRA_BENCH(26981): bench done
+09-27 07:48:54.094 D/ITANTRA_BENCH(26981): bench gen tag=mms-prof cp=27 samples=32203 rate=16000 ms=5343
+09-27 07:48:54.094 D/ITANTRA_BENCH(26981): bench done
+09-27 07:49:00.418 D/ITANTRA_BENCH(26981): bench gen tag=mms-prof cp=34 samples=38643 rate=16000 ms=5903
+09-27 07:49:00.418 D/ITANTRA_BENCH(26981): bench done
+09-27 07:49:08.236 D/ITANTRA_BENCH(26981): bench gen tag=mms-prof cp=44 samples=49390 rate=16000 ms=7453
+09-27 07:49:08.236 D/ITANTRA_BENCH(26981): bench done
+09-27 07:49:09.033 D/ITANTRA_BENCH(26981): bench done

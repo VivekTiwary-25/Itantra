@@ -1,0 +1,96 @@
+{
+  "model_dir": "/mnt/d/iTantra-tts-models/or",
+  "load_seconds": 20.088,
+  "records": [
+    {
+      "number": 1,
+      "language_code": "or",
+      "text": "ନଦୀର ପାଣି ଶୀଘ୍ର ବଢ଼ୁଛି। ସୁରକ୍ଷିତ ସ୍ଥାନକୁ ଯାଆନ୍ତୁ।",
+      "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/01.wav",
+      "generation_seconds": 1.673,
+      "audio_seconds": 4.668,
+      "sample_rate": 22050
+    },
+    {
+      "number": 2,
+      "language_code": "or",
+      "text": "ବିଦ୍ୟାଳୟ ନିକଟରେ ନିଆଁ ଲାଗିଛି। ଦୂରେ ରୁହନ୍ତୁ।",
+      "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/02.wav",
+      "generation_seconds": 1.461,
+      "audio_seconds": 4.134,
+      "sample_rate": 22050
+    },
+    {
+      "number": 3,
+      "language_code": "or",
+      "text": "ବଜାର ପରେ ବାମକୁ ମୁହଁ ଘୁରାନ୍ତୁ।",
+      "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/03.wav",
+      "generation_seconds": 1.131,
+      "audio_seconds": 3.252,
+      "sample_rate": 22050
+    },
+    {
+      "number": 4,
+      "language_code": "or",
+      "text": "ପୁରୁଣା ସେତୁ ପାର ହୋଇ ଡାକ୍ତରଖାନା ଆଗରେ ରୁହନ୍ତୁ।",
+      "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/04.wav",
+      "generation_seconds": 1.558,
+      "audio_seconds": 4.401,
+      "sample_rate": 22050
+    },
+    {
+      "number": 5,
+      "language_code": "or",
+      "text": "ଦୟାକରି ଗାଁର ଉତ୍ତର ଭାଗକୁ ଜଣେ ଡାକ୍ତର ପଠାନ୍ତୁ।",
+      "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/05.wav",
+      "generation_seconds": 1.64,
+      "audio_seconds": 4.877,
+      "sample_rate": 22050
+    },
+    {
+      "number": 6,
+      "language_code": "or",
+      "text": "ତିନିଜଣ ପିଲା ମନ୍ଦିରରେ ଅଟକି ରହିଛନ୍ତି। ସାହାଯ୍ୟ କରନ୍ତୁ।",
+      "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/06.wav",
+      "generation_seconds": 1.686,
+      "audio_seconds": 4.796,
+      "sample_rate": 22050
+    },
+    {
+      "number": 7,
+      "language_code": "or",
+      "text": "ଆଜି ସନ୍ଧ୍ୟାରେ ଆମେ ଘରେ ଦେଖା କରିବା।",
+      "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/07.wav",
+      "generation_seconds": 1.221,
+      "audio_seconds": 3.577,
+      "sample_rate": 22050
+    },
+    {
+      "number": 8,
+      "language_code": "or",
+      "text": "ମୋ ଭାଇ ସକାଳେ ଦୋକାନକୁ ଯିବ।",
+      "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/08.wav",
+      "generation_seconds": 1.041,
+      "audio_seconds": 3.228,
+      "sample_rate": 22050
+    },
+    {
+      "number": 9,
+      "language_code": "or",
+      "text": "ଔଷଧ ପାଇଁ ୧୨ଟି ବାକ୍ସ ଆଣନ୍ତୁ।",
+      "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/09.wav",
+      "generation_seconds": 0.929,
+      "audio_seconds": 2.764,
+      "sample_rate": 22050
+    },
+    {
+      "number": 10,
+      "language_code": "or",
+      "text": "ଭୁବନେଶ୍ୱରର ଜନପଥ ରାସ୍ତାରେ ମୋତେ ଭେଟନ୍ତୁ।",
+      "wav": "/mnt/d/iTantra-tts-or-indic/local-recordings/or-indic/10.wav",
+      "generation_seconds": 1.358,
+      "audio_seconds": 4.122,
+      "sample_rate": 22050
+    }
+  ]
+}
