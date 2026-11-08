@@ -1,9 +1,12 @@
+﻿param([string]$Serial)
+
 # install-test-phone.ps1 - put the test build on the ONE phone that is plugged in.
 #
 #   powershell -ExecutionPolicy Bypass -File .\install-test-phone.ps1
+#   powershell -ExecutionPolicy Bypass -File .\install-test-phone.ps1 -Serial <serial>
 #
-# It refuses to run if zero or more than one device shows up in adb, so it can never
-# pick the wrong phone. It installs the app and the speech models through
+# Without -Serial it refuses to run if zero or more than one device shows up in adb, so it
+# can never pick the wrong phone. With -Serial it installs on that phone only. It installs the app and the speech models through
 # setup-phone.ps1 (which skips an APK and any model file that is already there, so it
 # is safe to run again on the same phone), then prints what is on the phone and
 # PASS or FAIL. It never uninstalls anything and never wipes app data.
@@ -57,14 +60,28 @@ foreach ($line in ((Get-Adb @('devices')) -split "`n")) {
 if ($devices.Count -eq 0) {
     Stop-Fail 'No phone found. Plug one in over USB, unlock it, and accept "Allow USB debugging".'
 }
-if ($devices.Count -gt 1) {
-    Write-Host 'More than one device is connected. I will not pick one for you:' -ForegroundColor Red
-    foreach ($d in $devices) { Write-Host ("    {0}  {1}" -f $d.Serial, $d.State) }
-    Stop-Fail 'Unplug the others (or turn off wireless debugging on them) and run this again.'
+
+if ($Serial) {
+    $selected = @($devices | Where-Object { $_.Serial -eq $Serial })
+    if ($selected.Count -ne 1) {
+        Write-Host "No phone with serial '$Serial' is connected. These are:" -ForegroundColor Red
+        foreach ($d in $devices) { Write-Host ("    {0}  {1}" -f $d.Serial, $d.State) }
+        Stop-Fail 'Check the serial (adb devices -l), or plug that phone in, and run this again.'
+    }
+    $device = $selected[0]
 }
-$serial = $devices[0].Serial
-if ($devices[0].State -ne 'device') {
-    Stop-Fail "The phone $serial is '$($devices[0].State)', not ready. Unlock it and accept the USB debugging prompt."
+else {
+    if ($devices.Count -gt 1) {
+        Write-Host 'More than one device is connected. I will not pick one for you:' -ForegroundColor Red
+        foreach ($d in $devices) { Write-Host ("    {0}  {1}" -f $d.Serial, $d.State) }
+        Stop-Fail 'Run it again with -Serial <one of the serials above>, or unplug the others.'
+    }
+    $device = $devices[0]
+}
+
+$serial = $device.Serial
+if ($device.State -ne 'device') {
+    Stop-Fail "The phone $serial is '$($device.State)', not ready. Unlock it and accept the USB debugging prompt."
 }
 
 # ---- what we are installing ------------------------------------------------------
@@ -127,3 +144,4 @@ if ($setupExit -eq 0 -and $sameBuild) {
 Write-Host 'RESULT: FAIL' -ForegroundColor Red
 Write-Host 'Run the same command again; it carries on from where it stopped.'
 exit 1
+

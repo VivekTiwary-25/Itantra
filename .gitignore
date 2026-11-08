@@ -38,3 +38,10 @@ tts-research/new-runs/
 
 # Local Dolphin baseline copy (no longer an app asset; used by measure_wer.py --dolphin-dir)
 /.dolphin-baseline/
+
+# Local-only leftovers, kept on disk but never committed
+/.dolphin-upstream/
+/networking-validation/phone_a_logcat.txt
+/networking-validation/phone_b_logcat.txt
+/itantra_networking_bundle_87af871.zip
+/install-test-phone.ps1.bak
