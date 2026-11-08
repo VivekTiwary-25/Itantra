@@ -1,23 +1,25 @@
-# `sunday-best`: the branch visitors see
+# `Prime`: the branch visitors see
 
-`sunday-best` is this repo's **default branch**. It is what anyone sees when they open
+(It was first named `Prime`; Vivek renamed it `Prime` on 8 Nov 2026.)
+
+`Prime` is this repo's **default branch**. It is what anyone sees when they open
 github.com/VivekTiwary-25/Itantra from Vivek's profile: recruiters, judges, other developers.
 It is a **clean snapshot** of the latest working app. Your working branches are where the real
-work happens. Those branches keep their agent files; `sunday-best` never has them.
+work happens. Those branches keep their agent files; `Prime` never has them.
 
-**Read this before you touch `sunday-best`, and before any task that mentions "public", "visitors",
+**Read this before you touch `Prime`, and before any task that mentions "public", "visitors",
 "default branch" or "clean up the repo".**
 
 ## Rules
 
-1. **Never merge** `sunday-best` into a working branch, and never merge a working branch into
-   `sunday-best`. It is updated only by taking a fresh snapshot (see "How to update").
+1. **Never merge** `Prime` into a working branch, and never merge a working branch into
+   `Prime`. It is updated only by taking a fresh snapshot (see "How to update").
 2. **Only update it when Vivek asks.** Don't refresh it on your own just because the app changed.
 3. **No AI attribution on its commits.** No `Co-Authored-By: Claude` (or any model), no session links.
    Commits are authored as `VivekTiwary-25 <vivek.rajesh.tiwary@gmail.com>`.
-4. **This file itself does not go on `sunday-best`.** It's for agents, not visitors.
+4. **This file itself does not go on `Prime`.** It's for agents, not visitors.
 
-## `sunday-best` must NOT have
+## `Prime` must NOT have
 
 - Agent instruction and working files: `CLAUDE.md`, `AGENTS.md`, `TASK.md`, `STATUS.md`, `.claude/`,
   `tts-research/AGENTS.md`, any `*HANDOFF*` file, `docs/SESSION_HANDOFF.md`, `docs/TEAM_WORKFLOW.md`,
@@ -39,7 +41,7 @@ work happens. Those branches keep their agent files; `sunday-best` never has the
 - Personal emails other than Vivek's commit identity, team-internal logistics, judge prep and pitch notes.
 - Secrets of any kind (keystores, keys, `local.properties`, tokens).
 
-## `sunday-best` MUST have
+## `Prime` MUST have
 
 - The **latest working app** (all of `app/`, Gradle files, `.gitattributes`, `.gitignore`), and it must still build.
 - `setup-models.ps1`, `setup-models.bat`, `setup-phone.ps1`, so someone can actually get the models onto a phone.
@@ -65,7 +67,7 @@ work happens. Those branches keep their agent files; `sunday-best` never has the
    (`git for-each-ref --sort=-committerdate refs/remotes/origin`), and confirm the choice with Vivek.
 2. Replace the snapshot:
    ```
-   git checkout sunday-best
+   git checkout Prime
    git rm -r -q .
    git checkout <working-branch> -- .
    ```

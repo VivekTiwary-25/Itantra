@@ -2,12 +2,12 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## The visitor branch: `sunday-best`
+## The visitor branch: `Prime`
 
-The repo's default branch is `sunday-best`: a clean snapshot for visitors, with no agent files and no
+The repo's default branch is `Prime`: a clean snapshot for visitors, with no agent files and no
 mention of agents or models. Never merge it with working branches, update it only when Vivek asks, and
 never put AI co-author lines on its commits. Full rules (what it must and must not have, and why):
-[`docs/SUNDAY_BEST.md`](docs/SUNDAY_BEST.md).
+[`docs/PRIME_BRANCH.md`](docs/PRIME_BRANCH.md).
 
 ## Read this first
 
