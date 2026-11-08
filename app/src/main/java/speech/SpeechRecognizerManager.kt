@@ -28,6 +28,24 @@ class SpeechRecognizerManager(private val context: Context) {
         else -> ""
     }
 
+    /** The three files one IndicConformer language needs: its wrapper, its vocabulary, the shared weights. */
+    private fun indicConformerFiles(language: String): List<File> = listOf(
+        File(indicConformerDir, "$language.onnx"),
+        File(indicConformerDir, "languages/$language/tokens.txt"),
+        File(indicConformerDir, "shared/encoder.weights.bin"),
+    )
+
+    /**
+     * True when the files for [language] are on the phone. English is inside the APK, so always
+     * true; an IndicConformer language is false when its files were never pushed or were deleted
+     * (an uninstall wipes them). Lets the app tell "no model" apart from "heard nothing".
+     */
+    fun hasModel(language: String): Boolean = when (modelKeyFor(language)) {
+        "" -> false
+        "en" -> true
+        else -> indicConformerFiles(language).all { it.isFile }
+    }
+
     private fun getRecognizer(language: String): OfflineRecognizer? {
         val modelKey = modelKeyFor(language)
         if (modelKey.isEmpty()) {
@@ -63,10 +81,9 @@ class SpeechRecognizerManager(private val context: Context) {
             )
         } else {
             assetManager = null
-            val model = File(indicConformerDir, "$language.onnx")
-            val tokens = File(indicConformerDir, "languages/$language/tokens.txt")
-            val weights = File(indicConformerDir, "shared/encoder.weights.bin")
-            val missing = listOf(model, tokens, weights).filterNot { it.isFile }
+            val files = indicConformerFiles(language)
+            val (model, tokens) = files
+            val missing = files.filterNot { it.isFile }
             if (missing.isNotEmpty()) {
                 Log.e(PERF_TAG, "IndicConformer files missing for language=$language: $missing")
                 return null

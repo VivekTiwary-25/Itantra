@@ -117,8 +117,11 @@ internal object CaptureSession {
             )
             ItantraNetwork.recordProductTiming("product_transcript_ready", mapOf("source" to source))
             if (heardNothing(text)) {
-                Log.d(LATENCY_TAG, "[$source] nothing heard, raw=${text.take(32)}")
-                captureError = CaptureError.NOTHING_HEARD
+                // An empty result has two causes that look the same on screen: silence, or no
+                // model on the phone for this language. Only the second needs the models put back.
+                val modelMissing = !speech.canTranscribe(languageCode)
+                Log.d(LATENCY_TAG, "[$source] nothing heard, modelMissing=$modelMissing raw=${text.take(32)}")
+                captureError = if (modelMissing) CaptureError.MODEL_MISSING else CaptureError.NOTHING_HEARD
                 discardRecording()
                 isTranscribing = false
                 return@launch

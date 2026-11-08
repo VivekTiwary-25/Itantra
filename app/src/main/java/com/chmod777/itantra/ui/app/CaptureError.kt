@@ -35,6 +35,12 @@ internal enum class CaptureError(val message: String, val action: String?) {
     /** The engine ran and came back with silence, or with one of Whisper's annotation tokens. */
     NOTHING_HEARD("Didn't catch anything. Try again.", null),
 
+    /**
+     * The speech model for the chosen language is not on this phone (the IndicConformer files
+     * were never pushed, or an uninstall deleted them). Trying again cannot help, so it says so.
+     */
+    MODEL_MISSING("Speech recognition for this language isn't installed on this phone. You can still type your message.", null),
+
     /** The engine itself failed. Different from hearing nothing, because the fix is different. */
     TRANSCRIBE_FAILED("Could not turn that into text.", "TRY AGAIN"),
 }

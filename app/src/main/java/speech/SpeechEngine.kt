@@ -32,6 +32,9 @@ class SpeechEngine(context: Context) {
     /** True when [languageCode] has a real voice, as opposed to one Speech can only transcribe. */
     fun canSpeak(languageCode: String): Boolean = ttsHelper.isSupported(languageCode)
 
+    /** False when [languageCode] has no speech model on this phone (e.g. IndicConformer files missing). */
+    fun canTranscribe(languageCode: String): Boolean = recognizerManager.hasModel(languageCode)
+
     fun release() {
         recognizerManager.release()
         ttsHelper.release()

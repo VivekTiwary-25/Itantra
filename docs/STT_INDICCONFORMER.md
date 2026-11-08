@@ -47,11 +47,31 @@ during the copy (temporary copy plus final copy).
 
 Uninstalling the app deletes these files; a reinstall with `adb install -r` keeps them.
 
+> **Warning: any uninstall wipes the models.** That includes `adb uninstall`, uninstalling from
+> the phone's settings and Android Studio's "uninstall before install". Clearing the app's data
+> in Settings wipes them too. (`setup-phone.ps1 -Clean` also uninstalls, but it pushes the models
+> back itself, so it is safe as long as it finishes.) Afterwards English still works (Whisper is
+> inside the APK) but **every Indian language stops working**. Re-run step 2 above, or
+> `setup-phone.ps1 -Serial <serial>` without `-Clean`, before testing any Indian language.
+> To check a phone quickly:
+> `adb -s <serial> shell "run-as com.chmod777.itantra sh -c 'find files/indicconformer -type f | wc -l'"`
+> must print `19`.
+>
+> This happened on RMX3392 on 2026-10-29: the app was reinstalled, the models were not pushed
+> back, and on 2026-11-07 Kannada and Hindi push-to-talk both showed "Didn't catch anything".
+
+If you run the step-2 commands from **Git Bash** rather than PowerShell, put
+`export MSYS_NO_PATHCONV=1` first. Otherwise Git Bash rewrites `/data/local/tmp/...` into a
+Windows path and `adb push` hangs without copying anything.
+
 ## 3. If a model is missing
 
 `SpeechRecognizerManager` logs `IndicConformer files missing for language=...` (tag
-`ITANTRA_PERF_STT`) and returns an empty transcript, so the message editor still opens and the
-user can type. Nothing crashes.
+`ITANTRA_PERF_STT`) and returns an empty transcript. The app then checks
+`SpeechEngine.canTranscribe(language)`. When the model is missing it shows "Speech recognition
+for this language isn't installed on this phone. You can still type your message." instead of
+"Didn't catch anything", and logs `nothing heard, modelMissing=true` (tag `ITANTRA_LATENCY`).
+Nothing crashes. The fix is to push the files again (step 2).
 
 ## Rules kept from the earlier prototype
 
