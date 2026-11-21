@@ -25,7 +25,8 @@ import kotlinx.coroutines.flow.SharedFlow
 /** Observable DTN events for the product UI, TTS boundary and metrics. Never carries relay plaintext. */
 sealed interface DtnEvent {
     /** This phone is the authenticated end recipient. The only path that may trigger TTS. */
-    data class MessageDelivered(val message: DeliveredMessage, val from: TrustedContact) : DtnEvent
+    /** [priority] is the end-to-end authenticated copy from the opened payload, not just the outer header. */
+    data class MessageDelivered(val message: DeliveredMessage, val from: TrustedContact, val priority: Priority = Priority.NORMAL) : DtnEvent
     data class OutgoingStateChanged(val message: OutgoingMessage) : DtnEvent
     data class BundleStored(val bundleKeyShort: String, val origin: BundleOrigin, val tokens: Int, val hopCount: Int) : DtnEvent
     data class BundleRemoved(val bundleKeyShort: String, val reason: String) : DtnEvent
@@ -341,7 +342,7 @@ class DtnNode(
         val receipt = crypto.createReceipt(identity, opened.from, message, clock.wallMs())
         store.putBundle(newLocalBundle(receipt.bundle, receipt.bundle.priority))
         markSeen(receipt.bundle)
-        emit(DtnEvent.MessageDelivered(delivered, opened.from))
+        emit(DtnEvent.MessageDelivered(delivered, opened.from, bundle.priority))
     }
 
     private fun acceptReceipt(opened: OpenedPayload.Receipt) {
