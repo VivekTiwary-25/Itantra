@@ -1,7 +1,20 @@
 package com.chmod777.itantra.network
 
+import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.SystemClock
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
+import com.chmod777.itantra.MainActivity
+import com.chmod777.itantra.R
 import com.chmod777.itantra.crypto.shortHex
 import com.chmod777.itantra.crypto.toHex
 import com.chmod777.itantra.dtn.DeliveryState
@@ -31,6 +44,8 @@ data class ProductDelivery(
     val senderName: String,
     /** This phone's elapsedRealtimeNanos when the DTN layer accepted the message. */
     val deliveredAtElapsedNs: Long,
+    /** End-to-end authenticated priority flag (the inner payload must match the bundle header). */
+    val urgent: Boolean = false,
 )
 
 /**
@@ -43,28 +58,40 @@ data class ProductDelivery(
 object ItantraNetwork {
     private val pending = MutableStateFlow<List<ProductDelivery>>(emptyList())
     private var collecting = false
+    private lateinit var appContext: Context
+    private lateinit var prefs: SharedPreferences
+
+    /** Set by the activity; urgent arrivals post a notification only while the UI is not visible. */
+    @Volatile var appInForeground: Boolean = false
 
     fun init(context: Context) {
         NetworkingRuntime.init(context)
         synchronized(this) {
             if (collecting) return
             collecting = true
+            appContext = context.applicationContext
+            prefs = appContext.getSharedPreferences("itantra_product", Context.MODE_PRIVATE)
         }
+        createMessageChannel()
         // Process-scoped so deliveries that arrive while no screen is open are not lost.
         NetworkingRuntime.scope.launch {
             NetworkingRuntime.dtn.events.filterIsInstance<DtnEvent.MessageDelivered>().collect { event ->
+                val urgent = event.priority == Priority.URGENT
                 val delivery = ProductDelivery(
                     bundleIdHex = event.message.bundleId.toHex(),
                     text = event.message.text,
                     languageCode = event.message.language,
                     senderName = event.from.localName,
                     deliveredAtElapsedNs = SystemClock.elapsedRealtimeNanos(),
+                    urgent = urgent,
                 )
+                if (urgent) rememberUrgent(delivery.bundleIdHex)
                 NetworkingRuntime.metrics.record(
                     "product_delivered",
                     mapOf("bundle" to event.message.bundleId.shortHex(), "lang" to event.message.language, "t_delivered_ns" to delivery.deliveredAtElapsedNs),
                 )
                 pending.value = pending.value + delivery
+                if (urgent && !appInForeground) notifyUrgent(delivery)
             }
         }
     }
@@ -93,7 +120,21 @@ object ItantraNetwork {
             "product_queued",
             mapOf("bundle" to outgoing.bundleId.shortHex(), "lang" to languageCode, "t_queued_ns" to SystemClock.elapsedRealtimeNanos()),
         )
-        outgoing.bundleId.toHex()
+        val bundleIdHex = outgoing.bundleId.toHex()
+        if (urgent) rememberUrgent(bundleIdHex)
+        bundleIdHex
+    }
+
+    /**
+     * Whether a sent or received message was Urgent. The DTN store does not persist the
+     * priority of plaintext records, so the product layer remembers it at queue/delivery time.
+     */
+    fun isUrgent(bundleIdHex: String): Boolean = prefs.getStringSet(KEY_URGENT, emptySet())!!.contains(bundleIdHex)
+
+    @Synchronized
+    private fun rememberUrgent(bundleIdHex: String) {
+        val current = prefs.getStringSet(KEY_URGENT, emptySet())!!
+        prefs.edit().putStringSet(KEY_URGENT, current + bundleIdHex).apply()
     }
 
     /** Sender state changes: QUEUED → RELAYED → DELIVERED (verified receipt only) / EXPIRED / UNKNOWN. */
@@ -117,4 +158,36 @@ object ItantraNetwork {
     fun recordProductTiming(event: String, fields: Map<String, Any?> = emptyMap()) {
         NetworkingRuntime.metrics.record(event, fields + ("t_event_ns" to SystemClock.elapsedRealtimeNanos()))
     }
+
+    private fun createMessageChannel() {
+        appContext.getSystemService(NotificationManager::class.java).createNotificationChannel(
+            NotificationChannel(MESSAGE_CHANNEL_ID, "Urgent messages", NotificationManager.IMPORTANCE_HIGH).apply {
+                description = "Urgent private messages from trusted contacts"
+            },
+        )
+    }
+
+    private fun notifyUrgent(delivery: ProductDelivery) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(appContext, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) return
+        val open = Intent(appContext, MainActivity::class.java)
+            .putExtra(MainActivity.EXTRA_OPEN_BUNDLE, delivery.bundleIdHex)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        val requestCode = delivery.bundleIdHex.hashCode()
+        val pendingIntent = PendingIntent.getActivity(appContext, requestCode, open, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        val notification = NotificationCompat.Builder(appContext, MESSAGE_CHANNEL_ID)
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle("Urgent · ${delivery.senderName}")
+            .setContentText(delivery.text)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+            .build()
+        runCatching { NotificationManagerCompat.from(appContext).notify(requestCode, notification) }
+    }
+
+    private const val KEY_URGENT = "urgent_bundles"
+    private const val MESSAGE_CHANNEL_ID = "urgent_messages"
 }
